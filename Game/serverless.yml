@@ -1,7 +1,7 @@
 service: Game
 plugins:
   - serverless-webpack
-  - serverless-offline
+  # - serverless-offline
   - serverless-prune-plugin
 provider:
   name: aws
