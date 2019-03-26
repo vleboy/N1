@@ -4,18 +4,9 @@ Game:{
 }
 N1:{
     Game            // 游戏相关数据表，定时账单统计
-    Javis           // 业务相关数据表
-    
     Hera            // 对外SDK的API
     up-n1           // N1后台接口
     up-n1-agent     // N1代理后台接口
-}
-
-N2:{
-    sls-db-n2       // N2数据表
-    
-    up-n2           // N2后台接口
-    up-n2-agent     // N2代理后台接口
 }
 
 ##首先设置TOKEN密钥
