@@ -80,7 +80,7 @@ const checkRound = async (e, c, cb) => {
         }
         // 并发执行
         await Promise.all(promiseAll)
-        console.log(`有${fixArr.length}条数据需要修正`)
+        console.log(`有${fixArr.length}条数据修正`)
         let start = 0, end = 0
         if (fixArr.length > 0) {
             let token = await jwt.sign({
