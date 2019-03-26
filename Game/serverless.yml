@@ -477,454 +477,236 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
-    
-     ZeusPlatformUser: #用户表
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ZeusPlatformUser
-        AttributeDefinitions:
-          -
-            AttributeName: userId
-            AttributeType: S
-          -
-            AttributeName: role
-            AttributeType: S
-          -
-            AttributeName: username
-            AttributeType: S
-          # -
-          #   AttributeName: suffix
-          #   AttributeType: S
-          -
-            AttributeName: parent
-            AttributeType: S
-          -
-            AttributeName: displayId
-            AttributeType: N
-        KeySchema:
-          -
-            AttributeName: role
-            KeyType: HASH
-          -
-            AttributeName: userId
-            KeyType: RANGE
-        BillingMode: PAY_PER_REQUEST
-        GlobalSecondaryIndexes:
-          # - 
-          #   IndexName: RoleSuffixIndex
-          #   KeySchema:
-          #     -
-          #       AttributeName: role
-          #       KeyType: HASH
-          #     -
-          #       AttributeName: suffix
-          #       KeyType: RANGE
-          #   Projection:
-          #     ProjectionType: ALL
-          #   ProvisionedThroughput:
-          #     ReadCapacityUnits: 5
-          #     WriteCapacityUnits: 5
-          -
-            IndexName: RoleUsernameIndex
-            KeySchema:
-              -
-                AttributeName: role
-                KeyType: HASH
-              -
-                AttributeName: username
-                KeyType: RANGE
-            Projection:
-              ProjectionType: ALL
-            # ProvisionedThroughput:
-            #   ReadCapacityUnits: 1
-            #   WriteCapacityUnits: 1
-          -
-            IndexName: RoleParentIndex
-            KeySchema:
-              -
-                AttributeName: role
-                KeyType: HASH
-              -
-                AttributeName: parent
-                KeyType: RANGE
-            Projection:
-              ProjectionType: ALL
-            # ProvisionedThroughput:
-            #   ReadCapacityUnits: 1
-            #   WriteCapacityUnits: 1
-          -
-            IndexName: UserIdIndex
-            KeySchema:
-              -
-                AttributeName: userId
-                KeyType: HASH
-            Projection:
-              ProjectionType: ALL
-            # ProvisionedThroughput:
-            #   ReadCapacityUnits: 1
-            #   WriteCapacityUnits: 1
-          -
-            IndexName: merchantIdIndex
-            KeySchema:
-              -
-                AttributeName: displayId
-                KeyType: HASH
-            Projection:
-              ProjectionType: ALL
-        #     ProvisionedThroughput:
-        #       ReadCapacityUnits: 1
-        #       WriteCapacityUnits: 1            
-        # ProvisionedThroughput:
-        #   ReadCapacityUnits: 1
-        #   WriteCapacityUnits: 1
-        StreamSpecification:
-          StreamViewType: NEW_AND_OLD_IMAGES
-
-    #移植第三阶段
-    ZeusPlatformUser: #用户表
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ZeusPlatformUser
-        AttributeDefinitions:
-          -
-            AttributeName: userId
-            AttributeType: S
-          -
-            AttributeName: role
-            AttributeType: S
-          -
-            AttributeName: username
-            AttributeType: S
-          # -
-          #   AttributeName: suffix
-          #   AttributeType: S
-          -
-            AttributeName: parent
-            AttributeType: S
-          -
-            AttributeName: displayId
-            AttributeType: N
-        KeySchema:
-          -
-            AttributeName: role
-            KeyType: HASH
-          -
-            AttributeName: userId
-            KeyType: RANGE
-        BillingMode: PAY_PER_REQUEST
-        GlobalSecondaryIndexes:
-          # - 
-          #   IndexName: RoleSuffixIndex
-          #   KeySchema:
-          #     -
-          #       AttributeName: role
-          #       KeyType: HASH
-          #     -
-          #       AttributeName: suffix
-          #       KeyType: RANGE
-          #   Projection:
-          #     ProjectionType: ALL
-          #   ProvisionedThroughput:
-          #     ReadCapacityUnits: 5
-          #     WriteCapacityUnits: 5
-          -
-            IndexName: RoleUsernameIndex
-            KeySchema:
-              -
-                AttributeName: role
-                KeyType: HASH
-              -
-                AttributeName: username
-                KeyType: RANGE
-            Projection:
-              ProjectionType: ALL
-            # ProvisionedThroughput:
-            #   ReadCapacityUnits: 1
-            #   WriteCapacityUnits: 1
-          -
-            IndexName: RoleParentIndex
-            KeySchema:
-              -
-                AttributeName: role
-                KeyType: HASH
-              -
-                AttributeName: parent
-                KeyType: RANGE
-            Projection:
-              ProjectionType: ALL
-            # ProvisionedThroughput:
-            #   ReadCapacityUnits: 1
-            #   WriteCapacityUnits: 1
-          -
-            IndexName: UserIdIndex
-            KeySchema:
-              -
-                AttributeName: userId
-                KeyType: HASH
-            Projection:
-              ProjectionType: ALL
-            # ProvisionedThroughput:
-            #   ReadCapacityUnits: 1
-            #   WriteCapacityUnits: 1
-          -
-            IndexName: merchantIdIndex
-            KeySchema:
-              -
-                AttributeName: displayId
-                KeyType: HASH
-            Projection:
-              ProjectionType: ALL
-        #     ProvisionedThroughput:
-        #       ReadCapacityUnits: 1
-        #       WriteCapacityUnits: 1            
-        # ProvisionedThroughput:
-        #   ReadCapacityUnits: 1
-        #   WriteCapacityUnits: 1
-        StreamSpecification:
-          StreamViewType: NEW_AND_OLD_IMAGES
-
-    ZeusPlatformBill: #账单表
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ZeusPlatformBill
-        AttributeDefinitions:
-          -
-            AttributeName: sn
-            AttributeType: S
-          -
-            AttributeName: userId
-            AttributeType: S
-          -
-            AttributeName: createdAt
-            AttributeType: N
-        KeySchema:
-          -
-            AttributeName: sn
-            KeyType: HASH
-          -
-            AttributeName: userId
-            KeyType: RANGE
-        BillingMode: PAY_PER_REQUEST
-        GlobalSecondaryIndexes:
-          -
-            IndexName: UserIdIndex
-            KeySchema:
-              -
-                AttributeName: userId
-                KeyType: HASH
-              -
-                AttributeName: createdAt
-                KeyType: RANGE
-            Projection:
-              ProjectionType: ALL
-        #     ProvisionedThroughput:
-        #       ReadCapacityUnits: 1
-        #       WriteCapacityUnits: 1
-        # ProvisionedThroughput:
-        #   ReadCapacityUnits: 1
-        #   WriteCapacityUnits: 1
-        StreamSpecification:
-          StreamViewType: NEW_AND_OLD_IMAGES
-    
-    ZeusPlatformLog: #日志表
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ZeusPlatformLog
-        AttributeDefinitions:
-          -
-            AttributeName: sn
-            AttributeType: S
-          -
-            AttributeName: userId
-            AttributeType: S
-          -
-            AttributeName: role
-            AttributeType: S
-          -
-            AttributeName: createdAt
-            AttributeType: N
-        KeySchema:
-          -
-            AttributeName: sn
-            KeyType: HASH
-          -
-            AttributeName: userId
-            KeyType: RANGE
-        BillingMode: PAY_PER_REQUEST
-        GlobalSecondaryIndexes:
-          -
-            IndexName: LogRoleIndex
-            KeySchema:
-              -
-                AttributeName: role
-                KeyType: HASH
-              -
-                AttributeName: createdAt
-                KeyType: RANGE
-            Projection:
-              ProjectionType: ALL
-        #     ProvisionedThroughput:
-        #       ReadCapacityUnits: 1
-        #       WriteCapacityUnits: 1
-        # ProvisionedThroughput:
-        #   ReadCapacityUnits: 1
-        #   WriteCapacityUnits: 1
-
-    DianaPlatformCompany: #厂商表
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: DianaPlatformCompany
-        AttributeDefinitions:
-          -
-            AttributeName: companyName
-            AttributeType: S
-          -
-            AttributeName: companyId
-            AttributeType: S
-        KeySchema:
-          -
-            AttributeName: companyName
-            KeyType: HASH
-          -
-            AttributeName: companyId
-            KeyType: RANGE
-        BillingMode: PAY_PER_REQUEST
-        # ProvisionedThroughput:
-        #   ReadCapacityUnits: 1
-        #   WriteCapacityUnits: 1
-
-    DianaPlatformGame: #游戏表
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: DianaPlatformGame
-        AttributeDefinitions:
-          -
-            AttributeName: gameType
-            AttributeType: S
-          -
-            AttributeName: gameId
-            AttributeType: S
-          -
-            AttributeName: kindId
-            AttributeType: S
-          -
-            AttributeName: gameName
-            AttributeType: S
-        KeySchema:
-          -
-            AttributeName: gameType
-            KeyType: HASH
-          -
-            AttributeName: gameId
-            KeyType: RANGE
-        BillingMode: PAY_PER_REQUEST
-        GlobalSecondaryIndexes:
-          -
-            IndexName: GameNameIndex
-            KeySchema:
-              -
-                AttributeName: gameType
-                KeyType: HASH
-              -
-                AttributeName: gameName
-                KeyType: RANGE
-            Projection:
-              ProjectionType: ALL
-            ProvisionedThroughput:
-              ReadCapacityUnits: 1
-              WriteCapacityUnits: 1
-          -
-            IndexName: KindIdIndex
-            KeySchema:
-              -
-                AttributeName: kindId
-                KeyType: HASH
-            Projection:
-              ProjectionType: ALL
-        #     ProvisionedThroughput:
-        #       ReadCapacityUnits: 1
-        #       WriteCapacityUnits: 1
-        # ProvisionedThroughput:
-        #   ReadCapacityUnits: 1
-        #   WriteCapacityUnits: 1
-
-    SYSConfig: #系统配置表
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: SYSConfig
-        AttributeDefinitions:
-          -
-            AttributeName: code
-            AttributeType: S
-        KeySchema:
-          -
-            AttributeName: code
-            KeyType: HASH
-        BillingMode: PAY_PER_REQUEST
-        # ProvisionedThroughput:
-        #   ReadCapacityUnits: 1
-        #   WriteCapacityUnits: 1
-   
-    # SYSLock: #全局锁
+              
+    # #移植第三阶段
+    # ZeusPlatformUser: #用户表
     #   Type: AWS::DynamoDB::Table
     #   Properties:
-    #     TableName: SYSLock
+    #     TableName: ZeusPlatformUser
     #     AttributeDefinitions:
     #       -
-    #         AttributeName: sn
+    #         AttributeName: userId
     #         AttributeType: S
+    #       -
+    #         AttributeName: role
+    #         AttributeType: S
+    #       -
+    #         AttributeName: username
+    #         AttributeType: S
+    #       # -
+    #       #   AttributeName: suffix
+    #       #   AttributeType: S
+    #       -
+    #         AttributeName: parent
+    #         AttributeType: S
+    #       -
+    #         AttributeName: displayId
+    #         AttributeType: N
     #     KeySchema:
     #       -
-    #         AttributeName: sn
+    #         AttributeName: role
     #         KeyType: HASH
+    #       -
+    #         AttributeName: userId
+    #         KeyType: RANGE
     #     BillingMode: PAY_PER_REQUEST
-    
-    # UserRankStat: #用户排行榜
+    #     GlobalSecondaryIndexes:
+    #       -
+    #         IndexName: RoleUsernameIndex
+    #         KeySchema:
+    #           -
+    #             AttributeName: role
+    #             KeyType: HASH
+    #           -
+    #             AttributeName: username
+    #             KeyType: RANGE
+    #         Projection:
+    #           ProjectionType: ALL
+    #       -
+    #         IndexName: RoleParentIndex
+    #         KeySchema:
+    #           -
+    #             AttributeName: role
+    #             KeyType: HASH
+    #           -
+    #             AttributeName: parent
+    #             KeyType: RANGE
+    #         Projection:
+    #           ProjectionType: ALL
+    #       -
+    #         IndexName: UserIdIndex
+    #         KeySchema:
+    #           -
+    #             AttributeName: userId
+    #             KeyType: HASH
+    #         Projection:
+    #           ProjectionType: ALL
+    #       -
+    #         IndexName: merchantIdIndex
+    #         KeySchema:
+    #           -
+    #             AttributeName: displayId
+    #             KeyType: HASH
+    #         Projection:
+    #           ProjectionType: ALL
+    #     StreamSpecification:
+    #       StreamViewType: NEW_AND_OLD_IMAGES
+
+    # ZeusPlatformBill: #账单表
     #   Type: AWS::DynamoDB::Table
     #   Properties:
-    #     TableName: UserRankStat
-    #     AttributeDefinitions:
-    #       -
-    #         AttributeName: userName
-    #         AttributeType: S
-    #       # -
-    #       #   AttributeName: balance
-    #       #   AttributeType: N
-    #       # -
-    #       #   AttributeName: bet
-    #       #   AttributeType: N
-    #       # -
-    #       #   AttributeName: win
-    #       #   AttributeType: N
-    #     KeySchema:
-    #       -
-    #         AttributeName: userName
-    #         KeyType: HASH
-    #       # -
-    #       #   AttributeName: balance
-    #       #   KeyType: RANGE
-    #     ProvisionedThroughput:
-    #       ReadCapacityUnits: 5
-    #       WriteCapacityUnits: 10
-    
-    # SYSMystery: #神秘大奖
-    #   Type: AWS::DynamoDB::Table
-    #   Properties:
-    #     TableName: SYSMystery
+    #     TableName: ZeusPlatformBill
     #     AttributeDefinitions:
     #       -
     #         AttributeName: sn
     #         AttributeType: S
     #       -
-    #         AttributeName: winAt
+    #         AttributeName: userId
+    #         AttributeType: S
+    #       -
+    #         AttributeName: createdAt
     #         AttributeType: N
     #     KeySchema:
     #       -
     #         AttributeName: sn
     #         KeyType: HASH
     #       -
-    #         AttributeName: winAt
+    #         AttributeName: userId
     #         KeyType: RANGE
-    #     ProvisionedThroughput:
-    #       ReadCapacityUnits: 1
-    #       WriteCapacityUnits: 1
+    #     BillingMode: PAY_PER_REQUEST
+    #     GlobalSecondaryIndexes:
+    #       -
+    #         IndexName: UserIdIndex
+    #         KeySchema:
+    #           -
+    #             AttributeName: userId
+    #             KeyType: HASH
+    #           -
+    #             AttributeName: createdAt
+    #             KeyType: RANGE
+    #         Projection:
+    #           ProjectionType: ALL
+    #     StreamSpecification:
+    #       StreamViewType: NEW_AND_OLD_IMAGES
+    
+    # ZeusPlatformLog: #日志表
+    #   Type: AWS::DynamoDB::Table
+    #   Properties:
+    #     TableName: ZeusPlatformLog
+    #     AttributeDefinitions:
+    #       -
+    #         AttributeName: sn
+    #         AttributeType: S
+    #       -
+    #         AttributeName: userId
+    #         AttributeType: S
+    #       -
+    #         AttributeName: role
+    #         AttributeType: S
+    #       -
+    #         AttributeName: createdAt
+    #         AttributeType: N
+    #     KeySchema:
+    #       -
+    #         AttributeName: sn
+    #         KeyType: HASH
+    #       -
+    #         AttributeName: userId
+    #         KeyType: RANGE
+    #     BillingMode: PAY_PER_REQUEST
+    #     GlobalSecondaryIndexes:
+    #       -
+    #         IndexName: LogRoleIndex
+    #         KeySchema:
+    #           -
+    #             AttributeName: role
+    #             KeyType: HASH
+    #           -
+    #             AttributeName: createdAt
+    #             KeyType: RANGE
+    #         Projection:
+    #           ProjectionType: ALL
+
+    # DianaPlatformCompany: #厂商表
+    #   Type: AWS::DynamoDB::Table
+    #   Properties:
+    #     TableName: DianaPlatformCompany
+    #     AttributeDefinitions:
+    #       -
+    #         AttributeName: companyName
+    #         AttributeType: S
+    #       -
+    #         AttributeName: companyId
+    #         AttributeType: S
+    #     KeySchema:
+    #       -
+    #         AttributeName: companyName
+    #         KeyType: HASH
+    #       -
+    #         AttributeName: companyId
+    #         KeyType: RANGE
+    #     BillingMode: PAY_PER_REQUEST
+
+    # DianaPlatformGame: #游戏表
+    #   Type: AWS::DynamoDB::Table
+    #   Properties:
+    #     TableName: DianaPlatformGame
+    #     AttributeDefinitions:
+    #       -
+    #         AttributeName: gameType
+    #         AttributeType: S
+    #       -
+    #         AttributeName: gameId
+    #         AttributeType: S
+    #       -
+    #         AttributeName: kindId
+    #         AttributeType: S
+    #       -
+    #         AttributeName: gameName
+    #         AttributeType: S
+    #     KeySchema:
+    #       -
+    #         AttributeName: gameType
+    #         KeyType: HASH
+    #       -
+    #         AttributeName: gameId
+    #         KeyType: RANGE
+    #     BillingMode: PAY_PER_REQUEST
+    #     GlobalSecondaryIndexes:
+    #       -
+    #         IndexName: GameNameIndex
+    #         KeySchema:
+    #           -
+    #             AttributeName: gameType
+    #             KeyType: HASH
+    #           -
+    #             AttributeName: gameName
+    #             KeyType: RANGE
+    #         Projection:
+    #           ProjectionType: ALL
+    #         ProvisionedThroughput:
+    #           ReadCapacityUnits: 1
+    #           WriteCapacityUnits: 1
+    #       -
+    #         IndexName: KindIdIndex
+    #         KeySchema:
+    #           -
+    #             AttributeName: kindId
+    #             KeyType: HASH
+    #         Projection:
+    #           ProjectionType: ALL
+
+    # SYSConfig: #系统配置表
+    #   Type: AWS::DynamoDB::Table
+    #   Properties:
+    #     TableName: SYSConfig
+    #     AttributeDefinitions:
+    #       -
+    #         AttributeName: code
+    #         AttributeType: S
+    #     KeySchema:
+    #       -
+    #         AttributeName: code
+    #         KeyType: HASH
+    #     BillingMode: PAY_PER_REQUEST
+   
