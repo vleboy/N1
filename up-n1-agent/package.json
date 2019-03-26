@@ -1,0 +1,34 @@
+{
+  "name": "up-agent",
+  "version": "1.0.0",
+  "description": "UP代理系统",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app"
+  },
+  "author": "rotta",
+  "license": "ISC",
+  "dependencies": {
+    "ali-oss": "^6.1.0",
+    "aws-sdk": "^2.406.0",
+    "axios": "^0.18.0",
+    "bcryptjs": "^2.4.3",
+    "captchapng": "0.0.1",
+    "config": "^3.0.1",
+    "crypto-js": "^3.1.9-1",
+    "jsonwebtoken": "^8.4.0",
+    "koa": "^2.7.0",
+    "koa-body": "^4.0.8",
+    "koa-mount": "^4.0.0",
+    "koa-router": "^7.4.0",
+    "koa-xauth": "^1.2.0",
+    "koa-xerror": "^1.1.0",
+    "koa-xlog": "^1.1.0",
+    "lodash": "^4.17.11",
+    "moment": "^2.24.0",
+    "number-precision": "^1.3.1",
+    "redis": "^2.8.0",
+    "tracer": "^0.9.8",
+    "vaptcha-sdk": "^1.1.2"
+  }
+}

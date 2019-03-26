@@ -1,0 +1,18 @@
+{
+    "headers": {
+        "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6IllaSDAyX3Rlc3QwMSIsInN1ZmZpeCI6IllaSDAyIiwidXNlcklkIjoyOTE0NTgsImlhdCI6MTUzMDg0MDYwM30.gpAToeh9_4pYsDVs9JWzSp4QKiBLqPIyhftUcSvpZ80"
+    },
+    "requestContext": {
+        "authorizer": {
+            "username": "Platform_NAtest",
+            "parent": "00",
+            "role": "1",
+            "userId": "6a478d03-f360-4640-bb12-650e9286b0c5",
+            "principalId": "6a478d03-f360-4640-bb12-650e9286b0c5"
+        },
+        "identity": {
+            "sourceIp": "127.0.0.1"
+        }
+    },
+    "body": {"buId":"259577","apiKey":"bc5e27f7-9132-4044-ada9-0ef43a4743b3","pageSize":1000,"startTime":1544328780000,"endTime":1544329320001}
+}

@@ -1,0 +1,97 @@
+{
+    "log": {
+        "level": "info",
+        "header": {
+            "loglist": [
+                "token"
+            ]
+        }
+    },
+    "error": {
+        "debug": true,
+        "errStatus": 200
+    },
+    "auth": {
+        "secret": "gsy0913",
+        "tokenname": "authorization",
+        "pass": [
+            "/ping",
+            "/captcha",
+            "/auth",
+            "/agentLogin",
+            "/sysConfig",
+            "/pushMystery",
+            "/getSnInfo/*",
+            "/game/login",
+            "/game/settlement",
+            "/game/player/record",
+            "/notice/info",
+            "/email/info",
+            "/game/seat/list",
+            "/game/package/list",
+            "/game/tool/list",
+            "/merchant/info",
+            "/game/queue",
+            "/game/status",
+            "/game/advert/list/*",
+            "/player/bill/flow/download",
+            "/player/bill/detail/download",
+            "/game/player/state",
+            "/vaptcha/*"
+        ],
+        "role": {
+            "1": [
+                ".*"
+            ],
+            "1000": [
+                ".*"
+            ],
+            "player": [
+                "/game/*"
+            ],
+            "financialStaff": [
+                "GET:/financial/test1",
+                "POST:/financial/test2"
+            ]
+        },
+        "cors": true,
+        "errMsg": "未认证",
+        "errStatus": 200
+    },
+    "vaptcha": {
+        "vid": "5ae3d6fba485e10410d199bb",
+        "key": "a66f5daccac342b6a0a31219ed410a97"
+    },
+    "env": {
+        "name": "DEV",
+        "IMG_BUCKET": "image-na-dev",
+        "APP_VERSION": "6000",
+        "NA_CENTER": "47.88.192.69",
+        "ANOTHER_GAME_CENTER": "ext.na77.org",
+        "NA_LIVE_URL": "http://103.5.4.246:48080/gate/player/login",
+        "NA_LIVE_CHIP": "http://103.5.4.246:48080/gate/player/findUserAvailableChip",
+        "GAME_CENTER": "dgjmusja39cm2.cloudfront.net",
+        "TABLE_NAMES": {
+            "TABLE_USER": "HeraGamePlayer",
+            "SYSConfig": "SYSConfig",
+            "SYSConfigMult": "SYSConfigMult",
+            "HeraGameRecord": "HeraGameRecord",
+            "PLATFORM_BILL": "ZeusPlatformBill",
+            "TABLE_MERCHANT": "ZeusPlatformUser",
+            "PlayerBillDetail": "PlayerBillDetail",
+            "SYSCacheBalance": "SYSCacheBalance",
+            "ZeusPlatformLog": "ZeusPlatformLog",
+            "StatRound": "StatRound",
+            "StatRoundDay": "StatRoundDay",
+            "SYSRolePermission": "SYSSubRole",
+            "HawkeyeGameEmail": "HawkeyeGameEmail",
+            "HulkPlatformAd": "HulkPlatformAd",
+            "HawkeyeGameNotice": "HawkeyeGameNotice",
+            "DianaPlatformTool": "DianaPlatformTool",
+            "TOOL_PACKAGE": "DianaPlatformPackage",
+            "TOOL_SEAT": "DianaPlatformSeat",
+
+            "ZeusPlatformCaptcha": "ZeusPlatformCaptcha"
+        }
+    }
+}

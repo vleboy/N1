@@ -1,0 +1,208 @@
+{
+    "log": {
+        "level": "info",
+        "header": {
+            "loglist": [
+                "token"
+            ]
+        }
+    },
+    "error": {
+        "debug": true
+    },
+    "auth": {
+        "secret": "na-api-game",
+        "tokenname": "authorization",
+        "cors": true,
+        "errMsg": "未认证",
+        "errStatus": 200,
+        "pass": [
+            "/deploy/na",
+            "/deploy/web2",
+            "/auth",
+            "/socket/*",
+            "/static/*",
+            "/webapi/*",
+            "/ttg/*",
+            "/ttgweb/*",
+            "/sa/*",
+            "/cq9/*",
+            "/mg/*",
+            "/ag/*",
+            "/ug/*",
+            "/sb/wallet/token",
+            "/sb/gameurl/*",
+            "/sb/logout/*",
+            "/ysb/*",
+            "/rtg/*",
+            "/dt/*",
+            "/pp/*",
+            "/pg/*",
+            "/png/*",
+            "/haba/*"
+        ]
+    },
+    "na": {
+        "center": "47.74.152.121",
+        "apidomain": "webgame.na77.org",
+        "joingameurl": "https://api.na12345.com/dev/game/player/join",
+        "settlementurl": "https://api.na12345.com/dev/game/settlement",
+        "exiturl": "https://api.na12345.com/dev/game/postTransfer",
+        "fixPlayerRoundDayUrl": "https://webgame.na77.org/stat/fixPlayerRoundDay"
+    },
+    "companyMap": {
+        "1010000": "TTG",
+        "1060000": "SA",
+        "1110000": "SA",
+        "10300000": "MG",
+        "1050000": "AG",
+        "1130000": "YSB",
+        "1140000": "RTG",
+        "1080000": "SB",
+        "1120000": "SB",
+        "1150000": "DT",
+        "1160000": "PP",
+        "1020000": "PNG",
+        "1040000": "HABA",
+        "1070000": "MAYA",
+        "1090000": "PG"
+    },
+    "ttg": {
+        "tokenurl": "https://ams2-api.ttms.co:8443/cip/gametoken/",
+        "gameType": "1010000",
+        "gameKey": "7e5e93e2-20c3-4cb7-8b01-a1315c644730",
+        "gameurl": "http://ams2-games.ttms.co/casino/default/game/game.html"
+    },
+    "sa": {
+        "gameType": "1060000",
+        "gameId": "1060001",
+        "fishGameType": "1110000",
+        "fishGameId": "1110001",
+        "gameKey": "45fbe040-c4c3-4635-a782-a2fd6851b6b6",
+        "appurl": "https://yg.sa-api2.com/app.aspx",
+        "apiurl": "http://api.sa-gaming.net/api/api.aspx",
+        "secretkey": "13A1B95A0E574591923B6AE06AE14173",
+        "md5key": "GgaIMaiNNtg",
+        "encryptKey": "g9G16nTs",
+        "lobbyCode": "A376"
+    },
+    "cq9": {
+        "gameType": "1100000",
+        "gameId": "1100001",
+        "gameKey": "278ec432-7c75-4e2d-9efd-17b92507417b",
+        "wtoken": "cq9game"
+    },
+    "mg": {
+        "gameType": "10300000",
+        "gameKey": "c87afeef-255d-40cf-9675-5931c83978af",
+        "launchapi": "https://ag.adminserv88.com/api-web/swa/nvpacific/launch",
+        "currencyCode": "CNY"
+    },
+    "ag": {
+        "gameType": "1050000",
+        "gameKey": "810aec15-cc42-45d6-93fe-ba5be06a6e51",
+        "productid": "BY7",
+        "cagent": "BY7_AGIN",
+        "MD5_Encrypt_key": "QOsC22hABqpR",
+        "DES_Encrypt_key": "pFuEgYzO",
+        "checkOrCreateGameAccoutUrl": "http://gi.na77.org:81/doBusiness.do?",
+        "createAGSessionUrl": "http://swapi.agingames.com:3381/resource/player-tickets.ucs?",
+        "forwardGameUrl": "http://gci.na77.org:81/forwardGame.do?",
+        "checkTicketStatusUrl": "https://swapi.agingames.com/resource/CheckTicketStatus.ucs"
+    },
+    "ug": {
+        "gameType": "1100000",
+        "gameId": "1100001",
+        "gameKey": "b718ef23-a34d-462b-a640-571e5a6a831b",
+        "apikey": "8ddd694b14d1d7c3b4583fac2e268a00",
+        "apiiv": "0000021474836628",
+        "operatorId": "21474836628",
+        "apiurl": "http://shareapi.ugamingservice.com/BackApi/ThirdApi.asmx/"
+    },
+    "sb": {
+        "gameType": "1080000",
+        "videoGameType": "1120000",
+        "gameId": "1080001",
+        "videoGameId": "1120001",
+        "gameKey": "fba181cb-6477-4346-b3f4-24f7cf2709ee",
+        "client_id": "xas8426",
+        "client_secret": "espRovkX0q6mRgMHafkgc6D0gZE3CaVAarHSRKkp5Tb",
+        "apiServer": "https://tgpaccess.com",
+        "launchUrl": "https://tgpasia.com/gamelauncher/custom1",
+        "launchLiveUrl": "https://tgpasia.com/gamelauncher",
+        "lobbySB": "https://tgpasia.com/SBlobby",
+        "lobbyRT": "https://tgpasia.com/RTlobby",
+        "mlobbySB": "https://tgpasia.com/SBmlobby",
+        "mlobbyRT": "https://tgpasia.com/RTmlobby"
+    },
+    "ysb": {
+        "gameType": "1130000",
+        "gameId": "1130001",
+        "gameKey": "f51a5814-f41c-437e-8871-9739fa57b46c",
+        "vendorSecretkey": "RY8TmDC9kC2w4qjS"
+    },
+    "rtg": {
+        "gameType": "1140000",
+        "gameKey": "4db7631a-a5fe-4522-b1cb-5b6530bdf943",
+        "apikey": "61C938ED58874FF3B9AA0F4A93556A0E",
+        "baseUrl": "https://webnewna.rt-services.co/BMZQCDNQMPVSFZWYHAOO/RTGWebAPI/api",
+        "launchUrl": "https://cdknewna.rt-services.co:3072/lobby.aspx"
+    },
+    "ky": {
+        "gameType": "",
+        "gameId": "",
+        "gameKey": "",
+        "apikey": "",
+        "agent": "70144",
+        "desKey": "SRQF8YCFSOIR5TQ6",
+        "md5key": "EVCHIHBIJWYW46S3",
+        "apiUrl": "https://kyapi.ky206.com:189/channelHandle",
+        "recordUrl": "https://kyrecord.ky206.com:190/getRecordHandle"
+    },
+    "dt": {
+        "gameType": "1150000",
+        "gameKey": "1a44cae9-e10e-4c6f-be54-19e39de1bf40",
+        "merchantCode": "NNTI_MTECH_NAAJ",
+        "apiKey": "jCorjKbR9z4fYHjS9m8S3w==",
+        "dturl": "http://api-dtservice.com/dreamTechApi.html",
+        "launchUrl": "http://play.dreamtech8.com/playSlot.aspx"
+    },
+    "pp": {
+        "gameType": "1160000",
+        "gameKey": "465e9f99-4b02-4e18-b39a-4c2d9d0377e0",
+        "launchUrl": "https://xin-tw.pragmaticplay.net/gs2c/playGame.do",
+        "freeLaunchUrl": "https://demogamesfree-asia.pragmaticplay.net/gs2c/openGame.do",
+        "secureLogin": "xin_na",
+        "providerId": "PragmaticPlay",
+        "hashKey": "Ixuy8_iKr35ZL"
+    },
+    "png": {
+        "gameType": "1020000",
+        "gameKey": "68f48ea3-c718-4ea0-a50a-82ef72c75131",
+        "launchUrl":"https://agacw.playngonetwork.com/casino/PlayMobile",
+        "pid":"320",
+        "brandId":"XYZ"
+    },
+    "haba": {
+        "gameType": "1040000",
+        "gameKey": "9e2dfc82-93bb-44f4-925a-34bf212ad231",
+        "brandid":"40c6d2c4-d4cd-e811-81ab-000d3a805b30",
+        "apikey":"C53C83EE-CF6F-4E51-B85B-4E36D2D69716",
+        "launchUrl":"https://app-a.insvr.com/go.ashx"
+    },
+    "pg": {
+        "gameType": "1090000",
+        "gameKey": "465f5898-6103-4c8e-9db2-bcf4f3afc5ce",
+        "operator_token":"F4A04F25-7515-4CC5-8707-D86F39E451AF",
+        "secret_key":"64W7GZ94FJL3791HHTJ6Q07Q1BWRTOTH",
+        "launchUrl":"https://m.pgnojk.com"
+    },
+    "maya": {
+        "gameType": "1070000",
+        "gameKey": ""
+    },
+    "server": {
+        "port": 3000,
+        "staticRoot": "/static/"
+    }
+}

@@ -1,0 +1,96 @@
+{
+    "log": {
+        "level": "info",
+        "header": {
+            "loglist": [
+                "token"
+            ]
+        }
+    },
+    "error": {
+        "debug": true,
+        "errStatus": 200
+    },
+    "auth": {
+        "secret": "gsy0913",
+        "tokenname": "authorization",
+        "pass": [
+            "/ping",
+            "/captcha",
+            "/auth",
+            "/agentLogin",
+            "/sysConfig",
+            "/pushMystery",
+            "/getSnInfo/*",
+            "/game/login",
+            "/game/settlement",
+            "/game/player/record",
+            "/notice/info",
+            "/email/info",
+            "/game/seat/list",
+            "/game/package/list",
+            "/game/tool/list",
+            "/merchant/info",
+            "/game/queue",
+            "/game/status",
+            "/game/advert/list/*",
+            "/player/bill/flow/download",
+            "/player/bill/detail/download",
+            "/game/player/state",
+            "/vaptcha/*"
+        ],
+        "role": {
+            "1": [
+                ".*"
+            ],
+            "1000": [
+                ".*"
+            ],
+            "player": [
+                "/game/*"
+            ],
+            "financialStaff": [
+                "GET:/financial/test1",
+                "POST:/financial/test2"
+            ]
+        },
+        "cors": true,
+        "errMsg": "未认证",
+        "errStatus": 200
+    },
+    "vaptcha": {
+        "vid": "5ae3d6fba485e10410d199bb",
+        "key": "a66f5daccac342b6a0a31219ed410a97"
+    },
+    "env": {
+        "IMG_BUCKET": "img.na77.com",
+        "APP_VERSION": "6000",
+        "NA_CENTER": "47.74.152.121",
+        "ANOTHER_GAME_CENTER": "webgame.na77.org",
+        "NA_LIVE_URL": "http://lgate.na12345.com:8082/gate/player/login",
+        "NA_LIVE_CHIP": "http://lgate.na12345.com:8082/gate/player/findUserAvailableChip",
+        "GAME_CENTER": "n1game.na12345.com",
+        "N2_CENTER":"n2agent.na12345.com",
+        "TABLE_NAMES": {
+            "TABLE_USER": "AgentPlayer",
+            "SYSConfig": "AgentConfig",
+            "SYSConfigMult": "AgentConfigMult",
+            "HeraGameRecord": "AgentGameRecord",
+            "HawkeyeGameNotice": "AgentNotice",
+            "HulkPlatformAd": "AgentAd",
+            "PLATFORM_BILL": "AgentBill",
+            "TABLE_MERCHANT": "AgentUser",
+            "PlayerBillDetail": "AgentPlayerBill",
+            "ZeusPlatformLog": "AgentLog",
+            "ZeusPlatformCaptcha": "AgentCaptcha",
+            "StatRound": "AgentRound",
+            "StatRoundDay": "AgentRoundDay",
+            "SYSRolePermission": "AgentSubRole",
+            "HawkeyeGameEmail": "AgentEmail",
+            "DianaPlatformTool": "AgentTool",
+            "TOOL_SEAT": "AgentSeat",
+            "TOOL_PACKAGE": "AgentPackage",
+            "SYSCacheBalance": "AgentUserCache"
+        }
+    }
+}

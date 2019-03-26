@@ -1,0 +1,115 @@
+{
+    "log": {
+        "level": "info",
+        "header": {
+            "loglist": [
+                "token"
+            ]
+        }
+    },
+    "error": {
+        "debug": true,
+        "errStatus": 200
+    },
+    "auth": {
+        "secret": "gsy0913",
+        "tokenname": "authorization",
+        "pass": [
+            "/ping",
+            "/ipquery",
+            "/captcha",
+            "/auth",
+            "/agentLogin",
+            "/sysConfig",
+            "/pushMystery",
+            "/getSnInfo/*",
+            "/game/login",
+            "/game/settlement",
+            "/game/player/record",
+            "/notice/info",
+            "/email/info",
+            "/game/seat/list",
+            "/game/package/list",
+            "/game/tool/list",
+            "/merchant/info",
+            "/game/queue",
+            "/game/status",
+            "/game/advert/list/*",
+            "/player/bill/flow/download",
+            "/player/bill/detail/download",
+            "/player/balance/*",
+            "/game/player/state",
+            "/vaptcha/*",
+            "/externUserStat",
+            "/externPlayerStat",
+            "/redistest",
+            "/configMultList",
+            "/statistics/userRank",
+            "/game/prop/buy",
+            "/player/gameList/*"
+        ],
+        "role": {
+            "1": [
+                ".*"
+            ],
+            "10": [
+                ".*"
+            ],
+            "100": [
+                ".*"
+            ],
+            "1000": [
+                ".*"
+            ],
+            "player": [
+                "/game/*"
+            ],
+            "financialStaff": [
+                "GET:/financial/test1",
+                "POST:/financial/test2"
+            ]
+        },
+        "cors": true,
+        "errMsg": "未认证",
+        "errStatus": 200
+    },
+    "vaptcha": {
+        "vid": "5ae3d6fba485e10410d199bb",
+        "key": "a66f5daccac342b6a0a31219ed410a97"
+    },
+    "env": {
+        "name": "PROD",
+        "IMG_BUCKET": "img.na77.com",
+        "APP_VERSION": "6000",
+        "NA_CENTER": "47.74.152.121",
+        "ANOTHER_GAME_CENTER": "webgame.na77.org",
+        "NALIVE_CENTER": "lgate.na12345.com",
+        "NA_LIVE_URL": "http://lgate.na12345.com/gate/player/login",
+        "NA_LIVE_CHIP": "http://103.5.4.246:48080/gate/player/findUserAvailableChip",
+        "GAME_CENTER": "n1game.na12345.com",
+        "STAT_URL": "9d0pmk96m4.execute-api.ap-southeast-1.amazonaws.com",
+        "TABLE_NAMES": {
+            "TABLE_USER": "HeraGamePlayer",
+            "SYSConfig": "SYSConfig",
+            "SYSConfigMult": "SYSConfigMult",
+            "HeraGameRecord": "HeraGameRecord",
+            "PLATFORM_BILL": "ZeusPlatformBill",
+            "ZeusPlatformUser": "ZeusPlatformUser",
+            "PlayerBillDetail": "PlayerBillDetail",
+            "ZeusPlatformLog": "ZeusPlatformLog",
+            "StatRound": "StatRound",
+            "StatRoundDay": "StatRoundDay",
+            "SYSRolePermission": "SYSSubRole",
+            "SYSCacheBalance": "SYSCacheBalance",
+            "HawkeyeGameEmail": "HawkeyeGameEmail",
+            "HulkPlatformAd": "HulkPlatformAd",
+            "HawkeyeGameNotice": "HawkeyeGameNotice",
+            "DianaPlatformTool": "DianaPlatformTool",
+            "TOOL_PACKAGE": "DianaPlatformPackage",
+            "TOOL_SEAT": "DianaPlatformSeat",
+            "SYSTransfer": "SYSTransfer",
+            "SYSMystery": "SYSMystery",
+            "ZeusPlatformCaptcha": "ZeusPlatformCaptcha"
+        }
+    }
+}

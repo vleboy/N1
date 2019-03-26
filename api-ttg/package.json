@@ -1,0 +1,33 @@
+{
+  "name": "api-webgame",
+  "version": "1.0.0",
+  "dependencies": {
+    "@koa/cors": "^3.0.0",
+    "aws-sdk": "^2.422.0",
+    "axios": "^0.18.0",
+    "config": "^3.0.1",
+    "crypto-js": "^3.1.9-1",
+    "ip2region": "^1.6.0",
+    "jsonwebtoken": "^8.5.0",
+    "koa": "^2.7.0",
+    "koa-body": "^4.1.0",
+    "koa-bodyparser": "^4.2.1",
+    "koa-mount": "^4.0.0",
+    "koa-router": "^7.4.0",
+    "koa-static": "^5.0.0",
+    "koa-xauth": "^1.2.0",
+    "koa-xerror": "^1.1.0",
+    "koa-xlog": "^1.1.0",
+    "koa-xml-body": "^2.1.0",
+    "legacy-encoding": "^3.0.0",
+    "lodash": "^4.17.11",
+    "moment": "^2.24.0",
+    "redis": "^2.8.0",
+    "tracer": "^0.9.8",
+    "uuid": "^3.3.2",
+    "xml2js": "^0.4.19"
+  },
+  "scripts": {
+    "start": "node app"
+  }
+}

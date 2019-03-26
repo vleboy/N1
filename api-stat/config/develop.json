@@ -1,0 +1,33 @@
+{
+    "log": {
+        "level": "info",
+        "header": {
+            "loglist": [
+                "token"
+            ]
+        }
+    },
+    "error": {
+        "debug": true
+    },
+    "auth": {
+        "secret": "na-api-stat",
+        "tokenname": "authorization",
+        "cors": true,
+        "errMsg": "未认证",
+        "errStatus": 200,
+        "pass": [
+            "/auth",
+            "/stat/*"
+        ]
+    },
+    "na": {
+        "center": "47.88.192.69",
+        "apidomain": "ext.na77.org",
+        "TOKEN_SECRET":"gsy0913",
+        "domain":"xbbw2jfb58.execute-api.ap-southeast-1.amazonaws.com"
+    },
+    "server": {
+        "port": 4000
+    }
+}

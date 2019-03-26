@@ -1,0 +1,70 @@
+{
+    "log": {
+        "level": "info",
+        "header": {
+            "loglist": [
+                "token"
+            ]
+        }
+    },
+    "error": {
+        "debug": true,
+        "errStatus": 200
+    },
+    "auth": {
+        "secret": "gsy0913",
+        "tokenname": "authorization",
+        "pass": [
+            "/ping",
+            "/gameList"
+        ],
+        "role": {
+            "1": [
+                ".*"
+            ],
+            "10": [
+                ".*"
+            ],
+            "100": [
+                ".*"
+            ],
+            "1000": [
+                ".*"
+            ],
+            "player": [
+                "/game/*"
+            ],
+            "financialStaff": [
+                "GET:/financial/test1",
+                "POST:/financial/test2"
+            ]
+        },
+        "cors": true,
+        "errMsg": "未认证",
+        "errStatus": 200
+    },
+    "env": {
+        "IMG_BUCKET": "image-na-dev",
+        "NA_CENTER": "47.88.192.69",
+        "ANOTHER_GAME_CENTER": "ext.na77.org",
+        "NALIVE_CENTER": "103.5.4.246:48080",
+        "NA_LIVE_URL": "http://103.5.4.246:48080/gate/player/login",
+        "NA_LIVE_CHIP": "http://103.5.4.246:48080/gate/player/findUserAvailableChip",
+        "GAME_CENTER": "1fjvkx51de.execute-api.ap-southeast-1.amazonaws.com/dev",
+        "N1_CENTER": "d3rqtlfdd4m9wd.cloudfront.net",
+        "TABLE_NAMES": {
+            "SYSConfig": "SYSConfig",
+            "SYSConfigMult": "SYSConfigMult",
+            "ZeusPlatformUser": "ZeusPlatformUser",
+            "ZeusPlatformLog": "ZeusPlatformLog",
+            "HawkeyeGameEmail": "HawkeyeGameEmail",
+            "HulkPlatformAd": "HulkPlatformAd",
+            "HawkeyeGameNotice": "HawkeyeGameNotice",
+            "DianaPlatformTool": "DianaPlatformTool",
+            "TOOL_PACKAGE": "DianaPlatformPackage",
+            "TOOL_SEAT": "DianaPlatformSeat",
+            "DianaPlatformGame": "DianaPlatformGame",
+            "DianaPlatformCompany": "DianaPlatformCompany"
+        }
+    }
+}

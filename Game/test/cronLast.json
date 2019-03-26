@@ -1,0 +1,20 @@
+{
+    "headers": {
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxYjc4MzE3Yi0zYzZlLTQyNDQtOTQ4Ny02MWJhNmZhNDRlM2UiLCJyb2xlIjoiMTAwMCIsInN1ZmZpeCI6IkFnZW50IiwidXNlcm5hbWUiOiJOQWFnZW50IiwicGFyZW50IjoiMDAiLCJwYXJlbnROYW1lIjoiU3VwZXJBZG1pbiIsInBhcmVudFJvbGUiOiIwMCIsImRpc3BsYXlOYW1lIjoi5Luj55CG566h55CG5ZGYIiwibGV2ZWwiOjAsInZlZGlvTWl4IjoxLCJsaXZlTWl4IjoxLCJkaXNwbGF5SWQiOjk0OTU2NiwiY29udHJhY3RQZXJpb2QiOjAsImlzZm9yZXZlciI6dHJ1ZSwidXBkYXRlZEF0IjoxNTA5OTQxMjI2MTkzLCJpYXQiOjE1MTI5NzU3MTZ9.EB3dvPNzRlFptzZbHE-VICWeeZ4vd8V3UXJvPDmj7ns"
+    },
+    "requestContext": {
+        "authorizer": {
+            "username": "Platform_NAtest",
+            "parent": "00",
+            "role": "1",
+            "userId": "6a478d03-f360-4640-bb12-650e9286b0c5",
+            "principalId": "6a478d03-f360-4640-bb12-650e9286b0c5"
+        },
+        "identity": {
+            "sourceIp": "127.0.0.1"
+        }
+    },
+    "body": {
+        "calcEndTime": 1518062400000
+    }
+}

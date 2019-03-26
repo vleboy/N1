@@ -1,0 +1,543 @@
+service: Game
+plugins:
+  - serverless-webpack
+  - serverless-offline
+  - serverless-prune-plugin
+provider:
+  name: aws
+  runtime: nodejs8.10
+  region: ap-southeast-1
+  memorySize: 256
+  timeout: 300
+  environment:
+      TOKEN_SECRET: ${ssm:TOKEN_SECRET~true}
+      ANOTHER_GAME_CENTER: ${ssm:ANOTHER_GAME_CENTER~true}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource:
+          Fn::Join:
+          - ''
+          - - 'arn:aws:dynamodb:'
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":table/*"
+custom:
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true
+functions:
+  tokenAuth:
+    handler: api.jwtverify
+    memorySize: 128
+    integration: lambda
+  # 触发器开始
+  # billDetailTrigger: #玩家流水触发器
+  #   handler: api_trigger.billDetailTrigger
+  #   events:
+  #     - stream:
+  #         type: dynamodb
+  #         arn:
+  #           Fn::GetAtt:
+  #             - PlayerBillDetail
+  #             - StreamArn
+  #========== 以下是定时统计接口 ==========
+  checkRound: #定时检查日志
+    handler: api_check.checkRound
+    memorySize: 512
+    events:
+      - schedule: rate(30 minutes)
+      -
+        http:
+          path: /checkRound
+          method: post
+          cors: true
+          authorizer: tokenAuth
+  cronRound: #定时统计局表
+    handler: api_cron.cronRound
+    events:
+      - schedule: rate(3 minutes)
+  cronRoundDay: #定时统计局天表
+    handler: api_cron.cronRoundDay
+    events:
+      - schedule: cron(0 18 * * ? *)
+      -
+        http:
+          path: /cronRoundDay
+          method: post
+          cors: true
+          authorizer: tokenAuth
+  cronRegisterPlayer: #定时统计玩家注册数量
+    handler: api_cron.cronRegisterPlayer
+    memorySize: 3008
+    events:
+      - schedule: cron(0 18 * * ? *)
+      -
+        http:
+          path: /cronRegisterPlayer
+          method: post
+          cors: true
+          authorizer: tokenAuth
+resources:
+  Resources:
+    #第一阶段部署
+    HeraGamePlayer: #玩家表
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: HeraGamePlayer
+        AttributeDefinitions:
+          -
+            AttributeName: userName
+            AttributeType: S
+          -
+            AttributeName: userId
+            AttributeType: N
+          -
+            AttributeName: parent
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: userName
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          -
+            IndexName: userIdIndex
+            KeySchema:
+              -
+                AttributeName: userId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          -
+            IndexName: parentIdIndex
+            KeySchema:
+              -
+                AttributeName: parent
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+
+    SYSCacheBalance: #余额缓存表
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: SYSCacheBalance
+        AttributeDefinitions:
+          -
+            AttributeName: userId
+            AttributeType: S
+          -
+            AttributeName: type
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: userId
+            KeyType: HASH
+          -
+            AttributeName: type
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+    
+    PlayerBillDetail: #玩家流水明细表
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: PlayerBillDetail
+        AttributeDefinitions:
+          -
+            AttributeName: sn
+            AttributeType: S
+          -
+            AttributeName: userName
+            AttributeType: S
+          -
+            AttributeName: createdAt
+            AttributeType: N
+          -
+            AttributeName: parent
+            AttributeType: S
+          -
+            AttributeName: businessKey
+            AttributeType: S
+          -
+            AttributeName: type
+            AttributeType: N
+        KeySchema:
+          -
+            AttributeName: sn
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+        GlobalSecondaryIndexes:
+          -
+            IndexName: UserNameIndex
+            KeySchema:
+              -
+                AttributeName: userName
+                KeyType: HASH
+              -
+                AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          -
+            IndexName: ParentIndex
+            KeySchema:
+              -
+                AttributeName: parent
+                KeyType: HASH
+              -
+                AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          -
+            IndexName: BusinessKeyIndex
+            KeySchema:
+              -
+                AttributeName: businessKey
+                KeyType: HASH
+              -
+                AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          -
+            IndexName: TypeIndex
+            KeySchema:
+              -
+                AttributeName: type
+                KeyType: HASH
+              -
+                AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+
+    HeraGameRecord: #游戏战绩表
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: HeraGameRecord
+        AttributeDefinitions:
+          -
+            AttributeName: userName
+            AttributeType: S
+          -
+            AttributeName: betId
+            AttributeType: S
+          -
+            AttributeName: parentId
+            AttributeType: S
+          -
+            AttributeName: betTime
+            AttributeType: N
+          -
+            AttributeName: createdAt
+            AttributeType: N
+          -
+            AttributeName: winType
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: userName
+            KeyType: HASH
+          -
+            AttributeName: betId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          -
+            IndexName: parentIdIndex
+            KeySchema:
+              -
+                AttributeName: parentId
+                KeyType: HASH
+              -
+                AttributeName: betTime
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          -
+            IndexName: parentIdCreatedAtIndex
+            KeySchema:
+              -
+                AttributeName: parentId
+                KeyType: HASH
+              -
+                AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          -
+            IndexName: winTypeIndex
+            KeySchema:
+              -
+                AttributeName: winType
+                KeyType: HASH
+              -
+                AttributeName: betTime
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+
+    SYSSubRole: #子角色表
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: SYSSubRole
+        AttributeDefinitions:
+          -
+            AttributeName: name
+            AttributeType: S
+          -
+            AttributeName: plat
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: name
+            KeyType: HASH
+          -
+            AttributeName: plat
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+    
+    #第二阶段部署
+    SYSConfigMult: #系统多级配置
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: SYSConfigMult
+        AttributeDefinitions:
+          -
+            AttributeName: code
+            AttributeType: S
+          -
+            AttributeName: businessKey
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: code
+            KeyType: HASH
+          -
+            AttributeName: businessKey
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+    StatRound: #局表
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: StatRound
+        AttributeDefinitions:
+          -
+            AttributeName: businessKey
+            AttributeType: S
+          -
+            AttributeName: userName
+            AttributeType: S
+          -
+            AttributeName: parent
+            AttributeType: S
+          -
+            AttributeName: createdAt
+            AttributeType: N
+          -
+            AttributeName: createdDate
+            AttributeType: N
+        KeySchema:
+          -
+            AttributeName: businessKey
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          -
+            IndexName: UserNameIndex
+            KeySchema:
+              -
+                AttributeName: userName
+                KeyType: HASH
+              -
+                AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          -
+            IndexName: ParentIndex
+            KeySchema:
+              -
+                AttributeName: parent
+                KeyType: HASH
+              -
+                AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          -
+            IndexName: CreatedDateIndex
+            KeySchema:
+              -
+                AttributeName: createdDate
+                KeyType: HASH
+              -
+                AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+    
+    StatRoundDay: #局天表
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: StatRoundDay
+        AttributeDefinitions:
+          -
+            AttributeName: userName
+            AttributeType: S
+          -
+            AttributeName: parent
+            AttributeType: S
+          -
+            AttributeName: createdDate
+            AttributeType: N
+        KeySchema:
+          -
+            AttributeName: userName
+            KeyType: HASH
+          -
+            AttributeName: createdDate
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          -
+            IndexName: ParentIndex
+            KeySchema:
+              -
+                AttributeName: parent
+                KeyType: HASH
+              -
+                AttributeName: createdDate
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          -
+            IndexName: CreatedDateIndex
+            KeySchema:
+              -
+                AttributeName: createdDate
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+
+    SYSTransfer: #免转钱包流水
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: SYSTransfer
+        AttributeDefinitions:
+          -
+            AttributeName: businessKey
+            AttributeType: S
+          -
+            AttributeName: sn
+            AttributeType: S
+          -
+            AttributeName: plat
+            AttributeType: S
+          -
+            AttributeName: userId
+            AttributeType: S
+          -
+            AttributeName: createdAt
+            AttributeType: N
+        KeySchema:
+          -
+            AttributeName: businessKey
+            KeyType: HASH
+          -
+            AttributeName: sn
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          -
+            IndexName: PlatIndex
+            KeySchema:
+              -
+                AttributeName: plat
+                KeyType: HASH
+              -
+                AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          -
+            IndexName: UserIdIndex
+            KeySchema:
+              -
+                AttributeName: userId
+                KeyType: HASH
+              -
+                AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+    
+    # SYSLock: #全局锁
+    #   Type: AWS::DynamoDB::Table
+    #   Properties:
+    #     TableName: SYSLock
+    #     AttributeDefinitions:
+    #       -
+    #         AttributeName: sn
+    #         AttributeType: S
+    #     KeySchema:
+    #       -
+    #         AttributeName: sn
+    #         KeyType: HASH
+    #     BillingMode: PAY_PER_REQUEST
+    
+    # UserRankStat: #用户排行榜
+    #   Type: AWS::DynamoDB::Table
+    #   Properties:
+    #     TableName: UserRankStat
+    #     AttributeDefinitions:
+    #       -
+    #         AttributeName: userName
+    #         AttributeType: S
+    #       # -
+    #       #   AttributeName: balance
+    #       #   AttributeType: N
+    #       # -
+    #       #   AttributeName: bet
+    #       #   AttributeType: N
+    #       # -
+    #       #   AttributeName: win
+    #       #   AttributeType: N
+    #     KeySchema:
+    #       -
+    #         AttributeName: userName
+    #         KeyType: HASH
+    #       # -
+    #       #   AttributeName: balance
+    #       #   KeyType: RANGE
+    #     ProvisionedThroughput:
+    #       ReadCapacityUnits: 5
+    #       WriteCapacityUnits: 10
+    
+    # SYSMystery: #神秘大奖
+    #   Type: AWS::DynamoDB::Table
+    #   Properties:
+    #     TableName: SYSMystery
+    #     AttributeDefinitions:
+    #       -
+    #         AttributeName: sn
+    #         AttributeType: S
+    #       -
+    #         AttributeName: winAt
+    #         AttributeType: N
+    #     KeySchema:
+    #       -
+    #         AttributeName: sn
+    #         KeyType: HASH
+    #       -
+    #         AttributeName: winAt
+    #         KeyType: RANGE
+    #     ProvisionedThroughput:
+    #       ReadCapacityUnits: 1
+    #       WriteCapacityUnits: 1

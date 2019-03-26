@@ -1,0 +1,41 @@
+{
+  "apps": [
+    {
+      "name": "stat",
+      "script": "app.js",
+      "node_args": [
+        "--max-old-space-size=15000"
+      ],
+      "instances": 1,
+      "autorestart": true,
+      "watch": false,
+      "max_memory_restart": "15G",
+      "env": {
+        "NODE_ENV": "develop"
+      },
+      "env_production": {
+        "NODE_ENV": "production"
+      }
+    }
+  ],
+  "deploy": {
+    "develop": {
+      "key": "../../na-backup.pem",
+      "user": "ec2-user",
+      "host": "ec2-13-229-74-10.ap-southeast-1.compute.amazonaws.com",
+      "ref": "origin/larry",
+      "repo": "git@github.com:enzg/AWS_Platform.git",
+      "path": "/usr/dev/stat",
+      "post-deploy": "cd api-stat && git pull && npm install && pm2 startOrRestart ecosystem.json --env develop"
+    },
+    "production": {
+      "key": "../../na-backup.pem",
+      "user": "ec2-user",
+      "host": "ec2-13-251-181-17.ap-southeast-1.compute.amazonaws.com",
+      "ref": "origin/master",
+      "repo": "git@github.com:enzg/AWS_Platform.git",
+      "path": "/usr/prod/stat",
+      "post-deploy": "cd api-stat && git pull && npm install && pm2 startOrRestart ecosystem.json --env production"
+    }
+  }
+}

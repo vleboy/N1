@@ -1,0 +1,70 @@
+{
+    "log": {
+        "level": "info",
+        "header": {
+            "loglist": [
+                "token"
+            ]
+        }
+    },
+    "error": {
+        "debug": true,
+        "errStatus": 200
+    },
+    "auth": {
+        "secret": "gsy0913",
+        "tokenname": "authorization",
+        "pass": [
+            "/ping",
+            "/gameList"
+        ],
+        "role": {
+            "1": [
+                ".*"
+            ],
+            "10": [
+                ".*"
+            ],
+            "100": [
+                ".*"
+            ],
+            "1000": [
+                ".*"
+            ],
+            "player": [
+                "/game/*"
+            ],
+            "financialStaff": [
+                "GET:/financial/test1",
+                "POST:/financial/test2"
+            ]
+        },
+        "cors": true,
+        "errMsg": "未认证",
+        "errStatus": 200
+    },
+    "env": {
+        "IMG_BUCKET": "img.na77.com",
+        "NA_CENTER": "47.74.152.121",
+        "ANOTHER_GAME_CENTER": "webgame.na77.org",
+        "NALIVE_CENTER": "lgate.na12345.com",
+        "NA_LIVE_URL": "http://lgate.na12345.com/gate/player/login",
+        "NA_LIVE_CHIP": "http://103.5.4.246:48080/gate/player/findUserAvailableChip",
+        "GAME_CENTER": "52qkggfn4d.execute-api.ap-southeast-1.amazonaws.com/dev",
+        "N1_CENTER": "n1admin.na12345.com",
+        "TABLE_NAMES": {
+            "SYSConfig": "SYSConfig",
+            "SYSConfigMult": "SYSConfigMult",
+            "ZeusPlatformUser": "ZeusPlatformUser",
+            "ZeusPlatformLog": "ZeusPlatformLog",
+            "HawkeyeGameEmail": "HawkeyeGameEmail",
+            "HulkPlatformAd": "HulkPlatformAd",
+            "HawkeyeGameNotice": "HawkeyeGameNotice",
+            "DianaPlatformTool": "DianaPlatformTool",
+            "TOOL_PACKAGE": "DianaPlatformPackage",
+            "TOOL_SEAT": "DianaPlatformSeat",
+            "DianaPlatformGame": "DianaPlatformGame",
+            "DianaPlatformCompany": "DianaPlatformCompany"
+        }
+    }
+}

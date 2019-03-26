@@ -1,0 +1,181 @@
+service: Hera
+plugins:
+  - serverless-webpack
+  - serverless-prune-plugin
+provider:
+  name: aws
+  runtime: nodejs8.10
+  region: ap-southeast-1
+  memorySize: 256
+  timeout: 300
+  environment:
+      TOKEN_SECRET: ${ssm:TOKEN_SECRET~true}
+      NA_CENTER: ${ssm:NA_CENTER~true}
+      GAME_CENTER: ${ssm:GAME_CENTER~true}
+      NALIVE_CENTER: ${ssm:NALIVE_CENTER~true}
+      COMPANY_NA_KEY: ${ssm:COMPANY_NA_KEY~true}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+        # - dynamodb:DescribeTable
+        # - dynamodb:Query
+        # - dynamodb:Scan
+        # - dynamodb:GetItem
+        # - dynamodb:PutItem
+        # - dynamodb:UpdateItem
+        # - dynamodb:DeleteItem
+        # - dynamodb:BatchWriteItem
+        # - dynamodb:DescribeStream
+        # - dynamodb:GetRecords
+        # - dynamodb:GetShardIterator
+        # - dynamodb:ListStreams
+      Resource:
+          Fn::Join:
+          - ''
+          - - 'arn:aws:dynamodb:'
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":table/*"
+custom:
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true
+functions:
+  # tokenVerify:
+  #   handler: api.jwtverify
+  #   integration: lambda
+  ##商户SDK
+  gamePlayerRegister: #玩家自行注册
+    handler: api_player.gamePlayerRegister
+    memorySize: 128
+    events:
+      - http:
+          path: /player/register
+          method: post
+          cors: true
+  playerLoginToken: #玩家获取token(一天)
+    handler: api_player.playerLoginToken
+    memorySize: 128
+    events:
+      - http:
+          path: /player
+          method: post
+          cors: true
+  getGamePlayerBalance: #玩家自行获取余额
+    handler: api_player.getGamePlayerBalance
+    memorySize: 128
+    events:
+      - http:
+          path: /player/{userName}/balance
+          method: get
+          cors: true
+  validateToken: #检查玩家token是否正确，用于充值页面打开免帐号登录
+    handler: api_merchant.validateToken
+    memorySize: 128
+    events:
+      - http:
+          path: /players/auth
+          method: post
+          cors: true
+  gameRecordPage: #获取玩家游戏记录
+    handler: api_merchant.gameRecordPage
+    events:
+      - http:
+          path: /game/player/record/page
+          method: post
+          cors: true
+  merchantPlayer: #商户对玩家操作（商户唯一操作接口）
+    handler: api_merchant.merchantPlayer
+    events:
+      - http:
+          path: /merchant/player
+          method: post
+          cors: true
+  ##大厅API
+  playerLogin: #大厅玩家游戏登陆（三天）
+    handler: api_hall.playerLogin
+    memorySize: 128
+    events:
+      - http:
+          path: /game/login
+          method: post
+          cors: true
+  playerExit: #大厅修改玩家游戏状态
+    handler: api_hall.playerExit
+    memorySize: 128
+    events:
+      - http:
+          path: /game/player/state
+          method: post
+          cors: true
+  updatePlayerInfo: #大厅修改玩家基本信息
+    memorySize: 128
+    handler: api_hall.updatePlayerInfo
+    events:
+      - http:
+          path: /game/player/info
+          method: post
+          cors: true
+  ##游戏API
+  auth: #网页游戏认证
+    handler: api_game.auth
+    events:
+      - http:
+          path: /game/auth
+          method: post
+          cors: true
+  postTransfer: #玩家游戏结算
+    # memorySize: 512
+    handler: api_game.postTransfer
+    events:
+      - http:
+          path: /game/postTransfer
+          method: post
+          cors: true
+  ##APP
+  joinGame: #玩家进入游戏
+    handler: api_app.joinGame
+    events:
+      - http:
+          path: /game/player/join
+          method: post
+          cors: true
+  ##即将废弃接口
+  gameReportByMerchant: #提供查询商户的NA报表
+    handler: api_merchant.gameReportByMerchant
+    events:
+      - http:
+          path: /game/report/merchant
+          method: post
+          cors: true
+  gameReportByPlayer: #提供查询玩家的NA报表
+    handler: api_merchant.gameReportByPlayer
+    events:
+      - http:
+          path: /game/report/player
+          method: post
+          cors: true
+  getGameRecord: #获取玩家游戏记录（旧）
+    handler: openApi.getPlayerGameRecord
+    events:
+      - http:
+          path: /game/player/record/list
+          method: post
+          cors: true
+  # updatePassword: #玩家自行修改密码
+  #   handler: api_player.updatePassword
+  #   memorySize: 128
+  #   events:
+  #     - http:
+  #         path: /{userName}/password
+  #         method: post
+  #         cors: true
+  # gamePlayerBalance: #玩家自行充值/提现
+  #   handler: api_player.gamePlayerBalance
+  #   events:
+  #     - http:
+  #         path: /player/{userName}/balance
+  #         method: post
+  #         cors: true

@@ -1,0 +1,35 @@
+{
+  "name": "up-n1",
+  "environment": {
+    "NODE_ENV": "develop",
+    "NODE_ENV1": "production"
+  },
+  "regions": ["ap-southeast-1"],
+  "proxy": {
+    "timeout": 25,
+    "listen_timeout": 25,
+    "shutdown_timeout": 25
+  },
+  "cors": {
+    "allowed_origins": ["*"],
+    "allowed_methods": ["HEAD", "GET", "POST", "PUT", "PATCH", "DELETE"],
+    "allowed_headers": ["*"]
+  },
+  "lambda": {
+    "memory": 512,
+    "policy": [
+      {
+        "Effect": "Allow",
+        "Resource": "*",
+        "Action": [
+          "dynamodb:*",
+          "s3:*"
+        ]
+      }
+    ]
+  },
+  "logs": {
+    "stdout": "info",
+    "stderr": "error"
+  }
+}

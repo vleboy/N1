@@ -1,0 +1,41 @@
+{
+  "apps": [
+    {
+      "name": "up-game",
+      "script": "app.js",
+      "node_args": [
+        "--max-old-space-size=3000"
+      ],
+      "instances": 1,
+      "autorestart": true,
+      "watch": false,
+      "max_memory_restart": "3G",
+      "env": {
+        "NODE_ENV": "develop"
+      },
+      "env_production": {
+        "NODE_ENV": "production"
+      }
+    }
+  ],
+  "deploy": {
+    "develop": {
+      "key": "../../testserver.pem",
+      "user": "root",
+      "host": "47.88.170.136",
+      "ref": "origin/larry",
+      "repo": "git@github.com:enzg/AWS_Platform.git",
+      "path": "/usr/dev/up-game",
+      "post-deploy": "cd up-game && git pull && npm install && pm2 startOrRestart ecosystem.json --env develop"
+    },
+    "production": {
+      "key": "../../a1server.pem",
+      "user": "root",
+      "host": "47.88.169.252",
+      "ref": "origin/master",
+      "repo": "git@github.com:enzg/AWS_Platform.git",
+      "path": "/usr/prod/up-game",
+      "post-deploy": "cd up-game && git pull && npm install && pm2 startOrRestart ecosystem.json --env production"
+    }
+  }
+}
