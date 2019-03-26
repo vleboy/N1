@@ -11,7 +11,7 @@ import jwt from 'jsonwebtoken'
 const UserModel = require('./models/UserModel')
 const LogModel = require('./models/LogModel')
 const HeraGameRecordModel = require('./models/HeraGameRecordModel')
-const gameRecordUtil = require('./lib/gameRecordUtil')
+const gameRecordUtil = require('./libs/gameRecordUtil')
 const MerchantBillModel = require('./models/MerchantBillModel')
 const PlayerModel = require('./models/PlayerModel')
 const IPCheck = require('./libs/IPCheck')
