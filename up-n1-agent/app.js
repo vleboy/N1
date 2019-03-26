@@ -25,7 +25,6 @@ const statRoute = require('./src/api_sys_stat')
 const uploadRoute = require('./src/api_upload')
 const userRoute = require('./src/api_user')
 const mysteryRoute = require('./src/api_mystery')
-// const gameRoute = require('./src/api_game')
 
 // 初始化应用服务，加载所有中间件
 const app = new Koa()

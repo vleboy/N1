@@ -26,85 +26,6 @@ const PackageModel = require('./model/PackageModel')
 // const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
 // const HeraGameRecordModel = require('./model/HeraGameRecordModel')
 
-// 跑马灯信息
-router.post('/notice/info', async function (ctx, next) {
-    let inparam = ctx.request.body
-    //2,参数校验
-    new HallCheck().checkNoticeInfo(inparam)
-    //3,业务操作
-    let notice = await new NoticeModel().getNotice(inparam.noid)
-    if (_.isEmpty(notice)) {
-        throw { code: 13100, msg: "跑马灯不存在" }
-    }
-    // 返回结果
-    ctx.body = { code: 0, data: notice, msg: "success" }
-})
-
-// 邮件信息
-router.post('/email/info', async function (ctx, next) {
-    let inparam = ctx.request.body
-    //2,参数校验
-    new HallCheck().checkEmailInfo(inparam)
-    //3,业务处理
-    let email = await new EmailModel().getEmail(inparam.emid)
-    if (_.isEmpty(email)) {
-        throw { code: 13100, msg: "邮件不存在" }
-    }
-    // 返回结果
-    ctx.body = { code: 0, data: email, msg: "success" }
-})
-
-// 获取公告信息
-router.get('/game/advert/list/:operatorName', async function (ctx, next) {
-    let inparam = ctx.params
-    const adList = await new AdModel().HallList(inparam)
-    // 返回结果
-    ctx.body = { code: 0, data: { list: adList }, msg: "success" }
-})
-
-// 商户信息
-router.post('/merchant/info', async function (ctx, next) {
-    //1,获取入参
-    const inparam = ctx.request.body
-    //2,参数校验
-    new HallCheck().checkUserInfo(inparam)
-    //3,获取商户信息
-    let userInfo = await new UserModel().queryUserById(inparam.parentId)
-    //4,组装返回数据
-    let returnObj = {
-        username: userInfo.username,
-        id: userInfo.userId,
-        role: userInfo.role,
-        headPic: "NULL!",
-        parentId: userInfo.parent,
-        msn: userInfo.msn || "0",
-        gameList: (userInfo.gameList && userInfo.gameList.length != 0 && userInfo.gameList != "NULL!") ? userInfo.gameList.map((game) => game.code) : [],
-        liveMix: 0,
-        vedioMix: 0,
-        rate: userInfo.rate || 100,
-        nickname: userInfo.displayName || "NULL!",
-        suffix: userInfo.suffix,
-        levelIndex: userInfo.levelIndex + "",
-        merUrl: userInfo.frontURL || "-1",
-        sn: userInfo.sn || 'NULL!',
-        moneyURL: (userInfo.moneyURL && userInfo.moneyURL != "NULL!") ? userInfo.moneyURL : '',
-        registerURL: (userInfo.registerURL && userInfo.registerURL != "NULL!") ? userInfo.registerURL : '',
-        feedbackURL: (userInfo.feedbackURL && userInfo.feedbackURL != "NULL!") ? userInfo.feedbackURL : '',
-        launchImg: (userInfo.launchImg && userInfo.launchImg != "NULL!") ? userInfo.launchImg : { logo: ["", ""], name: ["", ""] },
-        skin: userInfo.skin || "1",
-        isOpenBrowser: userInfo.isOpenBrowser ? true : false,
-        isTest: userInfo.isTest || 0,
-        passhash: userInfo.role == 1 ? sha1(userInfo.password) : 'NULL!'
-    }
-    //管理员没有gameList
-    if (userInfo.level == 0) {
-        returnObj.gameList = ["30000", "40000", "60000", "70000", "90000"]
-    }
-    returnObj.code = 0
-    returnObj.msg = "success"
-    // 返回结果
-    ctx.body = returnObj
-})
 
 // 验证玩家是否含有70000/80000/90000的游戏
 router.get('/player/gameList/:userId', async function (ctx, next) {
@@ -169,36 +90,7 @@ router.post('/statistics/userRank', async function (ctx, next) {
     ctx.body = { code: 0, listOne, listAll, msg: "success" }
 })
 
-// 道具列表
-router.get('/game/tool/list', async function (ctx, next) {
-    let toolList = await new ToolModel().scan()
-    let list = []
-    if (!_.isEmpty(toolList.Items)) {
-        list = _.orderBy(toolList.Items, ['order'])
-    }
-    // 返回结果
-    ctx.body = { code: 0, list, msg: "success" }
-})
 
-// 道具包列表
-router.get('/game/package/list', async function (ctx, next) {
-    let packageList = await new PackageModel().scan()
-    let list = []
-    if (!_.isEmpty(packageList.Items)) {
-        list = _.orderBy(packageList.Items, ['order'])
-    }
-    // 返回结果
-    ctx.body = { code: 0, list, msg: "success" }
-})
-
-// 席位列表
-router.post('/game/seat/list', async function (ctx, next) {
-    let inparam = ctx.request.body
-    let list = await new SeatModel().getList(inparam)
-    list = _.orderBy(list, ['order'])
-    // 返回结果
-    ctx.body = { code: 0, list, msg: "success" }
-})
 
 function sha1(data) {
     let generator = crypto.createHash('sha1')
