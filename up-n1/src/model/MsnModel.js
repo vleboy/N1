@@ -31,41 +31,6 @@ class MsnModel extends BaseModel {
         }
         return await this.query(query)
     }
-
-    /**
-     * 查询MSN
-     * @param {*} inparam 
-     */
-    async queryMSN(inparam) {
-        const queryRet = await this.scan({
-            FilterExpression: '#msn = :msn',
-            ExpressionAttributeNames: {
-                '#msn': 'msn',
-            },
-            ExpressionAttributeValues: {
-                ':msn': inparam.msn.toString()
-            }
-        })
-        return queryRet
-    }
-
-    /**
-     * 检查MSN
-     * @param {*} param 
-     */
-    async checkMSN(param) {
-        const queryRet = await this.scan({
-            FilterExpression: '#msn=:msn',
-            ExpressionAttributeNames: {
-                '#msn': 'msn'
-            },
-            ExpressionAttributeValues: {
-                ':msn': param.msn.toString()
-            }
-        })
-        return queryRet.Items.length == 0
-    }
-
 }
 
 

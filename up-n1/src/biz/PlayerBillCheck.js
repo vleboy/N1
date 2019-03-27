@@ -1,6 +1,4 @@
-const Model = require('../lib/UserConsts').Model
 const Util = require("../lib/athena").Util
-const RegEnum = require("../lib/athena").RegEnum
 class PlayerBillCheck {
     /**
      * 检查转账数据

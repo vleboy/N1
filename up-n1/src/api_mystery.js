@@ -12,10 +12,6 @@ const HeraGameRecordModel = require('./model/HeraGameRecordModel')
 const UserModel = require('./model/UserModel')
 const Model = require('./lib/Model').Model
 const GameTypeEnum = require('./lib/Consts').GameTypeEnum
-// const LogModel = require('./model/LogModel')
-// const MysteryModel = require('./model/MysteryModel')
-// const ConfigModel = require('./model/ConfigModel')
-// const MysteryCheck = require('./biz/MysteryCheck')
 
 /**
  * 神秘大奖列表（新）
@@ -69,63 +65,5 @@ router.post('/mysteryList', async function (ctx, next) {
     // 返回结果
     ctx.body = { code: 0, payload: _.orderBy(_.flattenDepth(returnList), ['betTime'], ['desc']) }
 })
-
-// /**
-//  * 大厅推送神秘大奖给平台
-//  */
-// router.post('/pushMystery', async function (ctx, next) {
-//     let inparam = ctx.request.body
-//     let token = ctx.tokenVerify
-//     // 检查参数是否合法
-//     new MysteryCheck().check(inparam)
-//     // 业务操作
-//     const ret = await new MysteryModel().add(inparam)
-//     // 返回结果
-//     ctx.body = { code: 0, payload: ret }
-// })
-
-// /**
-//  * 神秘大奖列表
-//  */
-// router.post('/mysteryList', async function (ctx, next) {
-//     let inparam = ctx.request.body
-//     let token = ctx.tokenVerify
-//     //权限校验
-//     if (token.suffix != 'Agent') {
-//         throw { code: -1, msg: '权限不足' }
-//     }// 列表页搜索和排序查询
-//     let ret = await new MysteryModel().page(inparam)
-//     // 返回结果
-//     ctx.body = { code: 0, payload: ret }
-// })
-
-// /**
-//  * 神秘大奖领取和撤销接口
-//  */
-// router.post('/mysteryOperate', async function (ctx, next) {
-//     let inparam = ctx.request.body
-//     let token = ctx.tokenVerify
-//     //权限校验
-//     if (token.suffix != 'Agent') {
-//         throw { code: -1, msg: '权限不足' }
-//     }
-//     inparam.username = token.username
-//     inparam.displayName = token.displayName
-//     let ret = await new MysteryModel().updateOperate(inparam)
-//     // 返回结果
-//     ctx.body = { code: 0, payload: ret }
-// })
-
-// /**
-//  * 大厅获取平台配置（神秘大奖配置）
-//  */
-// router.post('/sysConfig', async function (ctx, next) {
-//     let inparam = ctx.request.body
-//     // 业务操作
-//     const ret = await new ConfigModel().getOne(inparam)
-//     // 返回结果
-//     ctx.body = { code: 0, payload: ret }
-// })
-
 
 module.exports = router
