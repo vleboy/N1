@@ -17,15 +17,15 @@ const execOptions = {
 }
 
 // 部署重构后台前端
-router.post('/deploy/web2', async function (ctx, next) {
+router.post('/deploy/n1_web', async function (ctx, next) {
     try {
         log.info('接受到请求，准备持续构建 ...')
-        await gitPull('/usr/dev/WEB2')
-        await deployWeb2Admin()
-        await deployWeb2Agent()
-        deployWeb2Game()
-        deployWeb2Merchant()
-        deployWeb2Manager()
+        await gitPull('/usr/dev/N1_WEB')
+        await deployWebAdmin()
+        await deployWebAgent()
+        deployWebGame()
+        deployWebMerchant()
+        deployWebManager()
         ctx.body = 'Y'
     } catch (error) {
         log.error('自动构建发生错误异常：')
@@ -124,16 +124,16 @@ function gitPull(path) {
 }
 
 // 部署函数
-function deployWeb2Admin() {
+function deployWebAdmin() {
     return new Promise((reslove, reject) => {
         const commands = [
-            'cd /usr/dev/WEB2/n1-admin',
+            'cd /usr/dev/N1_WEB/n1-admin',
             'npm run test-admin',
             'cd admin',
             '/usr/local/bin/aws s3 rm s3://dev-admin.na12345.com/*',
             '/usr/local/bin/aws s3 sync . s3://dev-admin.na12345.com --acl public-read --delete',
         ].join(' && ')
-        log.info('开始自动构建WEB2平台管理员系统 ...')
+        log.info('开始自动构建N1_WEB平台管理员系统 ...')
         exec(commands, execOptions, (error, stdout, stderr) => {
             if (error) {
                 log.error(`exec error: ${error}`)
@@ -149,16 +149,16 @@ function deployWeb2Admin() {
         })
     })
 }
-function deployWeb2Agent() {
+function deployWebAgent() {
     return new Promise((reslove, reject) => {
         const commands = [
-            'cd /usr/dev/WEB2/n1-agent',
+            'cd /usr/dev/N1_WEB/n1-agent',
             'npm run test-agent',
             'cd agent',
             '/usr/local/bin/aws s3 rm s3://dev-agent.na12345.com/*',
             '/usr/local/bin/aws s3 sync . s3://dev-agent.na12345.com --acl public-read --delete',
         ].join(' && ')
-        log.info('开始自动构建WEB2平台代理系统 ...')
+        log.info('开始自动构建N1_WEB平台代理系统 ...')
         exec(commands, execOptions, (error, stdout, stderr) => {
             if (error) {
                 log.error(`exec error: ${error}`)
@@ -174,16 +174,16 @@ function deployWeb2Agent() {
         })
     })
 }
-function deployWeb2Merchant() {
+function deployWebMerchant() {
     return new Promise((reslove, reject) => {
         const commands = [
-            'cd /usr/dev/WEB2/n1-merchant',
+            'cd /usr/dev/N1_WEB/n1-merchant',
             'npm run test-merchant',
             'cd merchant',
             '/usr/local/bin/aws s3 rm s3://dev-merchant.na12345.com/*',
             '/usr/local/bin/aws s3 sync . s3://dev-merchant.na12345.com --acl public-read --delete',
         ].join(' && ')
-        log.info('开始自动构建WEB2平台商户系统 ...')
+        log.info('开始自动构建N1_WEB平台商户系统 ...')
         exec(commands, execOptions, (error, stdout, stderr) => {
             if (error) {
                 log.error(`exec error: ${error}`)
@@ -199,16 +199,16 @@ function deployWeb2Merchant() {
         })
     })
 }
-function deployWeb2Manager() {
+function deployWebManager() {
     return new Promise((reslove, reject) => {
         const commands = [
-            'cd /usr/dev/WEB2/n1-manager',
+            'cd /usr/dev/N1_WEB/n1-manager',
             'npm run test-manager',
             'cd manager',
             '/usr/local/bin/aws s3 rm s3://dev-manager.na12345.com/*',
             '/usr/local/bin/aws s3 sync . s3://dev-manager.na12345.com --acl public-read --delete',
         ].join(' && ')
-        log.info('开始自动构建WEB2平台线路商系统 ...')
+        log.info('开始自动构建N1_WEB平台线路商系统 ...')
         exec(commands, execOptions, (error, stdout, stderr) => {
             if (error) {
                 log.error(`exec error: ${error}`)
@@ -224,10 +224,10 @@ function deployWeb2Manager() {
         })
     })
 }
-function deployWeb2Game() {
+function deployWebGame() {
     return new Promise((reslove, reject) => {
         const commands = [
-            'cd /usr/dev/WEB2/n1-game',
+            'cd /usr/dev/N1_WEB/n1-game',
             'npm run test-game',
             'cd game',
             '/usr/local/bin/aws s3 rm s3://dev-game.na12345.com/*',
@@ -264,69 +264,4 @@ function deploy(commands) {
         log.info('结束自动构建')
     })
 }
-
-// function deployAdmin() {
-//     return new Promise((reslove, reject) => {
-//         const commands = [
-//             'cd /usr/dev/NA/rotta-admin',
-//             'npm run test-admin',
-//             'cd dist',
-//             '/usr/local/bin/aws s3 rm s3://sys-test-admin/*',
-//             '/usr/local/bin/aws s3 sync . s3://sys-test-admin --acl public-read --delete',
-
-//             'cd /usr/dev/NA/rotta-admin',
-//             'npm run test-merchant',
-//             'cd dist',
-//             '/usr/local/bin/aws s3 rm s3://sys-test-merchant/*',
-//             '/usr/local/bin/aws s3 sync . s3://sys-test-merchant --acl public-read --delete',
-
-//             'cd /usr/dev/NA/rotta-admin',
-//             'npm run test-manager',
-//             'cd dist',
-//             '/usr/local/bin/aws s3 rm s3://sys-test-manager/*',
-//             '/usr/local/bin/aws s3 sync . s3://sys-test-manager --acl public-read --delete',
-//         ].join(' && ')
-//         log.info('开始自动构建平台管理员系统 ...')
-//         exec(commands, execOptions, (error, stdout, stderr) => {
-//             if (error) {
-//                 log.error(`exec error: ${error}`)
-//                 reject(error)
-//             }
-//             if (stdout) {
-//                 log.info(`stdout: ${stdout}`)
-//             }
-//             if (stderr) {
-//                 log.error(`stderr: ${stderr}`)
-//             }
-//             reslove(stdout)
-//         })
-//     })
-// }
-
-// function deployAgent() {
-//     return new Promise((reslove, reject) => {
-//         const commands = [
-//             'cd /usr/dev/NA/rotta-agent',
-//             'npm run test',
-//             'cd dist',
-//             '/usr/local/bin/aws s3 rm s3://sys-test-agent/*',
-//             '/usr/local/bin/aws s3 sync . s3://sys-test-agent --acl public-read --delete',
-//         ].join(' && ')
-//         log.info('开始自动构建代理系统 ...')
-//         exec(commands, execOptions, (error, stdout, stderr) => {
-//             if (error) {
-//                 log.error(`exec error: ${error}`)
-//                 reject(error)
-//             }
-//             if (stdout) {
-//                 log.info(`stdout: ${stdout}`)
-//             }
-//             if (stderr) {
-//                 log.error(`stderr: ${stderr}`)
-//             }
-//             reslove(stdout)
-//         })
-//     })
-// }
-
 module.exports = router
