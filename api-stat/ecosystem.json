@@ -23,8 +23,8 @@
       "key": "../../na-backup.pem",
       "user": "ec2-user",
       "host": "ec2-13-229-74-10.ap-southeast-1.compute.amazonaws.com",
-      "ref": "origin/larry",
-      "repo": "git@github.com:enzg/AWS_Platform.git",
+      "ref": "origin/master",
+      "repo": "git@github.com:vleboy/N1.git",
       "path": "/usr/dev/stat",
       "post-deploy": "cd api-stat && git pull && npm install && pm2 startOrRestart ecosystem.json --env develop"
     },
@@ -33,7 +33,7 @@
       "user": "ec2-user",
       "host": "ec2-13-251-181-17.ap-southeast-1.compute.amazonaws.com",
       "ref": "origin/master",
-      "repo": "git@github.com:enzg/AWS_Platform.git",
+      "repo": "git@github.com:vleboy/N1.git",
       "path": "/usr/prod/stat",
       "post-deploy": "cd api-stat && git pull && npm install && pm2 startOrRestart ecosystem.json --env production"
     }
