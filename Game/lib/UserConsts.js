@@ -1,7 +1,7 @@
 
 // ==================== 以下是全系统用户实体 ====================
 // 角色编码枚举
-export const RoleCodeEnum = {
+module.exports = RoleCodeEnum = {
   'SuperAdmin': '0',
   'PlatformAdmin': '1',
   'Manager': '10',

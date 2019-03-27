@@ -1,12 +1,12 @@
-import moment from 'moment'
-import axios from 'axios'
-import { BaseModel } from './BaseModel'
-import { ConfigModel } from './ConfigModel'
-import { StatRoundModel } from './StatRoundModel'
-import { HeraGameRecordModel } from './HeraGameRecordModel'
-import { Tables } from '../lib/all'
+const moment = require('moment')
+const axios = require('axios')
+const BaseModel = require('./BaseModel')
+const ConfigModel = require('./ConfigModel')
+const StatRoundModel = require('./StatRoundModel')
+const HeraGameRecordModel = require('./HeraGameRecordModel')
+const Tables = require('../lib/Dynamo').Tables
 
-export class CronRoundLongModel extends BaseModel {
+module.exports = class CronRoundLongModel extends BaseModel {
     constructor() {
         super()
         // 设置表名

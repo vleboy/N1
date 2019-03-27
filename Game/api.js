@@ -1,5 +1,5 @@
-import { GeneratePolicyDocument } from './lib/all'
-import jwt from 'jsonwebtoken'
+const GeneratePolicyDocument = require('./lib/Response').GeneratePolicyDocument
+const jwt = require('jsonwebtoken')
 // ==================== 以下为内部方法 ====================
 
 // TOKEN验证
@@ -25,6 +25,6 @@ const jwtverify = async (e, c, cb) => {
   }
 }
 
-export {
+module.exports = {
   jwtverify                    // 用于进行token验证的方法
 }

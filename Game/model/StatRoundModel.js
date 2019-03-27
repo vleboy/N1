@@ -1,8 +1,8 @@
-import { Tables } from '../lib/all'
-import { BaseModel } from './BaseModel'
-import _ from 'lodash'
+const Tables = require('../lib/Dynamo').Tables
+const BaseModel = require('./BaseModel')
+const _ = require('lodash')
 
-export class StatRoundModel extends BaseModel {
+module.exports = class StatRoundModel extends BaseModel {
     constructor() {
         super()
         // 设置表名

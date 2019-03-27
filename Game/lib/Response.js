@@ -1,4 +1,4 @@
-import { Codes } from './Codes'
+const Codes = require('./Codes').Codes
 
 // 返回模板
 const responseTemplate = (statusCode, body, code, headers = {}) => {
@@ -10,26 +10,26 @@ const responseTemplate = (statusCode, body, code, headers = {}) => {
   return { statusCode, headers, body: JSON.stringify(body) }
 }
 // 返回工具类
-export const Success = (body, code = Codes.OK, headers = {}) => {
+const Success = (body, code = Codes.OK, headers = {}) => {
   const content = {
     ...body,
     code: code
   }
   return responseTemplate(200, content, code, headers)
 }
-export const Fail = (body, code = Codes.Error, headers = {}) => {
+const Fail = (body, code = Codes.Error, headers = {}) => {
   const content = {
     ...body,
     code: code
   }
   return responseTemplate(500, content, code, headers)
 }
-export const ResOK = (callback, res) => callback(null, Success(res))
-export const ResFail = (callback, res, code = Codes.Error) => callback(null, Fail(res, code))
-export const ResErr = (callback, err) => ResFail(callback, { err: err }, err.code)
+const ResOK = (callback, res) => callback(null, Success(res))
+const ResFail = (callback, res, code = Codes.Error) => callback(null, Fail(res, code))
+const ResErr = (callback, err) => ResFail(callback, { err: err }, err.code)
 
 // 策略文档工具
-export const GeneratePolicyDocument = (principalId, effect, resource, userInfo) => {
+const GeneratePolicyDocument = (principalId, effect, resource, userInfo) => {
   var authResponse = {}
   authResponse.principalId = principalId
   authResponse.context = {}
@@ -53,5 +53,14 @@ export const GeneratePolicyDocument = (principalId, effect, resource, userInfo) 
     authResponse.policyDocument = policyDocument
   }
   return authResponse
+}
+
+module.exports = {
+  Success,
+  Fail,
+  ResOK,
+  ResFail,
+  ResErr,
+  GeneratePolicyDocument
 }
 

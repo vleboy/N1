@@ -1,11 +1,11 @@
-import { ResOK, ResErr } from './lib/all'
-import { LogModel } from './model/LogModel'
-import { StatRoundModel } from './model/StatRoundModel'
-import { PlayerBillDetailModel } from './model/PlayerBillDetailModel'
-import _ from 'lodash'
-import moment from 'moment'
-import axios from 'axios'
-import jwt from 'jsonwebtoken'
+const { ResOK, ResErr } = require('./lib/Response')
+const LogModel = require('./model/LogModel')
+const StatRoundModel = require('./model/StatRoundModel')
+const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
+const _ = require('lodash')
+const moment = require('moment')
+const axios = require('axios')
+const jwt = require('jsonwebtoken')
 
 /**
  * 检查和修正日志（将实际上正确的数据的确错误记录的延迟数据修正）
@@ -100,6 +100,6 @@ const checkRound = async (e, c, cb) => {
     }
 }
 
-export {
+module.exports = {
     checkRound         // 检查和修正日志
 }

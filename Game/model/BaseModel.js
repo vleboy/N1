@@ -1,10 +1,11 @@
-import { BizErr, Model } from '../lib/all'
-import AWS from 'aws-sdk'
+const BizErr = require('../lib/Codes').BizErr
+const Model = require('../lib/Dynamo').Model
+const AWS = require('aws-sdk')
 AWS.config.update({ region: 'ap-southeast-1' })
 const dbClient = new AWS.DynamoDB.DocumentClient()
-import _ from 'lodash'
+const _ = require('lodash')
 
-export class BaseModel {
+module.exports = class BaseModel {
     /**
      * 构造方法，设置基础对象属性
      */

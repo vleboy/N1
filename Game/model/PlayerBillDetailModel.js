@@ -1,7 +1,7 @@
-import { Tables } from '../lib/all'
-import { BaseModel } from './BaseModel'
+const Tables = require('../lib/Dynamo').Tables
+const BaseModel = require('./BaseModel')
 
-export class PlayerBillDetailModel extends BaseModel {
+module.exports = class PlayerBillDetailModel extends BaseModel {
     constructor() {
         super()
         // 设置表名

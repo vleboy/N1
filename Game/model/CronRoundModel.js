@@ -1,16 +1,17 @@
-import { Tables, Model, RoleCodeEnum } from '../lib/all'
-import { BaseModel } from './BaseModel'
-import { ConfigModel } from './ConfigModel'
-import { StatRoundModel } from './StatRoundModel'
-import { HeraGameRecordModel } from './HeraGameRecordModel'
-import { LogModel } from './LogModel'
-import moment from 'moment'
-import axios from 'axios'
-import jwt from 'jsonwebtoken'
-import _ from 'lodash'
-import NP from 'number-precision'
+const { Tables, Model } = require('../lib/Dynamo')
+const RoleCodeEnum = require('../lib/UserConsts')
+const BaseModel = require('./BaseModel')
+const ConfigModel = require('./ConfigModel')
+const StatRoundModel = require('./StatRoundModel')
+const HeraGameRecordModel = require('./HeraGameRecordModel')
+const LogModel = require('./LogModel')
+const moment = require('moment')
+const axios = require('axios')
+const jwt = require('jsonwebtoken')
+const _ = require('lodash')
+const NP = require('number-precision')
 
-export class CronRoundModel extends BaseModel {
+module.exports = class CronRoundModel extends BaseModel {
     constructor() {
         super()
         // 设置表名

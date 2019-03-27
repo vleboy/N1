@@ -1,9 +1,8 @@
-import { ResOK, ResErr } from './lib/all'
-import { CronRoundModel } from './model/CronRoundModel'
-import { StatRoundDayModel } from './model/StatRoundDayModel'
-import { UserRankStatModel } from './model/UserRankStatModel'
-import _ from 'lodash'
-// import { CronRoundLongModel } from './model/CronRoundLongModel'
+const { ResOK, ResErr } = require('./lib/Response')
+const CronRoundModel = require('./model/CronRoundModel')
+const StatRoundDayModel = require('./model/StatRoundDayModel')
+const UserRankStatModel = require('./model/UserRankStatModel')
+const _ = require('lodash')
 
 /**
  * 定时汇总新游戏局
@@ -76,7 +75,7 @@ const cronRegisterPlayer = async (e, c, cb) => {
 //     }
 // }
 
-export {
+module.exports = {
     cronRound,                      // 定时汇总游戏局
     cronRoundDay,                   // 定时汇总一天的局表
     cronRegisterPlayer,             // 定时统计注册的玩家数量

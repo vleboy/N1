@@ -1,10 +1,10 @@
-import { BizErr } from './Codes'
-import { RoleCodeEnum } from './UserConsts'
-import _ from 'lodash'
+const BizErr = require('./Codes').BizErr
+const RoleCodeEnum = require('./UserConsts')
 const uid = require('uuid/v4')
+const _ = require('lodash')
 
 // 所有数据库表
-export const Tables = {
+const Tables = {
   ZeusPlatformUser: "ZeusPlatformUser",
   ZeusPlatformLog: "ZeusPlatformLog",
   HeraGamePlayer: "HeraGamePlayer",
@@ -16,7 +16,7 @@ export const Tables = {
   HeraGameRecord: "HeraGameRecord"
 }
 
-export const Model = {
+const Model = {
   StringValue: 'NULL!',
   NumberValue: 0.0,
   PlatformAdminDefaultPoints: 100000000.00,
@@ -168,4 +168,9 @@ Date.prototype.Format = function (fmt) {
   for (var k in o)
     if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
   return fmt;
+}
+
+module.exports = {
+  Tables,
+  Model
 }

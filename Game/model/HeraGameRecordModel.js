@@ -1,12 +1,13 @@
-import { Tables } from '../lib/all'
-import { BaseModel } from './BaseModel'
-import _ from 'lodash'
-import moment from 'moment'
+
+const Tables = require('../lib/Dynamo').Tables
+const BaseModel = require('./BaseModel')
+const _ = require('lodash')
+const moment = require('moment')
 
 /**
  * 战绩表实体
  */
-export class HeraGameRecordModel extends BaseModel {
+module.exports = class HeraGameRecordModel extends BaseModel {
     constructor() {
         super()
         // 设置表名

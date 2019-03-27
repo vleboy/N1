@@ -1,11 +1,12 @@
-import { Tables, RoleCodeEnum } from '../lib/all'
-import { BaseModel } from './BaseModel'
-import moment from 'moment'
-import axios from 'axios'
-import jwt from 'jsonwebtoken'
-import _ from 'lodash'
+const Tables = require('../Lib/Dynamo').Tables
+const RoleCodeEnum = require('../lib/UserConsts')
+const BaseModel = require('./BaseModel')
+const moment = require('moment')
+const axios = require('axios')
+const jwt = require('jsonwebtoken')
+const _ = require('lodash')
 
-export class StatRoundDayModel extends BaseModel {
+module.exports = class StatRoundDayModel extends BaseModel {
     constructor() {
         super()
         // 设置表名

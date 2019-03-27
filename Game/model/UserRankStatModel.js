@@ -1,11 +1,11 @@
-import { Tables, Model } from '../lib/all'
-import { BaseModel } from './BaseModel'
-import { UserModel } from './UserModel'
-import { LogModel } from './LogModel'
-import moment from 'moment'
-import _ from 'lodash'
+const { Tables, Model } = require('../lib/Dynamo')
+const BaseModel = require('./BaseModel')
+const UserModel = require('./UserModel')
+const LogModel = require('./LogModel')
+const moment = require('moment')
+const _ = require('lodash')
 
-export class UserRankStatModel extends BaseModel {
+module.exports = class UserRankStatModel extends BaseModel {
     constructor() {
         super()
         // 设置表名
