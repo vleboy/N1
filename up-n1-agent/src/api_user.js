@@ -14,7 +14,7 @@ const AgentModel = require('./model/AgentModel')
 const UserModel = require('./model/UserModel')
 const PlayerModel = require('./model/PlayerModel')
 const BillModel = require('./model/BillModel')
-const PushModel = require('./model/PushModel')
+// const PushModel = require('./model/PushModel')
 const AgentCheck = require('./biz/AgentCheck')
 const UserCheck = require('./biz/UserCheck')
 const RoleCodeEnum = require('./lib/UserConsts').RoleCodeEnum
@@ -178,9 +178,9 @@ router.post('/userChangeStatus', async function (ctx, next) {
             merchantUids.push(child.userId) // 需要推送状态变更的用户
         }
         // 只有停用才通知大厅服务器，使玩家下线
-        if (inparam.status == StatusEnum.Disable) {
-            new PushModel().pushForzen({ type: 2, uids: merchantUids, msg: '你已经被锁定，不能再继续游戏!' })
-        }
+        // if (inparam.status == StatusEnum.Disable) {
+        //     new PushModel().pushForzen({ type: 2, uids: merchantUids, msg: '你已经被锁定，不能再继续游戏!' })
+        // }
     }
     // 如果是停用用户游戏
     if (inparam.switch == StatusEnum.Disable) {
@@ -194,7 +194,7 @@ router.post('/userChangeStatus', async function (ctx, next) {
         token.userName = user.username
         token.changeUser = user.username
         new LogModel().add('7', inparam, token)
-        new PushModel().pushForzen({ type: 2, uids: merchantUids, msg: '请联系运营商' })
+        // new PushModel().pushForzen({ type: 2, uids: merchantUids, msg: '请联系运营商' })
     } else if (inparam.switch == StatusEnum.Enable) {
         if (inparam.companyList) {
             token.detail = '手动启用'

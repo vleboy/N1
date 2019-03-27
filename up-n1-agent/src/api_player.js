@@ -16,7 +16,7 @@ const PlayerModel = require('./model/PlayerModel')
 const UserModel = require('./model/UserModel')
 const BillModel = require('./model/BillModel')
 const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
-const PushModel = require('./model/PushModel')
+// const PushModel = require('./model/PushModel')
 const RoundModel = require('./model/RoundModel')
 const GameRecord = require('./model/GameRecord')
 const AgentPlayerCheck = require('./biz/AgentPlayerCheck')
@@ -359,9 +359,9 @@ router.post('/player/forzen', async function (ctx, next) {
     //业务操作
     if (playerInfo.state != inparam.state) {
         await new PlayerModel().updateState(inparam.userName, inparam.state)
-        if (inparam.state == 0) { //冻结
-            new PushModel().pushForzen({ type: 1, uids: [playerInfo.userId], msg: "你已经被锁定，不能再继续游戏!" });
-        }
+        // if (inparam.state == 0) { //冻结
+        //     new PushModel().pushForzen({ type: 1, uids: [playerInfo.userId], msg: "你已经被锁定，不能再继续游戏!" });
+        // }
     }
     ctx.body = { code: 0, msg: '操作成功' }
 })

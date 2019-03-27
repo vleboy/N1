@@ -3,7 +3,7 @@ const NP = require('number-precision')
 const BaseModel = require('./BaseModel')
 const PlayerBillDetailModel = require('./PlayerBillDetailModel')
 const LogModel = require('./LogModel')
-const PushModel = require('./PushModel')
+// const PushModel = require('./PushModel')
 const GlobalConfig = require("../util/config")
 
 /**
@@ -132,7 +132,7 @@ module.exports = class PlayerModel extends BaseModel {
             }
         })
         let balance = parseFloat((res.Attributes.balance + inparam.amt).toFixed(2)) // 玩家余额
-        new PushModel().pushUserBalance(inparam.userId, balance)
+        // new PushModel().pushUserBalance(inparam.userId, balance)
         return { originalAmount: res.Attributes.balance, amount: inparam.amt, balance }
     }
     /**更新玩家密码 */

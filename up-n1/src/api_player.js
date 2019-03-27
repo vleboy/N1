@@ -12,7 +12,7 @@ const log = require('tracer').colorConsole({ level: config.log.level })
 const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
 const PlayerModel = require('./model/PlayerModel')
 const UserModel = require('./model/UserModel')
-const PushModel = require('./model/PushModel')
+// const PushModel = require('./model/PushModel')
 const RoundModel = require('./model/RoundModel')
 const LogModel = require('./model/LogModel')
 const GameRecord = require('./model/GameRecord')
@@ -295,9 +295,9 @@ router.post('/player/forzen', async function (ctx, next) {
     //业务操作
     if (playerInfo.state != inparam.state) {
         await new PlayerModel().updateState(inparam.userName, inparam.state)
-        if (inparam.state == 0) { //冻结
-            new PushModel().pushForzen({ type: 1, uids: [playerInfo.userId], msg: "你已经被锁定，不能再继续游戏!" });
-        }
+        // if (inparam.state == 0) { //冻结
+        //     new PushModel().pushForzen({ type: 1, uids: [playerInfo.userId], msg: "你已经被锁定，不能再继续游戏!" });
+        // }
     }
     ctx.body = { code: 0, msg: '操作成功' }
 })
