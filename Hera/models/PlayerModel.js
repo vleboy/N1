@@ -7,7 +7,7 @@ const PlayerBillDetailModel = require('./PlayerBillDetailModel')
 const HeraGameRecordModel = require('./HeraGameRecordModel')
 const StatRoundModel = require('./StatRoundModel')
 const UserModel = require('./UserModel')
-const PushModel = require('./PushModel')
+// const PushModel = require('./PushModel')
 const LogModel = require('./LogModel')
 const Tables = require('../libs/Dynamo')
 /**
@@ -142,9 +142,9 @@ module.exports = class PlayerModel extends BaseModel {
             promiseAll.push(p)
         }
         let uids = await Promise.all(promiseAll)
-        if (state == 0) {
-            new PushModel().pushForzen({ type: 1, uids, msg: "你已经被锁定，不能再继续游戏!" });
-        }
+        // if (state == 0) {
+        //     new PushModel().pushForzen({ type: 1, uids, msg: "你已经被锁定，不能再继续游戏!" });
+        // }
     }
 
     /**
@@ -162,7 +162,7 @@ module.exports = class PlayerModel extends BaseModel {
             }
         })
         let balance = parseFloat((res.Attributes.balance + inparam.amt).toFixed(2)) // 玩家余额
-        new PushModel().pushUserBalance(inparam.userId, balance)
+        // new PushModel().pushUserBalance(inparam.userId, balance)
         return { originalAmount: res.Attributes.balance, amount: inparam.amt, balance }
     }
 
@@ -386,7 +386,7 @@ module.exports = class PlayerModel extends BaseModel {
         }
         console.log(`单笔流水-执行至战绩持久化耗时：${Date.now() - time1}`)
         // 8，推送余额给NA大厅
-        new PushModel().pushUserBalance(billItem.userId, billItem.balance)
+        // new PushModel().pushUserBalance(billItem.userId, billItem.balance)
         console.log(`单笔流水-执行至推送余额给大厅耗时：${Date.now() - time1}`)
         return billItem.balance
     }
