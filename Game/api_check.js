@@ -10,7 +10,7 @@ const jwt = require('jsonwebtoken')
 /**
  * 检查和修正日志（将实际上正确的数据的确错误记录的延迟数据修正）
  */
-const checkRound = async (e, c, cb) => {
+module.exports.checkRound = async (e, c, cb) => {
     try {
         let fixArr = []
         let promiseAll = []
@@ -100,6 +100,6 @@ const checkRound = async (e, c, cb) => {
     }
 }
 
-module.exports = {
-    checkRound         // 检查和修正日志
-}
+// module.exports = {
+//     checkRound         // 检查和修正日志
+// }

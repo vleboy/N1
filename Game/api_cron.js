@@ -7,7 +7,7 @@ const _ = require('lodash')
 /**
  * 定时汇总新游戏局
  */
-const cronRound = async (e, c, cb) => {
+module.exports.cronRound = async (e, c, cb) => {
     try {
         // 业务操作
         await new CronRoundModel().cronLast()
@@ -23,7 +23,7 @@ const cronRound = async (e, c, cb) => {
 /**
  * 定时汇总一天的局表
  */
-const cronRoundDay = async (e, c, cb) => {
+module.exports.cronRoundDay = async (e, c, cb) => {
     try {
         // 业务操作
         await new StatRoundDayModel().cronRoundDay()
@@ -42,7 +42,7 @@ const cronRoundDay = async (e, c, cb) => {
  * params.end   2018-02-01
  * params.nowTime 模拟今天时间戳
  */
-const cronRegisterPlayer = async (e, c, cb) => {
+module.exports.cronRegisterPlayer = async (e, c, cb) => {
     try {
         let inparam = { isinit: false }
         if (e && e.body && _.isString(e.body)) {
@@ -75,10 +75,10 @@ const cronRegisterPlayer = async (e, c, cb) => {
 //     }
 // }
 
-module.exports = {
-    cronRound,                      // 定时汇总游戏局
-    cronRoundDay,                   // 定时汇总一天的局表
-    cronRegisterPlayer,             // 定时统计注册的玩家数量
+// module.exports = {
+//     cronRound,                      // 定时汇总游戏局
+//     cronRoundDay,                   // 定时汇总一天的局表
+//     cronRegisterPlayer,             // 定时统计注册的玩家数量
 
-    // cronRoundLong,                  // 定时汇总长延迟游戏局表
-}
+//     // cronRoundLong,                  // 定时汇总长延迟游戏局表
+// }

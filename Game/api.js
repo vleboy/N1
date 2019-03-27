@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 // ==================== 以下为内部方法 ====================
 
 // TOKEN验证
-const jwtverify = async (e, c, cb) => {
+module.exports.jwtverify = async (e, c, cb) => {
   try {
     const token = e.authorizationToken.split(' ')
     if (token[0] !== 'Bearer') {
@@ -25,6 +25,6 @@ const jwtverify = async (e, c, cb) => {
   }
 }
 
-module.exports = {
-  jwtverify                    // 用于进行token验证的方法
-}
+// module.exports = {
+//   jwtverify                    // 用于进行token验证的方法
+// }
