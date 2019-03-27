@@ -17,7 +17,7 @@ const execOptions = {
 }
 
 // 部署重构后台前端
-router.post('/deploy/n1_web', async function (ctx, next) {
+router.post('/deploy/n1web', async function (ctx, next) {
     try {
         log.info('接受到请求，准备持续构建 ...')
         await gitPull('/usr/dev/N1_WEB')
