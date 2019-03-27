@@ -17,8 +17,7 @@
         "errMsg": "未认证",
         "errStatus": 200,
         "pass": [
-            "/deploy/na",
-            "/deploy/web2",
+            "/deploy/n1_web",
             "/auth",
             "/socket/*",
             "/static/*",
