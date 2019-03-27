@@ -222,9 +222,9 @@ pm2 start app.js --node-args="--max-old-space-size=16384 --optimize-for-size" --
 ulimit -n
 
 八、
-用下面的命令生成public key
+用下面的命令在远程主机生成public key
 $ ssh-keygen -t rsa
-复制 public key (id_rsa.pub) 到你账户的list of SSH keys, 再重新运行clone命令
+cat ~/.ssh/id_rsa.pub  将输出的密钥复制到github的deploykey上，远程主机就有了下载权限
 
 
 需要把NULL!的战绩改成
