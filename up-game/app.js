@@ -15,9 +15,6 @@ const log = require('tracer').colorConsole({ level: config.log.level })
 const pingRoute = require('./src/api_ping')
 const companyRoute = require('./src/api_company')
 const gameRoute = require('./src/api_game')
-const toolRoute = require('./src/api_tool')
-const packageRoute = require('./src/api_package')
-const seatRoute = require('./src/api_seat')
 
 // 初始化应用服务，加载所有中间件
 const app = new Koa()
@@ -69,9 +66,6 @@ app.use(xauth(config.auth, (v) => {             // TOKEN身份认证中间件，
 app.use(pingRoute.routes())             // 心跳接口
 app.use(companyRoute.routes())          // 游戏厂商接口
 app.use(gameRoute.routes())             // 游戏接口
-app.use(toolRoute.routes())             // 道具接口
-app.use(packageRoute.routes())          // 道具包接口
-app.use(seatRoute.routes())             // 展位接口
 
 app.use(function (ctx, next) {
     ctx.status = 404
