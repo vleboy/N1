@@ -1,6 +1,6 @@
 service: Hera
 plugins:
-  - serverless-webpack
+  # - serverless-webpack
   - serverless-prune-plugin
 provider:
   name: aws
@@ -38,10 +38,10 @@ provider:
             - ":"
             - Ref: AWS::AccountId
             - ":table/*"
-custom:
-  webpack:
-    webpackConfig: ./webpack.config.js
-    includeModules: true
+# custom:
+#   webpack:
+#     webpackConfig: ./webpack.config.js
+#     includeModules: true
 functions:
   # tokenVerify:
   #   handler: api.jwtverify
