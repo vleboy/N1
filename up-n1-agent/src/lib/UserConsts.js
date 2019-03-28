@@ -98,13 +98,13 @@ const RoleModels = {
       ...PlatformBaseBizRole(),
       msn: Model.StringValue,               // 线路号
       apiKey: uuid(),                       // APIKEY
-      frontURL: Model.StringValue,          // 商户站点
+      // frontURL: Model.StringValue,          // 商户站点
       loginWhiteList: '0.0.0.0',            // 登录白名单
-      moneyURL: Model.StringValue,          // 商户充值站点
-      registerURL: Model.StringValue,       // 商户注册站点
-      feedbackURL: Model.StringValue,       // 客服连接
-      sn: Model.StringValue,                // 商户邀请码
-      launchImg: Model.StringValue          // 商户启动图片
+      // moneyURL: Model.StringValue,          // 商户充值站点
+      // registerURL: Model.StringValue,       // 商户注册站点
+      // feedbackURL: Model.StringValue,       // 客服连接
+      sn: Model.StringValue              // 商户邀请码
+      // launchImg: Model.StringValue          // 商户启动图片
     }
   },
   '1000': function () {
@@ -112,9 +112,9 @@ const RoleModels = {
       ...PlatformBaseBizRole(),
       vedioMix: Model.NumberValue,            // 电子游戏洗码比
       liveMix: Model.NumberValue,             // 真人视讯洗码比
-      sn: Model.StringValue,                  // 代理邀请码
-      feedbackURL: Model.StringValue,         // 客服连接
-      launchImg: Model.StringValue            // 代理启动图片
+      sn: Model.StringValue                 // 代理邀请码
+      // feedbackURL: Model.StringValue,         // 客服连接
+      // launchImg: Model.StringValue            // 代理启动图片
     }
   },
   '10000': function () {
@@ -177,11 +177,11 @@ const RoleDisplay = {
     'displayId',
     'updatedAt',
 
-    'moneyURL',
-    'registerURL',
-    'sn',
-    'feedbackURL',  // 客服链接
-    'launchImg'
+    // 'moneyURL',
+    // 'registerURL',
+    'sn'
+    // 'feedbackURL',  // 客服链接
+    // 'launchImg'
   ],
   '1000': [// 代理
     'userId',
@@ -200,8 +200,8 @@ const RoleDisplay = {
     'displayId',
     'updatedAt',
     'sn',
-    'feedbackURL',  // 客服链接
-    'launchImg',
+    // 'feedbackURL',  // 客服链接
+    // 'launchImg',
     'gameList',
     'rate',
     'subRole'
@@ -225,13 +225,13 @@ const RoleEditProps = {
     'rate',
     'gameList',
     'loginWhiteList', // 商户白名单
-    'frontURL',       // 商户前端URL
-    'remark',
-    'moneyURL',
-    'registerURL',
-    'feedbackURL',    // 客服链接
-    'launchImg',
-    'isOpenBrowser'
+    // 'frontURL',       // 商户前端URL
+    'remark'
+    // 'moneyURL',
+    // 'registerURL',
+    // 'feedbackURL',    // 客服链接
+    // 'launchImg',
+    // 'isOpenBrowser'
   ],
   '1000': [// 代理
     'password',
@@ -239,8 +239,8 @@ const RoleEditProps = {
     'gameList',
     'isTest',
     'remark',
-    'feedbackURL',  // 客服链接
-    'launchImg',
+    // 'feedbackURL',  // 客服链接
+    // 'launchImg',
     'chip'          // 限红
   ],
   '10000': []

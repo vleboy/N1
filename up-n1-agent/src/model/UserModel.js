@@ -743,26 +743,26 @@ class UserModel extends BaseModel {
      * 根据sn获取信息
      * @param {*} sn 
      */
-    async getSnInfo(inparam) {
-        let ret = await this.scan({
-            ProjectionExpression: 'moneyURL,registerURL,msn,#role,launchImg,#level,feedbackURL,username',
-            FilterExpression: '#sn = :sn',
-            ExpressionAttributeNames: {
-                '#sn': 'sn',
-                '#role': 'role',
-                '#level': 'level'
-            },
-            ExpressionAttributeValues: {
-                ':sn': inparam.sn
-            }
-        })
-        if (ret.Items.length > 0) {
-            let sortRet = _.sortBy(ret.Items, 'level')
-            return [0, sortRet[0]]
-        } else {
-            throw { 'state': 1 }
-        }
-    }
+    // async getSnInfo(inparam) {
+    //     let ret = await this.scan({
+    //         ProjectionExpression: 'moneyURL,registerURL,msn,#role,launchImg,#level,feedbackURL,username',
+    //         FilterExpression: '#sn = :sn',
+    //         ExpressionAttributeNames: {
+    //             '#sn': 'sn',
+    //             '#role': 'role',
+    //             '#level': 'level'
+    //         },
+    //         ExpressionAttributeValues: {
+    //             ':sn': inparam.sn
+    //         }
+    //     })
+    //     if (ret.Items.length > 0) {
+    //         let sortRet = _.sortBy(ret.Items, 'level')
+    //         return [0, sortRet[0]]
+    //     } else {
+    //         throw { 'state': 1 }
+    //     }
+    // }
 
     //查询指定父级的代理数量
     async count(parent) {
