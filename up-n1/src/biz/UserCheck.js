@@ -65,7 +65,7 @@ class UserCheck {
             ], inparam)
             //将sn的值赋给suffix
             inparam.suffix = inparam.sn
-            inparam.skin = inparam.skin || '1'
+            // inparam.skin = inparam.skin || '1'
         }
         if (inparam.parent != '01' && inparam.parent.length != 36) {
             throw { "code": -1, "msg": "父级id不正确", "params": ["parent"] }
@@ -83,17 +83,17 @@ class UserCheck {
         // 默认数据类型处理
         inparam.points = parseFloat(inparam.points)
         inparam.role = inparam.role.toString()
-        if (inparam.launchImg) {
-            if ((typeof inparam.launchImg) != 'object' || (!inparam.launchImg.logo || inparam.launchImg.logo.length != 2) || (!inparam.launchImg.name || inparam.launchImg.name.length != 2)) {
-                throw { "code": -1, "msg": "图片上传的格式不规范", "params": ["launchImg"] }
-            }
-        } else {
-            inparam.launchImg = {
-                logo: ['https://s3-ap-southeast-1.amazonaws.com/image-na-dev/NAlogo.png', 'http://assetdownload.oss-cn-hangzhou.aliyuncs.com/image/NAlogo.png'],
-                name: ['https://s3-ap-southeast-1.amazonaws.com/image-na-dev/dating-nagaming.png', 'http://assetdownload.oss-cn-hangzhou.aliyuncs.com/image/dating-nagaming.png']
-            }
-        }
-        inparam.isOpenBrowser = inparam.isOpenBrowser ? 1 : 0
+        // if (inparam.launchImg) {
+        //     if ((typeof inparam.launchImg) != 'object' || (!inparam.launchImg.logo || inparam.launchImg.logo.length != 2) || (!inparam.launchImg.name || inparam.launchImg.name.length != 2)) {
+        //         throw { "code": -1, "msg": "图片上传的格式不规范", "params": ["launchImg"] }
+        //     }
+        // } else {
+        //     inparam.launchImg = {
+        //         logo: ['https://s3-ap-southeast-1.amazonaws.com/image-na-dev/NAlogo.png', 'http://assetdownload.oss-cn-hangzhou.aliyuncs.com/image/NAlogo.png'],
+        //         name: ['https://s3-ap-southeast-1.amazonaws.com/image-na-dev/dating-nagaming.png', 'http://assetdownload.oss-cn-hangzhou.aliyuncs.com/image/dating-nagaming.png']
+        //     }
+        // }
+        // inparam.isOpenBrowser = inparam.isOpenBrowser ? 1 : 0
         return [checkAttError, errorParams]
     }
 
@@ -112,22 +112,22 @@ class UserCheck {
             Object.assign(checkAttError, { params: errorParams })
             throw checkAttError
         }
-        if (inparam.launchImg) {
-            if ((typeof inparam.launchImg) != 'object' || (!inparam.launchImg.logo || inparam.launchImg.logo.length != 2) || (!inparam.launchImg.name || inparam.launchImg.name.length != 2)) {
-                throw { "code": -1, "msg": "图片上传的格式不规范", "params": ["launchImg"] }
-            }
-        }
+        // if (inparam.launchImg) {
+        //     if ((typeof inparam.launchImg) != 'object' || (!inparam.launchImg.logo || inparam.launchImg.logo.length != 2) || (!inparam.launchImg.name || inparam.launchImg.name.length != 2)) {
+        //         throw { "code": -1, "msg": "图片上传的格式不规范", "params": ["launchImg"] }
+        //     }
+        // }
         if (inparam.gameList && inparam.gameList.length == 0) {
             throw { "code": -1, "msg": "游戏列表不能为空", "params": ["gameList"] }
         }
         // 数据类型处理
-        inparam.isOpenBrowser = inparam.isOpenBrowser ? 1 : 0
+        // inparam.isOpenBrowser = inparam.isOpenBrowser ? 1 : 0
         inparam.isTest = inparam.isTest ? 1 : 0         //如果isTest传1表示为测试账号 不传或者传0为正式账号
         if (!inparam.parent) {
             inparam.parent = Model.DefaultParent
         }
-        inparam.skin = inparam.skin || '1'
-        inparam.skin = inparam.skin.toString()
+        // inparam.skin = inparam.skin || '1'
+        // inparam.skin = inparam.skin.toString()
         //是否设置成测试账号
         return [checkAttError, errorParams]
     }

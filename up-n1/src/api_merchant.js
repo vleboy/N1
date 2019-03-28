@@ -74,7 +74,7 @@ router.get('/merchants/:id', async function (ctx, next) {
   let token = ctx.tokenVerify
   // 业务操作
   const options = {
-    ProjectionExpression: '#role,userId,createdAt,displayName,lastIP,#level,loginAt,#parent,parentName,parentRole,password,#rate,suffix,uname,username,#status,displayId,remark,gameList,parentDisplayName,parentSuffix,winloseAmountMap,companyList,launchImg,sn,feedbackURL,apiKey,frontURL,loginWhiteList,moneyURL,msn,registerURL,transferURL,signatureUrl,isOpenBrowser,subRole,chip,levelIndex,isTest,skin',
+    ProjectionExpression: '#role,userId,createdAt,displayName,lastIP,#level,loginAt,#parent,parentName,parentRole,password,#rate,suffix,uname,username,#status,displayId,remark,gameList,parentDisplayName,parentSuffix,winloseAmountMap,companyList,sn,apiKey,loginWhiteList,transferURL,signatureUrl,subRole,chip,levelIndex,isTest',
     ExpressionAttributeNames: { '#role': 'role', '#level': 'level', '#parent': 'parent', '#rate': 'rate', '#status': 'status' }
   }
   const merchant = await new UserModel().getUser(params.id, RoleCodeEnum.Merchant, options)

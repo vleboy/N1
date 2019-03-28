@@ -98,22 +98,22 @@ const RoleModels = {
       ...PlatformBaseBizRole(),
       msn: Model.StringValue,               // 线路号
       apiKey: uuid(),                       // APIKEY
-      frontURL: Model.StringValue,          // 商户站点
       loginWhiteList: '0.0.0.0',            // 登录白名单
-      moneyURL: Model.StringValue,          // 商户充值站点
-      registerURL: Model.StringValue,       // 商户注册站点
-      feedbackURL: Model.StringValue,       // 客服连接
-      sn: Model.StringValue,                // 商户邀请码
-      launchImg: Model.StringValue,          // 商户启动图片
-      skin: "1"
+      sn: Model.StringValue                // 商户邀请码
+      // frontURL: Model.StringValue,          // 商户站点
+      // moneyURL: Model.StringValue,          // 商户充值站点
+      // registerURL: Model.StringValue,       // 商户注册站点
+      // feedbackURL: Model.StringValue,       // 客服连接
+      // launchImg: Model.StringValue,          // 商户启动图片
+      // skin: "1"
     }
   },
   '1000': function () {
     return {// 代理
       ...PlatformBaseBizRole(),
-      sn: Model.StringValue,                  // 代理邀请码
-      feedbackURL: Model.StringValue,         // 客服连接
-      launchImg: Model.StringValue            // 代理启动图片
+      sn: Model.StringValue                  // 代理邀请码
+      // feedbackURL: Model.StringValue,         // 客服连接
+      // launchImg: Model.StringValue            // 代理启动图片
     }
   },
   '10000': function () {
@@ -176,11 +176,11 @@ const RoleDisplay = {
     'displayId',
     'updatedAt',
 
-    'moneyURL',
-    'registerURL',
+    // 'moneyURL',
+    // 'registerURL',
     'sn',
-    'feedbackURL',  // 客服链接
-    'launchImg',
+    // 'feedbackURL',  // 客服链接
+    // 'launchImg',
     'transferURL'
   ],
   '1000': [// 代理
@@ -200,8 +200,8 @@ const RoleDisplay = {
     'displayId',
     'updatedAt',
     'sn',
-    'feedbackURL',  // 客服链接
-    'launchImg',
+    // 'feedbackURL',  // 客服链接
+    // 'launchImg',
     'gameList',
     'rate'
   ]
@@ -224,15 +224,15 @@ const RoleEditProps = {
     'rate',
     'gameList',
     'loginWhiteList', // 商户白名单
-    'frontURL',       // 商户前端URL
+    // 'frontURL',       // 商户前端URL
     'remark',
-    'moneyURL',
-    'registerURL',
-    'feedbackURL',    // 客服链接
-    'launchImg',
-    'isOpenBrowser',
+    // 'moneyURL',
+    // 'registerURL',
+    // 'feedbackURL',    // 客服链接
+    // 'launchImg',
+    // 'isOpenBrowser',
     'isTest',
-    'skin',
+    // 'skin',
     'transferURL'
   ],
   '1000': [// 代理
@@ -241,8 +241,8 @@ const RoleEditProps = {
     'gameList',
     'isTest',
     'remark',
-    'feedbackURL',  // 客服链接
-    'launchImg',
+    // 'feedbackURL',  // 客服链接
+    // 'launchImg',
     'chip'          // 限红
   ],
   '10000': []

@@ -79,7 +79,7 @@ router.get('/managers/:id', async function (ctx, next) {
   params.id == Model.DefaultParent ? params.id = token.userId : params.id
   // 业务操作 获取余额
   const options = {
-    ProjectionExpression: '#role,userId,createdAt,displayName,lastIP,#level,loginAt,#parent,parentName,parentRole,password,#rate,suffix,uname,username,#status,displayId,remark,gameList,parentDisplayName,parentSuffix,winloseAmountMap,companyList,launchImg,sn,feedbackURL,apiKey,frontURL,loginWhiteList,moneyURL,msn,registerURL,signatureUrl,isOpenBrowser,subRole,chip,isTest,points',
+    ProjectionExpression: '#role,userId,createdAt,displayName,lastIP,#level,loginAt,#parent,parentName,parentRole,password,#rate,suffix,uname,username,#status,displayId,remark,gameList,parentDisplayName,parentSuffix,winloseAmountMap,companyList,sn,apiKey,loginWhiteList,msn,signatureUrl,subRole,chip,isTest,points',
     ExpressionAttributeNames: { '#role': 'role', '#level': 'level', '#parent': 'parent', '#rate': 'rate', '#status': 'status' }
   }
   const manager = await new UserModel().queryUserById(params.id, options)
