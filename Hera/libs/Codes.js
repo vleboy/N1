@@ -1,4 +1,4 @@
-export const Codes = {
+const Codes = {
   OK: '0',
   Error: '-1',
 
@@ -52,7 +52,7 @@ export const Codes = {
 
   TokenExpire: '90001',
 }
-export const BizErr = {
+const BizErr = {
   JSONParseErr: (errMsg = 'JSON转换错误，请检查入参JSON格式') => {
     return { code: Codes.JSONParseError, msg: errMsg }
   },
@@ -149,4 +149,9 @@ export const BizErr = {
   TokenExpire: (errMsg = 'TOKEN已过期') => {
     return { code: Codes.TokenExpire, msg: errMsg }
   }
+}
+
+module.exports = {
+  Codes,
+  BizErr
 }

@@ -1,12 +1,12 @@
 //工具
-import { JSONParser } from './libs/JSONParser'
-import { ResOK, ResFail } from './libs/Response'
-import { BillCheck } from './libs/BillCheck'
+const JSONParser = require('./libs/JSONParser')
+const { ResOK, ResFail } = require('./libs/Response')
+const BillCheck = require('./libs/BillCheck')
 const _ = require('lodash')
 const axios = require('axios')
 const uuid = require('uuid/v4')
 const NP = require('number-precision')
-import jwt from 'jsonwebtoken'
+const jwt = require('jsonwebtoken')
 //model
 const UserModel = require('./models/UserModel')
 const LogModel = require('./models/LogModel')
@@ -21,7 +21,7 @@ const TOKEN_SECRET = process.env.TOKEN_SECRET
 /**
  * 商户分页查询获取游戏战绩
  */
-async function gameRecordPage(e, c, cb) {
+module.exports.gameRecordPage = async function (e, c, cb) {
     try {
         //1,获取入参
         const inparam = JSONParser(e.body)
@@ -124,7 +124,7 @@ async function gameRecordPage(e, c, cb) {
 /**
  * 商户对玩家的操作
  */
-async function merchantPlayer(e, c, cb) {
+module.exports.merchantPlayer = async function (e, c, cb) {
     try {
         //1,获取入参
         let inparam = JSONParser(e.body)
@@ -295,7 +295,7 @@ async function merchantPlayer(e, c, cb) {
 /**
  * 商户报表
  */
-async function gameReportByMerchant(e, c, cb) {
+module.exports.gameReportByMerchant = async function (e, c, cb) {
     try {
         //1,获取入参
         const inparam = JSONParser(e.body)
@@ -327,7 +327,7 @@ async function gameReportByMerchant(e, c, cb) {
 /**
  * 商户玩家报表
  */
-async function gameReportByPlayer(e, c, cb) {
+module.exports.gameReportByPlayer = async function (e, c, cb) {
     try {
         //1,获取入参
         const inparam = JSONParser(e.body)
@@ -370,7 +370,7 @@ async function gameReportByPlayer(e, c, cb) {
 /**
  *  校验玩家token，用于充值页面打开免账号登录
  */
-async function validateToken(e, c, cb) {
+module.exports.validateToken = async function (e, c, cb) {
     try {
         //1,获取入参
         let inparam = JSONParser(e.body)
@@ -387,10 +387,10 @@ async function validateToken(e, c, cb) {
     }
 }
 
-export {
-    gameRecordPage,                   //商户查询战绩
-    merchantPlayer,                   //商户对玩家的操作
-    validateToken,                    //玩家的token验证
-    gameReportByMerchant,             //商户报表
-    gameReportByPlayer                //商户玩家报表
-}
+// export {
+//     gameRecordPage,                   //商户查询战绩
+//     merchantPlayer,                   //商户对玩家的操作
+//     validateToken,                    //玩家的token验证
+//     gameReportByMerchant,             //商户报表
+//     gameReportByPlayer                //商户玩家报表
+// }

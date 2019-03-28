@@ -1,8 +1,8 @@
 //工具
-import { JSONParser } from './libs/JSONParser'
-import { ResOK, ResFail } from './libs/Response'
-import { BillCheck } from './libs/BillCheck'
-import jwt from 'jsonwebtoken'
+const JSONParser = require('./libs/JSONParser')
+const { ResOK, ResFail } = require('./libs/Response')
+const BillCheck = require('./libs/BillCheck')
+const jwt = require('jsonwebtoken')
 const _ = require('lodash')
 const crypto = require('crypto')
 //model
@@ -17,7 +17,7 @@ const TOKEN_SECRET = process.env.TOKEN_SECRET
 /**
  * 玩家注册
  */
-async function gamePlayerRegister(e, c, cb) {
+module.exports.gamePlayerRegister = async function (e, c, cb) {
     try {
         //1,获取入参
         const inparam = JSONParser(e.body)
@@ -85,7 +85,7 @@ async function gamePlayerRegister(e, c, cb) {
 /**
  * 玩家获取token(登录)
  */
-async function playerLoginToken(e, c, cb) {
+module.exports.playerLoginToken = async function (e, c, cb) {
     try {
         //1,获取入参
         const inparam = JSONParser(e.body)
@@ -132,7 +132,7 @@ async function playerLoginToken(e, c, cb) {
 /**
  * 玩家获取自己的余额
  */
-async function getGamePlayerBalance(e, c, cb) {
+module.exports.getGamePlayerBalance = async function (e, c, cb) {
     try {
         //1,获取入参
         let userName = decodeURI(e.pathParameters.userName)
@@ -331,10 +331,10 @@ function getLengthNum(len) {
 //     }
 // }
 
-export {
-    gamePlayerRegister,               //玩家注册
-    playerLoginToken,                 //玩家获取登录的token
-    getGamePlayerBalance              //玩家获取自己的余额
-    // updatePassword,                   //玩家更新密码
-    // gamePlayerBalance,                //玩家自行充值/提现
-}
+// export {
+//     gamePlayerRegister,               //玩家注册
+//     playerLoginToken,                 //玩家获取登录的token
+//     getGamePlayerBalance              //玩家获取自己的余额
+//     // updatePassword,                   //玩家更新密码
+//     // gamePlayerBalance,                //玩家自行充值/提现
+// }

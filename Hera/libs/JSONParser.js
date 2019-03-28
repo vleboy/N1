@@ -1,5 +1,5 @@
 // JSONParser
-export const JSONParser = (data) => {
+const JSONParser = (data) => {
   const ret = (typeof data == 'object') ? data : JSON.parse(data)
   // 统一输入数据trim处理
   for (let i in ret) {
@@ -12,3 +12,5 @@ export const JSONParser = (data) => {
   }
   return ret
 }
+
+module.exports = JSONParser

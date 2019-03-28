@@ -1,8 +1,8 @@
 //工具
-import { JSONParser } from './libs/JSONParser'
-import { ResOK, ResFail } from './libs/Response'
-import { BillCheck } from './libs/BillCheck'
-import jwt from 'jsonwebtoken'
+const JSONParser = require('./libs/JSONParser')
+const { ResOK, ResFail } = require('./libs/Response')
+const BillCheck = require('./libs/BillCheck')
+const jwt = require('jsonwebtoken')
 const _ = require('lodash')
 const axios = require('axios')
 const CryptoJS = require("crypto-js")
@@ -20,7 +20,7 @@ const COMPANY_NA_KEY = process.env.COMPANY_NA_KEY
 /**
  * 网页游戏认证
  */
-async function auth(e, c, cb) {
+module.exports.auth = async function (e, c, cb) {
     try {
         //1,获取入参
         console.log(e.body)
@@ -112,7 +112,7 @@ async function auth(e, c, cb) {
  * 
  * NA真人下注返奖一对一，每次批量推送
  */
-async function postTransfer(e, c, cb) {
+module.exports.postTransfer = async function (e, c, cb) {
     try {
         //1,获取入参
         console.log(e.body)
@@ -301,7 +301,7 @@ async function transferNA(inparam, cb) {
 //     // }
 // }
 
-export {
-    auth,                            //网页游戏认证
-    postTransfer                     //玩家下注返奖流水记录
-}
+// export {
+//     auth,                            //网页游戏认证
+//     postTransfer                     //玩家下注返奖流水记录
+// }

@@ -1,7 +1,7 @@
 const athena = require("../libs/athena")
 const LogModel = require('../models/LogModel')
 const NP = require('number-precision')
-export class BillCheck {
+module.exports= class BillCheck {
     //流水账单检查
     check(inparam) {
         let [checkAttError, errorParams] = athena.Util.checkProperties([

@@ -1,8 +1,8 @@
 //工具
-import { JSONParser } from './libs/JSONParser'
-import { ResOK, ResFail } from './libs/Response'
-import { BillCheck } from './libs/BillCheck'
-import jwt from 'jsonwebtoken'
+const JSONParser = require('./libs/JSONParser')
+const { ResOK, ResFail } = require('./libs/Response')
+const BillCheck = require('./libs/BillCheck')
+const jwt = require('jsonwebtoken')
 const _ = require('lodash')
 //model
 const PlayerModel = require('./models/PlayerModel')
@@ -14,7 +14,7 @@ const TOKEN_SECRET = process.env.TOKEN_SECRET
 /**
  * 玩家登陆游戏接口（注意这是登陆，而不是进入游戏玩游戏）
  */
-async function playerLogin(e, c, cb) {
+module.exports.playerLogin = async function (e, c, cb) {
     try {
         //1,获取入参
         const inparam = JSONParser(e.body)
@@ -100,7 +100,7 @@ async function playerLogin(e, c, cb) {
 /**
  * 玩家退出游戏接口
  */
-async function playerExit(e, c, cb) {
+module.exports.playerExit = async function (e, c, cb) {
     try {
         //1,获取入参
         const inparam = JSONParser(e.body)
@@ -157,7 +157,7 @@ async function playerExit(e, c, cb) {
 /**
  * 大厅修改玩家信息
  */
-async function updatePlayerInfo(e, c, cb) {
+module.exports.updatePlayerInfo = async function (e, c, cb) {
     try {
         //1,获取入参
         const inparam = JSONParser(e.body)
@@ -205,8 +205,8 @@ async function updatePlayerInfo(e, c, cb) {
     }
 }
 
-export {
-    playerLogin,                      //玩家登录游戏
-    playerExit,                       //玩家退出游戏
-    updatePlayerInfo                  //大厅更新玩家信息
-}
+// export {
+//     playerLogin,                      //玩家登录游戏
+//     playerExit,                       //玩家退出游戏
+//     updatePlayerInfo                  //大厅更新玩家信息
+// }

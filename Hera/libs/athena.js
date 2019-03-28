@@ -1,4 +1,5 @@
-export const RegEnum = {
+//正则枚举
+const RegEnum = {
 
     URL: /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?/,
     IP: /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/,
@@ -22,7 +23,19 @@ export const RegEnum = {
     NUMBER: /^[0-9]+$/
 }
 
-export class Util {
+const CODES = {
+    JSON_FORMAT_ERROR: 10000,
+    INPARAM_ERROR: 10001,
+    DB_ERROR: 500
+}
+
+const EMSG = {
+    "10000": "数据错误",
+    "10001": "入参数据不合法",
+    "500": "服务器错误"
+}
+//校验方法工具
+class Util {
     static parseJSON(obj) {
         if (Object.is(typeof obj, "object")) return [null, obj];
         try {
@@ -101,10 +114,10 @@ export class Util {
         for (let i = 0; i < properties.length; i++) {
             let { name, type, min, max, equal } = properties[i];
             let value = body[name]
-            let [checkErr,parseValue] = this.checkProperty(value, type, min, max, equal);
+            let [checkErr, parseValue] = this.checkProperty(value, type, min, max, equal);
             if (checkErr) {
                 errorArray.push(name);
-            }else {
+            } else {
                 body[name] = parseValue;
             }
         }
@@ -130,14 +143,7 @@ class AError {
     }
 }
 
-const CODES = {
-    JSON_FORMAT_ERROR: 10000,
-    INPARAM_ERROR: 10001,
-    DB_ERROR: 500
-}
-
-const EMSG = {
-    "10000": "数据错误",
-    "10001": "入参数据不合法",
-    "500": "服务器错误"
+module.exports = {
+    RegEnum,
+    Util
 }
