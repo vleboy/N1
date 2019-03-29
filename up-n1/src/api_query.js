@@ -218,6 +218,7 @@ router.post('/query/playerDayStat', async function (ctx, next) {
 router.post('/query/userDayStat', async function (ctx, next) {
     //获取入参
     let inparam = ctx.request.body
+    let token = ctx.tokenVerify
     //参数校验
     new CalcCheck().checkMerchantDayStat(inparam)
     //获取商户的userId
@@ -231,6 +232,10 @@ router.post('/query/userDayStat', async function (ctx, next) {
     if (_.isEmpty(userInfo)) {
         return ctx.body = { code: 0, payload: finalRes }
     } else {
+        //权限校验
+        if (Model.isManager(token) && userInfo.levelIndex.indexOf(token.userId) == -1) { //是线路商并且不是下级商户
+            return ctx.body = { code: 0, payload: finalRes }
+        }
         inparam.parentId = userInfo.userId
     }
     const res = await new PlayerBillModel().calcParentDayStat(inparam)

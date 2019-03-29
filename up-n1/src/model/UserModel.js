@@ -204,7 +204,7 @@ class UserModel extends BaseModel {
     async getUserBySN(sn) {
         const queryRet = await this.query({
             KeyConditionExpression: '#role = :role',
-            ProjectionExpression: 'displayName,transferMap,userId',
+            ProjectionExpression: 'displayName,transferMap,userId,levelIndex',
             FilterExpression: 'sn = :sn',
             ExpressionAttributeNames: {
                 '#role': 'role'
@@ -221,7 +221,7 @@ class UserModel extends BaseModel {
         const queryRet = await this.query({
             IndexName: "merchantIdIndex",
             KeyConditionExpression: 'displayId = :displayId',
-            ProjectionExpression: 'userId',
+            ProjectionExpression: 'userId,levelIndex',
             ExpressionAttributeValues: {
                 ':displayId': +displayId
             }
