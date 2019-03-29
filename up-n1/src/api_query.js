@@ -286,7 +286,7 @@ router.post('/query/managerDayStat', async function (ctx, next) {
         promiseArr.push(new PlayerBillModel().calcParentDayStat(inparam))
     }
     let res = _.flattenDeep(await Promise.all(promiseArr))
-    //以时间分组 获取每天的统计
+    //以时间分组 获取每天的统计3.
     let groupDay = _.groupBy(res, 'createdDate')
     let finalRes = []
     for (let day in groupDay) {

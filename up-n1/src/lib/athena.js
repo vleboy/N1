@@ -22,7 +22,7 @@ const RegEnum = {
     IP: /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/,
 
     // SUFFIX: /^[a-zA-z0-9]{1,6}$/,
-    SUFFIX: /^[A-Za-z0-9]{2,5}$/,
+    SUFFIX: /^[A-Za-z0-9]{2,6}$/,
 
     COMPANYNAME: /^[\u4E00-\u9FA5A-Za-z0-9]{2,20}$/,
     COMPANYDESC: /^[\u4E00-\u9FA5A-Za-z0-9]{2,200}$/,
@@ -42,7 +42,7 @@ const RegEnum = {
     PRICE: /^[0-9]+([.]{1}[0-9]{1,2})?$/,
 
     NUMBER: /^[0-9]+$/,
-    SN: /^[A-Za-z0-9]{3,5}$/
+    SN: /^[A-Za-z0-9]{3,6}$/
 }
 
 class Util {
