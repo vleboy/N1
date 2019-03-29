@@ -269,8 +269,12 @@ router.post('/query/userDayStat', async function (ctx, next) {
 router.post('/query/managerDayStat', async function (ctx, next) {
     //获取入参
     let inparam = ctx.request.body
+    let token = ctx.tokenVerify
     //参数校验
     new CalcCheck().checkParentDayStat(inparam)
+    if (!inparam.suffix) {
+        inparam.suffix = token.suffix
+    }
     //根据入参查询线路商id
     let managerInfo = await new UserModel().queryBySuffix(inparam)
     if (_.isEmpty(managerInfo)) {
