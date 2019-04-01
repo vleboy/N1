@@ -25,9 +25,9 @@ module.exports = class PlayerBillDetailModel extends BaseModel {
      * 检查非下注流水是否超时
      * @param {*} inparam 
      */
-    checkExpire(bkBet, inparam) {
+    checkExpire(betItem, inparam) {
         const now = Date.now()
-        if (now - bkBet.Items[0].createdAt > 170000) {
+        if (now - betItem.createdAt > 170000) {
             new LogModel().add('3', 'flowerror', inparam, `接收流水时间【${moment(now).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}】对应BK【${inparam.businessKey}】的最早下注时间【${moment(bkBet.Items[0].createdAt).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}】, 延迟【${now - bkBet.Items[0].createdAt}毫秒】`, bkBet.Items[0].createdAt)
         }
     }

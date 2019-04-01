@@ -14,7 +14,6 @@ const SYSTransferModel = require('./models/SYSTransferModel')
 const LogModel = require('./models/LogModel')
 //常量
 const TOKEN_SECRET = process.env.TOKEN_SECRET
-// const GAME_CENTER = process.env.GAME_CENTER
 const COMPANY_NA_KEY = process.env.COMPANY_NA_KEY
 
 /**
@@ -32,14 +31,19 @@ module.exports.auth = async function (e, c, cb) {
             return transferAuth(inparam, cb)
         }
         //3，签名校验
-        let sign = CryptoJS.SHA1(`${inparam.timestamp}${COMPANY_NA_KEY}`).toString(CryptoJS.enc.Hex)
-        if (sign != inparam.apiKey) {
-            inparam.userName = '签名错误'
-            console.log(`原始签名：${inparam.timestamp}${COMPANY_NA_KEY}`)
-            console.log(`请求过来的签名：${inparam.apiKey}`)
-            console.log(`重新计算的签名：${sign}`)
-            new LogModel().add('2', 'signerror', inparam, `apiKey不正确`)
-            return ResFail(cb, { msg: 'apiKey不正确' }, 500)
+        if (!inparam.sid) {
+            let sign = CryptoJS.SHA1(`${inparam.timestamp}${COMPANY_NA_KEY}`).toString(CryptoJS.enc.Hex)
+            if (sign != inparam.apiKey) {
+                inparam.userName = '签名错误'
+                console.log(`原始签名：${inparam.timestamp}${COMPANY_NA_KEY}`)
+                console.log(`请求过来的签名：${inparam.apiKey}`)
+                console.log(`重新计算的签名：${sign}`)
+                new LogModel().add('2', 'signerror', inparam, `apiKey不正确`)
+                return ResFail(cb, { msg: 'apiKey不正确' }, 500)
+            }
+        } else {// 兼容第三方游戏
+            inparam.gameType = inparam.gameId
+            inparam.gameId = inparam.sid
         }
         //token校验
         if (inparam.token) {
@@ -82,7 +86,6 @@ module.exports.auth = async function (e, c, cb) {
         updateParms.sid = inparam.gameId
         updateParms.joinTime = Date.now()                        //更新玩家进入游戏时间
         await playerModel.updateJoinGame(player.userName, updateParms)
-        // let nickname = (!player.nickname || player.nickname == "NULL!") ? player.userId : player.nickname
         return ResOK(cb, { msg: '操作成功', balance: balance, nickname: player.userId, userId: player.userId, isTest: userInfo.isTest }, 0)
     } catch (err) {
         if (err && err.name == 'JsonWebTokenError' || err.name == 'TokenExpiredError') {
@@ -140,8 +143,7 @@ module.exports.postTransfer = async function (e, c, cb) {
                 //就算玩家游戏大类不一致也返回成功
                 return ResOK(cb, { msg: `玩家当前所在游戏【${player.gameId}】已经没有在所请求的游戏大类【${inparam.gameType}】中` }, 0)
             } else {
-                let gameState = inparam.gameType >= 70000 && inparam.gameType <= 90000 ? 1 : 2  //h5游戏离线 非h5游戏退到大厅
-                await playerModel.updateOffline(player.userName, { gameState })
+                await playerModel.updateOffline(player.userName, { gameState: 1 })
                 new LogModel().add('6', 'postTransfer', inparam, `玩家${player.userName}正常退出`)
                 return ResOK(cb, { msg: '退出成功', balance: player.balance }, 0)
             }
@@ -149,11 +151,7 @@ module.exports.postTransfer = async function (e, c, cb) {
         //5,参数校验，更新余额
         new BillCheck().check(inparam)
         let amtAfter = await playerModel.updatebalance(player, inparam)
-        //6,长延时类游戏生成注单（NA捕鱼）
-        if (inparam.gameType == 60000 && inparam.billType != 3) {
-            await playerModel.addRound(player, inparam)
-        }
-        //7,返回结果
+        //6,返回结果
         if (amtAfter == 'err') {
             console.error({ msg: '玩家未在当前游戏中或余额不足', balance: player.balance })
             return ResFail(cb, { msg: '玩家未在当前游戏中或余额不足', balance: player.balance }, 500)

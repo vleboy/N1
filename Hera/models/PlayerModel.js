@@ -1,13 +1,12 @@
 const _ = require('lodash')
 const NP = require('number-precision')
-const moment = require('moment')
+// const moment = require('moment')
 const crypto = require("crypto")
 const BaseModel = require('./BaseModel')
 const PlayerBillDetailModel = require('./PlayerBillDetailModel')
 const HeraGameRecordModel = require('./HeraGameRecordModel')
-const StatRoundModel = require('./StatRoundModel')
+// const StatRoundModel = require('./StatRoundModel')
 const UserModel = require('./UserModel')
-// const PushModel = require('./PushModel')
 const LogModel = require('./LogModel')
 const Tables = require('../libs/Dynamo')
 /**
@@ -142,9 +141,6 @@ module.exports = class PlayerModel extends BaseModel {
             promiseAll.push(p)
         }
         let uids = await Promise.all(promiseAll)
-        // if (state == 0) {
-        //     new PushModel().pushForzen({ type: 1, uids, msg: "你已经被锁定，不能再继续游戏!" });
-        // }
     }
 
     /**
@@ -162,7 +158,6 @@ module.exports = class PlayerModel extends BaseModel {
             }
         })
         let balance = parseFloat((res.Attributes.balance + inparam.amt).toFixed(2)) // 玩家余额
-        // new PushModel().pushUserBalance(inparam.userId, balance)
         return { originalAmount: res.Attributes.balance, amount: inparam.amt, balance }
     }
 
@@ -204,15 +199,13 @@ module.exports = class PlayerModel extends BaseModel {
         // 是否检查下注
         let isCheckBet = billType == 3 ? true : false
         // 是否检查返奖/返还
-        let bkBet = {}
+        let betItem = {}
         let isCheckRet = billType != 3 ? true : false
-        let isArcadeRefund = data.isArcadeRefund                                                        // 是否为街机退款
-        let isCheckWinlose = naGameType != 60000 && billType == 4 ? true : false                        // 是否检查战绩输赢金额
-        let isPutGameRecord = naGameType != 10000 && naGameType != 60000 && isCheckRet ? true : false   // 是否生成战绩
+        let isCheckWinlose = billType == 4 ? true : false                                               // 是否检查战绩输赢金额
         let isThrowUnBet = isCheckRet && (Date.now() - data.timestamp < 38 * 60 * 1000) ? true : false  // 是否半小时内抛出没有下注的异常
         // 检查2.1：下注/冻结，如果下注金额大于玩家余额或者游戏状态在APP里面则不允许此次下注
         if (isCheckBet) {
-            if ((player.gameId != naGameType || player.sid != naGameId) && naGameType != 10000) { //棋牌不检查游戏状态
+            if (player.gameId != naGameType || player.sid != naGameId) {
                 console.error(`玩家${player.userId}的游戏状态${player.gameId}-${player.sid},未在请求游戏${naGameType}-${naGameId}中`)
                 return 'err'
             }
@@ -246,64 +239,35 @@ module.exports = class PlayerModel extends BaseModel {
         console.log(`单笔流水-执行至重复流水检查耗时：${Date.now() - time1}`)
         // 检查2.3：返奖/退款，检查其对应的下注信息
         if (isCheckRet) {
-            // 检查2.3.1：使用SN返还，检查下注是否存在
-            if (data.betsn) {
-                let billBetRes = await playerBillDetailModel.getBill(data.betsn)
+            // 使用SN返还，检查下注是否存在
+            let billBetRes = await playerBillDetailModel.getBill(data.betsn)
+            if (!billBetRes || !billBetRes.Item || _.isEmpty(billBetRes.Item)) {
+                // 等待3秒，然后再次查询确认
+                await this.waitASecond(3000)
+                billBetRes = await playerBillDetailModel.getBill(data.betsn)
+                // 确认找不到下注
                 if (!billBetRes || !billBetRes.Item || _.isEmpty(billBetRes.Item)) {
-                    // 等待3秒，然后再次查询确认
-                    await this.waitASecond(3000)
-                    billBetRes = await playerBillDetailModel.getBill(data.betsn)
-                    // 确认找不到下注
-                    if (!billBetRes || !billBetRes.Item || _.isEmpty(billBetRes.Item)) {
-                        new LogModel().add('2', 'findBetError', data, `返还未找到对应betsn【${data.betsn}】的下注`)
-                        if (isThrowUnBet) {
-                            throw { code: -1, params: `未找到对应betsn【${data.betsn}】的下注` }
-                        }
-                        else {
-                            return player.balance
-                        }
+                    new LogModel().add('2', 'findBetError', data, `返还未找到对应betsn【${data.betsn}】的下注`)
+                    if (isThrowUnBet) {
+                        throw { code: -1, params: `未找到对应betsn【${data.betsn}】的下注` }
                     }
-                }
-                bkBet = { Items: [billBetRes.Item] }
-            }
-            // 检查2.3.2：返还，检查下注是否存在
-            else {
-                bkBet = await playerBillDetailModel.queryBkBet(data)
-                if (!bkBet || !bkBet.Items || bkBet.Items.length < 1) {
-                    // 等待3秒，然后再次查询确认
-                    await this.waitASecond(3000)
-                    bkBet = await playerBillDetailModel.queryBkBet(data)
-                    // 确认找不到下注
-                    if (!bkBet || !bkBet.Items || bkBet.Items.length < 1) {
-                        new LogModel().add('2', 'findBetError', data, `未找到对应BK【${data.businessKey}】的下注`)
-                        if (isThrowUnBet) {
-                            throw { code: -1, params: `未找到对应BK【${data.businessKey}】的下注` }
-                        }
-                        else {
-                            return player.balance
-                        }
+                    else {
+                        return player.balance
                     }
                 }
             }
+            betItem = billBetRes.Item
             console.log(`单笔流水-执行至检查返还的下注耗时：${Date.now() - time1}`)
-            // 检查2.3.3：检查流水与战绩是否一致
-            let billBetAmount = _.sumBy(bkBet.Items, function (o) { return o.amount })     // 累加该bk的下注金额
+            // 检查流水与战绩是否一致
+            let billBetAmount = betItem.amount
             // 返奖时，进一步根据不同游戏检查战绩的输赢金额和流水输赢金额是否一致
             if (isCheckWinlose) {
                 let billWinloseAmount = Math.abs(amt) - Math.abs(billBetAmount)            // 计算该bk的输赢金额
                 let gameRecordWinloseAmount = 0                                            // 战绩该bk的输赢金额
-                // // 真人游戏
-                // if (naGameType == 30000) {
-                //     gameRecordWinloseAmount = parseFloat(data.gameRecord.winLostAmount)
-                // }
                 // 电子游戏
-                if (naGameType == 40000 || naGameType == 70000 || naGameType == 90000) {
+                if (naGameType == 70000 || naGameType == 90000) {
                     let gameDetail = JSON.parse(data.gameRecord.gameDetail)
                     gameRecordWinloseAmount = parseFloat(gameDetail.totalGold) - parseFloat(gameDetail.bet)
-                }
-                // 街机游戏
-                if (naGameType == 50000) {
-                    gameRecordWinloseAmount = parseFloat(data.gameRecord.userWin) - parseFloat(data.gameRecord.totalBets)
                 }
                 if (gameRecordWinloseAmount.toFixed(2) != billWinloseAmount.toFixed(2)) {
                     new LogModel().add('2', 'flowerror', data, `该返奖战绩的输赢金额与流水不一致【${data.businessKey}】`)
@@ -346,31 +310,10 @@ module.exports = class PlayerModel extends BaseModel {
         billItem.balance = NP.plus(res.Attributes.balance, amt)                  // 帐变后金额
         await playerBillDetailModel.putItem(billItem)
         console.log(`单笔流水-执行至余额流水持久化耗时：${Date.now() - time1}`)
-        // 6，非延时长的游戏,非下注流水检查是否超时
-        let omitArr = ['userId', 'userName', 'betId', 'parentId', 'gameId', 'gameType', 'betTime', 'createdAt', 'winType', 'updatedAt', 'createdAtString', 'updatedAtString']
-        if (isPutGameRecord) {
-            playerBillDetailModel.checkExpire(bkBet, billItem)
-            // 组装战绩的必要数据，（NA街机退款不写战绩）
-            if (!isArcadeRefund) {
-                let playerRecord = {
-                    userId: +player.userId,
-                    userName: player.userName,
-                    betId: billItem.businessKey,
-                    parentId: player.parent,
-                    gameId: data.gameId.toString(),
-                    gameType: naGameType,
-                    betTime: bkBet.Items[0].createdAt,
-                    createdAt: Date.now(),
-                    winType: data.gameRecord.winType,
-                    record: _.omit(data.gameRecord, omitArr)
-                }
-                await new HeraGameRecordModel().putItem(playerRecord)
-            }
-        }
-        // 7,棋牌买房卡战绩写入
-        if (isCheckBet && naGameType == 10000) {
-            data.gameRecord.amount = amt
-            data.gameRecord.preBalance = billItem.originalAmount
+        // 6，返还时写战绩
+        if (isCheckRet) {
+            playerBillDetailModel.checkExpire(betItem, billItem)
+            let omitArr = ['userId', 'userName', 'betId', 'parentId', 'gameId', 'gameType', 'betTime', 'createdAt', 'winType', 'updatedAt', 'createdAtString', 'updatedAtString']
             let playerRecord = {
                 userId: +player.userId,
                 userName: player.userName,
@@ -378,74 +321,72 @@ module.exports = class PlayerModel extends BaseModel {
                 parentId: player.parent,
                 gameId: data.gameId.toString(),
                 gameType: naGameType,
-                betTime: data.timestamp,
+                betTime: betItem.createdAt,
                 createdAt: Date.now(),
+                winType: data.gameRecord.winType,
                 record: _.omit(data.gameRecord, omitArr)
             }
             await new HeraGameRecordModel().putItem(playerRecord)
         }
         console.log(`单笔流水-执行至战绩持久化耗时：${Date.now() - time1}`)
-        // 8，推送余额给NA大厅
-        // new PushModel().pushUserBalance(billItem.userId, billItem.balance)
-        console.log(`单笔流水-执行至推送余额给大厅耗时：${Date.now() - time1}`)
         return billItem.balance
     }
 
-    /**
-     * 生成新注单
-     * @param {*} player 
-     * @param {*} inparam 
-     */
-    addRound(player, inparam) {
-        let self = this
-        return new Promise(async function (resolve, reject) {
-            // 查询BK对应的流水
-            let bills = await new PlayerBillDetailModel().queryBk({ bk: inparam.businessKey })
-            if (bills && bills.length > 0) {
-                let bets = bills.filter(i => i.type == 3)                                           // 所有下注
-                let bet = bets[0]                                                                   // 第一条下注
-                let ret = bills.filter(i => i.type == 4 || i.type == 5)                             // 所有返奖
-                let content = ret ? { bet: bets, ret } : { bet: bets }
-                // 生成注单
-                let betAmount = 0                                                                   // 下注金额
-                for (let item of bets) {
-                    betAmount += item.amount
-                }
-                let retAmount = inparam.amt                                                         // 返回金额
-                let winloseAmount = parseFloat((retAmount + betAmount).toFixed(2))                  // 输赢金额（正负相加）
-                let winAmount = inparam.billType == 5 ? 0.0 : retAmount                             // 返奖金额
-                let refundAmount = inparam.billType == 5 ? retAmount : 0.0                          // 退款金额
-                let mixAmount = Math.min(Math.abs(betAmount), Math.abs(winloseAmount))              // 洗码量
-                let round = {
-                    businessKey: bet.businessKey,
-                    anotherGameData: bet.anotherGameData || 'NULL!',
-                    parent: bet.parent,
-                    userName: bet.userName,
-                    userId: +bet.userId,
-                    createdAt: bet.createdAt,
-                    createdDate: +moment(bet.createdAt).utcOffset(8).format('YYYYMMDD'),
-                    createdStr: bet.createdStr,
-                    betCount: bets.length,
-                    originalAmount: bet.originalAmount,
-                    betAmount: betAmount,
-                    retAmount: retAmount,
-                    winAmount: winAmount,
-                    refundAmount: refundAmount,
-                    winloseAmount: winloseAmount,
-                    mixAmount: mixAmount,
-                    gameType: +bet.gameType,
-                    gameId: bet.gameId ? +bet.gameId : +bet.gameType,
-                    roundId: bet.roundId,
-                    content: content
-                }
-                // 写入局表和战绩表
-                await new StatRoundModel().putItem(round)
-                await new HeraGameRecordModel().writeRound(round)
-                console.info(`【${round.businessKey}】注单已生成`)
-            }
-            resolve(1)
-        })
-    }
+    // /**
+    //  * 生成新注单
+    //  * @param {*} player 
+    //  * @param {*} inparam 
+    //  */
+    // addRound(player, inparam) {
+    //     let self = this
+    //     return new Promise(async function (resolve, reject) {
+    //         // 查询BK对应的流水
+    //         let bills = await new PlayerBillDetailModel().queryBk({ bk: inparam.businessKey })
+    //         if (bills && bills.length > 0) {
+    //             let bets = bills.filter(i => i.type == 3)                                           // 所有下注
+    //             let bet = bets[0]                                                                   // 第一条下注
+    //             let ret = bills.filter(i => i.type == 4 || i.type == 5)                             // 所有返奖
+    //             let content = ret ? { bet: bets, ret } : { bet: bets }
+    //             // 生成注单
+    //             let betAmount = 0                                                                   // 下注金额
+    //             for (let item of bets) {
+    //                 betAmount += item.amount
+    //             }
+    //             let retAmount = inparam.amt                                                         // 返回金额
+    //             let winloseAmount = parseFloat((retAmount + betAmount).toFixed(2))                  // 输赢金额（正负相加）
+    //             let winAmount = inparam.billType == 5 ? 0.0 : retAmount                             // 返奖金额
+    //             let refundAmount = inparam.billType == 5 ? retAmount : 0.0                          // 退款金额
+    //             let mixAmount = Math.min(Math.abs(betAmount), Math.abs(winloseAmount))              // 洗码量
+    //             let round = {
+    //                 businessKey: bet.businessKey,
+    //                 anotherGameData: bet.anotherGameData || 'NULL!',
+    //                 parent: bet.parent,
+    //                 userName: bet.userName,
+    //                 userId: +bet.userId,
+    //                 createdAt: bet.createdAt,
+    //                 createdDate: +moment(bet.createdAt).utcOffset(8).format('YYYYMMDD'),
+    //                 createdStr: bet.createdStr,
+    //                 betCount: bets.length,
+    //                 originalAmount: bet.originalAmount,
+    //                 betAmount: betAmount,
+    //                 retAmount: retAmount,
+    //                 winAmount: winAmount,
+    //                 refundAmount: refundAmount,
+    //                 winloseAmount: winloseAmount,
+    //                 mixAmount: mixAmount,
+    //                 gameType: +bet.gameType,
+    //                 gameId: bet.gameId ? +bet.gameId : +bet.gameType,
+    //                 roundId: bet.roundId,
+    //                 content: content
+    //             }
+    //             // 写入局表和战绩表
+    //             await new StatRoundModel().putItem(round)
+    //             await new HeraGameRecordModel().writeRound(round)
+    //             console.info(`【${round.businessKey}】注单已生成`)
+    //         }
+    //         resolve(1)
+    //     })
+    // }
 
     /**
      * 更新玩家状态

@@ -1,7 +1,7 @@
 const athena = require("../libs/athena")
 const LogModel = require('../models/LogModel')
 const NP = require('number-precision')
-module.exports= class BillCheck {
+module.exports = class BillCheck {
     //流水账单检查
     check(inparam) {
         let [checkAttError, errorParams] = athena.Util.checkProperties([
@@ -29,25 +29,18 @@ module.exports= class BillCheck {
         inparam.gameId = +inparam.gameId
         inparam.billType = +inparam.billType
         inparam.anotherGameData = JSON.stringify(inparam)
-        // NA街机退款处理
-        if (inparam.gameType == 50000 && inparam.billType == 5) {
-            inparam.isArcadeRefund = true
-            inparam.gameRecord = { betId: inparam.businessKey }
-        }
         // 返奖/返还检查
         if (inparam.billType != 3) {
-            // 指定游戏，返奖/返还必须传递betsn
-            if (inparam.gameType == 30000 || inparam.gameType == 40000 || inparam.gameType == 70000 || inparam.gameType == 90000) {
-                if (!inparam.betsn) throw { params: 'betsn' }
-            }
+            // 返奖/返还必须传递betsn
+            if (!inparam.betsn) throw { params: 'betsn' }
             // 需要传gameRecord对象
             if (!inparam.gameRecord || typeof inparam.gameRecord != 'object') {
                 console.error(`该返奖没有推送战绩【${inparam.businessKey}】`)
                 new LogModel().add('2', 'flowerror', inparam, `该返奖没有推送战绩【${inparam.businessKey}】`)
                 throw { params: 'gameRecord' }
             }
-            // 除了捕鱼，gameRecord对象内部betId与businessKey一致
-            if (inparam.gameType != 60000 && inparam.gameRecord.betId != inparam.businessKey) {
+            // gameRecord对象内部betId与businessKey一致
+            if (inparam.gameRecord.betId != inparam.businessKey) {
                 console.error(`该返奖的战绩的betId和流水的businessKey不一致【${inparam.businessKey}】`)
                 new LogModel().add('2', 'flowerror', inparam, `该返奖的战绩的betId和流水的businessKey不一致【${inparam.businessKey}】`)
                 throw { params: 'gameRecord' }
