@@ -1,6 +1,3 @@
-
-const uuid = require('uuid/v4')
-
 const GameTypeEnum = {
     '10000': { type: 4, code: '10000', name: 'NA棋牌游戏', company: 'NA' },
     '30000': { type: 1, code: '30000', name: 'NA真人视讯', company: 'NA' },
@@ -122,29 +119,7 @@ const GameNameEnum = {
     "90018": "鲤跃龙门"
 }
 
-/**
- * 账单实体
- */
-const BillMo = function () {
-    return {
-        sn: uuid(),
-        fromRole: Model.StringValue,
-        toRole: Model.StringValue,
-        fromUser: Model.StringValue,
-        toUser: Model.StringValue,
-        fromLevel: Model.NumberValue,
-        toLevel: Model.NumberValue,
-        fromDisplayName: Model.StringValue,
-        toDisplayName: Model.StringValue,
-        action: Model.NumberValue,
-        amount: Model.NumberValue,
-        operator: Model.StringValue,
-        remark: Model.StringValue
-    }
-}
-
 module.exports = {
     GameTypeEnum,
-    BillMo,
     GameListEnum
 }

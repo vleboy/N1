@@ -5,9 +5,6 @@ const BizErr = require('../lib/Codes').BizErr
 const RoleCodeEnum = require('../lib/UserConsts').RoleCodeEnum
 const Model = require('../lib/Model').Model
 const GlobalConfig = require("../util/config")
-// const moment = require('moment')
-// const GameTypeEnum = require('../lib/Consts').GameTypeEnum
-// const ConfigModel = require('./ConfigModel')
 
 class UserModel extends BaseModel {
     constructor() {
@@ -157,16 +154,6 @@ class UserModel extends BaseModel {
         })
         // 按照层级排序
         const sortResult = _.sortBy(queryRet.Items, ['level'])
-
-        // 查询已用商户已用数量
-        // let userArr = []
-        // for (let user of sortResult) {
-        // const childs = await new UserModel().listChildUsers(user, RoleCodeEnum.Merchant)
-        // else if (childs.length < user.limit) {
-        // userArr.push(user)
-        // }
-        // }
-
         const viewList = _.map(sortResult, (item) => {
             return {
                 value: item.userId,

@@ -11,8 +11,6 @@ const log = require('tracer').colorConsole({ level: config.log.level })
 const PlayerBillModel = require('./model/PlayerBillModel')
 const SysBillModel = require('./model/SysBillModel')
 const CalcCheck = require('./biz/CalcCheck')
-// const Model = require('./lib/Model').Model
-
 
 // 计算玩家流水
 router.post('/calcPlayerStat', async function (ctx, next) {

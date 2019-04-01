@@ -37,14 +37,6 @@ router.post('/managers', async function (ctx, next) {
       const lastBill = await new BillModel().checkUserLastBill(user)
       user.balance = lastBill.lastBalance
       user.merchantCount = await new UserModel().count(user.userId)
-      // user.lastBill = lastBill
-      // // 查询已用商户已用数量
-      // const ret = await new UserModel().listChildUsers(user, RoleCodeEnum.Merchant)
-      // if (ret && ret.length > 0) {
-      //   user.merchantUsedCount = ret.length
-      // } else {
-      //   user.merchantUsedCount = 0
-      // }
       resolve('Y')
     })
     promiseArr.push(p)
@@ -85,17 +77,9 @@ router.get('/managers/:id', async function (ctx, next) {
   const manager = await new UserModel().queryUserById(params.id, options)
   const lastBill = await new BillModel().checkUserLastBill(manager)
   manager.balance = lastBill.lastBalance
-  // manager.lastBill = lastBill
   //获取对应的游戏大类
   let companyArrRes = await axios.post(`https://${config.env.GAME_CENTER}/companySelect`, { parent }, { headers: { 'Authorization': ctx.header.authorization } })
   manager.companyArr = companyArrRes.data.payload
-  // 查询已用商户已用数量
-  // const ret = await new UserModel().listChildUsers(manager, RoleCodeEnum.Merchant)
-  // if (ret && ret.length > 0) {
-  //   manager.merchantUsedCount = ret.length
-  // } else {
-  //   manager.merchantUsedCount = 0
-  // }
   // 结果返回
   ctx.body = { code: 0, payload: manager }
 })

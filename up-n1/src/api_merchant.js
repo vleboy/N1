@@ -34,7 +34,6 @@ router.post('/merchants', async function (ctx, next) {
       const lastBill = await new BillModel().checkUserLastBill(user)
       user.balance = lastBill.lastBalance
       user.playerCount = await new PlayerModel().count(user.userId)
-      // user.lastBill = lastBill
       resolve('Y')
     })
     promiseArr.push(p)
@@ -83,7 +82,6 @@ router.get('/merchants/:id', async function (ctx, next) {
   }
   const lastBill = await new BillModel().checkUserLastBill(merchant)
   merchant.balance = lastBill.lastBalance
-  // merchant.lastBill = lastBill
   // 结果返回
   ctx.body = { code: 0, payload: merchant }
 })
@@ -128,7 +126,6 @@ router.post('/merchants/:id', async function (ctx, next) {
   const Merchant = {
     ...merchant, ..._.pick(merchantInfo, RoleEditProps[RoleCodeEnum.Merchant])
   }
-  //console.log(Merchant)
   Merchant.passhash = Model.hashGen(Merchant.password)
   //如果isTest发生了变化也要更新所有下级的isTest
   if (merchant.isTest != merchantInfo.isTest) {
@@ -233,7 +230,6 @@ function checkGameList(merchantInfo, parentUser) {
       let index = _.findIndex(parentGameList, function (o) {
         return o.code == item.code
       })
-      //console.log(index + ':' + item.rate + '>' + parentGameList[index].rate)
       if (index == -1 || +item.rate > +parentGameList[index].rate) {
         errArr.push(item)
       }

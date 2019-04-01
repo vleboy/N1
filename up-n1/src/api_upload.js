@@ -6,7 +6,6 @@ const router = new Router()
 // 工具相关
 const AWS = require('aws-sdk')
 const OSS = require('ali-oss')
-// const co = require('co')
 const IMG_BUCKET = config.env.IMG_BUCKET
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
@@ -55,11 +54,8 @@ router.post('/upload', async function (ctx, next) {
             ],
             "Version": "1"
         }
-        // let result = co(function* () {
         let token = await sts.assumeRole(rolearn, policy, 15 * 60, 'taoosossss')
         resolve({ "ali": token.credentials })
-        // }).catch(function (err) {
-        // });
     })
 
     let finalRes = await Promise.all([p1, p2]).catch(err => {

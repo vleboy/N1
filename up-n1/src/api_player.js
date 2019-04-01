@@ -12,7 +12,6 @@ const log = require('tracer').colorConsole({ level: config.log.level })
 const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
 const PlayerModel = require('./model/PlayerModel')
 const UserModel = require('./model/UserModel')
-// const PushModel = require('./model/PushModel')
 const RoundModel = require('./model/RoundModel')
 const LogModel = require('./model/LogModel')
 const GameRecord = require('./model/GameRecord')
@@ -295,9 +294,6 @@ router.post('/player/forzen', async function (ctx, next) {
     //业务操作
     if (playerInfo.state != inparam.state) {
         await new PlayerModel().updateState(inparam.userName, inparam.state)
-        // if (inparam.state == 0) { //冻结
-        //     new PushModel().pushForzen({ type: 1, uids: [playerInfo.userId], msg: "你已经被锁定，不能再继续游戏!" });
-        // }
     }
     ctx.body = { code: 0, msg: '操作成功' }
 })
@@ -352,14 +348,8 @@ router.post('/player/bill/detail', async function (ctx, next) {
             createdAt: lastRecord.createdAt
         }
     }
-    //获取玩家的gameList
-    // let playerInfo = await new PlayerModel().getPlayer(inparam.userName)
     //组装返回结果
     let returnList = list.map((item) => {
-        // let playerMix = playerInfo.gameList.find((p) => {
-        //     return item.gameType == p.code
-        // })
-        // playerMix = playerMix || {}  //获取玩家洗码比
         let typeName
         if (item.gameType == 1) typeName = "中心钱包"
         if (item.gameType == 2) typeName = "代理操作"
@@ -374,8 +364,6 @@ router.post('/player/bill/detail', async function (ctx, next) {
             gameType: item.gameType,
             gameId: item.gameId,
             typeName: typeName || (GameTypeEnum[item.gameType] || { name: "" }).name,
-            // rate: item.rate || 0,
-            // mix: playerMix.mix || 0,
             winloseAmount: item.winloseAmount || 0,
             balance: +((item.originalAmount || 0) + (item.winloseAmount || 0)).toFixed(2),
             content: ((item.content || {}).ret || []).concat(((item.content || {}).bet || []))
@@ -440,9 +428,6 @@ router.post('/player/bill/record', async function (ctx, next) {
     if (recordInfo && recordInfo.gameType == '30000') {
         recordInfo.record.betNum = recordInfo.record.itemName + "($" + recordInfo.record.amount + ")"
     }
-    // if (recordInfo.record && typeof recordInfo.record == 'object') {
-    //     recordInfo.record.gameType = recordInfo.gameType
-    // }
     let subRecord = recordInfo.record && typeof recordInfo.record == 'object' ? recordInfo.record : {}
     recordInfo = { ...subRecord, ...recordInfo }
     delete recordInfo.record
@@ -490,7 +475,6 @@ router.get('/player/bill/flow/download', async function (ctx, next) {
             originalAmount: item.originalAmount || 0,
             balance: item.balance || "",
             amount: item.amount,
-            // userName: item.userName
         }
     }
     let content = "流水号,日期,游戏类型,交易类型,账变前金额,金额,发生后金额\n";
@@ -561,15 +545,8 @@ router.get('/player/bill/detail/download', async function (ctx, next) {
     }
     //查询局表
     let list = await new RoundModel().getAllRoundByName(indexName, queryParms, filterParms)
-    //获取玩家的gameList
-    // let playerInfo = await new PlayerModel().getPlayer(inparam.userName)
     //组装返回结果
     let returnList = list.map((item) => {
-        // let playerMix = playerInfo.gameList.find((p) => {
-        //     return item.gameType == p.code
-        // })
-        // console.log(playerMix)
-        // playerMix = playerMix || {}  //获取玩家洗码比
         let typeName
         if (item.gameType == 1) typeName = "中心钱包"
         if (item.gameType == 2) typeName = "代理操作"
@@ -584,8 +561,6 @@ router.get('/player/bill/detail/download', async function (ctx, next) {
             gameType: item.gameType,
             gameId: item.gameId,
             typeName: typeName || (GameTypeEnum[item.gameType] || { name: "" }).name,
-            // rate: item.rate || 0,
-            // mix: 0,
             winloseAmount: item.winloseAmount || 0,
             balance: +((item.originalAmount || 0) + (item.winloseAmount || 0)).toFixed(2),
             content: ((item.content || {}).ret || []).concat(((item.content || {}).bet || []))
@@ -607,10 +582,6 @@ router.get('/player/bill/detail/download', async function (ctx, next) {
         content += item['retAmount'];
         content += ",";
         content += item['profitAmount'];
-        // content += ",";
-        // content += item['rate'];
-        // content += ",";
-        // content += item['mix'];
         content += "\n";
     }
     ctx.set("Content-Type", "application/vnd.ms-execl")

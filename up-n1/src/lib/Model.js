@@ -3,27 +3,8 @@ const jwt = require('jsonwebtoken')
 const _ = require('lodash')
 const bcrypt = require('bcryptjs')
 const uuid = require('uuid/v4')
-const BizErr = require('../lib/Codes').BizErr
 const RoleCodeEnum = require('../lib/UserConsts').RoleCodeEnum
-const GlobalConfig = require("../util/config")
 const TOKEN_SECRET = config.auth.secret
-
-const AWS = require('aws-sdk')
-AWS.config.update({ region: 'ap-southeast-1' })
-const dbClient = new AWS.DynamoDB.DocumentClient()
-const db$ = (action, params) => {
-  return dbClient[action](params).promise()
-}
-// 神秘大奖状态枚举
-const MysteryStatusEnum = {
-  Unreceived: 0,
-  Received: 1,
-}
-// 公告状态枚举
-const AdStatusEnum = {
-  Enable: 1,
-  Disable: 0
-}
 /**
  * 账单实体
  */
@@ -192,7 +173,5 @@ Date.prototype.Format = function (fmt) {
 
 module.exports = {
   Model,
-  BillMo,
-  AdStatusEnum,
-  MysteryStatusEnum
+  BillMo
 }
