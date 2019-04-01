@@ -32,7 +32,7 @@ router.get('/sa/gameurl/:userId/:token', async function (ctx, next) {
         userId: ctx.params.userId,
         gameId: config.sa.gameType,
         sid: config.sa.gameId,
-        token: inparam.token
+        token: ctx.params.token
     })
     // 根据返回结果是否允许玩家进入游戏
     if (nares.data.code != 0) {
