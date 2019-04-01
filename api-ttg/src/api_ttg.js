@@ -35,7 +35,7 @@ router.get('/ttg/gameurl/:gameName/:gameId/:sid/:userName/:userId/:token', async
             userId: ctx.params.userId,
             gameId: ctx.params.gameId,
             sid: ctx.params.sid,
-            token: inparam.token
+            token: ctx.params.token
         })
         // 判断玩家是否在其他游戏中
         if (nares.data.code != 0) {

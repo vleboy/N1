@@ -89,7 +89,7 @@ router.get('/sa/fisher/:token', async function (ctx, next) {
         userId: decoded.userId,
         gameId: config.sa.fishGameType,
         sid: config.sa.fishGameId,
-        token: inparam.token
+        token: ctx.params.token
     })
     // 根据返回结果是否允许玩家进入游戏
     if (nares.data.code != 0) {
