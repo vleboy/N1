@@ -22,7 +22,7 @@
     "develop": {
       "key": "../../testserver.pem",
       "user": "root",
-      "host": "47.88.170.136",
+      "host": "testgame.cncshe.com",
       "ref": "origin/master",
       "repo": "git@github.com:vleboy/N1.git",
       "path": "/usr/dev/up-game",
@@ -31,7 +31,7 @@
     "production": {
       "key": "../../a1server.pem",
       "user": "root",
-      "host": "47.88.169.252",
+      "host": "game.cncshe.com",
       "ref": "origin/master",
       "repo": "git@github.com:vleboy/N1.git",
       "path": "/usr/prod/up-game",
