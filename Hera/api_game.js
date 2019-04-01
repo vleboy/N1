@@ -25,13 +25,13 @@ module.exports.auth = async function (e, c, cb) {
         console.log(e.body)
         const inparam = JSONParser(e.body)
         //2,参数校验
-        new BillCheck().checkAuth(inparam)
-        // 不是NA平台调用
-        if (inparam.plat && inparam.plat != 'NA') {
-            return transferAuth(inparam, cb)
-        }
-        //3，签名校验
         if (!inparam.sid) {
+            new BillCheck().checkAuth(inparam)
+            // 不是NA平台调用
+            if (inparam.plat && inparam.plat != 'NA') {
+                return transferAuth(inparam, cb)
+            }
+            //3，签名校验
             let sign = CryptoJS.SHA1(`${inparam.timestamp}${COMPANY_NA_KEY}`).toString(CryptoJS.enc.Hex)
             if (sign != inparam.apiKey) {
                 inparam.userName = '签名错误'
