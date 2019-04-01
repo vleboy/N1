@@ -44,7 +44,7 @@
     "na": {
         "center": "47.74.152.121",
         "apidomain": "webgame.na77.org",
-        "joingameurl": "https://api.na12345.com/dev/game/player/join",
+        "joingameurl": "https://api.na12345.com/dev/game/auth",
         "settlementurl": "https://api.na12345.com/dev/game/settlement",
         "exiturl": "https://api.na12345.com/dev/game/postTransfer",
         "fixPlayerRoundDayUrl": "https://webgame.na77.org/stat/fixPlayerRoundDay"
