@@ -43,11 +43,7 @@ const UserRole = function () {
 
     lastIP: Model.StringValue,            // 最后IP
     loginAt: Date.now(),                  // 登录时间
-    status: StatusEnum.Enable,            // 状态
-
-    adminName: Model.StringValue,         // 管理帐号的管理员姓名
-    adminEmail: Model.StringValue,        // 管理帐号的管理员邮箱
-    adminContact: Model.StringValue       // 管理帐号的管理员联系方式
+    status: StatusEnum.Enable             // 状态
   }
 }
 /**
@@ -76,7 +72,7 @@ const RoleModels = {
     return {
       ...UserRole(),
       parentName: Model.NoParentName,
-      role: RoleCodeEnum['SuperAdmin'],
+      role: RoleCodeEnum.SuperAdmin,
       displayName: '超级管理员',
       suffix: 'NAPlay'
     }
@@ -85,7 +81,7 @@ const RoleModels = {
     return {
       ...UserRole(),
       parentName: Model.NoParentName,
-      role: RoleCodeEnum['PlatformAdmin'],
+      role: RoleCodeEnum.PlatformAdmin,
       subRole: 'admin',
       displayName: '平台管理员',
       suffix: 'Platform',
@@ -94,11 +90,7 @@ const RoleModels = {
   },
   '10': function () {
     return { // 线路商
-      ...PlatformBaseBizRole(),
-      // limit: Model.NumberValue,             // 可用名额
-      managerEmail: Model.StringValue,      // 线路商邮箱
-      hostName: Model.StringValue,          // 负责人姓名
-      hostContact: Model.StringValue        // 负责人联系方式
+      ...PlatformBaseBizRole()
     }
   },
   '100': function () {
@@ -106,26 +98,14 @@ const RoleModels = {
       ...PlatformBaseBizRole(),
       msn: Model.StringValue,               // 线路号
       apiKey: uuid(),                       // APIKEY
-      frontURL: Model.StringValue,          // 商户站点
       loginWhiteList: '0.0.0.0',            // 登录白名单
-      merchantEmail: Model.StringValue,     // 商户邮箱
-      hostName: Model.StringValue,          // 负责人姓名
-      hostContact: Model.StringValue,       // 负责人联系方式
-      moneyURL: Model.StringValue,          // 商户充值站点
-      registerURL: Model.StringValue,       // 商户注册站点
-      feedbackURL: Model.StringValue,       // 客服连接
-      sn: Model.StringValue,                // 商户邀请码
-      launchImg: Model.StringValue          // 商户启动图片
+      sn: Model.StringValue                // 商户邀请码
     }
   },
   '1000': function () {
     return {// 代理
       ...PlatformBaseBizRole(),
-      vedioMix: Model.NumberValue,            // 电子游戏洗码比
-      liveMix: Model.NumberValue,             // 真人视讯洗码比
-      sn: Model.StringValue,                  // 代理邀请码
-      feedbackURL: Model.StringValue,         // 客服连接
-      launchImg: Model.StringValue            // 代理启动图片
+      sn: Model.StringValue                  // 代理邀请码
     }
   },
   '10000': function () {
@@ -142,6 +122,7 @@ const RoleDisplay = {
     'role',
     'suffix',
     'username',
+    'uname',
 
     'parent',
     'parentName',
@@ -149,8 +130,6 @@ const RoleDisplay = {
     'displayName',
     'level',
     'subRole'           // 二级权限
-
-    // 'password',
   ],
   '10': [// 线路商
     'userId',
@@ -164,12 +143,10 @@ const RoleDisplay = {
     'parentRole',
     'displayName',
     'level',
+    'gameList',
 
     'displayId',        // 显示ID
     'updatedAt'
-
-    // 'password',
-    // 'remark'
   ],
   '100': [// 商户
     'userId',
@@ -183,6 +160,7 @@ const RoleDisplay = {
     'parentRole',
     'displayName',
     'level',
+    'gameList',
 
     'msn',            // 商户线路号
     'apiKey',         // 商户APIKEY
@@ -190,14 +168,8 @@ const RoleDisplay = {
     'displayId',
     'updatedAt',
 
-    'moneyURL',
-    'registerURL',
     'sn',
-    'feedbackURL',  // 客服链接
-    'launchImg'
-
-    // 'password',
-    // 'remark'
+    'transferURL'
   ],
   '1000': [// 代理
     'userId',
@@ -212,19 +184,11 @@ const RoleDisplay = {
     'displayName',
     'level',
 
-    'vedioMix',       // 电子游戏洗码比
-    'liveMix',        // 真人视讯洗码比
-
     'displayId',
     'updatedAt',
     'sn',
-    'feedbackURL',  // 客服链接
-    'launchImg',
     'gameList',
     'rate'
-
-    // 'password',
-    // 'remark'
   ]
 }
 /**
@@ -234,51 +198,27 @@ const RoleEditProps = {
   '0': [],
   '1': [],
   '10': [// 线路商
-    'hostName',
-    'hostContact',
-    'managerEmail',
-    'adminName',
-    'adminEmail',
-    'adminContact',
     'password',
     'rate',
     'gameList',
-
-    // 'limit',          // 线路商可用名额
-
+    'isTest',
     'remark'
   ],
   '100': [// 商户
-    'hostName',
-    'hostContact',
-    'merchantEmail',
-    'adminName',
-    'adminEmail',
-    'adminContact',
     'password',
     'rate',
     'gameList',
-
     'loginWhiteList', // 商户白名单
-    'frontURL',       // 商户前端URL
-
     'remark',
-
-    'moneyURL',
-    'registerURL',
-    'feedbackURL',    // 客服链接
-    'launchImg'
+    'isTest',
+    'transferURL'
   ],
   '1000': [// 代理
     'password',
     'rate',
     'gameList',
-
-    'vedioMix',     // 电子游戏洗码比
-    'liveMix',      // 真人视讯洗码比
+    'isTest',
     'remark',
-    'feedbackURL',  // 客服链接
-    'launchImg',
     'chip'          // 限红
   ],
   '10000': []

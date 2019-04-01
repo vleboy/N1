@@ -4,15 +4,6 @@ const _ = require('lodash')
 const bcrypt = require('bcryptjs')
 const RoleCodeEnum = require('../lib/UserConsts').RoleCodeEnum
 const TOKEN_SECRET = config.auth.secret
-// const BizErr = require('../lib/Codes').BizErr
-// const GlobalConfig = require("../util/config")
-
-// const AWS = require('aws-sdk')
-// AWS.config.update({ region: 'ap-southeast-1' })
-// const dbClient = new AWS.DynamoDB.DocumentClient()
-// const db$ = (action, params) => {
-//   return dbClient[action](params).promise()
-// }
 const Model = {
   StringValue: 'NULL!',
   NumberValue: 0.0,
@@ -40,41 +31,6 @@ const Model = {
       return this.getLengthNum(len)
     }
   },
-
-  // /**
-  //  * 生成唯一编号
-  //  */
-  // uucode: async (type, size) => {
-  //   const ret = await db$('query', {
-  //     TableName: GlobalConfig.TABLE_NAMES.ZeusPlatformCode,
-  //     KeyConditionExpression: '#type = :type',
-  //     ExpressionAttributeNames: {
-  //       '#type': 'type'
-  //     },
-  //     ExpressionAttributeValues: {
-  //       ':type': type,
-  //     }
-  //   })
-  //   // 所有编号都被占用
-  //   if (ret.Items.length >= Math.pow(10, size) - Math.pow(10, size - 1)) {
-  //     throw BizErr.CodeFullError()
-  //   }
-  //   // 所有占用编号组成数组
-  //   let codeArr = new Array()
-  //   for (let item of ret.Items) {
-  //     codeArr.push(parseInt(item.code))
-  //   }
-  //   // 获取指定位数的随机数
-  //   let randomCode = Math.floor((Math.random() + Math.floor(Math.random() * 9 + 1)) * Math.pow(10, size - 1))
-  //   // 判断随机线路号是否已被占用
-  //   while (codeArr.indexOf(randomCode) != -1) {
-  //     randomCode = Math.floor((Math.random() + Math.floor(Math.random() * 9 + 1)) * Math.pow(10, size - 1))
-  //   }
-  //   // 编号插入
-  //   // await db$('put', {TableName: GlobalConfig.TABLE_NAMES.ZeusPlatformCode,Item: {type: type,code: randomCode.toString()}})
-  //   // 返回编号
-  //   return randomCode.toString()
-  // },
   /**
    * token处理
    */

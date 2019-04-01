@@ -16,7 +16,6 @@ const GameModel = require('./model/GameModel')
 const GameCheck = require('./biz/GameCheck')
 const RoleCodeEnum = require('./lib/UserConsts').RoleCodeEnum
 const GameTypeEnum = require('./lib/Consts').GameTypeEnum
-// const Model = require('./lib/Model').Model
 const BizErr = require('./lib/Codes').BizErr
 
 const serverKey = "0IiwicGFyZW50IjoiMDAiLCJwYXJlbnROYW1lIjoiU3VwZXJBZG1pbiIsInBhcmVudFJvbGUiOiIwMCIsImRpc3BsYXlOYW1lIjoi5Luj55CG566h55CG5"

@@ -43,7 +43,7 @@ const UserRole = function () {
 
     lastIP: Model.StringValue,            // 最后IP
     loginAt: Date.now(),                  // 登录时间
-    status: StatusEnum.Enable              // 状态
+    status: StatusEnum.Enable             // 状态
   }
 }
 /**
@@ -61,7 +61,7 @@ const PlatformBaseBizRole = function () {
     points: Model.NumberValue,            // 初始积分
     rate: Model.NumberValue,              // 抽成比
     remark: Model.StringValue,            // 备注
-    chip: []                               // 限红
+    chip: []                              // 限红
   }
 }
 /**
@@ -98,23 +98,14 @@ const RoleModels = {
       ...PlatformBaseBizRole(),
       msn: Model.StringValue,               // 线路号
       apiKey: uuid(),                       // APIKEY
-      // frontURL: Model.StringValue,          // 商户站点
       loginWhiteList: '0.0.0.0',            // 登录白名单
-      // moneyURL: Model.StringValue,          // 商户充值站点
-      // registerURL: Model.StringValue,       // 商户注册站点
-      // feedbackURL: Model.StringValue,       // 客服连接
-      sn: Model.StringValue              // 商户邀请码
-      // launchImg: Model.StringValue          // 商户启动图片
+      sn: Model.StringValue                // 商户邀请码
     }
   },
   '1000': function () {
     return {// 代理
       ...PlatformBaseBizRole(),
-      vedioMix: Model.NumberValue,            // 电子游戏洗码比
-      liveMix: Model.NumberValue,             // 真人视讯洗码比
-      sn: Model.StringValue                 // 代理邀请码
-      // feedbackURL: Model.StringValue,         // 客服连接
-      // launchImg: Model.StringValue            // 代理启动图片
+      sn: Model.StringValue                  // 代理邀请码
     }
   },
   '10000': function () {
@@ -177,11 +168,8 @@ const RoleDisplay = {
     'displayId',
     'updatedAt',
 
-    // 'moneyURL',
-    // 'registerURL',
-    'sn'
-    // 'feedbackURL',  // 客服链接
-    // 'launchImg'
+    'sn',
+    'transferURL'
   ],
   '1000': [// 代理
     'userId',
@@ -195,16 +183,12 @@ const RoleDisplay = {
     'parentRole',
     'displayName',
     'level',
-    'gameList',
 
     'displayId',
     'updatedAt',
     'sn',
-    // 'feedbackURL',  // 客服链接
-    // 'launchImg',
     'gameList',
-    'rate',
-    'subRole'
+    'rate'
   ]
 }
 /**
@@ -217,7 +201,7 @@ const RoleEditProps = {
     'password',
     'rate',
     'gameList',
-
+    'isTest',
     'remark'
   ],
   '100': [// 商户
@@ -225,13 +209,9 @@ const RoleEditProps = {
     'rate',
     'gameList',
     'loginWhiteList', // 商户白名单
-    // 'frontURL',       // 商户前端URL
-    'remark'
-    // 'moneyURL',
-    // 'registerURL',
-    // 'feedbackURL',    // 客服链接
-    // 'launchImg',
-    // 'isOpenBrowser'
+    'remark',
+    'isTest',
+    'transferURL'
   ],
   '1000': [// 代理
     'password',
@@ -239,8 +219,6 @@ const RoleEditProps = {
     'gameList',
     'isTest',
     'remark',
-    // 'feedbackURL',  // 客服链接
-    // 'launchImg',
     'chip'          // 限红
   ],
   '10000': []

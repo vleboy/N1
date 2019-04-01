@@ -11,8 +11,6 @@ const log = require('tracer').colorConsole({ level: config.log.level })
 const CompanyModel = require('./model/CompanyModel')
 const LogModel = require('./model/LogModel')
 const CompanyCheck = require('./biz/CompanyCheck')
-// const RoleCodeEnum = require('./lib/UserConsts').RoleCodeEnum
-// const Model = require('./lib/Model').Model
 const BizErr = require('./lib/Codes').BizErr
 
 // 创建厂商

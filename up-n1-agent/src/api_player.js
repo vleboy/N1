@@ -7,7 +7,6 @@ const router = new Router()
 const _ = require('lodash')
 const uuid = require('uuid/v4')
 const crypto = require('crypto')
-// const axios = require('axios')
 const moment = require('moment')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
@@ -16,7 +15,6 @@ const PlayerModel = require('./model/PlayerModel')
 const UserModel = require('./model/UserModel')
 const BillModel = require('./model/BillModel')
 const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
-// const PushModel = require('./model/PushModel')
 const RoundModel = require('./model/RoundModel')
 const GameRecord = require('./model/GameRecord')
 const AgentPlayerCheck = require('./biz/AgentPlayerCheck')
@@ -359,9 +357,6 @@ router.post('/player/forzen', async function (ctx, next) {
     //业务操作
     if (playerInfo.state != inparam.state) {
         await new PlayerModel().updateState(inparam.userName, inparam.state)
-        // if (inparam.state == 0) { //冻结
-        //     new PushModel().pushForzen({ type: 1, uids: [playerInfo.userId], msg: "你已经被锁定，不能再继续游戏!" });
-        // }
     }
     ctx.body = { code: 0, msg: '操作成功' }
 })
@@ -683,9 +678,6 @@ router.post('/player/bill/record', async function (ctx, next) {
     if (recordInfo && recordInfo.gameType == '30000') {
         recordInfo.record.betNum = recordInfo.record.itemName + "($" + recordInfo.record.amount + ")"
     }
-    // if (recordInfo.record && typeof recordInfo.record == 'object') {
-    //     recordInfo.record.gameType = recordInfo.gameType
-    // }
     let subRecord = recordInfo.record && typeof recordInfo.record == 'object' ? recordInfo.record : {}
     recordInfo = { ...subRecord, ...recordInfo }
     delete recordInfo.record
@@ -732,8 +724,7 @@ router.get('/player/bill/flow/download', async function (ctx, next) {
             businessKey: item.businessKey || "",
             originalAmount: item.originalAmount || 0,
             balance: item.balance || "",
-            amount: item.amount,
-            // userName: item.userName
+            amount: item.amount
         }
     }
     let content = "流水号,日期,游戏类型,交易类型,账变前金额,金额,发生后金额\n";
