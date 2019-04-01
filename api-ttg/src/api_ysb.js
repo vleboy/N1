@@ -131,6 +131,7 @@ router.post('/ysb/postTransfer', async function (ctx, next) {
         return
     }
     inparam.userName = player.userName
+    inparam.userId = player.userId
     // 设置玩家余额
     BAL = player.balance
     // 判断交易类型
