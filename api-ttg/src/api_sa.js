@@ -31,8 +31,9 @@ router.get('/sa/gameurl/:userId/:token', async function (ctx, next) {
     const nares = await axios.post(config.na.joingameurl, {
         userId: ctx.params.userId,
         gameId: config.sa.gameType,
-        sid: config.sa.gameId
-    }, { headers: { 'Authorization': ctx.params.token } })
+        sid: config.sa.gameId,
+        token: inparam.token
+    })
     // 根据返回结果是否允许玩家进入游戏
     if (nares.data.code != 0) {
         ctx.body = { code: nares.data.code, msg: nares.data.msg }
@@ -87,8 +88,9 @@ router.get('/sa/fisher/:token', async function (ctx, next) {
     const nares = await axios.post(config.na.joingameurl, {
         userId: decoded.userId,
         gameId: config.sa.fishGameType,
-        sid: config.sa.fishGameId
-    }, { headers: { 'Authorization': ctx.params.token } })
+        sid: config.sa.fishGameId,
+        token: inparam.token
+    })
     // 根据返回结果是否允许玩家进入游戏
     if (nares.data.code != 0) {
         ctx.body = { code: nares.data.code, msg: nares.data.msg }

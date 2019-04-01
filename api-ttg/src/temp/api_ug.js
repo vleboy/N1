@@ -44,8 +44,9 @@ router.post('/ug/login', async function (ctx, next) {
     const nares = await axios.post(config.na.joingameurl, {
         userId: decoded.userId,
         gameId: config.ug.gameType,
-        sid: config.ug.gameId
-    }, { headers: { 'Authorization': inparam.SessionID } })
+        sid: config.ug.gameId,
+        token: inparam.SessionID
+    })
     // 根据返回结果是否允许玩家进入游戏
     if (nares.data.code != 0) {
         log.error(nares.data)

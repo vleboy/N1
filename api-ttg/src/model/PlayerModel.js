@@ -4,7 +4,6 @@ const moment = require('moment')
 const BaseModel = require('./BaseModel')
 const PlayerBillDetailModel = require('./PlayerBillDetailModel')
 const UserModel = require('./UserModel')
-const PushModel = require('./PushModel')
 const StatRoundModel = require('./StatRoundModel')
 const HeraGameRecordModel = require('./HeraGameRecordModel')
 const LogModel = require('./LogModel')
@@ -249,9 +248,7 @@ module.exports = class PlayerModel extends BaseModel {
         billItem.originalAmount = res.Attributes.balance                         // 帐变前金额
         billItem.balance = parseFloat((res.Attributes.balance + amt).toFixed(2)) // 玩家余额
         await new PlayerBillDetailModel().putItem(billItem)
-        // 6，推送余额给NA大厅
-        new PushModel().pushUserBalance(billItem.userId, billItem.balance)
-        // 7，非延时长的游戏,非下注流水检查是否超时
+        // 6，非延时长的游戏,非下注流水检查是否超时
         if (isCheckRet && naGameType != config.sa.fishGameType) {
             new PlayerBillDetailModel().checkExpire(bkBet, billItem)
         }

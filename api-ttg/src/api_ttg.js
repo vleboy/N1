@@ -34,8 +34,9 @@ router.get('/ttg/gameurl/:gameName/:gameId/:sid/:userName/:userId/:token', async
         const nares = await axios.post(config.na.joingameurl, {
             userId: ctx.params.userId,
             gameId: ctx.params.gameId,
-            sid: ctx.params.sid
-        }, { headers: { 'Authorization': ctx.params.token } })
+            sid: ctx.params.sid,
+            token: inparam.token
+        })
         // 判断玩家是否在其他游戏中
         if (nares.data.code != 0) {
             ctx.body = { code: nares.data.code, msg: nares.data.msg }

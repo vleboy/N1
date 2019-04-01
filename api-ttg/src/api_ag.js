@@ -37,8 +37,9 @@ router.get('/ag/gameurl/:gameId/:sid/:userId/:token', async function (ctx, next)
         const nares = await axios.post(config.na.joingameurl, {
             userId: inparam.userId,
             gameId: inparam.gameId,
-            sid: inparam.sid
-        }, { headers: { 'Authorization': inparam.token } })
+            sid: inparam.sid,
+            token: inparam.token
+        })
         if (nares.data.code != 0) {
             return ctx.body = { code: nares.data.code, msg: nares.data.msg }
         }

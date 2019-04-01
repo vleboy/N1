@@ -56,8 +56,9 @@ router.post('/ysb/login', async function (ctx, next) {
         const nares = await axios.post(config.na.joingameurl, {
             userId: player.userId,
             gameId: config.ysb.gameType,
-            sid: config.ysb.gameId
-        }, { headers: { 'Authorization': SG } })
+            sid: config.ysb.gameId,
+            token: SG
+        })
         // 根据返回结果是否允许玩家进入游戏
         if (nares.data.code != 0) {
             log.error(nares.data)

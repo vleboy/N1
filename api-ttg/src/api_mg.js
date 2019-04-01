@@ -29,8 +29,9 @@ router.get('/mg/gameurl/:gameId/:sid/:userName/:userId/:token', async function (
     const nares = await axios.post(config.na.joingameurl, {
         userId: inparam.userId,
         gameId: inparam.gameId,
-        sid: inparam.sid
-    }, { headers: { 'Authorization': inparam.token } })
+        sid: inparam.sid,
+        token: inparam.token
+    })
     // 判断玩家是否在其他游戏中
     if (nares.data.code != 0) {
         ctx.body = { code: nares.data.code, msg: nares.data.msg }
@@ -66,8 +67,9 @@ router.post('/mg/gameurl', async function (ctx, next) {
     const nares = await axios.post(config.na.joingameurl, {
         userId: inparam.userId,
         gameId: inparam.gameId,
-        sid: inparam.sid
-    }, { headers: { 'Authorization': inparam.token } })
+        sid: inparam.sid,
+        token: inparam.token
+    })
     // 判断玩家是否在其他游戏中
     if (nares.data.code != 0) {
         ctx.body = { code: nares.data.code, msg: nares.data.msg }

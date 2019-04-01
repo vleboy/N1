@@ -35,8 +35,9 @@ router.get('/maya/gameurl/:gameName/:gameId/:sid/:userId/:token', async function
         const nares = await axios.post(config.na.joingameurl, {
             userId: inparam.userId,
             gameId: inparam.gameId,
-            sid: inparam.sid
-        }, { headers: { 'Authorization': inparam.token } })
+            sid: inparam.sid,
+            token: inparam.token
+        })
         if (nares.data.code != 0) {
             log.error(nares.data)
             ctx.body = { code: nares.data.code, msg: nares.data.msg }
