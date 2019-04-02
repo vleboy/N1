@@ -16,7 +16,6 @@ const PlayerModel = require('./model/PlayerModel')
 const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
 const HeraGameRecordModel = require('./model/HeraGameRecordModel')
 const LogModel = require('./model/LogModel')
-// const NASign = require('./lib/NASign')
 
 /**
  * 检查YSB会员登录接口

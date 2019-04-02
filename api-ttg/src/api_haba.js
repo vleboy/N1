@@ -14,7 +14,6 @@ const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
 const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
-// const NASign = require('./lib/NASign')
 
 /**
  * HABA PC版本游戏链接

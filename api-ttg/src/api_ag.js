@@ -13,7 +13,6 @@ const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 let acMap = {}  // 试玩帐号缓存
 const PlayerModel = require('./model/PlayerModel')
-// const NASign = require('./lib/NASign')
 
 /**
  * 获取AG游戏连接

@@ -12,7 +12,6 @@ const querystring = require('querystring')
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
-// const NASign = require('./lib/NASign')
 
 /**
  * DT PC版本游戏链接

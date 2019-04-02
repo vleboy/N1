@@ -4,8 +4,6 @@ const config = require('config')
 const Router = require('koa-router')
 const router = new Router()
 // 工具相关
-// const jwt = require('jsonwebtoken')
-// const _ = require('lodash')
 const IP2Region = require('ip2region')
 const ipquery = new IP2Region()
 const axios = require('axios')
@@ -20,8 +18,7 @@ const ConfigModel = require('./model/ConfigModel')
  */
 router.get('/webapi/ipquery', async function (ctx, next) {
     let country = '中国'
-    let configRes = await new ConfigModel().getOne({ code: 'appVersion' })
-    let n1version = configRes.n1Version
+    let n1version = ''
     let n2version = '0004'
     let zyzxversion = '1003'
     const res = ipquery.search(ctx.request.ip)

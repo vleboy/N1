@@ -12,7 +12,6 @@ const parseString = require('xml2js').parseString
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
-// const NASign = require('./lib/NASign')
 // const redis = require('redis')
 // const redisClient = redis.createClient({ url: 'redis://redis-19126.c1.ap-southeast-1-1.ec2.cloud.redislabs.com:19126' })
 

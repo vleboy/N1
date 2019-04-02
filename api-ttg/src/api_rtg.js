@@ -11,7 +11,6 @@ const CryptoJS = require('crypto-js')
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
-// const NASign = require('./lib/NASign')
 
 /**
  * 获取RTG游戏连接
