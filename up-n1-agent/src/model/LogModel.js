@@ -1,7 +1,7 @@
 const StatusEnum = require('../lib/UserConsts').StatusEnum
 const uuid = require('uuid/v4')
 const Codes = require('../lib/Codes').Codes
-const GlobalConfig = require("../util/config")
+const config = require('config')
 const BaseModel = require('./BaseModel')
 const moment = require('moment')
 
@@ -13,7 +13,7 @@ module.exports = class LogModel extends BaseModel {
         super()
         // 设置表名
         this.params = {
-            TableName: GlobalConfig.TABLE_NAMES.ZeusPlatformLog
+            TableName: config.env.TABLE_NAMES.ZeusPlatformLog
         }
         // 设置对象属性
         this.item = {

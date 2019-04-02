@@ -1,13 +1,13 @@
 
 const Model = require('../lib/Model').Model
-const GlobalConfig = require("../util/config")
+const config = require('config')
 const BaseModel = require('./BaseModel')
 class ConfigModel extends BaseModel {
     constructor() {
         super()
         // 设置表名
         this.params = {
-            TableName: GlobalConfig.TABLE_NAMES.SYSConfig,
+            TableName: config.env.TABLE_NAMES.SYSConfig,
         }
         // 设置对象属性
         this.item = {

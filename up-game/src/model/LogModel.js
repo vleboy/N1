@@ -1,5 +1,5 @@
 const uuid = require('uuid/v4')
-const GlobalConfig = require("../util/config")
+const config = require('config')
 const BaseModel = require('./BaseModel')
 
 /**
@@ -10,7 +10,7 @@ module.exports = class LogModel extends BaseModel {
         super()
         // 设置表名
         this.params = {
-            TableName: GlobalConfig.TABLE_NAMES.ZeusPlatformLog
+            TableName: config.env.TABLE_NAMES.ZeusPlatformLog
         }
         // 设置对象属性
         this.item = {

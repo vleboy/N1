@@ -5,7 +5,7 @@ const RoleDisplay = require('../lib/UserConsts').RoleDisplay
 const RoleModels = require('../lib/UserConsts').RoleModels
 const RoleCodeEnum = require('../lib/UserConsts').RoleCodeEnum
 const Model = require('../lib/Model').Model
-const GlobalConfig = require("../util/config")
+const config = require('config')
 const BaseModel = require('./BaseModel')
 const UserModel = require('./UserModel')
 const BillModel = require('./BillModel')
@@ -17,7 +17,7 @@ class AgentModel extends BaseModel {
         super()
         // 设置表名
         this.params = {
-            TableName: GlobalConfig.TABLE_NAMES.TABLE_MERCHANT,
+            TableName: config.env.TABLE_NAMES.TABLE_MERCHANT,
         }
         // 设置对象属性
         this.item = {
@@ -305,7 +305,7 @@ const saveUser = async (userInfo) => {
     // 组装用户信息，保存用户
     const baseModel = Model.baseModel()
     const UserItem = { ...baseModel, ...userInfo, updatedAt: Date.now(), loginAt: Date.now() }
-    await new BaseModel().db$('put', { TableName: GlobalConfig.TABLE_NAMES.TABLE_MERCHANT, Item: UserItem })
+    await new BaseModel().db$('put', { TableName: config.env.TABLE_NAMES.TABLE_MERCHANT, Item: UserItem })
     return _.pick(UserItem, RoleDisplay[userInfo.role])
 }
 

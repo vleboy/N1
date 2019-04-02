@@ -1,13 +1,13 @@
 
 const BizErr = require('../lib/Codes').BizErr
-const GlobalConfig = require("../util/config")
+const config = require('config')
 const BaseModel = require('./BaseModel')
 class SubRoleModel extends BaseModel {
     constructor() {
         super()
         // 设置表名
         this.params = {
-            TableName: GlobalConfig.TABLE_NAMES.SYSRolePermission,
+            TableName: config.env.TABLE_NAMES.SYSRolePermission,
         }
         // 设置对象属性
         this.item = {

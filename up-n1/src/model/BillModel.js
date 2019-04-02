@@ -4,7 +4,7 @@ const moment = require('moment')
 const BizErr = require('../lib/Codes').BizErr
 const RoleModels = require('../lib/UserConsts').RoleModels
 const Model = require('../lib/Model').Model
-const GlobalConfig = require("../util/config")
+const config = require('config')
 const BillMo = require('../lib/Model').BillMo
 const BaseModel = require('./BaseModel')
 const UserModel = require('./UserModel')
@@ -18,7 +18,7 @@ class BillModel extends BaseModel {
         super()
         // 设置表名
         this.params = {
-            TableName: GlobalConfig.TABLE_NAMES.PLATFORM_BILL,
+            TableName: config.env.TABLE_NAMES.PLATFORM_BILL,
         }
         // 设置对象属性
         this.item = {
@@ -88,7 +88,7 @@ class BillModel extends BaseModel {
         // 1、从缓存获取用户余额
         let initPoint = user.points
         let cacheRet = await this.query({
-            TableName: GlobalConfig.TABLE_NAMES.SYSCacheBalance,
+            TableName: config.env.TABLE_NAMES.SYSCacheBalance,
             KeyConditionExpression: 'userId = :userId AND #type = :type',
             ProjectionExpression: 'balance,lastTime',
             ExpressionAttributeNames: {
@@ -133,7 +133,7 @@ class BillModel extends BaseModel {
         // 5、更新用户余额缓存
         if (!_.isEmpty(bills.Items)) {
             new BaseModel().db$('put', {
-                TableName: GlobalConfig.TABLE_NAMES.SYSCacheBalance,
+                TableName: config.env.TABLE_NAMES.SYSCacheBalance,
                 Item: { userId: user.userId, type: 'ALL', balance: initPoint + sums, lastTime: bills.Items[bills.Items.length - 1].createdAt }
             })
         }
@@ -151,7 +151,7 @@ class BillModel extends BaseModel {
         let initPoint = 0
         let type = action == -1 ? 'OUT' : 'IN'
         let cacheRet = await new BaseModel().query({
-            TableName: GlobalConfig.TABLE_NAMES.SYSCacheBalance,
+            TableName: config.env.TABLE_NAMES.SYSCacheBalance,
             KeyConditionExpression: 'userId = :userId AND #type = :type',
             ExpressionAttributeNames: {
                 '#type': 'type'
@@ -202,7 +202,7 @@ class BillModel extends BaseModel {
         // 5、更新用户出账缓存
         if (!_.isEmpty(bills.Items)) {
             cacheRet = await new BaseModel().db$('put', {
-                TableName: GlobalConfig.TABLE_NAMES.SYSCacheBalance,
+                TableName: config.env.TABLE_NAMES.SYSCacheBalance,
                 Item: { userId: user.userId, type: type, balance: initPoint + sums, lastTime: bills.Items[bills.Items.length - 1].createdAt }
             })
         }
@@ -248,7 +248,7 @@ class BillModel extends BaseModel {
             return Bill
         }
         let batch = { RequestItems: {} }
-        batch.RequestItems[GlobalConfig.TABLE_NAMES.PLATFORM_BILL] = [
+        batch.RequestItems[config.env.TABLE_NAMES.PLATFORM_BILL] = [
             {
                 PutRequest: {
                     Item: {
@@ -340,7 +340,7 @@ class BillModel extends BaseModel {
                         }
                         //查询局表
                         let roundRes = await new BaseModel().query({
-                            TableName: GlobalConfig.TABLE_NAMES.StatRound,
+                            TableName: config.env.TABLE_NAMES.StatRound,
                             IndexName: 'ParentIndex',
                             KeyConditionExpression: 'parent = :parent AND createdAt between :createdAt0 AND :createdAt1',
                             ProjectionExpression: 'winloseAmount,createdDate',
@@ -356,7 +356,7 @@ class BillModel extends BaseModel {
                     } else if (now == querytime[1] && now == querytime[0]) { //说明是查今日的收益，查局表
                         //查询局表
                         let roundRes = await new BaseModel().query({
-                            TableName: GlobalConfig.TABLE_NAMES.StatRound,
+                            TableName: config.env.TABLE_NAMES.StatRound,
                             IndexName: 'ParentIndex',
                             KeyConditionExpression: 'parent = :parent AND createdAt between :createdAt0 AND :createdAt1',
                             ProjectionExpression: 'winloseAmount,createdDate',

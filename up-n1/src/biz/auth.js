@@ -4,7 +4,7 @@ const BillModel = require('../model/BillModel')
 const MsnModel = require('../model/MsnModel')
 const UserModel = require('../model/UserModel')
 const BaseModel = require('../model/BaseModel')
-const GlobalConfig = require("../util/config")
+const config = require('config')
 const BizErr = require('../lib/Codes').BizErr
 const Model = require('../lib/Model').Model
 const RoleCodeEnum = require('../lib/UserConsts').RoleCodeEnum
@@ -274,7 +274,7 @@ const saveUser = async (userInfo) => {
   const baseModel = Model.baseModel()
   const UserItem = { ...baseModel, ...userInfo, updatedAt: Date.now(), loginAt: Date.now() }
   // 保存用户
-  await new BaseModel().db$('put', { TableName: GlobalConfig.TABLE_NAMES.ZeusPlatformUser, Item: UserItem })
+  await new BaseModel().db$('put', { TableName: config.env.TABLE_NAMES.ZeusPlatformUser, Item: UserItem })
   return _.pick(UserItem, RoleDisplay[userInfo.role])
 }
 

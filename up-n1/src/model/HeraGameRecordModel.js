@@ -1,6 +1,6 @@
 const _ = require('lodash')
 const BaseModel = require('./BaseModel')
-const GlobalConfig = require("../util/config")
+const config = require('config')
 /**
  * 战绩表实体
  */
@@ -9,7 +9,7 @@ class HeraGameRecordModel extends BaseModel {
         super()
         // 设置表名
         this.params = {
-            TableName: GlobalConfig.TABLE_NAMES.HeraGameRecord
+            TableName: config.env.TABLE_NAMES.HeraGameRecord
         }
         // 设置对象属性
         this.item = {

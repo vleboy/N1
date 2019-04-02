@@ -3,7 +3,7 @@ const StatusEnum = require('../lib/UserConsts').StatusEnum
 const BizErr = require('../lib/Codes').BizErr
 const RoleCodeEnum = require('../lib/UserConsts').RoleCodeEnum
 const Model = require('../lib/Model').Model
-const GlobalConfig = require("../util/config")
+const config = require('config')
 const BaseModel = require('./BaseModel')
 
 class UserModel extends BaseModel {
@@ -11,7 +11,7 @@ class UserModel extends BaseModel {
         super()
         // 设置表名
         this.params = {
-            TableName: GlobalConfig.TABLE_NAMES.TABLE_MERCHANT,
+            TableName: config.env.TABLE_NAMES.TABLE_MERCHANT,
         }
         // 设置对象属性
         this.item = {
@@ -545,7 +545,7 @@ class UserModel extends BaseModel {
      */
     async queryChildPlayer(inparam) {
         let query = {
-            TableName: GlobalConfig.TABLE_NAMES.TABLE_USER,
+            TableName: config.env.TABLE_NAMES.TABLE_USER,
             ProjectionExpression: 'userName,nickname,#parent,parentName,merchantName,msn,createAt,gameList,balance,#state,joinTime',
             IndexName: 'parentIdIndex',
             KeyConditionExpression: 'parent = :parentId',

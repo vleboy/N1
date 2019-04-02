@@ -1,6 +1,6 @@
 const BizErr = require('../lib/Codes').BizErr
 const Model = require('../lib/Model').Model
-const GlobalConfig = require("../util/config")
+const config = require('config')
 const BaseModel = require('./BaseModel')
 const uuid = require('uuid/v4')
 class CompanyModel extends BaseModel {
@@ -8,7 +8,7 @@ class CompanyModel extends BaseModel {
         super()
         // 设置表名
         this.params = {
-            TableName: GlobalConfig.TABLE_NAMES.DianaPlatformCompany,
+            TableName: config.env.TABLE_NAMES.DianaPlatformCompany,
         }
         // 设置对象属性
         this.item = {

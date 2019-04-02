@@ -1,6 +1,6 @@
 const moment = require('moment')
 const _ = require('lodash')
-const GlobalConfig = require("../util/config")
+const config = require('config')
 const BaseModel = require('./BaseModel')
 
 class PlayerBillModel extends BaseModel {
@@ -8,7 +8,7 @@ class PlayerBillModel extends BaseModel {
         super()
         // 设置表名
         this.params = {
-            TableName: GlobalConfig.TABLE_NAMES.StatRoundDay,
+            TableName: config.env.TABLE_NAMES.StatRoundDay,
         }
         // 设置对象属性
         this.item = {
@@ -291,7 +291,7 @@ class PlayerBillModel extends BaseModel {
         let self = this
         return new Promise(async function (resolve, reject) {
             let query = {
-                TableName: GlobalConfig.TABLE_NAMES.StatRound,
+                TableName: config.env.TABLE_NAMES.StatRound,
                 IndexName: 'UserNameIndex',
                 ProjectionExpression: 'userId,userName,betCount,betAmount,retAmount,winAmount,refundAmount,winloseAmount,mixAmount',
                 KeyConditionExpression: 'userName = :userName AND createdAt between :createdAt0 AND :createdAt1',
@@ -322,7 +322,7 @@ class PlayerBillModel extends BaseModel {
         return new Promise(function (resolve, reject) {
             // console.log(`时间【${new Date().getTime()}】玩家【${inparam.userName}】查询流水表开始：${inparam.createdAt[0]}-${inparam.createdAt[1]}`)
             let query = {
-                TableName: GlobalConfig.TABLE_NAMES.PlayerBillDetail,
+                TableName: config.env.TABLE_NAMES.PlayerBillDetail,
                 IndexName: 'UserNameIndex',
                 ProjectionExpression: 'amount',
                 KeyConditionExpression: '#userName = :userName AND createdAt between :createdAt0 AND :createdAt1',
@@ -541,7 +541,7 @@ class PlayerBillModel extends BaseModel {
         let self = this
         return new Promise(async function (resolve, reject) {
             let query = {
-                TableName: GlobalConfig.TABLE_NAMES.StatRound,
+                TableName: config.env.TABLE_NAMES.StatRound,
                 IndexName: 'ParentIndex',
                 ProjectionExpression: 'parent,userId,userName,betCount,betAmount,retAmount,winAmount,refundAmount,winloseAmount,mixAmount',
                 KeyConditionExpression: 'parent = :parent AND createdAt between :createdAt0 AND :createdAt1',
@@ -572,7 +572,7 @@ class PlayerBillModel extends BaseModel {
         return new Promise(function (resolve, reject) {
             console.log(`时间【${new Date().getTime()}】父级【${inparam.parent}】查询流水表开始：${inparam.createdAt[0]}-${inparam.createdAt[1]}`)
             let query = {
-                TableName: GlobalConfig.TABLE_NAMES.PlayerBillDetail,
+                TableName: config.env.TABLE_NAMES.PlayerBillDetail,
                 IndexName: 'ParentIndex',
                 ProjectionExpression: 'amount',
                 KeyConditionExpression: '#parent = :parent AND createdAt between :createdAt0 AND :createdAt1',

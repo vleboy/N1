@@ -1,12 +1,12 @@
 const BaseModel = require('./BaseModel')
-const GlobalConfig = require("../util/config")
+const config = require('config')
 const _ = require('lodash')
 class AdminModel extends BaseModel {
     constructor() {
         super()
         // 设置表名
         this.params = {
-            TableName: GlobalConfig.TABLE_NAMES.StatRound,
+            TableName: config.env.TABLE_NAMES.StatRound,
         }
         // 设置对象属性
         this.item = {

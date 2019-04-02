@@ -1,5 +1,5 @@
 const BaseModel = require('./BaseModel')
-const GlobalConfig = require("../util/config")
+const config = require('config')
 const RoleCodeEnum = require('../lib/UserConsts').RoleCodeEnum
 const _ = require('lodash')
 class AdminModel extends BaseModel {
@@ -7,7 +7,7 @@ class AdminModel extends BaseModel {
         super()
         // 设置表名
         this.params = {
-            TableName: GlobalConfig.TABLE_NAMES.ZeusPlatformUser,
+            TableName: config.env.TABLE_NAMES.ZeusPlatformUser,
         }
         // 设置对象属性
         this.item = {

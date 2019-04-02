@@ -1,4 +1,4 @@
-const GlobalConfig = require("../util/config")
+const config = require('config')
 const BaseModel = require('./BaseModel')
 
 class MsnModel extends BaseModel {
@@ -6,7 +6,7 @@ class MsnModel extends BaseModel {
         super()
         // 设置表名
         this.params = {
-            TableName: GlobalConfig.TABLE_NAMES.ZeusPlatformUser,
+            TableName: config.env.TABLE_NAMES.ZeusPlatformUser,
         }
         // 设置对象属性
         this.item = {

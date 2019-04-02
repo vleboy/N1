@@ -2,7 +2,7 @@
 const _ = require('lodash')
 const NP = require('number-precision')
 const BaseModel = require('./BaseModel')
-const GlobalConfig = require("../util/config")
+const config = require('config')
 const PlayerBillDetailModel = require('./PlayerBillDetailModel')
 const LogModel = require('./LogModel')
 
@@ -14,7 +14,7 @@ module.exports = class PlayerModel extends BaseModel {
         super()
         // 设置表名
         this.params = {
-            TableName: GlobalConfig.TABLE_NAMES.TABLE_USER,
+            TableName: config.env.TABLE_NAMES.TABLE_USER,
         }
         // 设置对象属性
         this.item = {
@@ -170,7 +170,7 @@ module.exports = class PlayerModel extends BaseModel {
         let res = { Items: [] }
         if (inparam.query.parent) {
             let parentRes = await this.query({
-                TableName: GlobalConfig.TABLE_NAMES.ZeusPlatformUser,
+                TableName: config.env.TABLE_NAMES.ZeusPlatformUser,
                 KeyConditionExpression: '#role = :role',
                 FilterExpression: 'sn = :sn',
                 ProjectionExpression: 'userId',
@@ -230,7 +230,7 @@ module.exports = class PlayerModel extends BaseModel {
         let cacheItem = { userId: userName, type: 'ALL', balance: 0, lastTime: -1 }
         let balance = 0
         //查询缓存记录，缓存存在，获取缓存余额和最后缓存时间
-        let cacheRes = await this.getItem({ ConsistentRead: true, TableName: GlobalConfig.TABLE_NAMES.SYSCacheBalance, ProjectionExpression: 'balance,lastTime', Key: { 'userId': userName, 'type': 'ALL' } })
+        let cacheRes = await this.getItem({ ConsistentRead: true, TableName: config.env.TABLE_NAMES.SYSCacheBalance, ProjectionExpression: 'balance,lastTime', Key: { 'userId': userName, 'type': 'ALL' } })
         if (cacheRes && !_.isEmpty(cacheRes.Item)) {
             cacheItem.balance = cacheRes.Item.balance
             cacheItem.lastTime = cacheRes.Item.lastTime
@@ -265,7 +265,7 @@ module.exports = class PlayerModel extends BaseModel {
             if (isAllowUpdateCache) {
                 cacheItem.balance = balance
                 cacheItem.lastTime = billRes.Items[billRes.Items.length - 1].createdAt
-                await new BaseModel().db$('put', { TableName: GlobalConfig.TABLE_NAMES.SYSCacheBalance, Item: cacheItem })
+                await new BaseModel().db$('put', { TableName: config.env.TABLE_NAMES.SYSCacheBalance, Item: cacheItem })
             }
         }
         return balance

@@ -1,13 +1,13 @@
 
 const _ = require('lodash')
-const GlobalConfig = require("../util/config")
+const config = require('config')
 const BaseModel = require('./BaseModel')
 class PlayerBillDetailModel extends BaseModel {
     constructor() {
         super()
         // 设置表名
         this.params = {
-            TableName: GlobalConfig.TABLE_NAMES.PlayerBillDetail,
+            TableName: config.env.TABLE_NAMES.PlayerBillDetail,
         }
         // 设置对象属性
         this.item = {

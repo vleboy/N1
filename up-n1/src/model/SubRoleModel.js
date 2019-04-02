@@ -1,6 +1,6 @@
 const _ = require('lodash')
 const BaseModel = require('./BaseModel')
-const GlobalConfig = require("../util/config")
+const config = require('config')
 const BizErr = require('../lib/Codes').BizErr
 
 class SubRoleModel extends BaseModel {
@@ -8,7 +8,7 @@ class SubRoleModel extends BaseModel {
         super()
         // 设置表名
         this.params = {
-            TableName: GlobalConfig.TABLE_NAMES.SYSRolePermission,
+            TableName: config.env.TABLE_NAMES.SYSRolePermission,
         }
         // 设置对象属性
         this.item = {

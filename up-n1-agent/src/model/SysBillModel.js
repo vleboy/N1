@@ -1,5 +1,5 @@
 const RoleCodeEnum = require('../lib/UserConsts').RoleCodeEnum
-const GlobalConfig = require("../util/config")
+const config = require('config')
 const BaseModel = require('./BaseModel')
 const PlayerBillModel = require('./PlayerBillModel')
 /**
@@ -10,7 +10,7 @@ class SysBillModel extends BaseModel {
         super()
         // 设置表名
         this.params = {
-            TableName: GlobalConfig.TABLE_NAMES.TABLE_MERCHANT,
+            TableName: config.env.TABLE_NAMES.TABLE_MERCHANT,
         }
         // 设置对象属性
         this.item = {

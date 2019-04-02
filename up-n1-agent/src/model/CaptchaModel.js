@@ -2,7 +2,6 @@ const config = require('config')
 const Cache = require('../lib/Cache')
 const BizErr = require('../lib/Codes').BizErr
 const Model = require('../lib/Model').Model
-const GlobalConfig = require("../util/config")
 const BaseModel = require('./BaseModel')
 
 class CaptchaModel extends BaseModel {
@@ -10,7 +9,7 @@ class CaptchaModel extends BaseModel {
         super()
         // 设置表名
         this.params = {
-            TableName: GlobalConfig.TABLE_NAMES.ZeusPlatformCaptcha,
+            TableName: config.env.TABLE_NAMES.ZeusPlatformCaptcha,
         }
         // 设置对象属性
         this.item = {

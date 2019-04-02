@@ -1,7 +1,7 @@
 const GameTypeEnum = require('../lib/Consts').GameTypeEnum
 const BizErr = require('../lib/Codes').BizErr
 const Model = require('../lib/Model').Model
-const GlobalConfig = require("../util/config")
+const config = require('config')
 const BaseModel = require('./BaseModel')
 const _ = require('lodash')
 const uuid = require('uuid/v4')
@@ -10,7 +10,7 @@ class GameModel extends BaseModel {
         super()
         // 设置表名
         this.params = {
-            TableName: GlobalConfig.TABLE_NAMES.DianaPlatformGame,
+            TableName: config.env.TABLE_NAMES.DianaPlatformGame,
         }
         // 设置对象属性
         this.item = {
