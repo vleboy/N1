@@ -50,7 +50,7 @@ class HeraGameRecordModel extends BaseModel {
         let queryObj = this.buildParms(queryParms)
         let query = {
             TableName: this.params.TableName,
-            ProjectionExpression: 'userName,betId,parentId,createdAt,betTime,#record,gameType,gameId',
+            ProjectionExpression: 'userName,betId,parentId,createdAt,betTime,#record,gameType,gameId,sourceIP',
             IndexName: indexName,
             ScanIndexForward: false, //降序返回结果
             KeyConditionExpression: keyObj.FilterExpression,
