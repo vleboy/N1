@@ -18,7 +18,7 @@ const ConfigModel = require('./model/ConfigModel')
  */
 router.get('/webapi/ipquery', async function (ctx, next) {
     let country = '中国'
-    let n1version = ''
+    let n1version = '9009'
     let n2version = '0004'
     let zyzxversion = '1003'
     const res = ipquery.search(ctx.request.ip)
