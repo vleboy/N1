@@ -28,16 +28,6 @@ functions:
     handler: api.jwtverify
     memorySize: 128
     integration: lambda
-  # 触发器开始
-  # billDetailTrigger: #玩家流水触发器
-  #   handler: api_trigger.billDetailTrigger
-  #   events:
-  #     - stream:
-  #         type: dynamodb
-  #         arn:
-  #           Fn::GetAtt:
-  #             - PlayerBillDetail
-  #             - StreamArn
   #========== 以下是定时统计接口 ==========
   checkRound: #定时检查日志
     handler: api_check.checkRound
