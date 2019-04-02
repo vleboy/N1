@@ -1,8 +1,3 @@
-const BizErr = require('./Codes').BizErr
-const RoleCodeEnum = require('./UserConsts')
-const uid = require('uuid/v4')
-const _ = require('lodash')
-
 // 所有数据库表
 const Tables = {
   ZeusPlatformUser: "ZeusPlatformUser",
@@ -31,128 +26,18 @@ const Model = {
       updatedAt: (new Date()).getTime(),
       createdDate: new Date().Format("yyyy-MM-dd")
     }
-  },
-  // 获取路径参数
-  pathParams: (e) => {
-    try {
-      const params = e.pathParameters
-      if (Object.keys(params).length) {
-        return [0, params]
-      }
-    } catch (err) {
-      return [BizErr.ParamErr(err.toString()), 0]
-    }
-  },
-  // 生成唯一编号
-  uuid: () => uid(),
-  currentToken: async (e) => {
-    if (!e || !e.requestContext.authorizer) {
-      throw BizErr.TokenErr()
-    }
-    if (e.requestContext.authorizer.principalId == -1) {
-      throw BizErr.TokenExpire()
-    }
-    return [0, e.requestContext.authorizer]
-  },
-  currentRoleToken: async (e, roleCode) => {
-    if (!e || !e.requestContext.authorizer) {
-      throw BizErr.TokenErr()
-    } else {
-
-      if (e.requestContext.authorizer.principalId == -1) {
-        throw BizErr.TokenExpire()
-      }
-      if (e.requestContext.authorizer.role != roleCode) {
-        throw BizErr.RoleTokenErr()
-      }
-    }
-    return [0, e.requestContext.authorizer]
-  },
-  // 判断用户是否为代理
-  isAgent(user) {
-    if (user.role == RoleCodeEnum['Agent']) {
-      return true
-    }
-    return false
-  },
-  // 判断用户是否为线路商
-  isManager(user) {
-    if (user.role == RoleCodeEnum['Manager']) {
-      return true
-    }
-    return false
-  },
-  // 判断用户是否为商户
-  isMerchant(user) {
-    if (user.role == RoleCodeEnum['Merchant']) {
-      return true
-    }
-    return false
-  },
-  // 判断是否是代理管理员
-  isAgentAdmin(token) {
-    if (token.role == RoleCodeEnum['Agent'] && token.suffix == 'Agent') {
-      return true
-    }
-    return false
-  },
-  // 判断是否是平台管理员
-  isPlatformAdmin(token) {
-    if (token.role == RoleCodeEnum['PlatformAdmin']) {
-      return true
-    }
-    return false
-  },
-  // 判断是否是自己
-  isSelf(token, user) {
-    if (token.userId == user.userId) {
-      return true
-    }
-    return false
-  },
-  // 判断是否是下级
-  isChild(token, user) {
-    let parent = token.userId
-    if (token.role == RoleCodeEnum['PlatformAdmin'] || this.isAgentAdmin(token)) {
-      parent = this.DefaultParent
-    }
-    if (parent == user.parent) {
-      return true
-    }
-    return false
-  },
-  // 判断是否是祖孙
-  isSubChild(token, user) {
-    let parent = token.userId
-    if (token.role == RoleCodeEnum['PlatformAdmin'] || this.isAgentAdmin(token)) {
-      parent = this.DefaultParent
-    }
-    if (user.levelIndex.indexOf(parent) > 0) {
-      return true
-    }
-    return false
-  },
-  getInparamRanges(inparams) {
-    let ranges = _.map(inparams, (v, i) => {
-      if (v === null) {
-        return null
-      }
-      return `${i} = :${i}`
-    })
-    _.remove(ranges, (v) => v === null)
-    ranges = _.join(ranges, ' AND ')
-    return ranges
-  },
-  getInparamValues(inparams) {
-    const values = _.reduce(inparams, (result, v, i) => {
-      if (v !== null) {
-        result[`:${i}`] = v
-      }
-      return result
-    }, {})
-    return values
   }
 }
+
+const RoleCodeEnum = {
+  'SuperAdmin': '0',
+  'PlatformAdmin': '1',
+  'Manager': '10',
+  'Merchant': '100',
+  'Agent': '1000',
+  'Player': '10000'
+}
+
 // 私有日期格式化方法
 Date.prototype.Format = function (fmt) {
   var o = {
@@ -172,5 +57,6 @@ Date.prototype.Format = function (fmt) {
 
 module.exports = {
   Tables,
-  Model
+  Model,
+  RoleCodeEnum
 }

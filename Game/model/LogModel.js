@@ -2,6 +2,7 @@ const { Tables, Model } = require('../lib/Dynamo')
 const BaseModel = require('./BaseModel')
 const moment = require('moment')
 const _ = require('lodash')
+const uuid = require('uuid/v4')
 
 module.exports = class LogModel extends BaseModel {
     constructor() {
@@ -13,7 +14,7 @@ module.exports = class LogModel extends BaseModel {
         // 设置对象属性
         this.item = {
             ...this.baseitem,
-            sn: Model.uuid(),
+            sn: uuid(),
             userId: Model.StringValue
         }
     }

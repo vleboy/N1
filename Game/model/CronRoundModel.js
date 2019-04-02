@@ -1,5 +1,4 @@
-const { Tables, Model } = require('../lib/Dynamo')
-const RoleCodeEnum = require('../lib/UserConsts')
+const { Tables, Model, RoleCodeEnum } = require('../lib/Dynamo')
 const BaseModel = require('./BaseModel')
 const ConfigModel = require('./ConfigModel')
 const StatRoundModel = require('./StatRoundModel')

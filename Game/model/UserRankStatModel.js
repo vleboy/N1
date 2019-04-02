@@ -1,9 +1,10 @@
-const { Tables, Model } = require('../lib/Dynamo')
+const { Tables } = require('../lib/Dynamo')
 const BaseModel = require('./BaseModel')
 const UserModel = require('./UserModel')
 const LogModel = require('./LogModel')
 const moment = require('moment')
 const _ = require('lodash')
+const uuid = require('uuid/v4')
 
 module.exports = class UserRankStatModel extends BaseModel {
     constructor() {
@@ -57,7 +58,7 @@ module.exports = class UserRankStatModel extends BaseModel {
                         inparam.ret = 'Y'
                         inparam.detail = '初始化玩家注册统计'
                         inparam.type = user.role == '100' ? 'statPlayerCount' : 'statAgentPlayerCount'
-                        inparam.sn = Model.uuid()
+                        inparam.sn = uuid()
                         dayArr.push(inparam)
                     }
                     resolve(dayArr)
@@ -116,7 +117,7 @@ module.exports = class UserRankStatModel extends BaseModel {
                 inparam.ret = 'Y'
                 inparam.detail = '触发玩家注册统计'
                 inparam.type = user.role == '100' ? 'statPlayerCount' : 'statAgentPlayerCount'
-                inparam.sn = Model.uuid()
+                inparam.sn = uuid()
                 dayArr.push(inparam)
             }
             let lastDay = moment(nowTime - 2 * 24 * 60 * 60 * 1000).utcOffset(8).format('YYYY-MM-DD')
