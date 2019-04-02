@@ -1,30 +1,18 @@
 const moment = require('moment')
 
 // 所有数据库表
-const ZeusPlatformUser = 'ZeusPlatformUser'
-const ZeusPlatformBill = 'ZeusPlatformBill'
-const ZeusPlatformLog = 'ZeusPlatformLog'
-const HeraGamePlayer = 'HeraGamePlayer'
-const SYSConfig = 'SYSConfig'
-const UserRankStat = 'UserRankStat'
-const PlayerBillDetail = 'PlayerBillDetail'
-const StatRound = 'StatRound'
-const StatRoundDay = 'StatRoundDay'
-const HeraGameRecord = 'HeraGameRecord'
-const SYSTransfer = 'SYSTransfer'
-
 const Tables = {
-  ZeusPlatformUser,
-  ZeusPlatformBill,
-  ZeusPlatformLog,
-  HeraGamePlayer,
-  SYSConfig,
-  UserRankStat,
-  PlayerBillDetail,
-  StatRound,
-  StatRoundDay,
-  HeraGameRecord,
-  SYSTransfer
+  ZeusPlatformUser: "ZeusPlatformUser",
+  ZeusPlatformBill: "ZeusPlatformBill",
+  ZeusPlatformLog: "ZeusPlatformLog",
+  HeraGamePlayer: "HeraGamePlayer",
+  SYSConfig: "SYSConfig",
+  UserRankStat: "UserRankStat",
+  PlayerBillDetail: "PlayerBillDetail",
+  StatRound: "StatRound",
+  StatRoundDay: "StatRoundDay",
+  HeraGameRecord: "HeraGameRecord",
+  SYSTransfer: "SYSTransfer"
 }
 
 const Model = {
