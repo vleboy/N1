@@ -290,6 +290,7 @@ module.exports = class PlayerModel extends BaseModel {
             action: amt < 0 ? -1 : 1,
             type: parseInt(billType),
             businessKey: data.businessKey,
+            sourceIP: data.sourceIP,
             anotherGameData: data.anotherGameData
         }
         if (data.roundId) { // 如果有大局号，写入大局号
@@ -322,6 +323,7 @@ module.exports = class PlayerModel extends BaseModel {
                 betTime: betItem.createdAt,
                 createdAt: Date.now(),
                 winType: data.gameRecord.winType,
+                sourceIP: data.sourceIP,
                 record: _.omit(data.gameRecord, omitArr)
             }
             await new HeraGameRecordModel().putItem(playerRecord)
