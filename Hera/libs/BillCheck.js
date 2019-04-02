@@ -47,90 +47,6 @@ module.exports = class BillCheck {
             }
         }
     }
-    checkNALive(inparam) {
-        let snRepeatMap = {}
-        let bkRepeatMap = {}
-        let [checkAttError, errorParams] = athena.Util.checkProperties([
-            { name: "userId", type: "N" },      //玩家id
-            { name: "gameType", type: "N" },    //游戏大类
-            { name: "gameId", type: "N" },      //具体游戏id
-        ], inparam)
-        if (checkAttError) {
-            Object.assign(checkAttError, { params: errorParams })
-            throw checkAttError
-        }
-        inparam.userId = +inparam.userId
-        inparam.gameType = +inparam.gameType
-        inparam.gameId = +inparam.gameId
-        inparam.anotherGameData = JSON.stringify(inparam)
-        // 遍历所有单次所有流水
-        for (let i = 0; i < inparam.records.length; i++) {
-            let item = inparam.records[i]
-            item.isFirst = i == 0 ? true : false    // 是否首条流水
-            if (snRepeatMap[item.sn]) {
-                throw { params: 'sn重复' }
-            }
-            if (bkRepeatMap[item.businessKey]) {
-                throw { params: 'businessKey重复' }
-            }
-            snRepeatMap[item.sn] = true
-            snRepeatMap[item.businessKey] = true
-            if (!item.sn) {
-                throw { params: 'records.sn' }
-            }
-            if (!item.businessKey) {
-                throw { params: 'records.businessKey' }
-            }
-            if (item.billType < 3 || item.billType > 5) {
-                throw { params: 'records.billType' }
-            }
-            // 数据类型处理
-            if (item.billType == 3) {
-                item.amt = Math.abs(NP.round(item.amt, 2)) * -1
-                inparam.totalBetAmt = NP.plus(inparam.totalBetAmt, item.amt)  // 所有下注金额
-                // inparam.totalBetAmt += item.amt     // 所有下注金额
-            } else {
-                item.amt = Math.abs(NP.round(item.amt, 2))
-            }
-            item.billType = +item.billType
-            item.userId = inparam.userId
-            item.gameType = inparam.gameType
-            item.gameId = inparam.gameId
-            item.anotherGameData = inparam.anotherGameData
-            if (item.billType == 4 || (item.billType == 5 && item.gameRecord)) {   //返奖需要传gameRecord
-                if (!item.gameRecord || typeof item.gameRecord != 'object') {
-                    console.error(`该返奖没有推送战绩【${inparam.businessKey}】`)
-                    new LogModel().add('2', 'flowerror', inparam, `该返奖没有推送战绩【${inparam.businessKey}】`)
-                    throw { params: 'records.gameRecord' }
-                }
-                if (item.gameRecord.betId != item.businessKey) {
-                    console.error(`该返奖的战绩的betId和流水的businessKey不一致【${inparam.businessKey}】`)
-                    new LogModel().add('2', 'flowerror', inparam, `该返奖的战绩的betId和流水的businessKey不一致【${inparam.businessKey}】`)
-                    throw { params: 'records.gameRecord' }
-                }
-            }
-            if (item.billType == 5 && !item.gameRecord) {
-                item.gameRecord = {}
-                item.isLiveRefund = true
-            }
-        }
-    }
-    //进入游戏接口检查
-    checkJoinGame(inparam) {
-        let [checkAttError, errorParams] = athena.Util.checkProperties([
-            { name: "gameId", type: "N" },
-            { name: "sid", type: "S" },  //服务器id
-        ], inparam)
-        if (checkAttError) {
-            Object.assign(checkAttError, { params: errorParams })
-            throw checkAttError
-        }
-        if (inparam.userId) {
-            inparam.userId = +inparam.userId
-        }
-        inparam.gameId = +inparam.gameId
-        inparam.sid = +inparam.sid
-    }
     //网页游戏认证接口检查
     checkAuth(inparam) {
         let [checkAttError, errorParams] = athena.Util.checkProperties([
@@ -207,24 +123,6 @@ module.exports = class BillCheck {
             inparam.pageSize = 1000
         }
     }
-    //检查玩家自行充值/提现参数校验
-    checkBalanceHandler(inparam) {
-        let [checkAttError, errorParams] = athena.Util.checkProperties([
-            { name: "buId", type: "N" },
-            { name: "amount", type: "N", min: 0 },
-            { name: "action", type: "N" },
-        ], inparam)
-        if (checkAttError) {
-            Object.assign(checkAttError, { params: errorParams })
-            throw checkAttError
-        }
-        if (inparam.action != 1 && inparam.action != -1) {
-            throw { params: '入参【action】不合法' }
-        }
-        inparam.buId = +inparam.buId
-        inparam.amount = NP.round(+inparam.amount, 2)
-        inparam.action = +inparam.action
-    }
     //检查商户对玩家操作的参数校验
     checkMerchantPlayer(inparam) {
         let [checkAttError, errorParams] = athena.Util.checkProperties([
@@ -274,18 +172,6 @@ module.exports = class BillCheck {
         inparam.buId = +inparam.buId
         inparam.userName = inparam.userName.toString().trim()
     }
-    //检查玩家修改密码参数
-    checkPlayerPassword(inparam) {
-        let [checkAttError, errorParams] = athena.Util.checkProperties([
-            { name: "userPwd", type: "S" },
-            { name: "buId", type: "S" },
-        ], inparam)
-        if (checkAttError) {
-            Object.assign(checkAttError, { params: errorParams })
-            throw checkAttError
-        }
-        inparam.buId = +inparam.buId
-    }
     //检查大厅更新玩家信息
     checkUpdateInfo(inparam) {
         let [checkAttError, errorParams] = athena.Util.checkProperties([
@@ -297,16 +183,6 @@ module.exports = class BillCheck {
         }
         inparam.userId = +inparam.userId
         inparam.sex = inparam.sex == 1 ? 1 : 2
-    }
-    //检查玩家的token是否正确
-    checkPlayerToken(inparam) {
-        let [checkAttError, errorParams] = athena.Util.checkProperties([
-            { name: "userName", type: "S" }
-        ], inparam)
-        if (checkAttError) {
-            Object.assign(checkAttError, { params: errorParams })
-            throw checkAttError
-        }
     }
     //检查报表参数
     checkgGameReport(inparam) {

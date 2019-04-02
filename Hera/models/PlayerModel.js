@@ -1,11 +1,9 @@
 const _ = require('lodash')
 const NP = require('number-precision')
-// const moment = require('moment')
 const crypto = require("crypto")
 const BaseModel = require('./BaseModel')
 const PlayerBillDetailModel = require('./PlayerBillDetailModel')
 const HeraGameRecordModel = require('./HeraGameRecordModel')
-// const StatRoundModel = require('./StatRoundModel')
 const UserModel = require('./UserModel')
 const LogModel = require('./LogModel')
 const Tables = require('../libs/Dynamo')
@@ -331,62 +329,6 @@ module.exports = class PlayerModel extends BaseModel {
         console.log(`单笔流水-执行至战绩持久化耗时：${Date.now() - time1}`)
         return billItem.balance
     }
-
-    // /**
-    //  * 生成新注单
-    //  * @param {*} player 
-    //  * @param {*} inparam 
-    //  */
-    // addRound(player, inparam) {
-    //     let self = this
-    //     return new Promise(async function (resolve, reject) {
-    //         // 查询BK对应的流水
-    //         let bills = await new PlayerBillDetailModel().queryBk({ bk: inparam.businessKey })
-    //         if (bills && bills.length > 0) {
-    //             let bets = bills.filter(i => i.type == 3)                                           // 所有下注
-    //             let bet = bets[0]                                                                   // 第一条下注
-    //             let ret = bills.filter(i => i.type == 4 || i.type == 5)                             // 所有返奖
-    //             let content = ret ? { bet: bets, ret } : { bet: bets }
-    //             // 生成注单
-    //             let betAmount = 0                                                                   // 下注金额
-    //             for (let item of bets) {
-    //                 betAmount += item.amount
-    //             }
-    //             let retAmount = inparam.amt                                                         // 返回金额
-    //             let winloseAmount = parseFloat((retAmount + betAmount).toFixed(2))                  // 输赢金额（正负相加）
-    //             let winAmount = inparam.billType == 5 ? 0.0 : retAmount                             // 返奖金额
-    //             let refundAmount = inparam.billType == 5 ? retAmount : 0.0                          // 退款金额
-    //             let mixAmount = Math.min(Math.abs(betAmount), Math.abs(winloseAmount))              // 洗码量
-    //             let round = {
-    //                 businessKey: bet.businessKey,
-    //                 anotherGameData: bet.anotherGameData || 'NULL!',
-    //                 parent: bet.parent,
-    //                 userName: bet.userName,
-    //                 userId: +bet.userId,
-    //                 createdAt: bet.createdAt,
-    //                 createdDate: +moment(bet.createdAt).utcOffset(8).format('YYYYMMDD'),
-    //                 createdStr: bet.createdStr,
-    //                 betCount: bets.length,
-    //                 originalAmount: bet.originalAmount,
-    //                 betAmount: betAmount,
-    //                 retAmount: retAmount,
-    //                 winAmount: winAmount,
-    //                 refundAmount: refundAmount,
-    //                 winloseAmount: winloseAmount,
-    //                 mixAmount: mixAmount,
-    //                 gameType: +bet.gameType,
-    //                 gameId: bet.gameId ? +bet.gameId : +bet.gameType,
-    //                 roundId: bet.roundId,
-    //                 content: content
-    //             }
-    //             // 写入局表和战绩表
-    //             await new StatRoundModel().putItem(round)
-    //             await new HeraGameRecordModel().writeRound(round)
-    //             console.info(`【${round.businessKey}】注单已生成`)
-    //         }
-    //         resolve(1)
-    //     })
-    // }
 
     /**
      * 更新玩家状态

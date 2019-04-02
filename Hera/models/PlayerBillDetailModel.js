@@ -1,7 +1,6 @@
 const BaseModel = require('./BaseModel')
 const LogModel = require('./LogModel')
 const moment = require('moment')
-const _ = require('lodash')
 const Tables = require('../libs/Dynamo')
 
 /**
@@ -42,42 +41,6 @@ module.exports = class PlayerBillDetailModel extends BaseModel {
             ProjectionExpression: 'parent,userId,userName,amount,balance,gameType,businessKey,createdAt',
             Key: { 'sn': sn }
         })
-    }
-
-    /**
-     * 查询对应BK的下注
-     * @param {*} inparam 
-     */
-    queryBkBet(inparam) {
-        return this.queryOnce({
-            IndexName: 'BusinessKeyIndex',
-            ProjectionExpression: 'createdAt,#amount',
-            KeyConditionExpression: 'businessKey = :businessKey',
-            FilterExpression: '#type = :type',
-            ExpressionAttributeNames: {
-                '#type': 'type',
-                '#amount': 'amount'
-            },
-            ExpressionAttributeValues: {
-                ':businessKey': inparam.businessKey,
-                ':type': 3
-            }
-        })
-    }
-
-    /**
-     * 查询对应的BK数据
-     * @param {*} inparam 
-     */
-    async queryBk(inparam) {
-        const ret = await this.queryOnce({
-            IndexName: 'BusinessKeyIndex',
-            KeyConditionExpression: 'businessKey=:businessKey',
-            ExpressionAttributeValues: {
-                ':businessKey': inparam.bk
-            }
-        })
-        return ret.Items
     }
 
     /**

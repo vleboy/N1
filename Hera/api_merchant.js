@@ -372,10 +372,7 @@ module.exports.gameReportByPlayer = async function (e, c, cb) {
  */
 module.exports.validateToken = async function (e, c, cb) {
     try {
-        //1,获取入参
         let inparam = JSONParser(e.body)
-        //2,参数校验
-        // new BillCheck().checkPlayerToken(inparam)
         const tokenInfo = await jwt.verify(e.headers.Authorization, TOKEN_SECRET)
         if (!tokenInfo || inparam.userName != tokenInfo.userName) {
             return ResFail(cb, { msg: 'token校验失败' }, 11000)
@@ -386,11 +383,3 @@ module.exports.validateToken = async function (e, c, cb) {
         return ResFail(cb, { msg: err }, 500)
     }
 }
-
-// export {
-//     gameRecordPage,                   //商户查询战绩
-//     merchantPlayer,                   //商户对玩家的操作
-//     validateToken,                    //玩家的token验证
-//     gameReportByMerchant,             //商户报表
-//     gameReportByPlayer                //商户玩家报表
-// }
