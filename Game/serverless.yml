@@ -1,6 +1,5 @@
 service: Game
 plugins:
-  # - serverless-webpack
   # - serverless-offline
   - serverless-prune-plugin
 provider:
@@ -24,10 +23,6 @@ provider:
             - ":"
             - Ref: AWS::AccountId
             - ":table/*"
-# custom:
-#   webpack:
-#     webpackConfig: ./webpack.config.js
-#     includeModules: true
 functions:
   tokenAuth:
     handler: api.jwtverify
