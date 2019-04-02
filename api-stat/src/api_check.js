@@ -176,11 +176,7 @@ router.post('/stat/checkGameRecord', async function (ctx, next) {
                 // 通过战绩计算输赢金额
                 for (let item of ret.Items) {
                     gameRecordArr.push(item.betId)
-                    if (item.gameType == 30000) {
-                        gameRecordMap[item.betId] = parseFloat(item.record.winLostAmount)
-                        gameRecordWinlose += parseFloat(item.record.winLostAmount)
-                    }
-                    if ((item.gameType == 40000 || item.gameType == 70000 || item.gameType == 90000) && item.record.gameDetail) {
+                    if ((item.gameType == 70000 || item.gameType == 90000) && item.record.gameDetail) {
                         let detail = JSON.parse(item.record.gameDetail)
                         if (!_.isEmpty(detail) && item.betId) {
                             gameRecordMap[item.betId] = (parseFloat(detail.totalGold) - parseFloat(detail.bet)) || 0
@@ -188,10 +184,6 @@ router.post('/stat/checkGameRecord', async function (ctx, next) {
                         } else {
                             console.error(item)
                         }
-                    }
-                    if (item.gameType == 50000) {
-                        gameRecordMap[item.betId] = parseFloat(item.record.userWin) - parseFloat(item.record.totalBets)
-                        gameRecordWinlose += parseFloat(item.record.userWin) - parseFloat(item.record.totalBets)
                     }
                 }
                 // 查询玩家交易记录输赢金额
@@ -365,91 +357,7 @@ router.post('/stat/checkRoundBill', async function (ctx, next) {
     ctx.body = { code: 0, msg: 'Y', payload: { roundBillArr, billRoundArr } }
 })
 
-/**
- * 修正时间段的战绩表与交易记录的下注时间，使其保证一致
- * @param {*} start 起始时间
- * @param {*} end 结束时间
- * @param {*} userName 可选，玩家帐号（只修复指定玩家）
- * 战绩表 parentIdIndex
- * 局表 ParentIndex
- */
-router.post('/stat/fixRecrodRound', async function (ctx, next) {
-    const inparam = ctx.request.body
-    let gameRecordModel = new HeraGameRecordModel()
-    let statRound = new StatRoundModel()
-    let notFindBk = [], fixTimeBk = [], i = 1
-    //获取平台所有商户和代理
-    let [userErr, allUsers] = await new BaseModel().scan({
-        TableName: Tables.ZeusPlatformUser,
-        FilterExpression: "(#role = :role1 OR #role = :role2) AND levelIndex <> :levelIndex AND isTest <> :isTest",
-        ProjectionExpression: 'userId,#role',
-        ExpressionAttributeNames: {
-            '#role': 'role'
-        },
-        ExpressionAttributeValues: {
-            ':role1': '100',
-            ':role2': '1000',
-            ':levelIndex': '0',
-            ':isTest': 1
-        }
-    })
-    console.log(`总共需要处理的用户有${allUsers.Items.length}个`)
-    //所有商户和代理，时间范围内的战绩数据
-    let promiseAll = []
-    for (let user of allUsers.Items) {
-        let p = new Promise(async (resolve, reject) => {
-            let records = await gameRecordModel.getTimeRecord(user.userId, inparam)
-            let rounds = await statRound.getBkInfo({ parent: user.userId, start: inparam.start - 3 * 86400000, end: inparam.end + 3 * 86400000 })
-            // 遍历每条战绩，和交易记录对比
-            for (let item of records) {
-                let roundRes = _.find(rounds, function (o) { return o.businessKey == item.betId })
-                // 找到交易，更新战绩的下注时间
-                if (roundRes) {
-                    if (roundRes.createdAt != item.betTime) {
-                        if (!item.record) {
-                            console.error(`存在没有record的战绩：${item.userName}，${item.betId}`)
-                        } else {
-                            item.record.betTime = roundRes.createdAt
-                            let upadetParms = {
-                                userName: item.userName,
-                                betId: item.betId,
-                                betTime: roundRes.createdAt,
-                                record: item.record
-                            }
-                            gameRecordModel.updateTimeRecord(upadetParms)
-                            console.log(`用户${user.userId}进行战绩修复`)
-                            fixTimeBk.push(item.betId)
-                        }
-                    }
-                }
-                // 没找到交易，则删除战绩
-                else {
-                    console.info(`${item.betId}进行再查询`)
-                    let bkRes = await statRound.getBkInfo({ bk: item.betId })
-                    if (!bkRes[0]) {
-                        notFindBk.push({ userName: item.userName, betId: item.betId })
-                        // gameRecordModel.deleteItem({
-                        //     Key: {
-                        //         'userName': item.userName,
-                        //         'betId': item.betId
-                        //     }
-                        // })
-                    }
-                }
-            }
-            console.log(`进度：${i++}`)
-            resolve(1)
-        })
-        promiseAll.push(p)
-    }
-    //并发执行
-    await Promise.all(promiseAll)
-    console.log(`战绩未查询到交易记录的有${notFindBk.length}条，修复的战绩有${fixTimeBk.length}条`)
-    if (notFindBk.length) {
-        console.log('没有找到相同战绩的数组')
-        console.log(JSON.stringify(notFindBk))
-    }
-})
+
 
 /**
  * 检查所有子孙关系

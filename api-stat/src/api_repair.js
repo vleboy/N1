@@ -5,79 +5,16 @@ const Router = require('koa-router')
 const router = new Router()
 // 工具相关
 const _ = require('lodash')
-const axios = require('axios')
 const NP = require('number-precision')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
-const LogModel = require('./model/LogModel')
+const BaseModel = require('./model/BaseModel')
+const StatRoundModel = require('./model/StatRoundModel')
 const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
 const HeraGameRecordModel = require('./model/HeraGameRecordModel')
 const UserModel = require('./model/UserModel')
-const PushModel = require('./model/PushModel')
 const PlayerModel = require('./model/PlayerModel')
-
-/**
- * 修正因为下注延迟没有被记录的返奖
- */
-router.post('/stat/fixRet', async function (ctx, next) {
-    const inparam = ctx.request.body
-    // 业务操作
-    console.log('开始返奖补录')
-    let [err, res] = await new LogModel().roleQuery({ role: '2' })
-    for (let item of res) {
-        // NA电子游戏重推返奖
-        if (item.detail.indexOf('未找到对应BK【B') != -1) {
-            let billCheck = await new PlayerBillDetailModel().getItem({
-                ProjectionExpression: 'createdAt',
-                Key: {
-                    'sn': item.inparams.sn
-                }
-            })
-            if (!_.isEmpty(billCheck.Item)) {
-                console.log(`${item.inparams.businessKey}已修复`)
-                new LogModel().updateLog({ sn: item.sn, userId: item.userId })
-            } else {
-                console.log(`${item.inparams.businessKey}重推`)
-                await axios.post(`https://${config.na.domain}/dev/game/postTransfer`, JSON.parse(item.inparams.anotherGameData))
-            }
-        }
-        // DT电子游戏重推返奖
-        if (item.detail.indexOf('未找到对应BK【BDT_') != -1) {
-            let billCheck = await new PlayerBillDetailModel().getItem({
-                ProjectionExpression: 'createdAt',
-                Key: {
-                    'sn': item.inparams.sntemp
-                }
-            })
-            if (!_.isEmpty(billCheck.Item)) {
-                console.log(`${item.inparams.businessKey}已修复`)
-                new LogModel().updateLog({ sn: item.sn, userId: item.userId })
-            } else {
-                console.log(`${item.inparams.businessKey}重推`)
-                await axios.post(`https://${config.na.apidomain}/dt/ret`, JSON.parse(item.inparams.anotherGameData))
-            }
-        }
-        // TTG电子游戏重推返奖
-        // if (item.detail.indexOf('未找到对应BK【BTTG_') != -1) {
-        //     let billCheck = await new PlayerBillDetailModel().getItem({
-        //         ProjectionExpression: 'createdAt',
-        //         Key: {
-        //             'sn': item.inparams.sntemp
-        //         }
-        //     })
-        //     if (!_.isEmpty(billCheck.Item)) {
-        //         console.log(`${item.inparams.businessKey}已修复`)
-        //         new LogModel().updateLog({ sn: item.sn, userId: item.userId })
-        //     } else {
-        //         console.log(`${item.inparams.businessKey}重推`)
-        //         await axios.post(`https://${config.na.apidomain}/dt/postTransfer`, JSON.parse(item.inparams.anotherGameData))
-        //     }
-        // }
-    }
-    console.log('返奖已经补录完毕')
-    ctx.body = { code: 0, msg: 'Y' }
-})
 
 /**
  * 修正所有流水的amount为2位小数
@@ -247,26 +184,6 @@ router.post('/stat/fixBillAction', async function (ctx, next) {
 })
 
 /**
- * 重推用户给大厅
- */
-router.post('/stat/repush', async function (ctx, next) {
-    let [err, res] = await new UserModel().scan({
-        ProjectionExpression: 'userId'
-        // FilterExpression: `isTest = :isTest`,
-        // ExpressionAttributeValues: {
-        //     ':isTest': 1
-        // }
-    })
-    let i = 1
-    console.log(`需要重推用户数量：${res.Items.length}`)
-    for (let user of res.Items) {
-        await new PushModel().pushMerchant(user.userId)
-        console.log(`当前重推进度：${i}`)
-        i++
-    }
-})
-
-/**
  * 给商户玩家增加parentSn字段,移除部分字段
  * 用户表这三个字段预留hostName，hostContact，merchantEmail
  */
@@ -377,6 +294,92 @@ router.post('/stat/fixRecrodBetTime', async function (ctx, next) {
         })
     }
     ctx.body = { code: 0, msg: 'Y' }
+})
+
+/**
+ * 修正时间段的战绩表与交易记录的下注时间，使其保证一致
+ * @param {*} start 起始时间
+ * @param {*} end 结束时间
+ * @param {*} userName 可选，玩家帐号（只修复指定玩家）
+ * 战绩表 parentIdIndex
+ * 局表 ParentIndex
+ */
+router.post('/stat/fixRecrodRound', async function (ctx, next) {
+    const inparam = ctx.request.body
+    let gameRecordModel = new HeraGameRecordModel()
+    let statRound = new StatRoundModel()
+    let notFindBk = [], fixTimeBk = [], i = 1
+    //获取平台所有商户和代理
+    let [userErr, allUsers] = await new BaseModel().scan({
+        TableName: Tables.ZeusPlatformUser,
+        FilterExpression: "(#role = :role1 OR #role = :role2) AND levelIndex <> :levelIndex AND isTest <> :isTest",
+        ProjectionExpression: 'userId,#role',
+        ExpressionAttributeNames: {
+            '#role': 'role'
+        },
+        ExpressionAttributeValues: {
+            ':role1': '100',
+            ':role2': '1000',
+            ':levelIndex': '0',
+            ':isTest': 1
+        }
+    })
+    console.log(`总共需要处理的用户有${allUsers.Items.length}个`)
+    //所有商户和代理，时间范围内的战绩数据
+    let promiseAll = []
+    for (let user of allUsers.Items) {
+        let p = new Promise(async (resolve, reject) => {
+            let records = await gameRecordModel.getTimeRecord(user.userId, inparam)
+            let rounds = await statRound.getBkInfo({ parent: user.userId, start: inparam.start - 3 * 86400000, end: inparam.end + 3 * 86400000 })
+            // 遍历每条战绩，和交易记录对比
+            for (let item of records) {
+                let roundRes = _.find(rounds, function (o) { return o.businessKey == item.betId })
+                // 找到交易，更新战绩的下注时间
+                if (roundRes) {
+                    if (roundRes.createdAt != item.betTime) {
+                        if (!item.record) {
+                            console.error(`存在没有record的战绩：${item.userName}，${item.betId}`)
+                        } else {
+                            item.record.betTime = roundRes.createdAt
+                            let upadetParms = {
+                                userName: item.userName,
+                                betId: item.betId,
+                                betTime: roundRes.createdAt,
+                                record: item.record
+                            }
+                            gameRecordModel.updateTimeRecord(upadetParms)
+                            console.log(`用户${user.userId}进行战绩修复`)
+                            fixTimeBk.push(item.betId)
+                        }
+                    }
+                }
+                // 没找到交易，则删除战绩
+                else {
+                    console.info(`${item.betId}进行再查询`)
+                    let bkRes = await statRound.getBkInfo({ bk: item.betId })
+                    if (!bkRes[0]) {
+                        notFindBk.push({ userName: item.userName, betId: item.betId })
+                        // gameRecordModel.deleteItem({
+                        //     Key: {
+                        //         'userName': item.userName,
+                        //         'betId': item.betId
+                        //     }
+                        // })
+                    }
+                }
+            }
+            console.log(`进度：${i++}`)
+            resolve(1)
+        })
+        promiseAll.push(p)
+    }
+    //并发执行
+    await Promise.all(promiseAll)
+    console.log(`战绩未查询到交易记录的有${notFindBk.length}条，修复的战绩有${fixTimeBk.length}条`)
+    if (notFindBk.length) {
+        console.log('没有找到相同战绩的数组')
+        console.log(JSON.stringify(notFindBk))
+    }
 })
 
 /**

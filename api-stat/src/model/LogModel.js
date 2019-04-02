@@ -109,41 +109,6 @@ class LogModel extends BaseModel {
         })
         return [0, ret.Items]
     }
-    //role和userId查询
-    async roleCreatedAtQuery(inparam) {
-        const [err, ret] = await this.query({
-            IndexName: 'LogRoleIndex',
-            KeyConditionExpression: '#role = :role AND createdAt between :createdAt0  and :createdAt1',
-            ProjectionExpression: 'userId,dayTotalCount',
-            ExpressionAttributeNames: {
-                '#role': 'role'
-            },
-            ExpressionAttributeValues: {
-                ':role': inparam.role.toString(),
-                ':userId': inparam.userId,
-                ':createdAt0': inparam.createdAt0,
-                ':createdAt1': inparam.createdAt1
-            }
-        })
-        if (err) {
-            console.error(err)
-        }
-        return ret.Items
-    }
-
-    //更新
-    async updateLog(inparam) {
-        this.updateItem({
-            Key: { 'sn': inparam.sn, userId: inparam.userId },
-            UpdateExpression: 'SET ret = :ret ',
-            ExpressionAttributeValues: {
-                ':ret': 'Y'
-            }
-        }).then((res) => {
-        }).catch((err) => {
-            console.error(err)
-        })
-    }
 
     //删除日志
     async delLog(inparam) {
@@ -168,56 +133,6 @@ class LogModel extends BaseModel {
             })
         }
         console.info(`数据删除成功`)
-    }
-    //删除指定天的日志
-    async delDayLog(inparam) {
-        let [err, logs] = await this.query({
-            IndexName: 'LogRoleIndex',
-            KeyConditionExpression: '#role = :role',
-            FilterExpression: 'statDate = :statDate',
-            ExpressionAttributeNames: {
-                '#role': 'role'
-            },
-            ExpressionAttributeValues: {
-                ':role': inparam.role.toString(),
-                ':statDate': inparam.statDate
-            }
-        })
-        console.log(`一共查出需要删除的日志条数${logs.Items.length}`)
-        // 批量删除
-        for (let item of logs.Items) {
-            this.deleteItem({
-                Key: {
-                    'sn': item.sn,
-                    'userId': item.userId
-                }
-            })
-        }
-        console.info(`数据删除成功`)
-    }
-
-    /**
-     * 批量写入玩家人数统计日志
-     * @param {*} allArr 
-     */
-    async batchWritePlayerCount(allArr) {
-        let batchArr = _.chunk(allArr, 25)
-        for (let chunk of batchArr) {
-            let batch = { RequestItems: {} }
-            batch.RequestItems[Tables.ZeusPlatformLog] = []
-            for (let item of chunk) {
-                // 单条
-                batch.RequestItems[Tables.ZeusPlatformLog].push({
-                    PutRequest: {
-                        Item: item
-                    }
-                })
-            }
-            // 数据存在时，写入数据库
-            if (batch.RequestItems[Tables.ZeusPlatformLog].length > 0) {
-                await this.batchWrite(batch)
-            }
-        }
     }
 }
 

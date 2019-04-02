@@ -63,23 +63,6 @@ router.post('/stat/clearBalanceCache', async function (ctx, next) {
 })
 
 // /**
-//  * 清空系统SN锁表
-//  */
-// router.post('/stat/clearSnLock', async function (ctx, next) {
-//     // 业务操作
-//     const baseModel = new BaseModel()
-//     const [err, res] = await baseModel.scan({ TableName: 'SYSLock' })
-//     if (err) { console.error(err) }
-//     console.log(`需要删除数量：${res.Items.length}`)
-//     // 批量删除
-//     for (let item of res.Items) {
-//         baseModel.deleteItem({ TableName: 'SYSLock', Key: { 'sn': item.sn } })
-//     }
-//     console.info(`数据删除成功`)
-//     ctx.body = { code: 0, msg: 'Y' }
-// })
-
-// /**
 //  * 清除指定的流水
 //  * @param {*} type 
 //  */
