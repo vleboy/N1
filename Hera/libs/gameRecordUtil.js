@@ -45,68 +45,20 @@ module.exports = {
 function getOtherObj(record) {
     let gameType = record.gameType
     let otherObj = {}
-    if (gameType == "30000") { //NA真人
+    if (gameType == "40000" || gameType == "70000" || gameType == "90000") {  //NA电子
+        let gameDetail = JSON.parse(record.gameDetail)        //record字段存储第三方游戏的战绩，但NA电子游戏的战绩在record.gameDetail里面
         otherObj = {
-            gameName: record.gameName,
-            preBalance: record.preBalance,
-            settleRate: record.settleRate,
-            betDetail: record.gameName == 'NA真人退款' ? null : { betName: record.itemName, betNum: record.betNum || record.addition },
-            betAmount: record.amount,
-            winAmount: record.gameName == 'NA真人退款' ? 0 : parseFloat((record.amount + (record.winLostAmount || 0)).toFixed(2)),
-            refundAmount: record.gameName == 'NA真人退款' ? record.amount : 0,
-            retAmount: record.gameName == 'NA真人退款' ? record.amount : parseFloat((record.amount + (record.winLostAmount || 0)).toFixed(2)),
-            winloseAmount: record.winLostAmount,
-            mixAmount: record.validAmount,
+            gameName: "NA电子游戏",
+            preBalance: gameDetail.preBalance,
+            betAmount: gameDetail.bet,
+            winAmount: gameDetail.totalGold,
+            refundAmount: 0,
+            retAmount: gameDetail.totalGold,
+            winloseAmount: parseFloat((gameDetail.totalGold - gameDetail.bet).toFixed(2)),
+            mixAmount: gameDetail.bet,
             betCount: 1,
-            roundId: record.roundId,
-            roundResult: record.roundResult,
-            settleTime: record.settleTime
-            // roundStatus: record.winLostStatus
-        }
-    } else if (gameType == "1060000") { //SA真人,anotherGameData{data:[{\"GameResult\":[{\"BaccaratResult\":[]}]}],mixAmount:0}
-        let betObj = getContentBetObj(record)
-        let retObj = getContentRetObj(record)
-        if (retObj.refundAmount > 0 && retObj.refundAmount == betObj.betAmount) {  // 退款金额和下注金额一致，则设置默认战绩
-            record.anotherGameData = { data: '[{\"GameResult\":[{\"BaccaratResult\":[]}]}]', mixAmount: 0 }
-        }
-        if (!record.anotherGameData || record.anotherGameData == 'NULL!') {        // SA查询没有战绩，则设置默认战绩
-            record.anotherGameData = { data: '[{\"GameResult\":[{\"BaccaratResult\":[]}]}]', mixAmount: 0 }
-        }
-        let item = JSON.parse((record.anotherGameData || { data: "{}" }).data)
-        item = (item || [])[0]
-        otherObj = {
-            gameName: (item.HostName || [])[0],
-            preBalance: betObj.preBalance,
-            betAmount: betObj.betAmount,
-            winAmount: retObj.winAmount,
-            refundAmount: retObj.refundAmount,
-            retAmount: retObj.retAmount,
-            winloseAmount: parseFloat((retObj.retAmount - betObj.betAmount).toFixed(2)),
-            mixAmount: record.anotherGameData.mixAmount || 0,
-            betCount: betObj.count,
-            roundId: (item.Round || [])[0],
-            roundResult: setSAResult(item.GameResult),
-            settleTime: retObj.settleTime
-        }
-    } else if (gameType == "1130000") {  //YSB体育
-        let item = JSON.parse(record.anotherGameData || "{}")
-        let betObj = getContentBetObj(record)
-        let retObj = getContentRetObj(record)
-        otherObj = {
-            gameName: "YSB体育游戏",
-            preBalance: betObj.preBalance,
-            settleRate: item.ODDS,
-            betDetail: item,
-            betAmount: betObj.betAmount,
-            winAmount: retObj.winAmount,
-            refundAmount: retObj.refundAmount,
-            retAmount: retObj.retAmount,
-            winloseAmount: parseFloat((retObj.retAmount - betObj.betAmount).toFixed(2)),
-            mixAmount: betObj.betAmount,
-            betCount: betObj.count,
-            roundResult: {},
-            settleTime: retObj.settleTime,
-            oddsStyle: item.ODDFORMAT
+            roundResult: gameDetail,
+            settleTime: record.betTime
         }
     } else if (gameType == "1050000") { //AG真人
         let firstBet = ((record.content || {}).bet || [{ originalAmount: 0 }])[0]  //第一条下注
@@ -134,78 +86,52 @@ function getOtherObj(record) {
             roundResult: anotherGameData.gameResult ? setAGResult(anotherGameData.gameResult) : {}
         }
         otherObj.mixAmount = Math.min(Math.abs(otherObj.betAmount), Math.abs(otherObj.winloseAmount))
-    } else if (gameType == "40000" || gameType == "70000" || gameType == "90000") {  //NA电子
-        let gameDetail = JSON.parse(record.gameDetail)        //record字段存储第三方游戏的战绩，但NA电子游戏的战绩在record.gameDetail里面
-        otherObj = {
-            gameName: "NA电子游戏",
-            preBalance: gameDetail.preBalance,
-            betAmount: gameDetail.bet,
-            winAmount: gameDetail.totalGold,
-            refundAmount: 0,
-            retAmount: gameDetail.totalGold,
-            winloseAmount: parseFloat((gameDetail.totalGold - gameDetail.bet).toFixed(2)),
-            mixAmount: gameDetail.bet,
-            betCount: 1,
-            betIP: record.betIp || gameDetail.betIp || "",
-            roundResult: gameDetail,
-            settleTime: record.betTime
-        }
-    } else if (gameType == "50000") { //NA街机
-        otherObj = {
-            gameName: "NA街机游戏",
-            preBalance: record.userBankBefore,
-            betAmount: record.totalBets,
-            winAmount: record.userWin,
-            refundAmount: 0,
-            retAmount: record.userWin,
-            winloseAmount: parseFloat((record.userWin - record.totalBets).toFixed(2)),
-            mixAmount: record.totalBets,
-            betCount: record.roundBets.length,
-            settleTime: record.betTime,
-            roundResult: {
-                goalIndex: record.goalIndex,
-                roundBets: record.roundBets,
-                roundBetsTotal: record.roundBetsTotal,
-                roundRates: record.roundRates
-            }
-        }
-    }
-    else if (gameType == "10000") { //NA棋牌,购买房卡
-        otherObj = {
-            gameName: "购买房卡",
-            preBalance: record.preBalance,
-            betAmount: -record.amount || 0,
-            winAmount: 0,
-            refundAmount: 0,
-            retAmount: 0,
-            winloseAmount: record.amount,
-            mixAmount: record.amount,
-            betCount: 1,
-            betDetail: { num: record.num, seatId: record.seatId },
-            roundResult: {}
-        }
-    }
-    else if (gameType == "1100000") { //UG体育
-        let item = JSON.parse(record.anotherGameData || "{}")
+    } else if (gameType == "1060000") { //SA真人,anotherGameData{data:[{\"GameResult\":[{\"BaccaratResult\":[]}]}],mixAmount:0}
         let betObj = getContentBetObj(record)
         let retObj = getContentRetObj(record)
+        if (retObj.refundAmount > 0 && retObj.refundAmount == betObj.betAmount) {  // 退款金额和下注金额一致，则设置默认战绩
+            record.anotherGameData = { data: '[{\"GameResult\":[{\"BaccaratResult\":[]}]}]', mixAmount: 0 }
+        }
+        if (!record.anotherGameData || record.anotherGameData == 'NULL!') {        // SA查询没有战绩，则设置默认战绩
+            record.anotherGameData = { data: '[{\"GameResult\":[{\"BaccaratResult\":[]}]}]', mixAmount: 0 }
+        }
+        let item = JSON.parse((record.anotherGameData || { data: "{}" }).data)
+        item = (item || [])[0]
         otherObj = {
-            gameName: "UG体育游戏",
-            preBalance: record.preBalance || betObj.preBalance,
-            settleRate: item.BetOdds || 0,
-            betDetail: JSON.parse(item.BetInfo || "{}"),
-            betAmount: -record.amount || betObj.betAmount,
+            gameName: (item.HostName || [])[0],
+            preBalance: betObj.preBalance,
+            betAmount: betObj.betAmount,
             winAmount: retObj.winAmount,
             refundAmount: retObj.refundAmount,
             retAmount: retObj.retAmount,
             winloseAmount: parseFloat((retObj.retAmount - betObj.betAmount).toFixed(2)),
-            settleTime: retObj.settleTime,
+            mixAmount: record.anotherGameData.mixAmount || 0,
+            betCount: betObj.count,
+            roundId: (item.Round || [])[0],
+            roundResult: setSAResult(item.GameResult),
+            settleTime: retObj.settleTime
+        }
+    } else if (gameType == "1130000") { //YSB体育
+        let item = JSON.parse(record.anotherGameData || "{}")
+        let betObj = getContentBetObj(record)
+        let retObj = getContentRetObj(record)
+        otherObj = {
+            gameName: "YSB体育游戏",
+            preBalance: betObj.preBalance,
+            settleRate: item.ODDS,
+            betDetail: item,
+            betAmount: betObj.betAmount,
+            winAmount: retObj.winAmount,
+            refundAmount: retObj.refundAmount,
+            retAmount: retObj.retAmount,
+            winloseAmount: parseFloat((retObj.retAmount - betObj.betAmount).toFixed(2)),
             mixAmount: betObj.betAmount,
             betCount: betObj.count,
-            roundResult: JSON.parse(item.BetResult || "{}"),
-            oddsStyle: item.OddsStyle
+            roundResult: {},
+            settleTime: retObj.settleTime,
+            oddsStyle: item.ODDFORMAT
         }
-    } else { // 其他游戏
+    } else {                            //其他第三方游戏
         let betObj = getContentBetObj(record)
         let retObj = getContentRetObj(record)
         otherObj = {
@@ -233,13 +159,7 @@ function getOtherObj(record) {
         otherObj.roundStatus = 0 // 取消
     }
     // 可选投注IP
-    if (!otherObj.betIP || otherObj.betIP == 'NULL!') {
-        if (record.betIp && record.betIp != 'NULL!') {
-            otherObj.betIP = record.betIp
-        } else {
-            otherObj.betIP = ''
-        }
-    }
+    otherObj.sourceIP = record.sourceIP
     // 可选下注详情
     otherObj.betDetail = otherObj.betDetail || {}
     // 可选赔率
