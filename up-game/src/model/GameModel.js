@@ -25,7 +25,7 @@ class GameModel extends BaseModel {
      * @param {*} gameInfo 
      */
     async addGame(gameInfo) {
-        const ret = await this.scan({ ProjectionExpression: 'gameType,kindId' })
+        const ret = await this.scan({ ProjectionExpression: 'gameType,gameName,kindId' })
         for (let item of ret.Items) {
             if (item.gameType == gameInfo.gameType && item.gameName == gameInfo.gameName) {
                 throw BizErr.ItemExistErr()
