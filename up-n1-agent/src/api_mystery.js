@@ -60,6 +60,8 @@ router.post('/mysteryList', async function (ctx, next) {
                     item.displayId = userInfo.displayId
                     item.winAmount = JSON.parse(item.record.gameDetail).totalGold
                     item.gameTypeName = (GameTypeEnum[item.gameType.toString()] || { name: "未知" }).name
+                    item.initBonus = JSON.parse(item.record.gameDetail).secretBonusData.initBonus
+                    item.robotBet = JSON.parse(item.record.gameDetail).secretBonusData.robotBet
                     delete item.record
                     mysteryList.push(item)
                 }
