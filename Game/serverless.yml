@@ -643,12 +643,6 @@ resources:
     #       -
     #         AttributeName: gameId
     #         AttributeType: S
-    #       -
-    #         AttributeName: kindId
-    #         AttributeType: S
-    #       -
-    #         AttributeName: gameName
-    #         AttributeType: S
     #     KeySchema:
     #       -
     #         AttributeName: gameType
@@ -657,29 +651,6 @@ resources:
     #         AttributeName: gameId
     #         KeyType: RANGE
     #     BillingMode: PAY_PER_REQUEST
-    #     GlobalSecondaryIndexes:
-    #       -
-    #         IndexName: GameNameIndex
-    #         KeySchema:
-    #           -
-    #             AttributeName: gameType
-    #             KeyType: HASH
-    #           -
-    #             AttributeName: gameName
-    #             KeyType: RANGE
-    #         Projection:
-    #           ProjectionType: ALL
-    #         ProvisionedThroughput:
-    #           ReadCapacityUnits: 1
-    #           WriteCapacityUnits: 1
-    #       -
-    #         IndexName: KindIdIndex
-    #         KeySchema:
-    #           -
-    #             AttributeName: kindId
-    #             KeyType: HASH
-    #         Projection:
-    #           ProjectionType: ALL
 
     # SYSConfig: #系统配置表
     #   Type: AWS::DynamoDB::Table

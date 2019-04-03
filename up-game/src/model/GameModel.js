@@ -25,35 +25,20 @@ class GameModel extends BaseModel {
      * @param {*} gameInfo 
      */
     async addGame(gameInfo) {
-        // 判断是否重复
-        let exist = await this.isExist({
-            IndexName: 'GameNameIndex',
-            KeyConditionExpression: 'gameType = :gameType and gameName = :gameName',
-            ExpressionAttributeValues: {
-                ':gameType': gameInfo.gameType,
-                ':gameName': gameInfo.gameName
+        const ret = await this.scan({ ProjectionExpression: 'gameType,kindId' })
+        for (let item of ret.Items) {
+            if (item.gameType == gameInfo.gameType && item.gameName == gameInfo.gameName) {
+                throw BizErr.ItemExistErr()
             }
-        })
-        if (exist) {
-            throw BizErr.ItemExistErr()
-        }
-        // 判断kindId是否重复
-        exist = await this.isExist({
-            IndexName: 'KindIdIndex',
-            KeyConditionExpression: 'kindId = :kindId',
-            ExpressionAttributeValues: {
-                ':kindId': gameInfo.kindId,
+            if (item.kindId == gameInfo.kindId) {
+                throw BizErr.ItemExistErr('kindId已存在')
             }
-        })
-        if (exist) {
-            throw BizErr.ItemExistErr('KindId已存在')
         }
-        // 保存
         const item = {
             ...this.item,
             ...gameInfo
         }
-        const putRet = await this.putItem(item)
+        await this.putItem(item)
         return item
     }
 
