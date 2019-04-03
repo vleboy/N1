@@ -1,16 +1,35 @@
-const BizErr = require('../lib/Codes').BizErr
-const Model = require('../lib/Dynamo').Model
 const AWS = require('aws-sdk')
 AWS.config.update({ region: 'ap-southeast-1' })
-const dbClient = new AWS.DynamoDB.DocumentClient()
 const _ = require('lodash')
+const moment = require('moment')
+const dynamoDb = new AWS.DynamoDB({ httpOptions: { timeout: 5000 } })
+const dbClient = new AWS.DynamoDB.DocumentClient({ service: dynamoDb })
 
-module.exports = class BaseModel {
+/**
+ * 基础数据库操作类
+ * putItem:插入单项
+ * batchWrite:批量插入
+ * updateItem:更新单项
+ * deleteItem:删除单项
+ * isExist:是否存在
+ * queryOnce:单次查询
+ * query:递归查询
+ * scan:递归扫描
+ * page:分页
+ * bindFilterQuery:绑定筛选参数并查询
+ * bindFilterScan:绑定筛选参数并扫描
+ */
+class BaseModel {
     /**
      * 构造方法，设置基础对象属性
      */
     constructor() {
-        this.baseitem = Model.baseModel()
+        this.baseitem = {
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            createdDate: moment().utcOffset(8).format('YYYY-MM-DD'),
+            createdStr: moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss')
+        }
     }
 
     /**
@@ -24,24 +43,41 @@ module.exports = class BaseModel {
 
     /**
      * 插入单项
-     * @param {*} item 
+     * @param {*} item
+     */
+    putData(item) {
+        return this.db$('put', item).then((res) => {
+            return res
+        }).catch((err) => {
+            console.error(`表${item.TableName}写入失败，重新写入，以下是详细错误信息`)
+            console.error(item)            
+            console.error(err)
+            return this.putData(item)
+        })
+    }
+
+    /**
+     * 插入单项
+     * @param {*} item
      */
     putItem(item) {
-        return new Promise((reslove, reject) => {
-            const params = {
-                ...this.params,
-                Item: {
-                    ...this.baseitem,
-                    ...item
-                }
+        // return new Promise((reslove, reject) => {
+        const params = {
+            ...this.params,
+            Item: {
+                ...this.baseitem,
+                ...item
             }
-            this.db$('put', params)
-                .then((res) => {
-                    return reslove([false, res])
-                }).catch((err) => {
-                    return reject([BizErr.DBErr(err.toString()), false])
-                })
+        }
+        return this.db$('put', params).then((res) => {
+            return res
+        }).catch((err) => {
+            console.error(`表${params.TableName}写入失败，重新写入，以下是详细错误信息`)
+            console.error(params)
+            console.error(err)
+            return this.putItem(item)
         })
+        // })
     }
 
     /**
@@ -52,8 +88,10 @@ module.exports = class BaseModel {
         return this.db$('batchWrite', batch)
             .then((res) => {
                 if (res.UnprocessedItems && !_.isEmpty(res.UnprocessedItems)) {
+                    console.log('发生批量写入未完成事件')
                     // 遍历每个表
                     for (let tablename in res.UnprocessedItems) {
+                        console.log(`表【${tablename}】未完成写入数据量:${res.UnprocessedItems[tablename].length}`)
                         // 初始化批量写入对象
                         let batch = {
                             RequestItems: {}
@@ -64,10 +102,11 @@ module.exports = class BaseModel {
                             batch.RequestItems[tablename].push(item)
                         }
                         // 重新插入
+                        console.log(`表【${tablename}】重新写入数据量:${batch.RequestItems[tablename].length}`)
                         return this.batchWrite(batch)
                     }
                 } else {
-                    return [false, res]
+                    return res
                 }
             }).catch((err) => {
                 console.log(err)
@@ -79,18 +118,18 @@ module.exports = class BaseModel {
      * @param {*} conditions 
      */
     updateItem(conditions) {
-        return new Promise((reslove, reject) => {
-            const params = {
-                ...this.params,
-                ...conditions
-            }
-            this.db$('update', params)
-                .then((res) => {
-                    return reslove([false, res])
-                }).catch((err) => {
-                    return reject([BizErr.DBErr(err.toString()), false])
-                })
-        })
+        // return new Promise((reslove, reject) => {
+        const params = {
+            ...this.params,
+            ...conditions
+        }
+        return this.db$('update', params)
+        // .then((res) => {
+        //     return reslove(res)
+        // }).catch((err) => {
+        //     return reject(err)
+        // })
+        // })
     }
 
     /**
@@ -98,18 +137,19 @@ module.exports = class BaseModel {
      * @param {*} conditions 
      */
     deleteItem(conditions) {
-        return new Promise((reslove, reject) => {
-            const params = {
-                ...this.params,
-                ...conditions
-            }
-            this.db$('delete', params)
-                .then((res) => {
-                    return reslove([false, res])
-                }).catch((err) => {
-                    return reject([BizErr.DBErr(err.toString()), false])
-                })
-        })
+        // return new Promise((reslove, reject) => {
+        const params = {
+            ...this.params,
+            ...conditions
+        }
+        return this.db$('delete', params)
+        // .then((res) => {
+        //     return reslove(res)
+        // }).catch((err) => {
+        //     console.error(err)
+        //     return reject(err)
+        // })
+        // })
     }
 
     /**
@@ -122,16 +162,34 @@ module.exports = class BaseModel {
                 ...this.params,
                 ...conditions
             }
-            this.db$('query', params)
+            return this.db$('query', params)
                 .then((res) => {
-                    let exist = false
-                    if (res && !res.Items) { exist = true }
-                    if (res && res.Items && res.Items.length > 0) { exist = true }
-                    return reslove([0, exist])
+                    const exist = res ? true : false
+                    return reslove(exist)
                 }).catch((err) => {
-                    return reject([BizErr.DBErr(err.toString()), false])
+                    console.error(err)
+                    return reject(err)
                 })
         })
+    }
+
+    /**
+     * 主键获取
+     * @param {*} conditions 
+     */
+    getItem(conditions = {}) {
+        // return new Promise((reslove, reject) => {
+        const params = {
+            ...this.params,
+            ...conditions
+        }
+        return this.db$('get', params)
+        // .then((res) => {
+        //     return reslove(res)
+        // }).catch((err) => {
+        //     return reject(err)
+        // })
+        // })
     }
 
     /**
@@ -146,9 +204,9 @@ module.exports = class BaseModel {
         }
         return this.db$('query', params)
         // .then((res) => {
-        //     return reslove([0, res])
+        //     return reslove(res)
         // }).catch((err) => {
-        //     return reject([BizErr.DBErr(err.message), false])
+        //     return reject(err)
         // })
         // })
     }
@@ -176,10 +234,11 @@ module.exports = class BaseModel {
                 params.ExclusiveStartKey = res.LastEvaluatedKey
                 return this.queryInc(params, result)
             } else {
-                return [false, result]
+                return result
             }
         }).catch((err) => {
-            return [BizErr.DBErr(err.toString()), false]
+            console.error(err)
+            return err
         })
     }
 
@@ -206,25 +265,64 @@ module.exports = class BaseModel {
                 params.ExclusiveStartKey = res.LastEvaluatedKey
                 return this.scanInc(params, result)
             } else {
-                return [false, result]
+                return result
             }
         }).catch((err) => {
-            return [BizErr.DBErr(err.toString()), false]
+            console.error(err)
+            return err
         })
     }
 
     /**
-    * 绑定筛选条件
-    * @param {*} oldquery 原始查询条件
-    * @param {*} conditions 查询条件对象
-    * @param {*} isDefault 是否默认全模糊搜索
-    */
+     * 分页查询
+     * @param {*} query 
+     * @param {*} inparam (limit,startKey)
+     */
+    async page(query, inparam) {
+        // 初始化返回数据
+        let pageData = { Items: [], LastEvaluatedKey: {} }
+        // 查询数量不足且数据库仍有数据，则继续循环查询
+        while (pageData.Items.length < inparam.limit && pageData.LastEvaluatedKey) {
+            let ret = await this.queryOnce({
+                ...query,
+                Limit: inparam.limit,
+                ExclusiveStartKey: inparam.startKey
+            })
+            // 追加数据
+            if (pageData.Items.length > 0) {
+                pageData.Items.push(...ret.Items)
+            } else {
+                pageData = ret
+            }
+            // 更新最后一条键值
+            pageData.LastEvaluatedKey = ret.LastEvaluatedKey
+            // 更新起始KEY
+            inparam.startKey = ret.LastEvaluatedKey
+            // 需要查询的数量减少
+            inparam.limit -= ret.Items.length
+        }
+        // 最后查询键
+        pageData.LastEvaluatedKey = _.pick(pageData.Items[pageData.Items.length - 1], inparam.lastEvaluatedKeyTemplate)
+        // 最后数据超过指定长度，则截取指定长度
+        // if (pageData.Items.length > inparam.limit) {
+        //     pageData.Items = _.slice(pageData.Items, 0, inparam.limit)
+        //     pageData.LastEvaluatedKey = _.pick(pageData.Items[pageData.Items.length - 1], inparam.LastEvaluatedKeyTemplate)
+        // }
+        return pageData
+    }
+
+    /**
+     * 绑定筛选条件后查询
+     * @param {*} oldquery 原始查询对象
+     * @param {*} conditions 查询条件对象
+     * @param {*} isDefault 是否默认全模糊搜索
+     */
     bindFilterQuery(oldquery = {}, conditions = {}, isDefault) {
         if (_.isEmpty(oldquery)) {
             return
         }
         if (_.isEmpty(conditions)) {
-            return this.query(oldquery)
+            return self.query(oldquery)
         }
         // 默认设置搜索条件，所有查询模糊匹配
         if (isDefault) {
@@ -243,9 +341,10 @@ module.exports = class BaseModel {
         keys.forEach((k, index) => {
             let item = conditions[k]
             let value = item, array = false
+            // 属性对应的值是数组，则直接用范围筛选
             if (_.isArray(item)) {
-                opts.FilterExpression += `${k} between :${k}0 and :${k}1`
-                // opts.FilterExpression += `${k} > :${k}0 and ${k} < :${k}1`
+                opts.ExpressionAttributeNames[`#${k}`] = k
+                opts.FilterExpression += `#${k} between :${k}0 and :${k}1`
                 opts.ExpressionAttributeValues[`:${k}0`] = item[0]
                 opts.ExpressionAttributeValues[`:${k}1`] = item[1]// + 86399999
             }
@@ -303,18 +402,19 @@ module.exports = class BaseModel {
         oldquery.ExpressionAttributeNames = { ...oldquery.ExpressionAttributeNames, ...opts.ExpressionAttributeNames }
         oldquery.ExpressionAttributeValues = { ...oldquery.ExpressionAttributeValues, ...opts.ExpressionAttributeValues }
 
+        // 返回绑定筛选参数后的查询
         return this.query(oldquery)
     }
 
     /**
-     * 绑定筛选条件
-     * @param {*} oldquery 原始查询条件
+     * 绑定筛选条件后扫描
+     * @param {*} oldquery 原始查询对象
      * @param {*} conditions 查询条件对象
      * @param {*} isDefault 是否默认全模糊搜索
      */
     bindFilterScan(oldquery = {}, conditions = {}, isDefault) {
         if (_.isEmpty(conditions)) {
-            return this.scan(oldquery)
+            return self.scan(oldquery)
         }
         // 默认设置搜索条件，所有查询模糊匹配
         if (isDefault) {
@@ -334,8 +434,8 @@ module.exports = class BaseModel {
             let item = conditions[k]
             let value = item, array = false
             if (_.isArray(item)) {
-                opts.FilterExpression += `${k} between :${k}0 and :${k}1`
-                // opts.FilterExpression += `${k} > :${k}0 and ${k} < :${k}1`
+                opts.ExpressionAttributeNames[`#${k}`] = k
+                opts.FilterExpression += `#${k} between :${k}0 and :${k}1`
                 opts.ExpressionAttributeValues[`:${k}0`] = item[0]
                 opts.ExpressionAttributeValues[`:${k}1`] = item[1]// + 86399999
             }
@@ -393,6 +493,40 @@ module.exports = class BaseModel {
         oldquery.ExpressionAttributeNames = { ...oldquery.ExpressionAttributeNames, ...opts.ExpressionAttributeNames }
         oldquery.ExpressionAttributeValues = { ...oldquery.ExpressionAttributeValues, ...opts.ExpressionAttributeValues }
 
+        // 返回绑定筛选参数后的筛选
         return this.scan(oldquery)
     }
+
+    // 生成SN
+    billSerial(userId, num = 0) {
+        let date = new Date();
+        function twoNumber(num) {
+            return num > 9 ? num + "" : "0" + num;
+        }
+        let timestramp = (date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds()) * 1000 + date.getMilliseconds() + "";
+        for (let i = timestramp.length; i > 8; i--) {
+            timestramp += "0" + timestramp;
+        }
+        date.setHours(date.getHours() + 8)
+        return date.getFullYear() + twoNumber(date.getMonth() + 1) + twoNumber(date.getDate()) + userId + (timestramp + num)
+    }
 }
+
+// 私有日期格式化方法
+Date.prototype.Format = function (fmt) {
+    var o = {
+        "M+": this.getMonth() + 1, //月份 
+        "d+": this.getDate(), //日 
+        "h+": this.getHours(), //小时 
+        "m+": this.getMinutes(), //分 
+        "s+": this.getSeconds(), //秒 
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+        "S": this.getMilliseconds() //毫秒 
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+        if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
+
+module.exports = BaseModel
