@@ -27,7 +27,7 @@ module.exports = class PlayerBillDetailModel extends BaseModel {
     checkExpire(betItem, inparam) {
         const now = Date.now()
         if (now - betItem.createdAt > 170000) {
-            new LogModel().add('3', 'flowerror', inparam, `接收流水时间【${moment(now).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}】对应BK【${inparam.businessKey}】的最早下注时间【${moment(bkBet.Items[0].createdAt).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}】, 延迟【${now - bkBet.Items[0].createdAt}毫秒】`, bkBet.Items[0].createdAt)
+            new LogModel().add('3', 'flowerror', inparam, `接收流水时间【${moment(now).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}】对应BK【${inparam.businessKey}】的最早下注时间【${moment(betItem.createdAt).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}】, 延迟【${now - betItem.createdAt}毫秒】`, betItem.createdAt)
         }
     }
 
