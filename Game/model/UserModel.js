@@ -33,7 +33,7 @@ module.exports = class UserModel extends BaseModel {
                 ':role2': '1000'
             }
         }
-        const [queryErr, querySet] = await this.scan(query)
+        const querySet = await this.scan(query)
         return querySet.Items
     }
 }

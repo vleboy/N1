@@ -16,13 +16,13 @@ module.exports.checkRound = async (e, c, cb) => {
         let promiseAll = []
         let repeatMap = {}
         // 查出所有role=3且ret=N的日志
-        const [RoleErr1, RoleRet1] = await new LogModel().roleQuery({ role: '3' })
+        const RoleRet1 = await new LogModel().roleQuery({ role: '3' })
         console.log(`一共查出role=3需要检验的日志条数${RoleRet1.length}`)
         // 查出所有role=4且ret=N的日志
-        const [RoleErr2, RoleRet2] = await new LogModel().roleQuery({ role: '4' })
+        const  RoleRet2= await new LogModel().roleQuery({ role: '4' })
         console.log(`一共查出role=4需要检验的日志条数${RoleRet2.length}`)
         // 查出所有role=2且ret=N的日志
-        const [RoleErr3, RoleRet3] = await new LogModel().roleQuery({ role: '2' })
+        const  RoleRet3 = await new LogModel().roleQuery({ role: '2' })
         console.log(`一共查出role=2需要检验的日志条数${RoleRet3.length}`)
         for (let item of RoleRet1) {
             let p = new Promise(async function (resolve, reject) {

@@ -29,7 +29,7 @@ module.exports = class CronRoundModel extends BaseModel {
         const statRoundModel = new StatRoundModel()
         const heraGameRecordModel = new HeraGameRecordModel()
         // 1，从配置文件中获取最后一条记录时间
-        const [queryErr, queryRet] = await new ConfigModel().queryLastTime({ code: 'roundLast' })
+        const queryRet = await new ConfigModel().queryLastTime({ code: 'roundLast' })
         let maxRoundTime = queryRet.maxRoundTime ? queryRet.maxRoundTime : 120000       // 获取游戏回合最大时间，默认2分钟
         let beginTime = queryRet.lastTime ? queryRet.lastTime + 1 : 0                   // 开始统计时间，加1毫秒保证不重复统计
         let endTime = Date.now() - maxRoundTime                                         // 结束统计时间
@@ -79,7 +79,7 @@ module.exports = class CronRoundModel extends BaseModel {
             query.ExpressionAttributeValues[':longTimeGameType2'] = 1110000 // SA捕鱼游戏排除
             query.ExpressionAttributeValues[':longTimeGameType3'] = 1130000 // YSB体育游戏排除
         }
-        const [err, ret] = await this.query(query)
+        const ret = await this.query(query)
         console.log(`【${inparam.beginTime}-${inparam.endTime}】下注总条数：${ret.Items.length}`)
         return ret
     }
@@ -102,7 +102,7 @@ module.exports = class CronRoundModel extends BaseModel {
                 let winloseAmount = 0                       //纯利润
                 let anotherGameData = { bet: [], ret: [] }  //第三方游戏数据
                 // 查询相同BK的所有流水
-                const [bkErr, bkRet] = await self.queryBk({ bk })
+                const bkRet = await self.queryBk({ bk })
                 // 获取单局最早的下注时间
                 let firstBetItem = _.minBy(bkRet, 'createdAt')
                 let betTimeStart = firstBetItem.createdAt
@@ -183,7 +183,7 @@ module.exports = class CronRoundModel extends BaseModel {
 
     // 内部方法2：查询bk对应的type的数据
     async queryBk(inparam) {
-        const [err, ret] = await this.query({
+        const ret = await this.query({
             IndexName: 'BusinessKeyIndex',
             KeyConditionExpression: 'businessKey=:businessKey',
             ProjectionExpression: 'amount,businessKey,#type,parent,userName,createdAt,userId,gameType,gameId,roundId,originalAmount,sn,balance,anotherGameData',
@@ -194,7 +194,7 @@ module.exports = class CronRoundModel extends BaseModel {
                 ':businessKey': inparam.bk
             }
         })
-        return [0, ret.Items]
+        return ret.Items
     }
 
     // 内部方法3：获取第三方游戏数据

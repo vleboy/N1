@@ -25,7 +25,7 @@ module.exports = class CronRoundLongModel extends BaseModel {
         let time1 = Date.now()
         let self = this
         // 1，从配置中获取未结算序号中最小的
-        let [queryErr, queryRet] = await new ConfigModel().queryLastTime({ code: 'roundLongLast' })
+        let queryRet = await new ConfigModel().queryLastTime({ code: 'roundLongLast' })
         queryRet = queryRet || { code: 'roundLongLast' }
         let sortNo = queryRet.ugUnSettlementArr && queryRet.ugUnSettlementArr.length > 0 ? queryRet.ugUnSettlementArr[0] : 0
         // 2，查询第三方游戏接口

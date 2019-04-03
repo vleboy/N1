@@ -15,7 +15,7 @@ module.exports = class PlayerBillDetailModel extends BaseModel {
     }
     //查询bk对应的数量
     async bkQuery(inparam) {
-        const [bkErr, bkRet] = await this.query({
+        const bkRet = await this.query({
             IndexName: 'BusinessKeyIndex',
             KeyConditionExpression: 'businessKey = :businessKey',
             ExpressionAttributeValues: {

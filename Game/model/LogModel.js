@@ -54,7 +54,7 @@ module.exports = class LogModel extends BaseModel {
      * @param {*} ret
      */
     async roleQuery(inparam) {
-        const [err, ret] = await this.query({
+        const ret = await this.query({
             IndexName: 'LogRoleIndex',
             KeyConditionExpression: '#role = :role',
             FilterExpression: '#ret = :ret',
@@ -67,7 +67,7 @@ module.exports = class LogModel extends BaseModel {
                 ':ret': inparam.ret || 'N'
             }
         })
-        return [0, ret.Items]
+        return ret.Items
     }
 
     /**
@@ -77,7 +77,7 @@ module.exports = class LogModel extends BaseModel {
      * @param {*} createdAt1
      */
     async roleCreatedAtQuery(inparam) {
-        const [err, ret] = await this.query({
+        const ret = await this.query({
             IndexName: 'LogRoleIndex',
             KeyConditionExpression: '#role = :role AND createdAt between :createdAt0  and :createdAt1',
             ProjectionExpression: 'userId,dayTotalCount',
@@ -121,7 +121,7 @@ module.exports = class LogModel extends BaseModel {
      * @param {*} statDate
      */
     async delDayLog(inparam) {
-        let [err, logs] = await this.query({
+        let logs = await this.query({
             IndexName: 'LogRoleIndex',
             KeyConditionExpression: '#role = :role',
             FilterExpression: 'statDate = :statDate',

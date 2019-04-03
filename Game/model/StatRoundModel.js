@@ -60,13 +60,13 @@ module.exports = class StatRoundModel extends BaseModel {
             query.FilterExpression += ' AND gameType <> :longTimeGameType2'
             query.ExpressionAttributeValues[':longTimeGameType2'] = 1130000
         }
-        const [err, ret] = await this.query(query)
-        return [0, ret]
+        const ret = await this.query(query)
+        return ret
     }
 
     //查询bk对应的数量
     async bkQuery(inparam) {
-        const [bkErr, bkRet] = await this.query({
+        const bkRet = await this.query({
             KeyConditionExpression: 'businessKey = :businessKey',
             ExpressionAttributeValues: {
                 ':businessKey': inparam.bk
@@ -82,7 +82,7 @@ module.exports = class StatRoundModel extends BaseModel {
 
     //查询bk对应的AnotherGameDate是否存在
     async isAnotherGameDate(inparam) {
-        const [bkErr, bkRet] = await this.query({
+        const bkRet = await this.query({
             KeyConditionExpression: 'businessKey = :businessKey',
             ExpressionAttributeValues: {
                 ':businessKey': inparam.bk

@@ -29,7 +29,7 @@ module.exports = class UserRankStatModel extends BaseModel {
             //查询全平台的商户和代理
             let allInfo = await new UserModel().queryRoleLevel()
             console.log(`初始统计的商户和代理有${allInfo.length}`)
-            let [playerErr, playerRes] = await new BaseModel().scan({
+            let playerRes = await new BaseModel().scan({
                 TableName: Tables.HeraGamePlayer,
                 ProjectionExpression: 'parent,createdDate',
                 FilterExpression: "createdDate between :start and :end ",
@@ -93,7 +93,7 @@ module.exports = class UserRankStatModel extends BaseModel {
             //查询全平台的商户和代理
             let allInfo = await new UserModel().queryRoleLevel()
             console.log(`需要统计的商户和代理有${allInfo.length}`)
-            let [playerErr, playerRes] = await new BaseModel().scan({
+            let playerRes = await new BaseModel().scan({
                 TableName: Tables.HeraGamePlayer,
                 ProjectionExpression: 'parent,createdDate',
                 FilterExpression: "createdDate = :createdDate",
