@@ -58,29 +58,6 @@ class BillModel extends BaseModel {
     }
 
     /**
-     * 查询用户余额和最后一条账单记录
-     * @param {*} user 
-     */
-    async checkUserLastBill(user) {
-        // 查询最后一条账单记录
-        // const bills = await this.queryOnce({
-        //     IndexName: 'UserIdIndex',
-        //     ScanIndexForward: false,
-        //     Limit: 1,
-        //     KeyConditionExpression: 'userId = :userId',
-        //     ExpressionAttributeValues: {
-        //         ':userId': user.userId
-        //     }
-        // })
-        // 内部方法查询余额 
-        const ret = await this.checkUserBalance(user)
-        // 返回最后一条账单记录和余额
-        // let lastBill = bills.Items[0]
-        const lastBill = { lastBalance: +ret.toFixed(2) }
-        return lastBill
-    }
-
-    /**
      * 查询用户余额
      * @param {*} user 
      */
@@ -129,15 +106,16 @@ class BillModel extends BaseModel {
         const sums = _.reduce(bills.Items, (sum, bill) => {
             return sum + bill.amount
         }, 0.0)
+        const balance = parseFloat((initPoint + sums).toFixed(2))
         // 5、更新用户余额缓存
         if (!_.isEmpty(bills.Items)) {
             new BaseModel().db$('put', {
                 TableName: config.env.TABLE_NAMES.SYSCacheBalance,
-                Item: { userId: user.userId, type: 'ALL', balance: initPoint + sums, lastTime: bills.Items[bills.Items.length - 1].createdAt }
+                Item: { userId: user.userId, type: 'ALL', balance, lastTime: bills.Items[bills.Items.length - 1].createdAt }
             })
         }
         // 6、返回最后余额
-        return initPoint + sums
+        return balance
     }
 
     /**

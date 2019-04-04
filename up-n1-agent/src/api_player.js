@@ -646,8 +646,7 @@ router.post('/agent/children/list', async function (ctx, next) {
     let promiseAll = []
     for (let agent of agentList.Items) {
         let p = new Promise(async (resolve, reject) => {
-            let balance = await new BillModel().checkUserBalance(agent)
-            agent.points = balance
+            agent.points = await new BillModel().checkUserBalance(agent)
             if (!_.isEmpty(agent.gameList)) {
                 agent.gameList = agent.gameList.map((item) => {
                     return {
@@ -887,111 +886,6 @@ router.post('/agent/mix', async function (ctx, next) {
     let gameList = userInfo.gameList || []
     ctx.body = { code: 0, msg: '操作成功', data: gameList }
 })
-
-// /**
-//  * 存提点（针对移动端）
-//  */
-// router.post('/points', async function (ctx, next) {
-//     //获取入参
-//     let inparam = ctx.request.body
-//     let token = ctx.tokenVerify
-//     //检查入参
-//     new AgentPlayerCheck().checkPoints(inparam)
-//     //获取转账用户信息
-//     let userInfo = await new UserModel().getUserByName('1000', inparam.fromUser)
-//     let action = inparam.action
-//     if (inparam.type == 1) { //对玩家操作
-//         //5,获取玩家信息，并验证
-//         let userName = userInfo.sn + '_' + inparam.toUser    //不是很清楚为啥要这样(针对n2,n1不需要)
-//         const playerModel = new PlayerModel()
-//         let playerInfo = await playerModel.getPlayer(userName)
-//         if (playerInfo.state == '0') {
-//             throw { code: -1, msg: '玩家已被冻结' }
-//         }
-//         if (playerInfo.gameState == 3) { //游戏中
-//             if (+playerInfo.gameId >= 1000000) {
-//                 //更新玩家状态（这个可以充值提现）
-//                 await playerModel.updateOffline(userName)
-//             } else {
-//                 throw { code: -1, msg: '玩家在游戏中不能进行充值和提现操作' }
-//             }
-//         }
-//         //6,根据不同的操作类型（充值或提现）有不同的处理
-//         let palyerBalance = await playerModel.getNewBalance({ userName: playerInfo.userName, balance: playerInfo.balance })
-//         if (palyerBalance == 'err') {
-//             throw { code: -1, msg: '账务正在结算中，请联系管理员' }
-//         }
-//         if (inparam.action == 1) { //充值操作
-//             //获取商户的点数并检查商户的点数是否足够
-//             const userBalance = await new BillModel().checkUserBalance(userInfo)
-//             if (userBalance < +inparam.amount) {
-//                 throw { code: -1, msg: '代理余额不足' }
-//             }
-//         } else if (inparam.action == -1) { //提现操作
-//             //检查玩家的点数是否足够
-//             if (palyerBalance < +inparam.amount) {
-//                 throw { code: -1, msg: '玩家余额不足' }
-//             }
-//         }
-//         //7,更新玩家余额，并推送大厅
-//         let updateBalance = {
-//             userName: playerInfo.userName,
-//             userId: playerInfo.userId,
-//             amt: action == 1 ? Math.abs(+inparam.amount) : Math.abs(+inparam.amount) * -1,
-//         }
-//         let currentBalanceObj = await playerModel.updatePlayerBalance(updateBalance)
-//         //写入用户流水表
-//         let userBill = {
-//             sn: uuid(),
-//             fromRole: action == 1 ? '100' : '10000',  //如果是充值则
-//             toRole: action == 1 ? '10000' : '100',
-//             fromUser: action == 1 ? userInfo.username : userName,
-//             toUser: action == 1 ? userName : userInfo.username,
-//             amount: action == 1 ? Math.abs(+inparam.amount) * -1 : Math.abs(+inparam.amount),
-//             operator: userName,
-//             remark: action > 0 ? "中心钱包转入" : "中心钱包转出",
-//             username: userInfo.username,
-//             userId: userInfo.userId,
-//             fromLevel: userInfo.level,
-//             fromDisplayName: playerInfo.userName,
-//             toDisplayName: playerInfo.userName,
-//             toLevel: 10000,
-//             action: -action
-//         }
-//         //写入玩家流水表
-//         let playerBill = {
-//             sn: uuid(),
-//             action: action,
-//             type: 12, //代理操作
-//             gameType: 1,
-//             userId: playerInfo.userId,
-//             parent: playerInfo.parent,
-//             userName: playerInfo.userName,
-//             originalAmount: currentBalanceObj.originalAmount,
-//             amount: currentBalanceObj.amount,
-//             balance: currentBalanceObj.balance
-//         }
-//         await new BillModel().playerBillTransfer(userBill, playerBill)
-//         // 返回结果
-//         ctx.body = { code: 0, data: { points: currentBalanceObj.balance } }
-//     } else { //对代理操作
-//         let touserInfo = await new UserModel().getUserByName('1000', inparam.toUser)
-//         let conditions = {
-//             amount: inparam.amount,
-//             fromUserId: userInfo.userId,
-//             toRole: "1000",
-//             toUser: inparam.toUser
-//         }
-//         if (action != 1) {
-//             conditions.fromUserId = touserInfo.userId
-//             conditions.toUser = inparam.fromUser
-//         }
-//         //请求N2接口
-//         let data = await axios.post(`https://n2agent.na12345.com/billTransfer`, conditions, ctx.header.authorization)
-//         // 返回结果
-//         ctx.body = { code: 0, data: data.payload }
-//     }
-// })
 
 /**
  * 修改玩家洗码比(此接口暂不适用)

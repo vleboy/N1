@@ -97,11 +97,9 @@ router.get('/agentOne/:id', async function (ctx, next) {
     }
     const ret = queryRet.Items[0]
     // 业务操作 获取余额
-    const lastBill = await new BillModel().checkUserLastBill(ret)
-    ret.balance = lastBill.lastBalance
+    ret.balance = await new BillModel().checkUserBalance(ret)
     ret.playerCount = ret.level == 0 ? null : await new PlayerModel().count(params.id)
     ret.agentCount = ret.level == 0 ? null : await new UserModel().count(params.id)
-    // ret.lastBill = lastBill
     //获取对应的游戏大类
     let url = config.env.GAME_CENTER
     if (process.env.NODE_ENV == 'agent-n2') {
@@ -422,15 +420,12 @@ router.post('/agentAdminList', async function (ctx, next) {
     // 查询每个用户余额
     let promiseArr = []
     for (let user of admins) {
-        let p = new Promise(async function (resolve, reject) {
-            const lastBill = await new BillModel().checkUserLastBill(user)
-            user.balance = lastBill.lastBalance
-            // user.lastBill = lastBill
-            resolve('Y')
-        })
-        promiseArr.push(p)
+        promiseArr.push(new BillModel().checkUserBalance(user))
     }
-    await Promise.all(promiseArr)
+    let resArr = await Promise.all(promiseArr)
+    for (let i = 0; i < admins.length; i++) {
+        admins[i].balance = resArr[i]
+    }
     // 是否需要按照余额排序
     if (inparam.sortkey && inparam.sortkey == 'balance') {
         admins = _.sortBy(admins, [inparam.sortkey])
@@ -458,23 +453,6 @@ router.post('/agentList', async function (ctx, next) {
     }
     // 业务操作
     let ret = await new AgentModel().page(ctx.tokenVerify, inparam)
-    // 查询每个用户余额
-    let promiseArr = []
-    for (let user of ret) {
-        let p = new Promise(async function (resolve, reject) {
-            const lastBill = await new BillModel().checkUserLastBill(user)
-            user.balance = lastBill.lastBalance
-            user.playerCount = await new PlayerModel().count(user.userId)
-            user.agentCount = await new UserModel().count(user.userId)
-            // user.lastBill = lastBill
-            resolve('Y')
-        })
-        promiseArr.push(p)
-    }
-    await Promise.all(promiseArr)
-    // 是否需要按照余额排序
-    // if (inparam.sortkey && inparam.sortkey == 'balance') {
-    ret = _.sortBy(ret, ['balance'])
     //增加h5过滤
     if (inparam.isH5) {
         ret = _.filter(ret, function (o) {
@@ -482,6 +460,22 @@ router.post('/agentList', async function (ctx, next) {
             return index != -1 ? true : false
         })
     }
+    // 查询每个用户余额
+    let promiseArr = []
+    for (let user of ret) {
+        promiseArr.push(new BillModel().checkUserBalance(user))
+        promiseArr.push(new PlayerModel().count(user.userId))
+        promiseArr.push(new UserModel().count(user.userId))
+    }
+    let resArr = await Promise.all(promiseArr)
+    for (let i = 0; i < ret.length; i++) {
+        ret[i].balance = resArr[i * 3]
+        ret[i].playerCount = resArr[i * 3 + 1]
+        ret[i].agentCount = resArr[i * 3 + 2]
+    }
+    // 是否需要按照余额排序
+    // if (inparam.sortkey && inparam.sortkey == 'balance') {
+    ret = _.sortBy(ret, ['balance'])
     if (inparam.sort == "desc") { ret = ret.reverse() }
     // }
     // 结果返回

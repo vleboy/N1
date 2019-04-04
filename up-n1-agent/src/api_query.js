@@ -11,7 +11,6 @@ const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const UserModel = require('./model/UserModel')
 const PlayerModel = require('./model/PlayerModel')
-const BillModel = require('./model/BillModel')
 const SysBillModel = require('./model/SysBillModel')
 const PlayerBillModel = require('./model/PlayerBillModel')
 const CalcCheck = require('./biz/CalcCheck')
@@ -29,9 +28,6 @@ router.post('/queryUserStat', async function (ctx, next) {
     if (inparam.userId) {
         let ret = await new UserModel().queryOne(inparam) // 查询单个用户统计
         finalRes = ret
-        // 余额查询
-        // const balance = await new BillModel().checkUserBalance(ret)
-        // ret.balance = balance
         // 判断是否需要进一步查询报表 
         if (inparam.gameType) {
             inparam.query = calcQuery
@@ -44,16 +40,6 @@ router.post('/queryUserStat', async function (ctx, next) {
     } else {
         let ret = await new UserModel().queryChild(inparam) // 查询所有下级用户统计
         finalRes = ret
-        // 余额查询
-        // for (let i = 0; i < ret.length; i++) {
-        //     let p = new Promise(async function (resolve, reject) {
-        //         let balance = await new BillModel().checkUserBalance(ret[i])
-        //         ret[i].balance = balance
-        //         resolve(balance)
-        //     })
-        //     promiseArr.push(p)
-        // }
-        // let finalRes = await Promise.all(promiseArr)
         // 判断是否需要进一步查询报表 
         if (inparam.gameType) {
             finalRes = []

@@ -78,7 +78,7 @@ router.get('/bills/:userId', async function (ctx, next) {
     // 查询出账
     const out = await new BillModel().checkUserOutIn(user, -1)
     // 返回结果
-    ctx.body = { code: 0, payload: { balance: +balance.toFixed(2), out: out, rate: user.rate, vedioMix: user.vedioMix, liveMix: user.liveMix, userId: params.userId, sn: user.sn, username: user.username } }
+    ctx.body = { code: 0, payload: { balance, out: out, rate: user.rate, vedioMix: user.vedioMix, liveMix: user.liveMix, userId: params.userId, sn: user.sn, username: user.username } }
 })
 
 // 账单列表
