@@ -37,12 +37,12 @@ router.post('/merchants', async function (ctx, next) {
   // 查询每个商户余额和玩家数量
   let promiseArr = []
   for (let user of ret) {
-    promiseArr.push(new BillModel().checkUserLastBill(user))
+    promiseArr.push(new BillModel().checkUserBalance(user))
     promiseArr.push(new PlayerModel().count(user.userId))
   }
   let resArr = await Promise.all(promiseArr)
   for (let i = 0; i < ret.length; i++) {
-    ret[i].balance = resArr[i * 2].lastBalance
+    ret[i].balance = resArr[i * 2]
     ret[i].playerCount = resArr[i * 2 + 1]
   }
   // 是否需要按照余额排序
@@ -79,8 +79,7 @@ router.get('/merchants/:id', async function (ctx, next) {
   if (!Model.isPlatformAdmin(token) && params.id != token.userId && !Model.isSubChild(token, merchant)) {
     throw { "code": -1, "msg": "权限不足" }
   }
-  const lastBill = await new BillModel().checkUserLastBill(merchant)
-  merchant.balance = lastBill.lastBalance
+  merchant.balance = await new BillModel().checkUserBalance(merchant)
   // 结果返回
   ctx.body = { code: 0, payload: merchant }
 })

@@ -88,7 +88,7 @@ router.get('/bills/:userId', async function (ctx, next) {
     const p2 = new BillModel().checkUserOutIn(user, -1)
     const [balance, out] = await Promise.all([p1, p2])
     // 返回结果
-    ctx.body = { code: 0, payload: { balance: +balance.toFixed(2), out: +out.toFixed(2), ...user } }
+    ctx.body = { code: 0, payload: { balance, out: +out.toFixed(2), ...user } }
 })
 
 // 为包站系统定制使用帐号查询

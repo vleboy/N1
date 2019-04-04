@@ -30,20 +30,6 @@ router.post('/managers', async function (ctx, next) {
   }
   // 列表页搜索和排序查询
   let ret = await new ManagerModel().page(token, inparam)
-  // 查询每个用户余额 
-  let promiseArr = []
-  for (let user of ret) {
-    let p = new Promise(async function (resolve, reject) {
-      const lastBill = await new BillModel().checkUserLastBill(user)
-      user.balance = lastBill.lastBalance
-      user.merchantCount = await new UserModel().count(user.userId)
-      resolve('Y')
-    })
-    promiseArr.push(p)
-  }
-  await Promise.all(promiseArr)
-  // 是否需要按照余额排序
-  ret = _.sortBy(ret, ['balance'])
   // 是否只显示h5商户
   if (inparam.isH5) {
     ret = _.filter(ret, function (o) {
@@ -51,6 +37,19 @@ router.post('/managers', async function (ctx, next) {
       return index != -1 ? true : false
     })
   }
+  // 查询每个线路商余额和商户数量 
+  let promiseArr = []
+  for (let user of ret) {
+    promiseArr.push(new BillModel().checkUserBalance(user))
+    promiseArr.push(new UserModel().count(user.userId))
+  }
+  let resArr = await Promise.all(promiseArr)
+  for (let i = 0; i < ret.length; i++) {
+    ret[i].balance = resArr[i * 2]
+    ret[i].merchantCount = resArr[i * 2 + 1]
+  }
+  // 是否需要按照余额排序
+  ret = _.sortBy(ret, ['balance'])
   if (inparam.sort == "desc") { ret = ret.reverse() }
   // 结果返回
   ctx.body = { code: 0, payload: ret }
@@ -75,8 +74,7 @@ router.get('/managers/:id', async function (ctx, next) {
     ExpressionAttributeNames: { '#role': 'role', '#level': 'level', '#parent': 'parent', '#rate': 'rate', '#status': 'status' }
   }
   const manager = await new UserModel().queryUserById(params.id, options)
-  const lastBill = await new BillModel().checkUserLastBill(manager)
-  manager.balance = lastBill.lastBalance
+  manager.balance = await new BillModel().checkUserBalance(manager)
   //获取对应的游戏大类
   let companyArrRes = await axios.post(`https://${config.env.GAME_CENTER}/companySelect`, { parent }, { headers: { 'Authorization': ctx.header.authorization } })
   manager.companyArr = companyArrRes.data.payload

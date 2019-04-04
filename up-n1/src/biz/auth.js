@@ -127,9 +127,8 @@ const RegisterUser = async (token = {}, userInfo = {}) => {
   // 初始点数
   const initPoints = CheckUser.points
   // 检查余额
-  const lastBill = await new BillModel().checkUserLastBill(parentUser)
-
-  if (initPoints > lastBill.lastBalance) {
+  const lastBalance = await new BillModel().checkUserBalance(parentUser)
+  if (initPoints > lastBalance) {
     throw BizErr.BalanceErr()
   }
   // 层级处理

@@ -249,14 +249,12 @@ router.post('/adminList', async function (ctx, next) {
     // 查询每个用户余额
     let promiseArr = []
     for (let user of admins) {
-        let p = new Promise(async function (resolve, reject) {
-            const lastBill = await new BillModel().checkUserLastBill(user)
-            user.balance = lastBill.lastBalance
-            resolve('Y')
-        })
-        promiseArr.push(p)
+        promiseArr.push(new BillModel().checkUserBalance(user))
     }
-    await Promise.all(promiseArr)
+    let resArr = await Promise.all(promiseArr)
+    for (let i = 0; i < admins.length; i++) {
+        admins[i].balance = resArr[i]
+    }
     // 是否需要按照余额排序
     // if (inparam.sortkey && inparam.sortkey == 'balance') {
     admins = _.sortBy(admins, ['subRole', 'balance'])
@@ -277,8 +275,7 @@ router.get('/admin_center', async function (ctx, next) {
             'userId': token.userId
         }
     })
-    const lastBill = await new BillModel().checkUserLastBill(admin.Item)
-    admin.Item.balance = lastBill.lastBalance
+    admin.Item.balance = await new BillModel().checkUserBalance(admin.Item)
     // 结果返回
     ctx.body = { code: 0, payload: admin.Item }
 })
@@ -332,14 +329,12 @@ router.get('/childList/:userId/:childRole', async function (ctx, next) {
     // 查询每个用户余额 
     let promiseArr = []
     for (let user of ret) {
-        let p = new Promise(async function (resolve, reject) {
-            const lastBill = await new BillModel().checkUserLastBill(user)
-            user.balance = lastBill.lastBalance
-            resolve('Y')
-        })
-        promiseArr.push(p)
+        promiseArr.push(new BillModel().checkUserBalance(user))
     }
-    await Promise.all(promiseArr)
+    let resArr = await Promise.all(promiseArr)
+    for (let i = 0; i < ret.length; i++) {
+        ret[i].balance = resArr[i]
+    }
     // 结果返回
     ctx.body = { code: 0, payload: ret }
 })
