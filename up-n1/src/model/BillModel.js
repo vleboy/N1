@@ -62,20 +62,8 @@ class BillModel extends BaseModel {
      * @param {*} user 
      */
     async checkUserLastBill(user) {
-        // 查询最后一条账单记录
-        // const bills = await this.queryOnce({
-        //     IndexName: 'UserIdIndex',
-        //     ScanIndexForward: false,
-        //     Limit: 1,
-        //     KeyConditionExpression: 'userId = :userId',
-        //     ExpressionAttributeValues: {
-        //         ':userId': user.userId
-        //     }
-        // })
         // 内部方法查询余额
         const ret = await this.checkUserBalance(user)
-        // 返回最后一条账单记录和余额
-        // let lastBill = bills.Items[0]
         const lastBill = { lastBalance: +ret.toFixed(2) }
         return lastBill
     }

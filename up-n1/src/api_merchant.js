@@ -27,28 +27,27 @@ router.post('/merchants', async function (ctx, next) {
   let token = ctx.tokenVerify
   // 列表页搜索和排序查询
   let ret = await new MerchantModel().page(token, inparam)
-  // 查询每个用户余额
-  let promiseArr = []
-  for (let user of ret) {
-    let p = new Promise(async function (resolve, reject) {
-      const lastBill = await new BillModel().checkUserLastBill(user)
-      user.balance = lastBill.lastBalance
-      user.playerCount = await new PlayerModel().count(user.userId)
-      resolve('Y')
-    })
-    promiseArr.push(p)
-  }
-  await Promise.all(promiseArr)
-  // 是否需要按照余额排序
-  ret = _.sortBy(ret, ['balance'])
   // 是否只显示h5商户
   if (inparam.isH5) {
-    ret = _.filter(ret, function (o) {
-      let index = _.findIndex(o.gameList, function (m) { return (m.code == '70000' || m.code == '80000' || m.code == '90000') })
+    ret = _.filter(ret, (o) => {
+      let index = _.findIndex(o.gameList, (m) => { return (m.code == '70000' || m.code == '80000' || m.code == '90000') })
       return index != -1 ? true : false
     })
   }
-  if (inparam.sort == "desc") { ret = ret.reverse() }
+  // 查询每个商户余额和玩家数量
+  let promiseArr = []
+  for (let user of ret) {
+    promiseArr.push(new BillModel().checkUserLastBill(user))
+    promiseArr.push(new PlayerModel().count(user.userId))
+  }
+  let resArr = await Promise.all(promiseArr)
+  for (let i = 0; i < ret.length; i++) {
+    ret[i].balance = resArr[i * 2].lastBalance
+    ret[i].playerCount = resArr[i * 2 + 1]
+  }
+  // 是否需要按照余额排序
+  ret = _.sortBy(ret, ['balance'])
+  if (inparam.sort == 'desc') { ret = ret.reverse() }
   // 结果返回
   ctx.body = { code: 0, payload: ret }
 })
