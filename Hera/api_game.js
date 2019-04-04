@@ -152,9 +152,8 @@ module.exports.postTransfer = async function (e, c, cb) {
         new BillCheck().check(inparam)
         let amtAfter = await playerModel.updatebalance(player, inparam)
         //6,返回结果
-        if (amtAfter == 'err') {
-            console.error({ msg: '玩家未在当前游戏中或余额不足', balance: player.balance })
-            return ResFail(cb, { msg: '玩家未在当前游戏中或余额不足', balance: player.balance }, 500)
+        if (typeof amtAfter == 'object') {
+            return ResFail(cb, { msg: amtAfter.msg, balance: player.balance }, amtAfter.code)
         } else {
             console.log({ msg: '同步成功', balance: amtAfter })
             return ResOK(cb, { msg: '同步成功', balance: amtAfter }, 0)

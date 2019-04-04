@@ -205,26 +205,26 @@ module.exports = class PlayerModel extends BaseModel {
         if (isCheckBet) {
             if (player.gameId != naGameType || player.sid != naGameId) {
                 console.error(`玩家${player.userId}的游戏状态${player.gameId}-${player.sid},未在请求游戏${naGameType}-${naGameId}中`)
-                return 'err'
+                return { code: 10001, msg: '玩家未在请求游戏中' }
             }
             if (player.balance + amt < 0) {
                 console.error(`玩家${player.userId}的余额不足`)
-                return 'err'
+                return { code: 10002, msg: '玩家余额不足' }
             }
             // 检查：下注/冻结时检查对应的玩家上级和上级对应的该款游戏是否可用
             const parentUser = await new UserModel().queryUserById(player.parent)
             if (!parentUser || parentUser.status != 1 || player.state == 0) {
                 console.error(`玩家${player.userId}的所属商户状态${parentUser.status}被停用或玩家状态${player.state}被停用`)
-                return 'err'
+                return { code: 10003, msg: '玩家或商户被停用' }
             }
             if (!parentUser.gameList || _.findIndex(parentUser.gameList, function (i) { return i.code == naGameType }) == -1) {
                 console.error(`玩家${player.userId}的所属商户没有购买此游戏大类${naGameType}`)
-                return 'err'
+                return { code: 10004, msg: '商户无此游戏' }
             }
             const companyIndex = _.findIndex(parentUser.companyList, function (i) { return i.company == naGameCompany })
             if (companyIndex != -1 && parentUser.companyList[companyIndex].status != 1) {
                 console.error(`玩家${player.userId}的所属商户的游戏供应商${naGameCompany}已被控分警告停用`)
-                return 'err'
+                return { code: 10006, msg: '商户已停用' }
             }
             console.log(`单笔流水-执行至下注/冻结检查耗时：${Date.now() - time1}`)
         }
