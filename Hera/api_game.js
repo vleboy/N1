@@ -56,7 +56,7 @@ module.exports.auth = async function (e, c, cb) {
         const playerModel = new PlayerModel()
         let player = await playerModel.getPlayerById(inparam.userId)
         if (player.state != 1) {
-            return ResFail(cb, { msg: '玩家已停用' }, 10006)
+            return ResFail(cb, { msg: '玩家已停用' }, 10005)
         }
         //5,如果玩家在app里面玩游戏，则不能进入第三方游戏
         if (player.gameState == 3 && player.gameId < 1000000 && inparam.gameType > 1000000) {
