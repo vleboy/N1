@@ -17,6 +17,8 @@ services:
   # 数据库
   db:
     image: mysql:latest
+    volumes:
+      - ./_db:/var/lib/mysql #host_db:container_db
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     environment:
