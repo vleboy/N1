@@ -1,4 +1,11 @@
 {
+    "db": {
+        "host": "localhost",
+        "port": 3306,
+        "dbname": "v1",
+        "username": "root",
+        "password": "Ab123456"
+    },
     "log": {
         "level": "info",
         "header": {
@@ -18,16 +25,16 @@
         "errStatus": 200,
         "pass": [
             "/auth",
-            "/stat/*"
+            "/visual/*"
         ]
     },
     "na": {
-        "center": "47.88.192.69",
         "apidomain": "ext.na77.org",
-        "TOKEN_SECRET":"gsy0913",
-        "domain":"xbbw2jfb58.execute-api.ap-southeast-1.amazonaws.com"
+        "TOKEN_SECRET": "gsy0913",
+        "domain": "xbbw2jfb58.execute-api.ap-southeast-1.amazonaws.com"
     },
     "server": {
-        "port": 5000
+        "port": 5000,
+        "mapperDir": "/src/yaml/"
     }
 }
