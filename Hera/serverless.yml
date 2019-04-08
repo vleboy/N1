@@ -65,14 +65,6 @@ functions:
           path: /player/{userName}/balance
           method: get
           cors: true
-  validateToken: #检查玩家token是否正确，用于充值页面打开免帐号登录
-    handler: api_merchant.validateToken
-    memorySize: 128
-    events:
-      - http:
-          path: /players/auth
-          method: post
-          cors: true
   gameRecordPage: #获取玩家游戏记录
     handler: api_merchant.gameRecordPage
     events:
@@ -94,22 +86,6 @@ functions:
     events:
       - http:
           path: /game/login
-          method: post
-          cors: true
-  playerExit: #大厅修改玩家游戏状态
-    handler: api_hall.playerExit
-    memorySize: 128
-    events:
-      - http:
-          path: /game/player/state
-          method: post
-          cors: true
-  updatePlayerInfo: #大厅修改玩家基本信息
-    memorySize: 128
-    handler: api_hall.updatePlayerInfo
-    events:
-      - http:
-          path: /game/player/info
           method: post
           cors: true
   ##游戏API
@@ -144,6 +120,30 @@ functions:
           method: post
           cors: true
   # ##APP
+  # validateToken: #检查玩家token是否正确，用于充值页面打开免帐号登录
+  #   handler: api_merchant.validateToken
+  #   memorySize: 128
+  #   events:
+  #     - http:
+  #         path: /players/auth
+  #         method: post
+  #         cors: true
+  # playerExit: #大厅修改玩家游戏状态
+  #   handler: api_hall.playerExit
+  #   memorySize: 128
+  #   events:
+  #     - http:
+  #         path: /game/player/state
+  #         method: post
+  #         cors: true
+  # updatePlayerInfo: #大厅修改玩家基本信息
+  #   memorySize: 128
+  #   handler: api_hall.updatePlayerInfo
+  #   events:
+  #     - http:
+  #         path: /game/player/info
+  #         method: post
+  #         cors: true
   # joinGame: #玩家进入游戏
   #   handler: api_app.joinGame
   #   events:
