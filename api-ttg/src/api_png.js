@@ -77,6 +77,7 @@ router.post('/png/Authenticate', async function (ctx, next) {
                 <registration>2010-05-05</registration>
                 <language>zh_CN</language>
                 <real>${playerInfo.balance.toString()}</real>
+                <affiliateId>${config.png.brandId}</affiliateId>
             </authenticate>`
     } catch (err) {
         //验证失败
