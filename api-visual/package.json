@@ -5,9 +5,8 @@
     "start": "node app.js",
     "compose-up": "docker-compose -f docker-compose.yml up -d --build",
     "compose-down": "docker-compose -f docker-compose.yml down",
-    "stack-network": "docker network create v1_overlay --driver overlay",
     "stack-deploy": "docker stack deploy --prune -c docker-compose.yml v1",
-    "stack-rm": "docker stack rm v1 && docker network rm v1_overlay"
+    "stack-rm": "docker stack rm v1"
   },
   "dependencies": {
     "@koa/cors": "^3.0.0",
