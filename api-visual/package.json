@@ -1,11 +1,20 @@
 {
   "name": "api-visual",
   "version": "1.0.0",
+  "scripts": {
+    "start": "node app.js",
+    "compose-up": "docker-compose -f docker-compose.yml up -d --build",
+    "compose-down": "docker-compose -f docker-compose.yml down",
+    "stack-network": "docker network create v1_overlay --driver overlay",
+    "stack-deploy": "docker stack deploy --prune -c docker-compose.yml v1",
+    "stack-rm": "docker stack rm v1 && docker network rm v1_overlay"
+  },
   "dependencies": {
     "@koa/cors": "^3.0.0",
     "aws-sdk": "^2.437.0",
     "axios": "^0.18.0",
     "config": "^3.1.0",
+    "dayjs": "^1.8.12",
     "jsonwebtoken": "^8.5.1",
     "koa": "^2.7.0",
     "koa-body": "^4.1.0",
@@ -17,13 +26,5 @@
     "lodash": "^4.17.11",
     "number-precision": "^1.3.1",
     "tracer": "^0.9.8"
-  },
-  "scripts": {
-    "start": "node app.js",
-    "compose-up": "docker-compose -f docker-compose.yml up -d --build",
-    "compose-down": "docker-compose -f docker-compose.yml down",
-    "stack-network": "docker network create v1_overlay --driver overlay",
-    "stack-deploy": "docker stack deploy --prune -c docker-compose.yml v1",
-    "stack-rm": "docker stack rm v1 && docker network rm v1_overlay"
   }
 }

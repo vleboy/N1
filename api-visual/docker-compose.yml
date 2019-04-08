@@ -1,7 +1,7 @@
 version: '3.7'
-#服务集合
+# 服务集合
 services:
-  #api-visual可视化服务
+  # api-visual可视化服务
   # api-visual:
   #   image: cheney/api-visual:latest
   #   ports:
@@ -12,7 +12,9 @@ services:
   #     - 'WEB_PORT=5000'
   #   deploy:
   #     replicas: 1
-  #数据库
+  #     placement:
+  #       constraints: [node.role == manager]
+  # 数据库
   db:
     image: mysql:latest
     command: --default-authentication-plugin=mysql_native_password
@@ -24,7 +26,7 @@ services:
     deploy:
       placement:
         constraints: [node.role == manager]
-  #数据库管理
+  # 数据库管理
   adminer:
     image: adminer:latest
     restart: always
@@ -35,6 +37,6 @@ services:
     deploy:
       placement:
         constraints: [node.role == manager]
-#网络集合
+# 网络集合
 networks:
   v1_overlay:
