@@ -9,7 +9,7 @@ const koaBody = require('koa-body')
 const xerror = require('koa-xerror')
 const xauth = require('koa-xauth')
 const xlog = require('koa-xlog')
-const cron = require('node-cron')
+// require('./src/cron_db')
 global.nodebatis = require('./src/nodebatis/nodebatis.js')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
@@ -50,7 +50,3 @@ app.use(mount('/visual', mapapirouter.routes()))   // 地图接口路由
 // 启动应用服务
 app.listen(PORT)
 log.info(`API-VISUAL服务启动【执行环境:${process.env.NODE_ENV},端口:${PORT}，服务域名:【${config.na.apidomain}】】`)
-
-// 定时服务
-// cron.schedule('*/30 * * * * *', function () {
-// })
