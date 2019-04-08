@@ -1,0 +1,10 @@
+namespace: 'bill'
+
+attrs: sn,businessKey,parent,userId,userName,gameType,gameId,type,originalAmount,amount,balance,sourceIP,createdAt
+
+findAll:
+    - select * from bill
+
+insert:
+    - insert into bill(sn,businessKey,parent,userId,userName,gameType,gameId,type,originalAmount,amount,balance,sourceIP,createdAt)
+    - values(:sn,:businessKey,:parent,:userId,:userName,:gameType,:gameId,:type,:originalAmount,:amount,:balance,:sourceIP,:createdAt)

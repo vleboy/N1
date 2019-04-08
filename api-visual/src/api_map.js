@@ -12,12 +12,12 @@ const axios = require('axios')
 const log = require('tracer').colorConsole({ level: config.log.level })
 
 /**
- * 测试SSL
+ * 区域地图
  */
-router.get('/test', async function (ctx, next) {
+router.get('/map/:region', async (ctx, next) => {
+    let r = await nodebatis.query('bill.insert', {})
+    console.log(r)
     ctx.body = 'ssl work'
-    let p = nodebatis.execute('user.add', { username: '123', password: '456' })
-    console.log(p)
 })
 
 module.exports = router
