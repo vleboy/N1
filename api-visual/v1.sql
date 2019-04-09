@@ -20,7 +20,7 @@ CREATE TABLE `bill` (
   `userName` varchar(20) NOT NULL,
   `gameType` int(11) NOT NULL,
   `gameId` int(11) NOT NULL,
-  `type` int(11) NOT NULL,
+  `type` tinyint(4) NOT NULL,
   `originalAmount` double NOT NULL,
   `amount` double NOT NULL,
   `balance` double NOT NULL,
@@ -38,4 +38,4 @@ CREATE TABLE `config` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
--- 2019-04-09 08:19:37
+-- 2019-04-09 08:26:01
