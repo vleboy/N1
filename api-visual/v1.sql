@@ -13,8 +13,8 @@ USE `v1`;
 
 DROP TABLE IF EXISTS `bill`;
 CREATE TABLE `bill` (
-  `sn` varchar(50) NOT NULL,
-  `businessKey` varchar(50) NOT NULL,
+  `sn` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `businessKey` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `parent` varchar(36) NOT NULL,
   `userId` int(11) NOT NULL,
   `userName` varchar(20) NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE `bill` (
   `originalAmount` double NOT NULL,
   `amount` double NOT NULL,
   `balance` double NOT NULL,
-  `sourceIP` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '0.0.0.0',
+  `sourceIP` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `createdAt` bigint(20) NOT NULL,
   PRIMARY KEY (`sn`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -38,4 +38,4 @@ CREATE TABLE `config` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
--- 2019-04-09 08:26:01
+-- 2019-04-09 10:44:05
