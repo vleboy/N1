@@ -24,7 +24,7 @@ CREATE TABLE `bill` (
   `originalAmount` double NOT NULL,
   `amount` double NOT NULL,
   `balance` double NOT NULL,
-  `sourceIP` varchar(128) NOT NULL,
+  `sourceIP` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '0.0.0.0',
   `createdAt` bigint(20) NOT NULL,
   PRIMARY KEY (`sn`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -38,4 +38,4 @@ CREATE TABLE `config` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
--- 2019-04-09 08:18:17
+-- 2019-04-09 08:19:37
