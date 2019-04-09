@@ -1,0 +1,15 @@
+namespace: 'config'
+
+attrs:  type,createdAt
+
+findOne:
+    - select createdAt,flag from config where type = :type
+
+updateTime:
+    - update config set createdAt = :createdAt where type = :type
+
+updateFlag:
+    - update config set flag = :flag where type = :type
+
+updateOne:
+    - update config set createdAt = :createdAt,flag = :flag where type = :type

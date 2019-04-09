@@ -9,8 +9,8 @@ const koaBody = require('koa-body')
 const xerror = require('koa-xerror')
 const xauth = require('koa-xauth')
 const xlog = require('koa-xlog')
-// require('./src/cron_db')
 global.nodebatis = require('./src/nodebatis/nodebatis.js')
+require('./src/cron_db')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 业务控制器
