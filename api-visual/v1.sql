@@ -25,7 +25,7 @@ CREATE TABLE `bill` (
   `amount` double NOT NULL,
   `balance` double NOT NULL,
   `sourceIP` varchar(128) NOT NULL,
-  `createdAt` timestamp NOT NULL,
+  `createdAt` bigint(20) NOT NULL,
   PRIMARY KEY (`sn`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -33,8 +33,8 @@ CREATE TABLE `bill` (
 DROP TABLE IF EXISTS `config`;
 CREATE TABLE `config` (
   `type` varchar(20) NOT NULL,
-  `createdAt` timestamp NOT NULL
+  `createdAt` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
--- 2019-04-09 04:01:32
+-- 2019-04-09 06:28:20
