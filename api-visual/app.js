@@ -1,6 +1,7 @@
 // 系统配置参数
 const config = require('config')
 const { PORT = config.server.port } = process.env
+console.log('测试'+config.na.apidomain)
 // 应用服务与中间件相关
 const Koa = require('koa')
 const cors = require('@koa/cors')
