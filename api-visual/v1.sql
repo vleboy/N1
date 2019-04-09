@@ -14,7 +14,7 @@ USE `v1`;
 DROP TABLE IF EXISTS `bill`;
 CREATE TABLE `bill` (
   `sn` varchar(50) NOT NULL,
-  `businessKey` int(50) NOT NULL,
+  `businessKey` varchar(50) NOT NULL,
   `parent` varchar(36) NOT NULL,
   `userId` int(11) NOT NULL,
   `userName` varchar(20) NOT NULL,
@@ -33,8 +33,9 @@ CREATE TABLE `bill` (
 DROP TABLE IF EXISTS `config`;
 CREATE TABLE `config` (
   `type` varchar(20) NOT NULL,
-  `createdAt` bigint(20) NOT NULL
+  `createdAt` bigint(20) NOT NULL,
+  `flag` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
--- 2019-04-09 06:28:20
+-- 2019-04-09 08:18:17
