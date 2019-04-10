@@ -1,6 +1,6 @@
 const cron = require('node-cron')
 const dayjs = require('dayjs')
-dayjs.extend(require('dayjs/plugin/advancedFormat'))
+dayjs.extend(require('dayjs/plugin/utc'))
 const nodebatis = global.nodebatis
 const AWS = require('aws-sdk')
 AWS.config.update({ region: 'ap-southeast-1' })
@@ -27,7 +27,7 @@ function queryInc(params, result) {
 
 // 定时服务
 cron.schedule('*/30 * * * * *', async () => {
-    console.time('全部载入')
+    console.time('【全部载入】')
     let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
     if (configArr[0].flag) {
         // 读取
@@ -35,7 +35,7 @@ cron.schedule('*/30 * * * * *', async () => {
         let startTime = configArr[0].createdAt
         let nowTime = Date.now()
         let endTime = startTime + 3600000 > nowTime ? nowTime : startTime + 3600000
-        console.time(`读取${dayjs(startTime).utc(8).format('YYYY-MM-DD HH:mm:ss')} 至 ${dayjs(endTime).utc(8).format('YYYY-MM-DD HH:mm:ss')} 流水`)
+        console.time(`读取 ${dayjs(startTime).format('YYYY-MM-DD HH:mm:ss')} 至 ${dayjs(endTime).format('YYYY-MM-DD HH:mm:ss')} 流水`)
         let promiseReadArr = []
         for (let i = 3; i <= 5; i++) {
             promiseReadArr.push(queryInc({
@@ -54,9 +54,9 @@ cron.schedule('*/30 * * * * *', async () => {
             }))
         }
         let resArr = await Promise.all(promiseReadArr)
-        console.timeEnd(`读取${dayjs(startTime).utc(8).format('YYYY-MM-DD HH:mm:ss')} 至 ${dayjs(endTime).utc(8).format('YYYY-MM-DD HH:mm:ss')} 流水`)
+        console.timeEnd(`读取 ${dayjs(startTime).format('YYYY-MM-DD HH:mm:ss')} 至 ${dayjs(endTime).format('YYYY-MM-DD HH:mm:ss')} 流水`)
         // 写入
-        console.time(`写入${resArr[0].Items.length + resArr[1].Items.length + resArr[2].Items.length}条`)
+        console.time(`写入 ${resArr[0].Items.length + resArr[1].Items.length + resArr[2].Items.length}条`)
         let promiseWriteArr = []
         for (let res of resArr) {
             if (res.Items.length > 0) {
@@ -71,9 +71,9 @@ cron.schedule('*/30 * * * * *', async () => {
         }
         await Promise.all(promiseWriteArr)
         await nodebatis.execute('config.updateOne', { type: 'queryTime', createdAt: endTime, flag: 1 })
-        console.timeEnd(`写入${resArr[0].Items.length + resArr[1].Items.length + resArr[2].Items.length}条`)
+        console.timeEnd(`写入 ${resArr[0].Items.length + resArr[1].Items.length + resArr[2].Items.length}条`)
     }
-    console.timeEnd('全部载入')
+    console.timeEnd('【全部载入】')
 })
 
 

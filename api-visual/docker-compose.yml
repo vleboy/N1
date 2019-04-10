@@ -12,6 +12,7 @@ services:
       - v1_overlay
     environment:
       - 'NODE_ENV=production'
+      - 'TZ=Asia/Shanghai'
     deploy:
       replicas: 1
       placement:

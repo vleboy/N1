@@ -6,12 +6,12 @@ findAll:
     - select * from bill
 
 insert:
-    - insert into bill(sn,businessKey,parent,userId,userName,gameType,gameId,type,originalAmount,amount,balance,sourceIP,createdAt)
-    - values(:sn,:businessKey,:parent,:userId,:userName,:gameType,:gameId,:type,:originalAmount,:amount,:balance,:sourceIP,:createdAt)
+    - insert into bill(sn,businessKey,parent,userId,userName,gameType,gameId,type,originalAmount,amount,balance,sourceIP,region,createdAt)
+    - values(:sn,:businessKey,:parent,:userId,:userName,:gameType,:gameId,:type,:originalAmount,:amount,:balance,:sourceIP,:region,:createdAt)
 
 batchInsert:
-    - replace into bill(sn,businessKey,parent,userId,userName,gameType,gameId,type,originalAmount,amount,balance,sourceIP,createdAt) values
+    - replace into bill(sn,businessKey,parent,userId,userName,gameType,gameId,type,originalAmount,amount,balance,sourceIP,region,createdAt) values
     - for:
         array: data
-        sql: (:sn,:businessKey,:parent,:userId,:userName,:gameType,:gameId,:type,:originalAmount,:amount,:balance,:sourceIP,:createdAt)
+        sql: (:sn,:businessKey,:parent,:userId,:userName,:gameType,:gameId,:type,:originalAmount,:amount,:balance,:sourceIP,:region,:createdAt)
         seperator: ','
