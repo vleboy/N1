@@ -120,8 +120,6 @@ cron.schedule('*/30 * * * * *', async () => {
         await Promise.all(promiseWriteArr)
         await nodebatis.execute('config.updateOne', { type: 'queryTime', createdAt: endTime + 1, flag: 1 })
         console.timeEnd(`写入 ${resArr.length} 条`)
-
-
     }
     console.timeEnd('【全部载入】')
 })
