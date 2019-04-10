@@ -15,3 +15,9 @@ batchInsert:
         array: data
         sql: (:sn,:businessKey,:parent,:userId,:userName,:gameType,:gameId,:type,:originalAmount,:amount,:balance,:sourceIP,:country,:province,:city,:createdAt)
         seperator: ','
+
+chinaCount:
+    - select count(*) as total,province from bill group by province
+
+worldCount:
+    - select count(*) as total,country from bill group by country
