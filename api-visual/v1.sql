@@ -25,7 +25,9 @@ CREATE TABLE `bill` (
   `amount` double NOT NULL,
   `balance` double NOT NULL,
   `sourceIP` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `region` varchar(20) NOT NULL,
+  `country` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `province` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `city` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `createdAt` bigint(20) NOT NULL,
   PRIMARY KEY (`sn`),
   KEY `createdAt` (`createdAt` DESC),
@@ -33,7 +35,7 @@ CREATE TABLE `bill` (
   KEY `type_createdAt` (`type`,`createdAt` DESC),
   KEY `gameType_createdAt` (`gameType`,`createdAt` DESC),
   KEY `gameId_createdAt` (`gameId`,`createdAt` DESC),
-  KEY `region` (`region`)
+  KEY `country` (`country`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -42,10 +44,10 @@ CREATE TABLE `config` (
   `type` varchar(20) NOT NULL,
   `createdAt` bigint(20) NOT NULL,
   `flag` tinyint(4) NOT NULL,
-  `rangeHour` smallint(6) NOT NULL DEFAULT '1'
+  `rangeHour` smallint(6) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `config` (`type`, `createdAt`, `flag`, `rangeHour`) VALUES
 ('queryTime',	1554048000000,	0,	1);
 
--- 2019-04-10 02:06:41
+-- 2019-04-10 06:46:25
