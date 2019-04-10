@@ -30,6 +30,9 @@ function queryInc(params, result) {
 }
 //ip查询
 function queryIp(ip) {
+    if (ip == '0.0.0.0') {
+        return ['其他', '其他', '其他']
+    }
     let ipObj = ipquery.search(ip)
     if (ipObj && ipObj.country != '0') {
         return [ipObj.country, ipObj.province, ipObj.city]
