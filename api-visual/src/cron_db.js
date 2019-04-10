@@ -29,7 +29,7 @@ function queryInc(params, result) {
     })
 }
 //ip查询
-function queryIp(ip) {
+async function queryIp(ip) {
     if (ip == '0.0.0.0') {
         return ['其他', '其他', '其他']
     }
@@ -100,7 +100,7 @@ cron.schedule('*/30 * * * * *', async () => {
                             if (item.sourceIP.startWith('::ffff:')) {
                                 item.sourceIP = item.sourceIP.split('::ffff:')[1]
                             }
-                            let ipArr = queryIp(item.sourceIP)
+                            let ipArr = await queryIp(item.sourceIP)
                             item.country = ipArr[0]
                             item.province = ipArr[1]
                             item.city = ipArr[2]
