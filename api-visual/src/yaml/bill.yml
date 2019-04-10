@@ -1,17 +1,17 @@
 namespace: 'bill'
 
-attrs: sn,businessKey,parent,userId,userName,gameType,gameId,type,originalAmount,amount,balance,sourceIP,region,createdAt
+attrs: sn,businessKey,parent,userId,userName,gameType,gameId,type,originalAmount,amount,balance,sourceIP,country,province,city,createdAt
 
 findAll:
     - select * from bill
 
 insert:
     - insert into bill({{bill.attrs }})
-    - values(:sn,:businessKey,:parent,:userId,:userName,:gameType,:gameId,:type,:originalAmount,:amount,:balance,:sourceIP,:region,:createdAt)
+    - values(:sn,:businessKey,:parent,:userId,:userName,:gameType,:gameId,:type,:originalAmount,:amount,:balance,:sourceIP,:country,:province,:city,:createdAt)
 
 batchInsert:
     - replace into bill({{ bill.attrs }}) values
     - for:
         array: data
-        sql: (:sn,:businessKey,:parent,:userId,:userName,:gameType,:gameId,:type,:originalAmount,:amount,:balance,:sourceIP,:region,:createdAt)
+        sql: (:sn,:businessKey,:parent,:userId,:userName,:gameType,:gameId,:type,:originalAmount,:amount,:balance,:sourceIP,:country,:province,:city,:createdAt)
         seperator: ','
