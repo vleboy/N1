@@ -95,7 +95,7 @@ cron.schedule('*/30 * * * * *', async () => {
                 let chunkArr = _.chunk(res.Items, 100)
                 for (let arr of chunkArr) {
                     promiseWriteArr.push(nodebatis.execute('bill.batchInsert', {
-                        data: arr.map((item) => {
+                        data: arr.map(async (item) => {
                             item.sourceIP = (item.sourceIP || '0.0.0.0').toLowerCase()
                             if (item.sourceIP.startWith('::ffff:')) {
                                 item.sourceIP = item.sourceIP.split('::ffff:')[1]
