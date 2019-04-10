@@ -6,11 +6,11 @@ findAll:
     - select * from bill
 
 insert:
-    - insert into bill( {{bill.attrs }} )
+    - insert into bill({{bill.attrs }})
     - values(:sn,:businessKey,:parent,:userId,:userName,:gameType,:gameId,:type,:originalAmount,:amount,:balance,:sourceIP,:region,:createdAt)
 
 batchInsert:
-    - replace into bill( {{ bill.attrs }} ) values
+    - replace into bill({{ bill.attrs }}) values
     - for:
         array: data
         sql: (:sn,:businessKey,:parent,:userId,:userName,:gameType,:gameId,:type,:originalAmount,:amount,:balance,:sourceIP,:region,:createdAt)

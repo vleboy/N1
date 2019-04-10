@@ -1,6 +1,6 @@
 const cron = require('node-cron')
 const dayjs = require('dayjs')
-dayjs.extend(require('dayjs/plugin/utc'))
+const _ = require('lodash')
 const nodebatis = global.nodebatis
 const AWS = require('aws-sdk')
 AWS.config.update({ region: 'ap-southeast-1' })
@@ -60,17 +60,19 @@ cron.schedule('*/30 * * * * *', async () => {
         let promiseWriteArr = []
         for (let res of resArr) {
             if (res.Items.length > 0) {
-                promiseWriteArr.push(nodebatis.execute('bill.batchInsert', {
-                    data: res.Items.map((item) => {
-                        item.sourceIP = item.sourceIP || '0.0.0.0'
-                        item.region = '其他'
-                        return item
-                    })
-                }))
+                for (let arr of _.chunk(res.Items, 100)) {
+                    promiseWriteArr.push(nodebatis.execute('bill.batchInsert', {
+                        data: arr.map((item) => {
+                            item.sourceIP = item.sourceIP || '0.0.0.0'
+                            item.region = '其他'
+                            return item
+                        })
+                    }))
+                }
             }
         }
         await Promise.all(promiseWriteArr)
-        await nodebatis.execute('config.updateOne', { type: 'queryTime', createdAt: endTime, flag: 1 })
+        await nodebatis.execute('config.updateOne', { type: 'queryTime', createdAt: endTime + 1, flag: 1 })
         console.timeEnd(`写入 ${resArr[0].Items.length + resArr[1].Items.length + resArr[2].Items.length}条`)
     }
     console.timeEnd('【全部载入】')
