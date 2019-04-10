@@ -1,9 +1,9 @@
 namespace: 'config'
 
-attrs:  type,createdAt
+attrs:  type,createdAt,flag,rangeHour
 
 findOne:
-    - select createdAt,flag from config where type = :type
+    - select createdAt,flag,rangeHour from config where type = :type
 
 updateTime:
     - update config set createdAt = :createdAt where type = :type

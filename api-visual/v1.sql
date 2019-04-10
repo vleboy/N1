@@ -41,10 +41,11 @@ DROP TABLE IF EXISTS `config`;
 CREATE TABLE `config` (
   `type` varchar(20) NOT NULL,
   `createdAt` bigint(20) NOT NULL,
-  `flag` tinyint(4) NOT NULL
+  `flag` tinyint(4) NOT NULL,
+  `rangeHour` smallint(6) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-INSERT INTO `config` (`type`, `createdAt`, `flag`) VALUES
-('queryTime',	1554048000000,	0);
+INSERT INTO `config` (`type`, `createdAt`, `flag`, `rangeHour`) VALUES
+('queryTime',	1554109200000,	0,	1);
 
 -- 2019-04-10 02:06:41
