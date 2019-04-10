@@ -40,7 +40,7 @@ async function queryIp(ip) {
         try {
             // 淘宝IP查询
             let res = await axios.get(`http://ip.taobao.com/service/getIpInfo.php?ip=${ip}`)
-            if (res.data && res.data.data.country && res.data.data.county != 'XX') {
+            if (res.data && res.data.data.country && res.data.data.country != 'XX') {
                 return [res.data.data.country, res.data.data.region, res.data.data.city]
             } else {
                 return ['其他', '其他', '其他']
