@@ -25,8 +25,15 @@ CREATE TABLE `bill` (
   `amount` double NOT NULL,
   `balance` double NOT NULL,
   `sourceIP` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `region` varchar(20) NOT NULL,
   `createdAt` bigint(20) NOT NULL,
-  PRIMARY KEY (`sn`)
+  PRIMARY KEY (`sn`),
+  KEY `createdAt` (`createdAt` DESC),
+  KEY `parent_createdAt` (`parent`,`createdAt` DESC),
+  KEY `type_createdAt` (`type`,`createdAt` DESC),
+  KEY `gameType_createdAt` (`gameType`,`createdAt` DESC),
+  KEY `gameId_createdAt` (`gameId`,`createdAt` DESC),
+  KEY `region` (`region`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -38,6 +45,6 @@ CREATE TABLE `config` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `config` (`type`, `createdAt`, `flag`) VALUES
-('queryTime',	1554048000000,	1);
+('queryTime',	1554048000000,	0);
 
--- 2019-04-09 10:48:54
+-- 2019-04-10 02:06:41
