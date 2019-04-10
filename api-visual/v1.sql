@@ -46,6 +46,6 @@ CREATE TABLE `config` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `config` (`type`, `createdAt`, `flag`, `rangeHour`) VALUES
-('queryTime',	1554109200000,	0,	1);
+('queryTime',	1554048000000,	0,	1);
 
 -- 2019-04-10 02:06:41
