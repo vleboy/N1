@@ -2,21 +2,21 @@ version: '3.7'
 # 服务集合
 services:
   # api-visual可视化服务
-  # api-visual:
-  #   image: cheney/api-visual:latest
-  #   volumes:
-  #     - ~/.aws:/root/.aws #宿主AWS配置文件夹:容器AWS配置文件夹
-  #   ports:
-  #     - "5000:5000"
-  #   networks:
-  #     - v1_overlay
-  #   environment:
-  #     - 'NODE_ENV=production'
-  #     - 'TZ=Asia/Shanghai'
-  #   deploy:
-  #     replicas: 1
-  #     placement:
-  #       constraints: [node.role == manager]
+  api-visual:
+    image: cheney/api-visual:latest
+    volumes:
+      - ~/.aws:/root/.aws #宿主AWS配置文件夹:容器AWS配置文件夹
+    ports:
+      - "5000:5000"
+    networks:
+      - v1_overlay
+    environment:
+      - 'NODE_ENV=production'
+      - 'TZ=Asia/Shanghai'
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
   # 数据库
   db:
     image: mysql:latest
