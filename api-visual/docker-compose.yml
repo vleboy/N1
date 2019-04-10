@@ -24,7 +24,7 @@ services:
       - ./_db:/var/lib/mysql #host_db:container_db
     command: --default-authentication-plugin=mysql_native_password
     environment:
-      - MYSQL_ROOT_PASSWORD: Ab123456
+      - 'MYSQL_ROOT_PASSWORD=Ab123456'
     ports:
       - 3306:3306
     networks:
