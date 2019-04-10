@@ -89,7 +89,7 @@ cron.schedule('*/30 * * * * *', async () => {
         resArr = resArr[0].Items.concat(resArr[1].Items.concat(resArr[2].Items))
         console.timeEnd(`读取 ${dayjs(startTime).format('YYYY-MM-DD HH:mm:ss')} 至 ${dayjs(endTime).format('YYYY-MM-DD HH:mm:ss')} 流水`)
         // 写入
-        console.time(`写入 ${resArr.length}条`)
+        console.time(`写入 ${resArr.length} 条`)
         let ipMap = {}
         let promiseWriteArr = []
         if (resArr.length > 0) {
@@ -119,7 +119,7 @@ cron.schedule('*/30 * * * * *', async () => {
         }
         await Promise.all(promiseWriteArr)
         await nodebatis.execute('config.updateOne', { type: 'queryTime', createdAt: endTime + 1, flag: 1 })
-        console.timeEnd(`写入 ${resArr.length}条`)
+        console.timeEnd(`写入 ${resArr.length} 条`)
 
 
     }
