@@ -119,7 +119,7 @@ cron.schedule('*/30 * * * * *', async () => {
         }
         await Promise.all(promiseWriteArr)
         await nodebatis.execute('config.updateOne', { type: 'queryTime', createdAt: endTime + 1, flag: 1 })
-        console.timeEnd(`写入 ${resArr[0].Items.length + resArr[1].Items.length + resArr[2].Items.length}条`)
+        console.timeEnd(`写入 ${resArr.length}条`)
 
 
     }
