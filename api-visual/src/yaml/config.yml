@@ -5,9 +5,6 @@ attrs:  type,createdAt,flag,rangeHour
 findOne:
     - select createdAt,flag,rangeHour from config where type = :type
 
-updateTime:
-    - update config set createdAt = :createdAt where type = :type
-
 updateFlag:
     - update config set flag = :flag where type = :type
 
