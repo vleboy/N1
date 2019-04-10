@@ -13,11 +13,11 @@ USE `v1`;
 
 DROP TABLE IF EXISTS `bill`;
 CREATE TABLE `bill` (
-  `sn` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `businessKey` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `sn` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `businessKey` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `parent` varchar(36) NOT NULL,
   `userId` int(11) NOT NULL,
-  `userName` varchar(20) NOT NULL,
+  `userName` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `gameType` int(11) NOT NULL,
   `gameId` int(11) NOT NULL,
   `type` tinyint(4) NOT NULL,
