@@ -95,6 +95,7 @@ cron.schedule('*/30 * * * * *', async () => {
         if (resArr.length > 0) {
             let ipGroup = _.groupBy(resArr, 'sourceIP')
             for (let ip in ipGroup) {
+                ip = ip == 'undefined' ? '0.0.0.0' : ip
                 ip = (ip || '0.0.0.0').toLowerCase()
                 if (ip.indexOf('::ffff:') != -1) {
                     ip = ip.split('::ffff:')[1]
