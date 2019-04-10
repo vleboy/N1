@@ -86,33 +86,42 @@ cron.schedule('*/30 * * * * *', async () => {
             }))
         }
         let resArr = await Promise.all(promiseReadArr)
+        resArr = resArr[0].Items.concat(resArr[1].Items.concat(resArr[2].Items))
         console.timeEnd(`读取 ${dayjs(startTime).format('YYYY-MM-DD HH:mm:ss')} 至 ${dayjs(endTime).format('YYYY-MM-DD HH:mm:ss')} 流水`)
         // 写入
-        console.time(`写入 ${resArr[0].Items.length + resArr[1].Items.length + resArr[2].Items.length}条`)
+        console.time(`写入 ${resArr.length}条`)
+        let ipMap = {}
         let promiseWriteArr = []
-        for (let res of resArr) {
-            if (res.Items.length > 0) {
-                let chunkArr = _.chunk(res.Items, 100)
-                for (let arr of chunkArr) {
-                    promiseWriteArr.push(nodebatis.execute('bill.batchInsert', {
-                        data: arr.map(async (item) => {
-                            item.sourceIP = (item.sourceIP || '0.0.0.0').toLowerCase()
-                            if (item.sourceIP.startWith('::ffff:')) {
-                                item.sourceIP = item.sourceIP.split('::ffff:')[1]
-                            }
-                            let ipArr = await queryIp(item.sourceIP)
-                            item.country = ipArr[0]
-                            item.province = ipArr[1]
-                            item.city = ipArr[2]
-                            return item
-                        })
-                    }))
+        if (resArr.length > 0) {
+            let ipGroup = _.groupBy(resArr, 'sourceIP')
+            for (let ip in ipGroup) {
+                ip = (ip || '0.0.0.0').toLowerCase()
+                if (ip.indexOf('::ffff:') != -1) {
+                    ip = ip.split('::ffff:')[1]
                 }
+                ipMap[ip] = await queryIp(ip)
+            }
+            let chunkArr = _.chunk(resArr, 100)
+            for (let arr of chunkArr) {
+                promiseWriteArr.push(nodebatis.execute('bill.batchInsert', {
+                    data: arr.map((item) => {
+                        item.sourceIP = (item.sourceIP || '0.0.0.0').toLowerCase()
+                        if (item.sourceIP.indexOf('::ffff:') != -1) {
+                            item.sourceIP = item.sourceIP.split('::ffff:')[1]
+                        }
+                        item.country = ipMap[item.sourceIP][0]
+                        item.province = ipMap[item.sourceIP][1]
+                        item.city = ipMap[item.sourceIP][2]
+                        return item
+                    })
+                }))
             }
         }
         await Promise.all(promiseWriteArr)
         await nodebatis.execute('config.updateOne', { type: 'queryTime', createdAt: endTime + 1, flag: 1 })
         console.timeEnd(`写入 ${resArr[0].Items.length + resArr[1].Items.length + resArr[2].Items.length}条`)
+
+
     }
     console.timeEnd('【全部载入】')
 })
