@@ -17,7 +17,11 @@ batchInsert:
         seperator: ','
 
 chinaCount:
-    - select count(*) as total,province from bill group by province
+    - select count(*) as total,province from bill where createdAt between :createdAt0 and :createdAt1
+    - if:
+        test: :gameType!=null
+        sql: and gameType=:gameType
+    - group by province 
 
 worldCount:
     - select count(*) as total,country from bill group by country

@@ -236,9 +236,10 @@ const worldData = [
  */
 router.get('/map/:region', async (ctx, next) => {
     let region = ctx.params.region
+    let inparam = ctx.request.query
     let res = {}
     if (region == 'china') {
-        res = await nodebatis.query('bill.chinaCount')
+        res = await nodebatis.query('bill.chinaCount', { createdAt0: inparam.createdAt0, createdAt1: inparam.createdAt1,gameType:inparam.gameType })
         if (res.length > 0) {
             for (let item of res) {
                 let index = _.findIndex(chinaData, function (o) {
