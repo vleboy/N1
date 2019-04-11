@@ -23,7 +23,7 @@ router.post('/deploy/n1web', async function (ctx, next) {
         await gitPull('/usr/dev/N1_WEB')
         await deployWebAdmin()
         await deployWebAgent()
-        deployWebGame()
+        // deployWebGame()
         deployWebMerchant()
         deployWebManager()
         ctx.body = 'Y'
