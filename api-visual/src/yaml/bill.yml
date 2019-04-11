@@ -17,7 +17,7 @@ batchInsert:
         seperator: ','
 
 chinaCount:
-    - select count(*) as total,province from bill where createdAt between :createdAt0 and :createdAt1
+    - select count(*) as total,province from bill where createdAt between :startTime and :endTime
     - if:
         test: :gameType!=null
         sql: and gameType=:gameType

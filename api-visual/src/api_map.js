@@ -232,33 +232,39 @@ const worldData = [
 
 
 /**
- * 区域地图
+ * 中国地图统计
  */
-router.get('/map/:region', async (ctx, next) => {
-    let region = ctx.params.region
+router.get('/map/china', async (ctx, next) => {
     let inparam = ctx.request.query
-    let res = {}
-    if (region == 'china') {
-        res = await nodebatis.query('bill.chinaCount', { createdAt0: inparam.createdAt0, createdAt1: inparam.createdAt1,gameType:inparam.gameType })
-        if (res.length > 0) {
-            for (let item of res) {
-                let index = _.findIndex(chinaData, function (o) {
-                    return item.province.indexOf(o.name) != -1
-                })
-                if (index != -1) {
-                    chinaData[index].value = item.total
-                }
+    let res = await nodebatis.query('bill.chinaCount', { startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
+    if (res.length > 0) {
+        for (let item of res) {
+            let index = _.findIndex(chinaData, function (o) {
+                return item.province.indexOf(o.name) != -1
+            })
+            if (index != -1) {
+                chinaData[index].value = item.total
             }
         }
-        ctx.body = { code: 0, data: chinaData }
-    } else if (region == 'world') {
-        res = await nodebatis.query('bill.worldCount')
-
-        ctx.body = { code: 0, data: worldData }
-    } else {
-        ctx.body = { code: 0, data: [] }
     }
+    ctx.body = { code: 0, data: chinaData }
+})
 
+//世界地图统计
+router.get('/map/world', async (ctx, next) => {
+    let inparam = ctx.request.query
+    let res = await nodebatis.query('bill.worldCount', { startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
+    if (res.length > 0) {
+        for (let item of res) {
+            let index = _.findIndex(worldData, function (o) {
+                return item.province.indexOf(o.name) != -1
+            })
+            if (index != -1) {
+                worldData[index].value = item.total
+            }
+        }
+    }
+    ctx.body = { code: 0, data: worldData }
 })
 
 module.exports = router
