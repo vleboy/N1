@@ -22,7 +22,7 @@ class GameCheck {
         }
 
         // 检查子对象
-        if (!inparam.company || !inparam.company.companyName || !inparam.company.companyIden) {
+        if (!inparam.company || !inparam.companyName || !inparam.companyIden) {
             throw { "code": -1, "msg": "游戏厂商数据不合法", "params": ["company"] }
         }
 
