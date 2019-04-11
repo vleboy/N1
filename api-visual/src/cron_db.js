@@ -65,7 +65,7 @@ cron.schedule('*/30 * * * * *', async () => {
         // 读取
         await nodebatis.execute('config.updateFlag', { type: 'queryTime', flag: 0 })
         let startTime = configArr[0].createdAt
-        let nowTime = Date.now()
+        let nowTime = Date.now() - 3 * 60 * 1000
         let endTime = startTime + configArr[0].rangeHour * 3600000 > nowTime ? nowTime : startTime + configArr[0].rangeHour * 3600000
         console.time(`读取 ${dayjs(startTime).format('YYYY-MM-DD HH:mm:ss')} 至 ${dayjs(endTime).format('YYYY-MM-DD HH:mm:ss')} 流水`)
         let promiseReadArr = []
