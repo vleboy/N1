@@ -5,7 +5,7 @@ const Router = require('koa-router')
 const router = new Router()
 // 工具相关
 const AWS = require('aws-sdk')
-const OSS = require('ali-oss')
+// const OSS = require('ali-oss')
 const IMG_BUCKET = config.env.IMG_BUCKET
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
@@ -37,29 +37,28 @@ router.post('/upload', async function (ctx, next) {
             }
         })
     })
-    let p2 = new Promise(async function (resolve, reject) {
-        let STS = OSS.STS
-        let sts = new STS({
-            accessKeyId: 'LTAImEnvvESnBdV5',
-            accessKeySecret: 'BaQfbS3EeiqKZRjKjSEU6PGp0IUwGs'
-        })
-        let rolearn = 'acs:ram::1503814185243023:role/aliyunosstokengeneratorrole'
-        let policy = {
-            "Statement": [
-                {
-                    "Action": "oss:*",
-                    "Effect": "Allow",
-                    "Resource": "*"
-                }
-            ],
-            "Version": "1"
-        }
-        let token = await sts.assumeRole(rolearn, policy, 15 * 60, 'taoosossss')
-        resolve({ "ali": token.credentials })
-    })
-
-    let finalRes = await Promise.all([p1, p2]).catch(err => {
-        console.log(err)
+    // let p2 = new Promise(async function (resolve, reject) {
+    //     let STS = OSS.STS
+    //     let sts = new STS({
+    //         accessKeyId: 'LTAImEnvvESnBdV5',
+    //         accessKeySecret: 'BaQfbS3EeiqKZRjKjSEU6PGp0IUwGs'
+    //     })
+    //     let rolearn = 'acs:ram::1503814185243023:role/aliyunosstokengeneratorrole'
+    //     let policy = {
+    //         "Statement": [
+    //             {
+    //                 "Action": "oss:*",
+    //                 "Effect": "Allow",
+    //                 "Resource": "*"
+    //             }
+    //         ],
+    //         "Version": "1"
+    //     }
+    //     let token = await sts.assumeRole(rolearn, policy, 15 * 60, 'taoosossss')
+    //     resolve({ "ali": token.credentials })
+    // })
+    let finalRes = await Promise.all([p1]).catch(err => {
+        console.error(err)
     })
     // 返回结果
     ctx.body = { code: 0, payload: finalRes }
