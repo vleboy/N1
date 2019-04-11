@@ -21,3 +21,12 @@ chinaCount:
 
 worldCount:
     - select count(*) as total,country from bill group by country
+
+gameTypeCount:
+    - select gameType,count(*) as total from bill group by gameType
+
+userNameCount:
+    -select userName,count(*) as total from bill group by UserName
+
+parentCount:
+    -select parent,count(*) as total from bill group by parent
