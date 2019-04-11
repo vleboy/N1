@@ -12,15 +12,8 @@ class GameCheck {
             { name: "gameName", type: "S", min: 2, max: 30 },
             { name: "gameRecommend", type: "S", min: 2, max: 200 },
             { name: "gameType", type: "N", min: 10000, max: 99999999 },
-            // { name: "ip", type: "NREG", min: null, max: null, equal: RegEnum.IP },
-            // { name: "port", type: "NN", min: 1, max: 65535 },
-            //{ name: "kindId", type: "N", min: 10000, max: 99999999 },
-            { name: "gameIden", type: "REG", min: null, max: null, equal: RegEnum.GAMEIDEN },
             { name: "gameImg", type: "NREG", min: null, max: null, equal: RegEnum.URL }
         ]
-        // if (inparam.isWebGame == 1) {
-        //     checkArr.push({ name: "gameLink", type: "NREG", min: null, max: null, equal: RegEnum.URL })
-        // }
         let [checkAttError, errorParams] = Util.checkProperties(checkArr, inparam)
 
         if (checkAttError) {
@@ -35,7 +28,6 @@ class GameCheck {
 
         // 数据类型处理
         inparam.gameType = inparam.gameType.toString()
-        // inparam.kindId = inparam.kindId.toString()
         inparam.kindId = (parseInt(inparam.kindId) + parseInt(inparam.gameType)).toString()
         inparam.gameStatus = GameStatusEnum.Online
         inparam.gameImg = inparam.gameImg || Model.StringValue
@@ -110,21 +102,10 @@ class GameCheck {
             Object.assign(checkAttError, { params: errorParams })
             throw checkAttError
         }
-
-        // 如果类型参数为空，默认查询所有类型
-        // if (!inparam.gameType) {
-        //     inparam.gameType = ''
-        //     for (let item in GameTypeEnum) {
-        //         inparam.gameType += (item + ',')
-        //     }
-        //     inparam.gameType = inparam.gameType.substr(0, inparam.gameType.length - 1)
-        // }
-
         // 数据类型处理
         if (inparam.gameType) {
             inparam.gameType = inparam.gameType.toString()
         }
-        // inparam.keyword = inparam.keyword || null
         return [checkAttError, errorParams]
     }
 
@@ -137,15 +118,8 @@ class GameCheck {
             { name: "gameName", type: "S", min: 2, max: 30 },
             { name: "gameRecommend", type: "S", min: 2, max: 200 },
             { name: "gameType", type: "N", min: 10000, max: 99999999 },
-            // { name: "ip", type: "NREG", min: null, max: null, equal: RegEnum.IP },
-            // { name: "port", type: "NN", min: 1, max: 65535 },
-            //{ name: "kindId", type: "N", min: 10000, max: 99999999 },
-            { name: "gameIden", type: "REG", min: null, max: null, equal: RegEnum.GAMEIDEN },
             { name: "gameImg", type: "NREG", min: null, max: null, equal: RegEnum.URL }
         ]
-        // if (inparam.isWebGame == 1) {
-        //     checkArr.push({ name: "gameLink", type: "NREG", min: null, max: null, equal: RegEnum.URL })
-        // }
         let [checkAttError, errorParams] = Util.checkProperties(checkArr, inparam)
 
         if (checkAttError) {
@@ -160,7 +134,6 @@ class GameCheck {
 
         // 数据类型处理
         inparam.gameType = inparam.gameType.toString()
-        // inparam.kindId = inparam.kindId.toString()
         if (parseInt(inparam.kindId) < 99999) {
             inparam.kindId = (parseInt(inparam.gameType) + parseInt(inparam.kindId)).toString()
         } else {

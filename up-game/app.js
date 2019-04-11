@@ -13,8 +13,8 @@ const log = require('tracer').colorConsole({ level: config.log.level })
 
 // 业务控制器
 const pingRoute = require('./src/api_ping')
-const companyRoute = require('./src/api_company')
 const gameRoute = require('./src/api_game')
+const companyRoute = require('./src/api_company')
 
 // 初始化应用服务，加载所有中间件
 const app = new Koa()
@@ -64,8 +64,8 @@ app.use(xauth(config.auth, (v) => {             // TOKEN身份认证中间件，
 }))
 
 app.use(pingRoute.routes())             // 心跳接口
-app.use(companyRoute.routes())          // 游戏厂商接口
 app.use(gameRoute.routes())             // 游戏接口
+app.use(companyRoute.routes())          // 游戏厂商接口
 
 app.use(function (ctx, next) {
     ctx.status = 404

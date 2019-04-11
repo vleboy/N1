@@ -16,28 +16,6 @@ const GameModel = require('./model/GameModel')
 const GameCheck = require('./biz/GameCheck')
 const RoleCodeEnum = require('./lib/UserConsts').RoleCodeEnum
 const GameTypeEnum = require('./lib/Consts').GameTypeEnum
-const BizErr = require('./lib/Codes').BizErr
-
-const serverKey = "0IiwicGFyZW50IjoiMDAiLCJwYXJlbnROYW1lIjoiU3VwZXJBZG1pbiIsInBhcmVudFJvbGUiOiIwMCIsImRpc3BsYXlOYW1lIjoi5Luj55CG566h55CG5"
-/**
- * 根据kindId查游戏
- */
-router.post('/single/game', async function (ctx, next) {
-  let params = ctx.request.body
-  let token = ctx.tokenVerify
-  let game
-  let { key, kindId, gameType } = params
-  if (key != serverKey) {
-    throw BizErr.ParamErr()
-  }
-  if (kindId) {
-    game = await new GameModel().findByKindId(kindId + "")
-  } else {
-    game = await new GameModel().findSingleByType(gameType)
-  }
-  // 结果返回
-  ctx.body = { code: 0, payload: game }
-})
 
 /**
  * 创建游戏
@@ -67,6 +45,18 @@ router.post('/gameList', async function (ctx, next) {
   new GameCheck().checkQuery(inparam)
   // 普通游戏列表
   let ret = await new GameModel().list(inparam)
+  // 结果返回
+  ctx.body = { code: 0, payload: ret }
+})
+
+/**
+ * 单个游戏
+ */
+router.get('/gameOne/:gameType/:gameId', async function (ctx, next) {
+  let gameParams = ctx.params
+  // 业务操作
+  const ret = await new GameModel().getOne(gameParams.gameType, gameParams.gameId)
+  // ret.gameType = GameTypeEnum[ret.gameType].name
   // 结果返回
   ctx.body = { code: 0, payload: ret }
 })
@@ -112,21 +102,25 @@ router.get('/player/gameList/:userId', async function (ctx, next) {
   }
 })
 
-
 /**
- * 单个游戏
+ * 游戏编辑
  */
-router.get('/gameOne/:gameType/:gameId', async function (ctx, next) {
-  let gameParams = ctx.params
+router.post('/gameUpdate', async function (ctx, next) {
+  let inparam = ctx.request.body
+  // 检查参数是否合法
+  new GameCheck().checkUpdateGame(inparam)
   // 业务操作
-  const ret = await new GameModel().getOne(gameParams.gameType, gameParams.gameId)
-  // ret.gameType = GameTypeEnum[ret.gameType].name
+  const ret = await new GameModel().updateGame(inparam)
+  // 操作日志记录
+  inparam.operateAction = '更新游戏'
+  inparam.operateToken = ctx.tokenVerify
+  new LogModel().addOperate(inparam, null, ret)
   // 结果返回
   ctx.body = { code: 0, payload: ret }
 })
 
 /**
- * 游戏状态变更，接口编号：
+ * 游戏状态变更
  */
 router.post('/gameChangeStatus', async function (ctx, next) {
   let inparam = ctx.request.body
@@ -141,6 +135,7 @@ router.post('/gameChangeStatus', async function (ctx, next) {
   // 结果返回
   ctx.body = { code: 0, payload: ret }
 })
+
 /**
  * 游戏排序
  */
@@ -293,57 +288,64 @@ router.post('/gameBigType', async function (ctx, next) {
   ctx.body = { code: 0, payload: gameTypeArr }
 })
 
-/**
- *  获取游戏大类
- */
-router.post('/externBigType', async function (ctx, next) {
-  let inparam = ctx.request.body
-  if (!inparam.companyIden) {
-    return { code: 0, gameTypeEnum: GameTypeEnum, payload: [] }
-  }
-  // 获取全部的游戏大类
-  let gameTypeArr = []
-  if (inparam.companyIden == '-1') {
-    for (let item in GameTypeEnum) {
-      gameTypeArr.push(GameTypeEnum[item])
-    }
-    return ctx.body = { code: 0, gameTypeEnum: GameTypeEnum, payload: gameTypeArr }
-  }
-  // 获取指定运营商的游戏大类
-  let ret = await new CompanyModel().scan({
-    ProjectionExpression: 'gameTypeList',
-    FilterExpression: "companyIden=:companyIden",
-    ExpressionAttributeValues: {
-      ':companyIden': inparam.companyIden
-    }
-  })
-  let typeArr = ret.Items[0].gameTypeList
-  // 没有userId，直接返回
-  if (!inparam.userId) {
-    for (let item of typeArr) {
-      gameTypeArr.push(GameTypeEnum[item])
-    }
-    return ctx.body = { code: 0, gameTypeEnum: GameTypeEnum, payload: gameTypeArr }
-  } else {
-    return ctx.body = { code: 0, gameTypeEnum: GameTypeEnum, payload: typeArr }
-  }
-})
 
-/**
- * 游戏编辑,更新
- */
-router.post('/gameUpdate', async function (ctx, next) {
-  let inparam = ctx.request.body
-  // 检查参数是否合法
-  new GameCheck().checkUpdateGame(inparam)
-  // 业务操作
-  const ret = await new GameModel().updateGame(inparam)
-  // 操作日志记录
-  inparam.operateAction = '更新游戏'
-  inparam.operateToken = ctx.tokenVerify
-  new LogModel().addOperate(inparam, null, ret)
-  // 结果返回
-  ctx.body = { code: 0, payload: ret }
-})
+
+// const BizErr = require('./lib/Codes').BizErr
+// const serverKey = "0IiwicGFyZW50IjoiMDAiLCJwYXJlbnROYW1lIjoiU3VwZXJBZG1pbiIsInBhcmVudFJvbGUiOiIwMCIsImRpc3BsYXlOYW1lIjoi5Luj55CG566h55CG5"
+// /**
+//  * 根据kindId查游戏
+//  */
+// router.post('/single/game', async function (ctx, next) {
+//   let params = ctx.request.body
+//   let token = ctx.tokenVerify
+//   let game
+//   let { key, kindId, gameType } = params
+//   if (key != serverKey) {
+//     throw BizErr.ParamErr()
+//   }
+//   if (kindId) {
+//     game = await new GameModel().findByKindId(kindId + "")
+//   } else {
+//     game = await new GameModel().findSingleByType(gameType)
+//   }
+//   // 结果返回
+//   ctx.body = { code: 0, payload: game }
+// })
+
+// /**
+//  *  获取游戏大类
+//  */
+// router.post('/externBigType', async function (ctx, next) {
+//   let inparam = ctx.request.body
+//   if (!inparam.companyIden) {
+//     return { code: 0, gameTypeEnum: GameTypeEnum, payload: [] }
+//   }
+//   // 获取全部的游戏大类
+//   let gameTypeArr = []
+//   if (inparam.companyIden == '-1') {
+//     for (let item in GameTypeEnum) {
+//       gameTypeArr.push(GameTypeEnum[item])
+//     }
+//     return ctx.body = { code: 0, gameTypeEnum: GameTypeEnum, payload: gameTypeArr }
+//   }
+//   // 获取指定运营商的游戏大类
+//   let ret = await new CompanyModel().scan({
+//     ProjectionExpression: 'gameTypeList',
+//     FilterExpression: "companyIden=:companyIden",
+//     ExpressionAttributeValues: {
+//       ':companyIden': inparam.companyIden
+//     }
+//   })
+//   let typeArr = ret.Items[0].gameTypeList
+//   // 没有userId，直接返回
+//   if (!inparam.userId) {
+//     for (let item of typeArr) {
+//       gameTypeArr.push(GameTypeEnum[item])
+//     }
+//     return ctx.body = { code: 0, gameTypeEnum: GameTypeEnum, payload: gameTypeArr }
+//   } else {
+//     return ctx.body = { code: 0, gameTypeEnum: GameTypeEnum, payload: typeArr }
+//   }
+// })
 
 module.exports = router
