@@ -248,16 +248,7 @@ router.get('/map/china', async (ctx, next) => {
         }
     }
     // 分5组数据
-    let splitList = []
-    let max = _.max(arr)
-    let avg = parseInt(max / 5)
-    for (let i = 0; i < 5; i++) {
-        if (i < 4) {
-            splitList.push({ start: avg * i, end: avg * (i + 1) })
-        } else {
-            splitList.push({ start: avg * i, end: max })
-        }
-    }
+    let splitList = getSplitList(arr, 5)
     ctx.body = { code: 0, map: chinaData, splitList }
 })
 
@@ -280,17 +271,22 @@ router.get('/map/world', async (ctx, next) => {
         }
     }
     // 分5组数据
+    let splitList = getSplitList(arr, 5)
+    ctx.body = { code: 0, map: worldData, splitList }
+})
+
+// 统计数值分组
+function getSplitList(arr, splitCount) {
     let splitList = []
     let max = _.max(arr)
-    let avg = parseInt(max / 5)
-    for (let i = 0; i < 5; i++) {
-        if (i < 4) {
+    let avg = parseInt(max / splitCount)
+    for (let i = 0; i < splitCount; i++) {
+        if (i < splitCount - 1) {
             splitList.push({ start: avg * i, end: avg * (i + 1) })
         } else {
             splitList.push({ start: avg * i, end: max })
         }
     }
-    ctx.body = { code: 0, map: worldData, splitList }
-})
+}
 
 module.exports = router
