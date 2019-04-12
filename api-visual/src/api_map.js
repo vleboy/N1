@@ -287,6 +287,7 @@ function getSplitList(arr, splitCount) {
             splitList.push({ start: avg * i, end: max })
         }
     }
+    return splitList
 }
 
 module.exports = router
