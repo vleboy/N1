@@ -232,6 +232,7 @@ const worldData = [
  * 中国地图统计
  */
 router.get('/map/china', async (ctx, next) => {
+    console.time('中国地图查询用时')
     let inparam = ctx.request.query
     let res = await nodebatis.query('bill.chinaCount', { startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
     let arr = []
@@ -250,6 +251,7 @@ router.get('/map/china', async (ctx, next) => {
     // 分5组数据
     let splitList = getSplitList(arr, 5)
     ctx.body = { code: 0, mapData: chinaData, splitList }
+    console.timeEnd('中国地图查询用时')
 })
 
 /**
@@ -277,12 +279,12 @@ router.get('/map/world', async (ctx, next) => {
 
 // 统计数值分组
 function getSplitList(arr, splitCount) {
-    let splitList = []
+    let splitList = [{ start: 0, end: 0 }]
     let max = _.max(arr)
     let avg = parseInt(max / splitCount)
     for (let i = 0; i < splitCount; i++) {
         if (i < splitCount - 1) {
-            splitList.push({ start: avg * i, end: avg * (i + 1) })
+            splitList.push({ start: avg * i + 1, end: avg * (i + 1) })
         } else {
             splitList.push({ start: avg * i, end: max })
         }
