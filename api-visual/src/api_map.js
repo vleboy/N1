@@ -233,6 +233,7 @@ const worldData = [
  */
 router.get('/map/china', async (ctx, next) => {
     let inparam = ctx.request.query
+    console.log(inparam)
     let res = await nodebatis.query('bill.chinaCount', { startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
     if (res.length > 0) {
         for (let item of res) {
