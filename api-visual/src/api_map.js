@@ -233,8 +233,9 @@ const worldData = [
  */
 router.get('/map/china', async (ctx, next) => {
     let inparam = ctx.request.query
-    console.log(inparam)
     let res = await nodebatis.query('bill.chinaCount', { startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
+    let arr = []
+    // 地区名称匹配
     if (res.length > 0) {
         for (let item of res) {
             let index = _.findIndex(chinaData, function (o) {
@@ -242,10 +243,22 @@ router.get('/map/china', async (ctx, next) => {
             })
             if (index != -1) {
                 chinaData[index].value = item.total
+                arr.push(item.total)
             }
         }
     }
-    ctx.body = { code: 0, data: chinaData }
+    // 分5组数据
+    let splitList = []
+    let max = _.max(arr)
+    let avg = parseInt(max / 5)
+    for (let i = 0; i < 5; i++) {
+        if (i < 4) {
+            splitList.push({ start: avg * i, end: avg * (i + 1) })
+        } else {
+            splitList.push({ start: avg * i, end: max })
+        }
+    }
+    ctx.body = { code: 0, map: chinaData, splitList }
 })
 
 /**
@@ -254,6 +267,7 @@ router.get('/map/china', async (ctx, next) => {
 router.get('/map/world', async (ctx, next) => {
     let inparam = ctx.request.query
     let res = await nodebatis.query('bill.worldCount', { startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
+    let arr = []
     if (res.length > 0) {
         for (let item of res) {
             let index = _.findIndex(worldData, function (o) {
@@ -261,10 +275,22 @@ router.get('/map/world', async (ctx, next) => {
             })
             if (index != -1) {
                 worldData[index].value = item.total
+                arr.push(item.total)
             }
         }
     }
-    ctx.body = { code: 0, data: worldData }
+    // 分5组数据
+    let splitList = []
+    let max = _.max(arr)
+    let avg = parseInt(max / 5)
+    for (let i = 0; i < 5; i++) {
+        if (i < 4) {
+            splitList.push({ start: avg * i, end: avg * (i + 1) })
+        } else {
+            splitList.push({ start: avg * i, end: max })
+        }
+    }
+    ctx.body = { code: 0, map: worldData, splitList }
 })
 
 module.exports = router
