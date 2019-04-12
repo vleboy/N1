@@ -38,7 +38,7 @@ module.exports = class PlayerBillDetailModel extends BaseModel {
     async getBill(sn) {
         const res = await this.getItem({
             ConsistentRead: true,
-            ProjectionExpression: 'parent,userId,userName,amount,balance,gameType,gameId,businessKey',
+            ProjectionExpression: 'parent,userId,userName,amount,balance,gameType,gameId,businessKey,createdAt',
             Key: { 'sn': sn }
         })
         return res.Item

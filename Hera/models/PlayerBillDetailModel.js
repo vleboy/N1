@@ -38,7 +38,7 @@ module.exports = class PlayerBillDetailModel extends BaseModel {
     getBill(sn) {
         return this.getItem({
             ConsistentRead: true,
-            ProjectionExpression: 'parent,userId,userName,amount,balance,gameType,businessKey,createdAt',
+            ProjectionExpression: 'parent,userId,userName,amount,balance,gameType,gameId,businessKey,createdAt',
             Key: { 'sn': sn }
         })
     }
