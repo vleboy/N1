@@ -1,29 +1,15 @@
 #工程结构
-Game:{
-    up-game         // NA游戏接口
-}
-N1:{
-    Game            // 游戏相关数据表，定时账单统计
-    Hera            // 对外SDK的API
-    up-n1           // N1后台接口
-    up-n1-agent     // N1代理后台接口
-}
+Game            // 游戏相关数据表，定时账单统计
+Hera            // 对外SDK的API
+up-game         // NA游戏接口
+up-n1           // N1后台接口
+up-n1-agent     // N1代理后台接口
 
 ##首先设置TOKEN密钥
 aws ssm put-parameter --name TOKEN_SECRET --value *** --type SecureString
 
 ##查看已设置密钥
 aws ssm describe-parameters
-
-#批量部署
-cd /usr/prod/AWS_Platform && git pull
-
-cd /usr/prod/AWS_Platform/Game && sls deploy
-cd /usr/prod/AWS_Platform/Javis && sls deploy
-cd /usr/prod/AWS_Platform/Stat && sls deploy
-
-cd /usr/prod/AWS_Platform/Hawkeye && sls deploy
-cd /usr/prod/AWS_Platform/Hera && sls deploy
 
 #EC2 Docker安装
 sudo yum install -y yum-utils
@@ -84,6 +70,13 @@ server {
     #页游大厅服务
     location /webapi/ {
         proxy_pass http://localhost:3000/webapi/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+    #可视化服务
+    location /visual/ {
+        proxy_pass http://localhost:5000/visual/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
