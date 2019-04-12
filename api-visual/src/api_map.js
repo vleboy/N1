@@ -238,7 +238,7 @@ router.get('/map/china', async (ctx, next) => {
     // 地区名称匹配
     if (res.length > 0) {
         for (let item of res) {
-            let index = _.findIndex(chinaData, function (o) {
+            let index = _.findIndex(chinaData, (o) => {
                 return item.province.indexOf(o.name) != -1
             })
             if (index != -1) {
@@ -249,7 +249,7 @@ router.get('/map/china', async (ctx, next) => {
     }
     // 分5组数据
     let splitList = getSplitList(arr, 5)
-    ctx.body = { code: 0, map: chinaData, splitList }
+    ctx.body = { code: 0, mapData: chinaData, splitList }
 })
 
 /**
@@ -261,7 +261,7 @@ router.get('/map/world', async (ctx, next) => {
     let arr = []
     if (res.length > 0) {
         for (let item of res) {
-            let index = _.findIndex(worldData, function (o) {
+            let index = _.findIndex(worldData, (o) => {
                 return item.province.indexOf(o.name) != -1
             })
             if (index != -1) {
@@ -272,7 +272,7 @@ router.get('/map/world', async (ctx, next) => {
     }
     // 分5组数据
     let splitList = getSplitList(arr, 5)
-    ctx.body = { code: 0, map: worldData, splitList }
+    ctx.body = { code: 0, mapData: worldData, splitList }
 })
 
 // 统计数值分组
