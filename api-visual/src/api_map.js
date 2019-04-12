@@ -47,7 +47,6 @@ const chinaData = [
     { name: "澳门", value: "0" }
 ]
 
-
 //全球范围
 const worldData = [
     { name: "阿富汗", value: 0 },
@@ -229,8 +228,6 @@ const worldData = [
     { name: "津巴布韦", value: 0 }
 ]
 
-
-
 /**
  * 中国地图统计
  */
@@ -251,7 +248,7 @@ router.get('/map/china', async (ctx, next) => {
 })
 
 /**
- * 中国地图统计
+ * 世界地图统计
  */
 router.get('/map/world', async (ctx, next) => {
     let inparam = ctx.request.query

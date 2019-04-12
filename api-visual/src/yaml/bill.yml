@@ -21,10 +21,14 @@ chinaCount:
     - if:
         test: :gameType!=null
         sql: and gameType=:gameType
-    - group by province 
+    - group by province
 
 worldCount:
-    - select count(*) as total,country from bill group by country
+    - select count(*) as total,country from bill where createdAt between :startTime and :endTime
+    - if:
+        test: :gameType!=null
+        sql: and gameType=:gameType
+    - group by country
 
 gameTypeCount:
     - select gameType,count(*) as total from bill group by gameType
