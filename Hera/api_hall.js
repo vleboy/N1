@@ -1,13 +1,13 @@
 //工具
 const JSONParser = require('./libs/JSONParser')
 const { ResOK, ResFail } = require('./libs/Response')
-const BillCheck = require('./libs/BillCheck')
+// const BillCheck = require('./libs/BillCheck')
 const jwt = require('jsonwebtoken')
 const _ = require('lodash')
 //model
 const PlayerModel = require('./models/PlayerModel')
 const UserModel = require('./models/UserModel')
-const LogModel = require('./models/LogModel')
+// const LogModel = require('./models/LogModel')
 //常量
 const TOKEN_SECRET = process.env.TOKEN_SECRET
 
@@ -97,113 +97,113 @@ module.exports.playerLogin = async function (e, c, cb) {
     }
 }
 
-/**
- * 玩家退出游戏接口
- */
-module.exports.playerExit = async function (e, c, cb) {
-    try {
-        //1,获取入参
-        const inparam = JSONParser(e.body)
-        console.log(inparam)
-        //2,参数校验
-        new BillCheck().checkPlayerExit(inparam)
-        //3,业务逻辑
-        const playerModel = new PlayerModel()
-        if (inparam.uids.length == 1 && inparam.uids[0] == '1') {  //平台所有玩家全部离线处理
-            let playerInfos = await playerModel.scan({
-                ProjectionExpression: 'userName',
-                FilterExpression: 'gameState <> :gameState OR gameId <> :gameId',
-                ExpressionAttributeValues: {
-                    ':gameState': 1,
-                    ':gameId': '0'
-                }
-            })
-            if (playerInfos && playerInfos.Items.length != 0) {
-                for (let player of playerInfos.Items) {
-                    playerModel.updateOffline(player.userName)
-                }
-            }
-            return ResOK(cb, { msg: '操作成功', data: { list: [] } }, 0)
-        } else {  //退出指定的玩家
-            let returnArr = []
-            for (let uid of inparam.uids) {
-                let playerInfo = await playerModel.getPlayerById(uid)
-                // if (playerInfo.gameId == '10000') { //玩家在棋牌游戏
-                //     if (inparam.state == 2) { //正常退出 回到大厅
-                //         await playerModel.updateOffline(playerInfo.userName, { gameState: 2 })
-                //     } else { //异常退出，会启动断线重连
-                //         await playerModel.updateOffline(playerInfo.userName, { gameId: '10000' })
-                //     }
-                // } else {
-                await playerModel.updateOffline(playerInfo.userName)
-                // }
-                new LogModel().add('6', 'playerExit', playerInfo, `玩家${playerInfo.userName}大厅离线`)
-                //这里返回的更新前的信息（曹文要求的）
-                returnArr.push({
-                    userId: playerInfo.userId,
-                    gameId: playerInfo.gameId,
-                    sid: playerInfo.sid,
-                    gameState: playerInfo.gameState
-                })
-            }
-            return ResOK(cb, { msg: '操作成功', data: { list: returnArr } }, 0)
-        }
-    } catch (err) {
-        console.error(err)
-        return ResFail(cb, { msg: err }, 500)
-    }
-}
+// /**
+//  * 玩家退出游戏接口
+//  */
+// module.exports.playerExit = async function (e, c, cb) {
+//     try {
+//         //1,获取入参
+//         const inparam = JSONParser(e.body)
+//         console.log(inparam)
+//         //2,参数校验
+//         new BillCheck().checkPlayerExit(inparam)
+//         //3,业务逻辑
+//         const playerModel = new PlayerModel()
+//         if (inparam.uids.length == 1 && inparam.uids[0] == '1') {  //平台所有玩家全部离线处理
+//             let playerInfos = await playerModel.scan({
+//                 ProjectionExpression: 'userName',
+//                 FilterExpression: 'gameState <> :gameState OR gameId <> :gameId',
+//                 ExpressionAttributeValues: {
+//                     ':gameState': 1,
+//                     ':gameId': '0'
+//                 }
+//             })
+//             if (playerInfos && playerInfos.Items.length != 0) {
+//                 for (let player of playerInfos.Items) {
+//                     playerModel.updateOffline(player.userName)
+//                 }
+//             }
+//             return ResOK(cb, { msg: '操作成功', data: { list: [] } }, 0)
+//         } else {  //退出指定的玩家
+//             let returnArr = []
+//             for (let uid of inparam.uids) {
+//                 let playerInfo = await playerModel.getPlayerById(uid)
+//                 // if (playerInfo.gameId == '10000') { //玩家在棋牌游戏
+//                 //     if (inparam.state == 2) { //正常退出 回到大厅
+//                 //         await playerModel.updateOffline(playerInfo.userName, { gameState: 2 })
+//                 //     } else { //异常退出，会启动断线重连
+//                 //         await playerModel.updateOffline(playerInfo.userName, { gameId: '10000' })
+//                 //     }
+//                 // } else {
+//                 await playerModel.updateOffline(playerInfo.userName)
+//                 // }
+//                 new LogModel().add('6', 'playerExit', playerInfo, `玩家${playerInfo.userName}大厅离线`)
+//                 //这里返回的更新前的信息（曹文要求的）
+//                 returnArr.push({
+//                     userId: playerInfo.userId,
+//                     gameId: playerInfo.gameId,
+//                     sid: playerInfo.sid,
+//                     gameState: playerInfo.gameState
+//                 })
+//             }
+//             return ResOK(cb, { msg: '操作成功', data: { list: returnArr } }, 0)
+//         }
+//     } catch (err) {
+//         console.error(err)
+//         return ResFail(cb, { msg: err }, 500)
+//     }
+// }
 
-/**
- * 大厅修改玩家信息
- */
-module.exports.updatePlayerInfo = async function (e, c, cb) {
-    try {
-        //1,获取入参
-        const inparam = JSONParser(e.body)
-        console.log(inparam)
-        //2,参数校验
-        new BillCheck().checkUpdateInfo(inparam)
-        const tokenInfo = await jwt.verify(e.headers.Authorization, TOKEN_SECRET)
-        if (!tokenInfo || inparam.userId != tokenInfo.userId) {
-            return ResFail(cb, { msg: '玩家校验失败' }, 11000)
-        }
-        //3,获取玩家信息
-        let playerInfo = await new PlayerModel().getPlayerByUserName(tokenInfo.userName)
-        if (_.isEmpty(playerInfo)) {
-            return ResFail(cb, { msg: '玩家不存在' }, 10004)
-        }
-        //4,检查nickname是否重复
-        if (inparam.nickname) {
-            let isExist = await new PlayerModel().scan({
-                ProjectionExpression: 'userName',
-                FilterExpression: 'nickname=:nickname AND userName<>:userName',
-                ExpressionAttributeValues: {
-                    ':nickname': inparam.nickname,
-                    ':userName': playerInfo.userName
-                }
-            })
-            if (isExist.Items.length != 0) {
-                return ResFail(cb, { msg: '该昵称已被占用' }, 14003)
-            }
-        }
-        //5,组装更新参数
-        let updateObj = {}
-        for (let key in inparam) {
-            if (Object.is(key, "nickname") || Object.is(key, "headPic") || Object.is(key, "sex")) {
-                if (inparam[key]) {
-                    updateObj[key] = inparam[key];
-                }
-            }
-        }
-        //6,更新
-        await new PlayerModel().hallUpdateInfo(playerInfo.userName, updateObj)
-        return ResOK(cb, { msg: '操作成功' }, 0)
-    } catch (err) {
-        console.error(err)
-        return ResFail(cb, { msg: err }, 500)
-    }
-}
+// /**
+//  * 大厅修改玩家信息
+//  */
+// module.exports.updatePlayerInfo = async function (e, c, cb) {
+//     try {
+//         //1,获取入参
+//         const inparam = JSONParser(e.body)
+//         console.log(inparam)
+//         //2,参数校验
+//         new BillCheck().checkUpdateInfo(inparam)
+//         const tokenInfo = await jwt.verify(e.headers.Authorization, TOKEN_SECRET)
+//         if (!tokenInfo || inparam.userId != tokenInfo.userId) {
+//             return ResFail(cb, { msg: '玩家校验失败' }, 11000)
+//         }
+//         //3,获取玩家信息
+//         let playerInfo = await new PlayerModel().getPlayerByUserName(tokenInfo.userName)
+//         if (_.isEmpty(playerInfo)) {
+//             return ResFail(cb, { msg: '玩家不存在' }, 10004)
+//         }
+//         //4,检查nickname是否重复
+//         if (inparam.nickname) {
+//             let isExist = await new PlayerModel().scan({
+//                 ProjectionExpression: 'userName',
+//                 FilterExpression: 'nickname=:nickname AND userName<>:userName',
+//                 ExpressionAttributeValues: {
+//                     ':nickname': inparam.nickname,
+//                     ':userName': playerInfo.userName
+//                 }
+//             })
+//             if (isExist.Items.length != 0) {
+//                 return ResFail(cb, { msg: '该昵称已被占用' }, 14003)
+//             }
+//         }
+//         //5,组装更新参数
+//         let updateObj = {}
+//         for (let key in inparam) {
+//             if (Object.is(key, "nickname") || Object.is(key, "headPic") || Object.is(key, "sex")) {
+//                 if (inparam[key]) {
+//                     updateObj[key] = inparam[key];
+//                 }
+//             }
+//         }
+//         //6,更新
+//         await new PlayerModel().hallUpdateInfo(playerInfo.userName, updateObj)
+//         return ResOK(cb, { msg: '操作成功' }, 0)
+//     } catch (err) {
+//         console.error(err)
+//         return ResFail(cb, { msg: err }, 500)
+//     }
+// }
 
 // export {
 //     playerLogin,                      //玩家登录游戏

@@ -6,7 +6,7 @@ const _ = require('lodash')
 const axios = require('axios')
 const uuid = require('uuid/v4')
 const NP = require('number-precision')
-const jwt = require('jsonwebtoken')
+// const jwt = require('jsonwebtoken')
 //model
 const UserModel = require('./models/UserModel')
 const LogModel = require('./models/LogModel')
@@ -16,7 +16,7 @@ const MerchantBillModel = require('./models/MerchantBillModel')
 const PlayerModel = require('./models/PlayerModel')
 const IPCheck = require('./libs/IPCheck')
 //常量
-const TOKEN_SECRET = process.env.TOKEN_SECRET
+// const TOKEN_SECRET = process.env.TOKEN_SECRET
 
 /**
  * 商户分页查询获取游戏战绩
@@ -363,19 +363,19 @@ module.exports.gameReportByPlayer = async function (e, c, cb) {
         return ResFail(cb, { msg: err }, code)
     }
 }
-/**
- *  校验玩家token，用于充值页面打开免账号登录
- */
-module.exports.validateToken = async function (e, c, cb) {
-    try {
-        let inparam = JSONParser(e.body)
-        const tokenInfo = await jwt.verify(e.headers.Authorization, TOKEN_SECRET)
-        if (!tokenInfo || inparam.userName != tokenInfo.userName) {
-            return ResFail(cb, { msg: 'token校验失败' }, 10010)
-        }
-        return ResOK(cb, { msg: 'success' }, 0)
-    } catch (err) {
-        console.error(err)
-        return ResFail(cb, { msg: err }, 500)
-    }
-}
+// /**
+//  *  校验玩家token，用于充值页面打开免账号登录
+//  */
+// module.exports.validateToken = async function (e, c, cb) {
+//     try {
+//         let inparam = JSONParser(e.body)
+//         const tokenInfo = await jwt.verify(e.headers.Authorization, TOKEN_SECRET)
+//         if (!tokenInfo || inparam.userName != tokenInfo.userName) {
+//             return ResFail(cb, { msg: 'token校验失败' }, 10010)
+//         }
+//         return ResOK(cb, { msg: 'success' }, 0)
+//     } catch (err) {
+//         console.error(err)
+//         return ResFail(cb, { msg: err }, 500)
+//     }
+// }
