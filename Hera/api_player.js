@@ -76,7 +76,8 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
         return ResOK(cb, { msg: 'success' }, 0)
     } catch (err) {
         console.error(err)
-        return ResFail(cb, { msg: err }, 500)
+        let code = err == '非法IP' ? 10002 : 500
+        return ResFail(cb, { msg: err }, code)
     }
 }
 
@@ -98,19 +99,19 @@ module.exports.playerLoginToken = async function (e, c, cb) {
         //ip校验
         new IPCheck().validateIP(e, userInfo)
         if (userInfo.role != '100') {
-            return ResFail(cb, { msg: '权限不足' }, 900)
+            return ResFail(cb, { msg: '非法身份' }, 500)
         }
         if (userInfo.status == '0') {
-            return ResFail(cb, { msg: '商户已被锁定' }, 10006)
+            return ResFail(cb, { msg: '商户已锁定' }, 10006)
         }
         //4,获取玩家信息
         let userName = `${userInfo.suffix}_${inparam.userName}`
         let playerInfo = await new PlayerModel().getPlayer(userName)
         if (playerInfo.state == 0) {
-            return ResFail(cb, { msg: '玩家已经冻结' }, 10006)
+            return ResFail(cb, { msg: '玩家已冻结' }, 10005)
         }
         if (playerInfo.password != inparam.userPwd) {
-            return ResFail(cb, { msg: '玩家密码不正确' }, 10005)
+            return ResFail(cb, { msg: '玩家密码不正确' }, 10004)
         }
         //5,生成token返回
         let loginToken = jwt.sign({ userName, suffix: userInfo.suffix, userId: +playerInfo.userId, exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60 }, TOKEN_SECRET)
@@ -123,7 +124,12 @@ module.exports.playerLoginToken = async function (e, c, cb) {
         return ResOK(cb, { msg: 'success', data: data }, 0)
     } catch (err) {
         console.error(err)
-        return ResFail(cb, { msg: err }, 500)
+        let code = err == '非法IP' ? 10002 : 500
+        if (err.code == -1) {
+            code = 10012
+            err = '玩家不存在'
+        }
+        return ResFail(cb, { msg: err }, code)
     }
 }
 
@@ -139,10 +145,10 @@ module.exports.getGamePlayerBalance = async function (e, c, cb) {
         try {
             tokenInfo = await jwt.verify(e.headers.Authorization, TOKEN_SECRET)
         } catch (err) {
-            return ResFail(cb, { msg: 'token验证失败或过期' }, 11000)
+            return ResFail(cb, { msg: 'token验证失败或过期' }, 10010)
         }
         if (!tokenInfo || !Object.is(`${tokenInfo.suffix}_${userName}`, tokenInfo.userName)) {
-            return ResFail(cb, { msg: 'token验证失败或过期' }, 11000)
+            return ResFail(cb, { msg: 'token验证失败或过期' }, 10010)
         }
         userName = `${tokenInfo.suffix}_${userName}`
         const inparam = JSONParser(e.queryStringParameters || {})
@@ -151,7 +157,7 @@ module.exports.getGamePlayerBalance = async function (e, c, cb) {
         //4,获取商户信息
         let userInfo = await new UserModel().queryByDisplayId(inparam.buId)
         if (_.isEmpty(userInfo)) {
-            return ResFail(cb, { msg: '所属商户不存在' }, 10001)
+            return ResFail(cb, { msg: '所属商户不存在' }, 10011)
         }
         //ip校验
         new IPCheck().validateIP(e, userInfo)
@@ -162,7 +168,12 @@ module.exports.getGamePlayerBalance = async function (e, c, cb) {
         return ResOK(cb, { msg: 'success', data: { balance } }, 0)
     } catch (err) {
         console.error(err)
-        return ResFail(cb, { msg: err }, 500)
+        let code = err == '非法IP' ? 10002 : 500
+        if (err.code == -1) {
+            code = 10012
+            err = '玩家不存在'
+        }
+        return ResFail(cb, { msg: err }, code)
     }
 }
 

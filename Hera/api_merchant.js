@@ -70,18 +70,6 @@ module.exports.gameRecordPage = async function (e, c, cb) {
             list: [],
             lastKey: ''
         }
-        // 组装page.list
-        // if (records.length > 0) {
-        //     records.forEach((item, index) => {
-        //         page.list[index] = records[index].record
-        //         page.list[index].gameType = records[index].gameType
-        //         page.list[index].gameId = records[index].gameId
-        //         page.list[index].userId = records[index].userId
-        //         page.list[index].userName = records[index].userName
-        //         page.list[index].betTime = records[index].betTime
-        //         page.list[index].createdAt = records[index].createdAt
-        //     })
-        // }
         for (let record of records) {
             let subRecord = record.record && typeof record.record == 'object' ? record.record : {}
             record = { ...subRecord, ...record }
@@ -111,13 +99,14 @@ module.exports.gameRecordPage = async function (e, c, cb) {
         return ResOK(cb, { msg: 'success', page }, 0)
     } catch (err) {
         console.error(err)
+        let code = err == '非法IP' ? 10002 : 500
         let data = {}
         data.body = e.body
         data.userId = 'NULL!'
         data.userName = 'NULL!'
         data.err = err
         new LogModel().add('2', 'gameRecordPage', data, `查询战绩出错`)
-        return ResFail(cb, { msg: err }, 500)
+        return ResFail(cb, { msg: err }, code)
     }
 }
 
@@ -144,7 +133,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
         switch (inparam.method) {
             case 'QUERY_PLAYER_BALANCE': //查询玩家余额
                 if (typeof inparam.names != 'object' || inparam.names.length == 0) {
-                    return ResFail(cb, { msg: 'names的参数不合法' }, 900)
+                    return ResFail(cb, { msg: '参数names不合法' }, 500)
                 }
                 names = inparam.names.map((item) => {
                     return `${userInfo.suffix}_${item}`
@@ -154,7 +143,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 break;
             case 'CHANGE_PLAYER_PASSWORD'://改变玩家密码
                 if (!inparam.userName || !inparam.userPwd) {
-                    return ResFail(cb, { msg: '请检查你的入参' }, 900)
+                    return ResFail(cb, { msg: '请检查入参' }, 500)
                 }
                 userName = `${userInfo.suffix}_${inparam.userName}`
                 //查询玩家是否存在
@@ -165,10 +154,10 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 break;
             case 'OPERATE_PLAYER_BALANCE'://玩家存提点操作
                 if (!inparam.userName || !inparam.action || !inparam.amount) {
-                    return ResFail(cb, { msg: '请检查你的入参' }, 900)
+                    return ResFail(cb, { msg: '请检查入参' }, 500)
                 }
                 if (inparam.action != 1 && inparam.action != -1) {
-                    return ResFail(cb, { msg: '请检查你的入参' }, 900)
+                    return ResFail(cb, { msg: '请检查入参' }, 500)
                 }
                 //玩家操作的金额小数点两位处理
                 inparam.amount = NP.round(inparam.amount, 2)
@@ -177,14 +166,14 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 const playerModel = new PlayerModel()
                 let playerInfo = await playerModel.getPlayer(userName)
                 if (playerInfo.state == '0') {
-                    return ResFail(cb, { msg: '玩家已被冻结' }, 10006)
+                    return ResFail(cb, { msg: '玩家已冻结' }, 10005)
                 }
                 if (playerInfo.gameState == 3) { //游戏中
                     if (+playerInfo.gameId >= 1000000) {
                         //更新玩家状态（第三方游戏网页中或强制离线后操作）
                         await playerModel.updateOffline(userName)
                     } else {
-                        return ResFail(cb, { msg: '玩家在游戏中不能进行充值和提现操作' }, 11001)
+                        return ResFail(cb, { msg: '玩家在游戏中不能进行充值和提现操作' }, 10007)
                     }
                 }
                 //6,根据不同的操作类型（充值或提现）有不同的处理
@@ -197,12 +186,12 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                     //获取商户的点数并检查商户的点数是否足够
                     let userBalance = await new MerchantBillModel().queryUserBalance(userInfo.userId)
                     if (userBalance < +inparam.amount) {
-                        return ResFail(cb, { msg: '商户余额不足' }, 500)
+                        return ResFail(cb, { msg: '商户余额不足' }, 10008)
                     }
                 } else if (inparam.action == -1) { //提现操作
                     //检查玩家的点数是否足够
                     if (palyerBalance < +inparam.amount) {
-                        return ResFail(cb, { msg: '提现金额大于账户余额' }, 500)
+                        return ResFail(cb, { msg: '玩家提现金额大于账户余额' }, 10009)
                     }
                 }
                 //7,更新玩家余额，并推送大厅
@@ -250,7 +239,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 break;
             case 'OPERATE_PLAYER_FORZEN'://冻结|解冻玩家
                 if (typeof inparam.names != 'object' || inparam.names.length == 0) {
-                    return ResFail(cb, { msg: 'names的参数不合法' }, 900)
+                    return ResFail(cb, { msg: '参数names不合法' }, 500)
                 }
                 let state = inparam.state || 0
                 if (state != 0 && state != 1) {
@@ -288,7 +277,12 @@ module.exports.merchantPlayer = async function (e, c, cb) {
         }
     } catch (err) {
         console.error(err)
-        return ResFail(cb, { msg: err }, 500)
+        let code = err == '非法IP' ? 10002 : 500
+        if (err.code == -1) {
+            code = 10012
+            err = '玩家不存在'
+        }
+        return ResFail(cb, { msg: err }, code)
     }
 }
 
@@ -320,7 +314,8 @@ module.exports.gameReportByMerchant = async function (e, c, cb) {
         return ResOK(cb, { msg: 'success', data: (res.data.payload || [])[0] }, 0)
     } catch (err) {
         console.error(err)
-        return ResFail(cb, { msg: err }, 500)
+        let code = err == '非法IP' ? 10002 : 500
+        return ResFail(cb, { msg: err }, code)
     }
 }
 
@@ -364,7 +359,8 @@ module.exports.gameReportByPlayer = async function (e, c, cb) {
         return ResOK(cb, { msg: 'success', data: res.data.payload || [] }, 0)
     } catch (err) {
         console.error(err)
-        return ResFail(cb, { msg: err }, 500)
+        let code = err == '非法IP' ? 10002 : 500
+        return ResFail(cb, { msg: err }, code)
     }
 }
 /**
@@ -375,7 +371,7 @@ module.exports.validateToken = async function (e, c, cb) {
         let inparam = JSONParser(e.body)
         const tokenInfo = await jwt.verify(e.headers.Authorization, TOKEN_SECRET)
         if (!tokenInfo || inparam.userName != tokenInfo.userName) {
-            return ResFail(cb, { msg: 'token校验失败' }, 11000)
+            return ResFail(cb, { msg: 'token校验失败' }, 10010)
         }
         return ResOK(cb, { msg: 'success' }, 0)
     } catch (err) {

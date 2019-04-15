@@ -19,6 +19,6 @@ module.exports = class IPCheck {
         if (whiteIp || allIp || checkIp) return true;
         console.log(`白名单ip:${JSON.stringify(whiteList)}`)
         console.log(`客服端请求的ip:${sourceIp}`)
-        throw '非法的ip'
+        throw '非法IP'
     }
 }
