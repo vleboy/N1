@@ -16,8 +16,45 @@ batchInsert:
         sql: (:sn,:businessKey,:parent,:userId,:userName,:gameType,:gameId,:type,:originalAmount,:amount,:balance,:sourceIP,:country,:province,:city,:createdAt)
         seperator: ','
 
-chinaCount:
-    - select count(*) as total,province from bill where createdAt between :startTime and :endTime
+chinaPlayerCount: # 玩家总人数
+    - select count(a.userId) as total,a.province from 
+    - (select distinct(userId),province from bill where createdAt between :startTime and :endTime
+    - if:
+        test: :gameType!=null
+        sql: and gameType=:gameType
+    - ) as a
+    - group by a.province
+
+chinaBetCount:  # 下注总次数
+    - select count(*) as total,province from bill where createdAt between :startTime and :endTime and type=3
+    - if:
+        test: :gameType!=null
+        sql: and gameType=:gameType
+    - group by province
+
+chinaBetAmount: # 下注总金额
+    - select sum(amount) as total,province from bill where createdAt between :startTime and :endTime and type=3
+    - if:
+        test: :gameType!=null
+        sql: and gameType=:gameType
+    - group by province
+
+chinaRetAmount: # 返奖总金额
+    - select sum(amount) as total,province from bill where createdAt between :startTime and :endTime and type=4
+    - if:
+        test: :gameType!=null
+        sql: and gameType=:gameType
+    - group by province   
+
+chinaRefundAmount: # 退款总金额
+    - select sum(amount) as total,province from bill where createdAt between :startTime and :endTime and type=5
+    - if:
+        test: :gameType!=null
+        sql: and gameType=:gameType
+    - group by province
+
+chinaWinloseAmount: # 输赢总金额
+    - select sum(amount) as total,province from bill where createdAt between :startTime and :endTime 
     - if:
         test: :gameType!=null
         sql: and gameType=:gameType
@@ -34,7 +71,7 @@ gameTypeCount:
     - select gameType,count(*) as total from bill group by gameType
 
 userNameCount:
-    -select userName,count(*) as total from bill group by UserName
+    - select userName,count(*) as total from bill group by UserName
 
 parentCount:
-    -select parent,count(*) as total from bill group by parent
+    - select parent,count(*) as total from bill group by parent

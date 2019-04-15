@@ -9,43 +9,6 @@ const _ = require('lodash')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 
-//中国范围
-const chinaData = [
-    { name: "北京", value: "0" },
-    { name: "天津", value: "0" },
-    { name: "上海", value: "0" },
-    { name: "重庆", value: "0" },
-    { name: "河北", value: "0" },
-    { name: "河南", value: "0" },
-    { name: "云南", value: "0" },
-    { name: "辽宁", value: "0" },
-    { name: "黑龙江", value: "0" },
-    { name: "湖南", value: "0" },
-    { name: "安徽", value: "0" },
-    { name: "山东", value: "0" },
-    { name: "新疆", value: "0" },
-    { name: "江苏", value: "0" },
-    { name: "浙江", value: "0" },
-    { name: "江西", value: "0" },
-    { name: "湖北", value: "0" },
-    { name: "广西", value: "0" },
-    { name: "甘肃", value: "0" },
-    { name: "山西", value: "0" },
-    { name: "内蒙古", value: "0" },
-    { name: "陕西", value: "0" },
-    { name: "吉林", value: "0" },
-    { name: "福建", value: "0" },
-    { name: "贵州", value: "0" },
-    { name: "广东", value: "0" },
-    { name: "青海", value: "0" },
-    { name: "西藏", value: "0" },
-    { name: "四川", value: "0" },
-    { name: "宁夏", value: "0" },
-    { name: "海南", value: "0" },
-    { name: "台湾", value: "0" },
-    { name: "香港", value: "0" },
-    { name: "澳门", value: "0" }
-]
 
 //全球范围
 const worldData = [
@@ -234,23 +197,19 @@ const worldData = [
 router.get('/map/china', async (ctx, next) => {
     console.time('中国地图查询用时')
     let inparam = ctx.request.query
-    let res = await nodebatis.query('bill.chinaCount', { startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
-    let arr = []
-    // 地区名称匹配
-    if (res.length > 0) {
-        for (let item of res) {
-            let index = _.findIndex(chinaData, (o) => {
-                return item.province.indexOf(o.name) != -1
-            })
-            if (index != -1) {
-                chinaData[index].value = item.total
-                arr.push(item.total)
-            }
-        }
-    }
-    // 分5组数据
-    let splitList = getSplitList(arr, 5)
-    ctx.body = { code: 0, mapData: chinaData, splitList }
+    // 获取区域玩家总人数
+    let playerCount = await queryGetSql('bill.chinaPlayerCount', inparam)
+    // 获取区域玩家总下注次数
+    let betCount = await queryGetSql('bill.chinaBetCount', inparam)
+    // 获取区域玩家总下注金额
+    let betAmount = await queryGetSql('bill.chinaBetAmount', inparam)
+    // 获取区域玩家总返奖
+    let retAmount = await queryGetSql('bill.chinaRetAmount', inparam)
+    // 获取区域玩家总退款
+    let refundAmount = await queryGetSql('bill.chinaRefundAmount', inparam)
+    // 获取区域玩家总输赢
+    let winloseAmount = await queryGetSql('bill.chinaWinloseAmount', inparam)
+    ctx.body = { code: 0, data: { playerCount, betCount, betAmount, retAmount, refundAmount, winloseAmount } }
     console.timeEnd('中国地图查询用时')
 })
 
@@ -279,17 +238,79 @@ router.get('/map/world', async (ctx, next) => {
 
 // 统计数值分组
 function getSplitList(arr, splitCount) {
-    let splitList = [{ start: 0, end: 0 }]
+    let splitList = []
     let max = _.max(arr)
     let avg = parseInt(max / splitCount)
-    for (let i = 0; i < splitCount; i++) {
-        if (i < splitCount - 1) {
-            splitList.push({ start: avg * i + 1, end: avg * (i + 1) })
-        } else {
-            splitList.push({ start: avg * i, end: max })
+    if (avg > 1) {
+        for (let i = 0; i < splitCount; i++) {
+            if (i < splitCount - 1) {
+                splitList.push({ start: avg * i + 1, end: avg * (i + 1) })
+            } else {
+                splitList.push({ start: avg * i, end: max })
+            }
         }
+    } else {
+        splitList.push({ start: 0, end: 0 })
     }
     return splitList
+}
+
+// sql查询
+async function queryGetSql(sqlName, inparam) {
+    let res = await nodebatis.query(sqlName, { startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
+    let arr = []
+    //中国范围
+    let chinaData = [
+        { name: "北京", value: "0" },
+        { name: "天津", value: "0" },
+        { name: "上海", value: "0" },
+        { name: "重庆", value: "0" },
+        { name: "河北", value: "0" },
+        { name: "河南", value: "0" },
+        { name: "云南", value: "0" },
+        { name: "辽宁", value: "0" },
+        { name: "黑龙江", value: "0" },
+        { name: "湖南", value: "0" },
+        { name: "安徽", value: "0" },
+        { name: "山东", value: "0" },
+        { name: "新疆", value: "0" },
+        { name: "江苏", value: "0" },
+        { name: "浙江", value: "0" },
+        { name: "江西", value: "0" },
+        { name: "湖北", value: "0" },
+        { name: "广西", value: "0" },
+        { name: "甘肃", value: "0" },
+        { name: "山西", value: "0" },
+        { name: "内蒙古", value: "0" },
+        { name: "陕西", value: "0" },
+        { name: "吉林", value: "0" },
+        { name: "福建", value: "0" },
+        { name: "贵州", value: "0" },
+        { name: "广东", value: "0" },
+        { name: "青海", value: "0" },
+        { name: "西藏", value: "0" },
+        { name: "四川", value: "0" },
+        { name: "宁夏", value: "0" },
+        { name: "海南", value: "0" },
+        { name: "台湾", value: "0" },
+        { name: "香港", value: "0" },
+        { name: "澳门", value: "0" }
+    ]
+    // 地区名称匹配
+    if (res.length > 0) {
+        for (let item of res) {
+            let index = _.findIndex(chinaData, (o) => {
+                return item.province.indexOf(o.name) != -1
+            })
+            if (index != -1) {
+                chinaData[index].value = Math.abs(item.total)
+                arr.push(Math.abs(item.total))
+            }
+        }
+    }
+    // 分5组数据
+    let splitList = getSplitList(arr, 5)
+    return [chinaData, splitList]
 }
 
 module.exports = router
