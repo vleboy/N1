@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "node app.js",
+    "logs": "docker logs api-visual_api-visual_1 -f",
     "compose-up": "docker-compose -f docker-compose.yml up -d --build",
     "compose-down": "docker-compose -f docker-compose.yml down",
     "compose-restart": "docker-compose -f docker-compose.yml down && docker-compose -f docker-compose.yml up -d --build",
