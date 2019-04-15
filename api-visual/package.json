@@ -4,7 +4,8 @@
   "scripts": {
     "start": "node app.js",
     "logs": "docker logs api-visual_api-visual_1 -f",
-    "compose-up": "docker pull cheney/api-visual:latest && docker rmi $(docker images -q -f dangling=true) && docker-compose -f docker-compose.yml up -d --force-recreate",
+    "pull": "docker pull cheney/api-visual:latest && docker rmi $(docker images -q -f dangling=true)",
+    "compose-up": "docker-compose -f docker-compose.yml up -d --force-recreate",
     "compose-down": "docker-compose -f docker-compose.yml down",
     "compose-restart": "docker-compose -f docker-compose.yml down && docker-compose -f docker-compose.yml up -d --build",
     "stack-deploy": "docker stack deploy --prune -c docker-compose.yml v1",
