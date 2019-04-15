@@ -32,11 +32,11 @@ module.exports.checkRound = async (e, c, cb) => {
                 //查询流水中该bk数量
                 let detailNumber = await new PlayerBillDetailModel().bkQuery({ bk })
                 //如果数量相等，更新日志
-                // if (roundNumber == detailNumber) {
-                //     await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
-                // } else {
+                if (roundNumber == detailNumber) {
+                    await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
+                } else {
                     fixArr.push(item)
-                // }
+                }
                 resolve(1)
             })
             promiseAll.push(p)
