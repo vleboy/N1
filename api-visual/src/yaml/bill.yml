@@ -60,18 +60,46 @@ chinaWinloseAmount: # 输赢总金额
         sql: and gameType=:gameType
     - group by province
 
-worldCount:
-    - select count(*) as total,country from bill where createdAt between :startTime and :endTime
+worldPlayerCount: # 玩家总人数
+    - select count(a.userId) as total,a.country from 
+    - (select distinct(userId),country from bill where createdAt between :startTime and :endTime
+    - if:
+        test: :gameType!=null
+        sql: and gameType=:gameType
+    - ) as a
+    - group by a.country
+
+worldBetCount:  # 下注总次数
+    - select count(*) as total,country from bill where createdAt between :startTime and :endTime and type=3
     - if:
         test: :gameType!=null
         sql: and gameType=:gameType
     - group by country
 
-gameTypeCount:
-    - select gameType,count(*) as total from bill group by gameType
+worldBetAmount: # 下注总金额
+    - select sum(amount) as total,country from bill where createdAt between :startTime and :endTime and type=3
+    - if:
+        test: :gameType!=null
+        sql: and gameType=:gameType
+    - group by country
 
-userNameCount:
-    - select userName,count(*) as total from bill group by UserName
+worldRetAmount: # 返奖总金额
+    - select sum(amount) as total,country from bill where createdAt between :startTime and :endTime and type=4
+    - if:
+        test: :gameType!=null
+        sql: and gameType=:gameType
+    - group by country   
 
-parentCount:
-    - select parent,count(*) as total from bill group by parent
+worldRefundAmount: # 退款总金额
+    - select sum(amount) as total,country from bill where createdAt between :startTime and :endTime and type=5
+    - if:
+        test: :gameType!=null
+        sql: and gameType=:gameType
+    - group by country
+
+worldWinloseAmount: # 输赢总金额
+    - select sum(amount) as total,country from bill where createdAt between :startTime and :endTime 
+    - if:
+        test: :gameType!=null
+        sql: and gameType=:gameType
+    - group by country
