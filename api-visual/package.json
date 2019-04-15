@@ -5,6 +5,7 @@
     "start": "node app.js",
     "compose-up": "docker-compose -f docker-compose.yml up -d --build",
     "compose-down": "docker-compose -f docker-compose.yml down",
+    "compose-restart": "docker-compose -f docker-compose.yml down && docker-compose -f docker-compose.yml up -d --build",
     "stack-deploy": "docker stack deploy --prune -c docker-compose.yml v1",
     "stack-rm": "docker stack rm v1"
   },
