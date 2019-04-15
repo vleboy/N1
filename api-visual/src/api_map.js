@@ -57,7 +57,7 @@ router.get('/map/world', async (ctx, next) => {
 
 // 统计数值分组
 function getSplitList(arr, splitCount) {
-    let splitList = []
+    let splitList = [{ start: 0, end: 0 }]
     let max = _.max(arr)
     let avg = parseInt(max / splitCount)
     if (avg > 1) {
@@ -69,7 +69,7 @@ function getSplitList(arr, splitCount) {
             }
         }
     } else {
-        splitList.push({ start: 0, end: 0 })
+        splitList.push({ start: 1, end: max })
     }
     return splitList
 }
