@@ -3,7 +3,8 @@ version: '3.7'
 services:
   # api-visual可视化服务
   api-visual:
-    image: cheney/api-visual:latest
+    # image: cheney/api-visual:latest
+    image: ./
     volumes:
       - ~/.aws:/root/.aws #宿主AWS配置文件夹:容器AWS配置文件夹
     ports:

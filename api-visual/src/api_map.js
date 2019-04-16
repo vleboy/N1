@@ -284,7 +284,7 @@ async function queryGetSql(sqlName, inparam) {
         { name: "乌干达", value: 0 },
         { name: "乌克兰", value: 0 },
         { name: "乌拉圭", value: 0 },
-        { name: "美利坚合众国", value: 0 },
+        { name: "美国", value: 0 },
         { name: "乌兹别克斯坦", value: 0 },
         { name: "委内瑞拉", value: 0 },
         { name: "越南", value: 0 },
