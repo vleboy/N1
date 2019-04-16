@@ -16,19 +16,21 @@ router.get('/map/china', async (ctx, next) => {
     console.time('中国地图查询用时')
     let inparam = ctx.request.query
     inparam.queryFlag = 'china'
+    let promiseArr = []
     // 获取区域玩家总人数
-    let playerCount = await queryGetSql('bill.chinaPlayerCount', inparam)
+    promiseArr.push(queryGetSql('bill.chinaPlayerCount', inparam))
     // 获取区域玩家总下注次数
-    let betCount = await queryGetSql('bill.chinaBetCount', inparam)
+    promiseArr.push(queryGetSql('bill.chinaBetCount', inparam))
     // 获取区域玩家总下注金额
-    let betAmount = await queryGetSql('bill.chinaBetAmount', inparam)
+    promiseArr.push(queryGetSql('bill.chinaBetAmount', inparam))
     // 获取区域玩家总返奖
-    let retAmount = await queryGetSql('bill.chinaRetAmount', inparam)
+    promiseArr.push(queryGetSql('bill.chinaRetAmount', inparam))
     // 获取区域玩家总退款
-    let refundAmount = await queryGetSql('bill.chinaRefundAmount', inparam)
+    promiseArr.push(queryGetSql('bill.chinaRefundAmount', inparam))
     // 获取区域玩家总输赢
-    let winloseAmount = await queryGetSql('bill.chinaWinloseAmount', inparam)
-    ctx.body = { code: 0, data: { playerCount, betCount, betAmount, retAmount, refundAmount, winloseAmount } }
+    promiseArr.push(queryGetSql('bill.chinaWinloseAmount', inparam))
+    let chinaArr = await Promise.all(promiseArr)
+    ctx.body = { code: 0, data: { playerCount: chinaArr[0], betCount: chinaArr[1], betAmount: chinaArr[2], retAmount: chinaArr[3], refundAmount: chinaArr[4], winloseAmount: chinaArr[5] } }
     console.timeEnd('中国地图查询用时')
 })
 
@@ -39,19 +41,21 @@ router.get('/map/world', async (ctx, next) => {
     console.time('世界地图查询用时')
     let inparam = ctx.request.query
     inparam.queryFlag = 'world'
+    let promiseArr = []
     // 获取区域玩家总人数
-    let playerCount = await queryGetSql('bill.worldPlayerCount', inparam)
+    promiseArr.push(queryGetSql('bill.worldPlayerCount', inparam))
     // 获取区域玩家总下注次数
-    let betCount = await queryGetSql('bill.worldBetCount', inparam)
+    promiseArr.push(queryGetSql('bill.worldBetCount', inparam))
     // 获取区域玩家总下注金额
-    let betAmount = await queryGetSql('bill.worldBetAmount', inparam)
+    promiseArr.push(queryGetSql('bill.worldBetAmount', inparam))
     // 获取区域玩家总返奖
-    let retAmount = await queryGetSql('bill.worldRetAmount', inparam)
+    promiseArr.push(queryGetSql('bill.worldRetAmount', inparam))
     // 获取区域玩家总退款
-    let refundAmount = await queryGetSql('bill.worldRefundAmount', inparam)
+    promiseArr.push(queryGetSql('bill.worldRefundAmount', inparam))
     // 获取区域玩家总输赢
-    let winloseAmount = await queryGetSql('bill.worldWinloseAmount', inparam)
-    ctx.body = { code: 0, data: { playerCount, betCount, betAmount, retAmount, refundAmount, winloseAmount } }
+    promiseArr.push(queryGetSql('bill.worldWinloseAmount', inparam))
+    let worldArr = await Promise.all(promiseArr)
+    ctx.body = { code: 0, data: { playerCount: worldArr[0], betCount: worldArr[1], betAmount: worldArr[2], retAmount: worldArr[3], refundAmount: worldArr[4], winloseAmount: worldArr[5] } }
     console.timeEnd('世界地图查询用时')
 })
 
