@@ -35,13 +35,12 @@ module.exports = class PlayerBillDetailModel extends BaseModel {
      * 获取单项账单流水
      * @param {*} userName 
      */
-    async getBill(sn) {
-        const res = await this.getItem({
+    getBill(sn) {
+        return this.getItem({
             ConsistentRead: true,
             ProjectionExpression: 'parent,userId,userName,amount,balance,gameType,gameId,businessKey,createdAt',
             Key: { 'sn': sn }
         })
-        return res.Item
     }
 
     /**

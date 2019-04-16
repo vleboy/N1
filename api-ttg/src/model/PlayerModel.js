@@ -93,7 +93,7 @@ module.exports = class PlayerModel extends BaseModel {
      * @param {*} data 实时流水
      */
     async updatebalance(player, data) {
-        const time1 = Date.now()            // 记录进入时间
+        console.time('单笔流水处理耗时')
         // 1，入参初始化
         const naGameType = data.gameType    // NA游戏大类
         let naGameId = data.gameId || player.sid       // NA游戏ID
@@ -152,14 +152,11 @@ module.exports = class PlayerModel extends BaseModel {
         switch (naGameType) {
             case config.ysb.gameType:
                 break
-            // case config.ttg.gameType:
-            // billRepeat = await new PlayerBillDetailModel().isExistBkBet(data, billType)
-            // break
             default:
                 billRepeat = await new PlayerBillDetailModel().getBill(data.sntemp)
                 break
         }
-        if (billRepeat && !_.isEmpty(billRepeat)) {
+        if (billRepeat.Item && !_.isEmpty(billRepeat.Item)) {
             return player.balance
         }
         // 检查：返奖检查下注是否存在，下注不存在的返奖，直接返回当前玩家余额
@@ -172,17 +169,17 @@ module.exports = class PlayerModel extends BaseModel {
             // 使用betSN的退款（PP电子和SA真人），通过sn检查下注是否存在
             if (data.betsn) {
                 let billBet = await new PlayerBillDetailModel().getBill(data.betsn)
-                if (!billBet || _.isEmpty(billBet)) {
+                if (!billBet.Item || _.isEmpty(billBet.Item)) {
                     // 等待3秒，然后再次查询确认
                     await this.waitASecond()
                     console.info('等待结束，再次查询下注是否存在')
                     billBet = await new PlayerBillDetailModel().getBill(data.betsn)
-                    if (!billBet || _.isEmpty(billBet)) {
-                        new LogModel().add('2', 'findBetError', data, `未找到对应BK【${data.businessKey}】的下注`)
+                    if (!billBet.Item || _.isEmpty(billBet.Item)) {
+                        new LogModel().add('2', 'findBetError', data, `未找到对应betsn【${data.betsn}】的下注`)
                         return player.balance
                     }
                 }
-                bkBet = { Items: [billBet] }
+                bkBet = { Items: [billBet.Item] }
             }
             // 其他游戏的返奖/退款，通过bk检查下注是否存在
             else {
@@ -252,7 +249,7 @@ module.exports = class PlayerModel extends BaseModel {
         if (isCheckRet && naGameType != config.sa.fishGameType) {
             new PlayerBillDetailModel().checkExpire(bkBet, billItem)
         }
-        console.log(`单笔流水处理耗时：${Date.now() - time1}`)
+        console.timeEnd('单笔流水处理耗时')
         return billItem.balance
     }
 

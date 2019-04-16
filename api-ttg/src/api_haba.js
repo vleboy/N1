@@ -158,7 +158,7 @@ router.post('/haba/query', async function (ctx, next) {
     let inparam = ctx.request.body
     let sn = `BET_${inparam.queryrequest.accountid}_${inparam.queryrequest.transferid}`
     let billBet = await new PlayerBillDetailModel().getBill(sn)
-    if (!billBet || _.isEmpty(billBet)) {
+    if (!billBet.Item || _.isEmpty(billBet.Item)) {
         ctx.body = { "fundtransferresponse": { "status": { "success": false } } }
     } else {
         ctx.body = { "fundtransferresponse": { "status": { "success": true } } }

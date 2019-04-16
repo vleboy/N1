@@ -267,6 +267,7 @@ router.post('/sb/wallet/cancel', async function (ctx, next) {
         }
         // 获取需要取消的下注
         let cancelBill = await new PlayerBillDetailModel().getBill(`ASB_BET_${transaction.userid}_${transaction.refptxid}`)
+        cancelBill = cancelBill.Item
         if (cancelBill) {
             let item = {}
             let player = { userId: cancelBill.userId, userName: cancelBill.userName, parent: cancelBill.parent }
