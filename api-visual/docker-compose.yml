@@ -4,7 +4,7 @@ services:
   # api-visual可视化服务
   api-visual:
     # image: cheney/api-visual:latest
-    image: ./
+    build: ./
     volumes:
       - ~/.aws:/root/.aws #宿主AWS配置文件夹:容器AWS配置文件夹
     ports:
