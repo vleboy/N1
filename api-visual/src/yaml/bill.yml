@@ -193,7 +193,7 @@ betCountPie: # 统计下注总次数
     - SELECT count(*) as num,gameType from bill where createdAt between :startTime and :endTime and type=3 GROUP BY gameType
 
 betAmountPie: # 统计下注总金额
-    - SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime and type=3 GROUP BY gameType
+    - SELECT abs(sum(amount)) as num,gameType from bill where createdAt between :startTime and :endTime and type=3 GROUP BY gameType
 
 retAmountPie: # 统计返奖总额
     - SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime and type=4 GROUP BY gameType
