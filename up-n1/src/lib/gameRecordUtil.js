@@ -147,6 +147,9 @@ function getOtherObj(record) {
             roundResult: {}
         }
     }
+    if (gameType == '1120000') { //SB真人
+        otherObj.mixAmount = Math.min(Math.abs(otherObj.betAmount), Math.abs(otherObj.winloseAmount))
+    }
     // 输赢和状态判断
     if (otherObj.retAmount < otherObj.betAmount) {
         otherObj.roundStatus = 1 // 输
