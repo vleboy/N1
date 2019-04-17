@@ -75,7 +75,7 @@ router.post('/queryUserStat', async function (ctx, next) {
                 }
             }
         } else {
-            finalRes = _.orderBy(ret, ['role', (o) => { return Object.keys(o.winloseAmountMap || {}).length }], ['asc', 'asc'])
+            finalRes = _.orderBy(ret, ['role', (o) => { return o.companyList ? o.companyList.length : 0 }], ['asc', 'asc'])
         }
         ctx.body = { code: 0, payload: finalRes }
     }
