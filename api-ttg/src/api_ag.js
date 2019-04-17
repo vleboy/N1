@@ -101,7 +101,7 @@ router.post('/ag/postTransfer', async (ctx, next) => {
     for (let key in inparam) {
         inparam[key] = inparam[key][0]
     }
-    log.info(inparam)
+    // log.info(inparam)
     // 查询玩家
     const username = inparam.sessionToken
     const transactionType = inparam.transactionType
