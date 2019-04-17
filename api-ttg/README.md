@@ -1,6 +1,8 @@
 # TTG PC版本链接
 http://ext.na77.org/ttg/gameurl/:gameName/:gameId/:sid/:userName/:userId/:token
+
 http://ext.na77.org/ttg/gameurl/DolphinGoldH5/1010000/1011055/QJSH_wwj02/268184/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6IlFKU0hfd3dqMDIiLCJzdWZmaXgiOiJRSlNIIiwidXNlcklkIjoyNjgxODQsImV4cGlyZSI6MTUzMDkzNzQzMTE4NiwiaWF0IjoxNTMwODUxMDMxfQ.50tUvo3l_Flkb4aVHrotoFD8yhKunXoBt4z3lfJDcUk
+
 http://webgame.na77.org/ttg/gameurl/DolphinGoldH5/1010000/1011055/XYCHD_ns050/990614/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6IlhZQ0hEX25zMDUwIiwic3VmZml4IjoiWFlDSEQiLCJ1c2VySWQiOjk5MDYxNCwiaWF0IjoxNTE3OTg2NjkzfQ.aDV2_mOgREZKYi1FW76k3zyzmDoL3Sv_bQXDPqBJ4Q8
 # MG PC版本链接
 http://ext.na77.org/mg/gameurl/:gameId/:sid/:userName/:userId/:token
