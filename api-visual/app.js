@@ -15,6 +15,7 @@ require('./src/cron_db')
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 业务控制器
 const mapapirouter = require('./src/api_map')
+const lineapirouter = require('./src/api_line')
 
 // 初始化应用服务，加载所有中间件
 const app = new Koa()
@@ -46,6 +47,8 @@ app.use(xauth(config.auth, (v) => { // TOKEN身份认证中间件，参数1：�
 
 // 业务路由
 app.use(mount('/visual', mapapirouter.routes()))   // 地图接口路由
+app.use(mount('/visual', lineapirouter.routes()))   // 折线图接口路由
+
 
 // 启动应用服务
 app.listen(PORT)
