@@ -67,9 +67,9 @@
         "1090000": "PG"
     },
     "ttg": {
-        "tokenurl": "https://ams2-api.ttms.co:8443/cip/gametoken/",
         "gameType": "1010000",
         "gameKey": "7e5e93e2-20c3-4cb7-8b01-a1315c644730",
+        "tokenurl": "https://ams2-api.ttms.co:8443/cip/gametoken/",
         "gameurl": "http://ams2-games.ttms.co/casino/default/game/game.html"
     },
     "sa": {
