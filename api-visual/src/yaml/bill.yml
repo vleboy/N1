@@ -157,7 +157,7 @@ betCountGraph: # 统计下注总次数
     - GROUP BY days
 
 betAmountGraph: # 统计下注总金额
-    - SELECT FROM_UNIXTIME(createdAt/1000,'%k')days,sum(amount) count from bill where createdAt between :startTime and :endTime and type=3
+    - SELECT FROM_UNIXTIME(createdAt/1000,'%k')days,abs(sum(amount)) count from bill where createdAt between :startTime and :endTime and type=3
     - if:
         test: :gameType!=null
         sql: and gameType=:gameType
@@ -185,31 +185,91 @@ winloseAmountGraph: # 实时统计当天输赢金额
     - GROUP BY days
 
 playerCountPie: # 统计人数
-    - SELECT ROUND(a.num/b.total*100,2) as percent,a.gameType from (select count(c.userId) as num,c.gameType from 
-    - (SELECT gameType,userId from bill where createdAt between :startTime and :endTime GROUP BY gameType,userId) as c GROUP BY c.gameType) as a,
-    - (SELECT count(DISTINCT userId,gameType) as total from bill) as b
+    - select count(c.userId) as num,c.gameType from 
+    - (SELECT gameType,userId from bill where createdAt between :startTime and :endTime GROUP BY gameType,userId) as c 
+    - GROUP BY c.gameType
 
 betCountPie: # 统计下注总次数
-    - SELECT ROUND(a.num/b.total *100,2) as percent,a.gameType from 
-    - (SELECT count(*) as num,gameType from bill where createdAt between :startTime and :endTime and type=3 GROUP BY gameType) as a,
-    - (SELECT count(*) as total from bill)as b;
+    - SELECT count(*) as num,gameType from bill where createdAt between :startTime and :endTime and type=3 GROUP BY gameType
 
 betAmountPie: # 统计下注总金额
-    - SELECT ROUND(a.num/b.total *100,2) as percent,a.gameType from 
-    - (SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime and type=3 GROUP BY gameType) as a,
-    - (SELECT sum(amount) as total from bill where type=3 )as b;
+    - SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime and type=3 GROUP BY gameType
 
 retAmountPie: # 统计返奖总额
-    - SELECT ROUND(a.num/b.total *100,2) as percent,a.gameType from 
-    - (SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime and type=4 GROUP BY gameType) as a,
-    - (SELECT sum(amount) as total from bill where type=4 )as b;
+    - SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime and type=4 GROUP BY gameType
 
 refundAmountPie: # 统计退款总金额
-    - SELECT ROUND(a.num/b.total *100,2) as percent,a.gameType from 
-    - (SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime and type=5 GROUP BY gameType) as a,
-    - (SELECT sum(amount) as total from bill where type=5 )as b;
+    - SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime and type=5 GROUP BY gameType
 
 winloseAmountPie: # 实时统计当天输赢金额
-    - SELECT ROUND(a.num/b.total *100,2) as percent,a.gameType from 
-    - (SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime GROUP BY gameType) as a,
-    - (SELECT sum(amount) as total from bill )as b;
+    - SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime GROUP BY gameType
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# playerCountPie: # 统计人数
+#     - SELECT ROUND(a.num/b.total*100,2) as percent,a.gameType from (select count(c.userId) as num,c.gameType from 
+#     - (SELECT gameType,userId from bill where createdAt between :startTime and :endTime GROUP BY gameType,userId) as c GROUP BY c.gameType) as a,
+#     - (SELECT count(DISTINCT userId,gameType) as total from bill) as b
+
+# betCountPie: # 统计下注总次数
+#     - SELECT ROUND(a.num/b.total *100,2) as percent,a.gameType from 
+#     - (SELECT count(*) as num,gameType from bill where createdAt between :startTime and :endTime and type=3 GROUP BY gameType) as a,
+#     - (SELECT count(*) as total from bill)as b;
+
+# betAmountPie: # 统计下注总金额
+#     - SELECT ROUND(a.num/b.total *100,2) as percent,a.gameType from 
+#     - (SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime and type=3 GROUP BY gameType) as a,
+#     - (SELECT sum(amount) as total from bill where type=3 )as b;
+
+# retAmountPie: # 统计返奖总额
+#     - SELECT ROUND(a.num/b.total *100,2) as percent,a.gameType from 
+#     - (SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime and type=4 GROUP BY gameType) as a,
+#     - (SELECT sum(amount) as total from bill where type=4 )as b;
+
+# refundAmountPie: # 统计退款总金额
+#     - SELECT ROUND(a.num/b.total *100,2) as percent,a.gameType from 
+#     - (SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime and type=5 GROUP BY gameType) as a,
+#     - (SELECT sum(amount) as total from bill where type=5 )as b;
+
+# winloseAmountPie: # 实时统计当天输赢金额
+#     - SELECT ROUND(a.num/b.total *100,2) as percent,a.gameType from 
+#     - (SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime GROUP BY gameType) as a,
+#     - (SELECT sum(amount) as total from bill )as b;
