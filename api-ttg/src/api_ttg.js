@@ -12,7 +12,7 @@ const parseString = require('xml2js').parseString
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
-
+const ipMap = {}
 /**
  * TTG PC版本游戏链接
  * gameName 游戏名称
@@ -23,7 +23,7 @@ const PlayerModel = require('./model/PlayerModel')
  * token  玩家的NA令牌
  */
 router.get('/ttg/gameurl/:gameName/:gameId/:sid/:userName/:userId/:token', async (ctx, next) => {
-    console.info(ctx.request.ip)
+    ipMap[ctx.params.userId] = ctx.request.ip
     let finalUrl = ''
     if (ctx.params.userId == 0) {
         finalUrl = `http://pff.ttms.co/casino/default/game/casino5.html?playerHandle=999999&account=FunAcct&gameName=${ctx.params.gameName}&gameType=0&gameId=${(+ctx.params.sid) - (+ctx.params.gameId)}&lang=zh-cn&lsdId=zero&deviceType=web&t=${Date.now()}`
@@ -85,6 +85,7 @@ router.post('/ttg/fund', async (ctx, next) => {
     ctx.request.body.cw.$.businessKey = `BTTG_${player.userName}_${ctx.request.body.cw.$.handid}`    // 设置局号
     ctx.request.body.cw.$.txnid = `${ctx.request.body.cw.$.txnid}`                                   // 设置第三方系统唯一流水号
     ctx.request.body.cw.$.txnidTemp = `${player.userName}_${ctx.request.body.cw.$.txnid}`            // 缓存第三方系统唯一流水号
+    ctx.request.body.cw.$.sourceIP = ipMap[ctx.params.userId]                                        // 记录IP
     const amtAfter = await new PlayerModel().updatebalance(player, ctx.request.body.cw.$)
     if (amtAfter == 'err') {
         ctx.body = '<cw type="fundTransferResp" err="9999" />'

@@ -95,15 +95,16 @@ module.exports = class PlayerModel extends BaseModel {
     async updatebalance(player, data) {
         console.time('单笔流水处理耗时')
         // 1，入参初始化
-        const naGameType = data.gameType    // NA游戏大类
-        let naGameId = data.gameId || player.sid       // NA游戏ID
-        let naGameCompany = config.companyMap[naGameType]// 游戏运营商
-        const amt = parseFloat(data.amt)    // 变化金额
-        let prefix = `A${naGameCompany}`    // 流水前缀
-        let billType = amt <= 0 ? 3 : 4     // 流水类型(只有正数才是返奖，否则为下注)
-        data.userId = player.userId         // 设置玩家ID
-        data.userName = player.userName     // 设置玩家帐号
-        if (data.billType) {                // 更新流水类型
+        const sourceIP = data.sourceIP || '0.0.0.0'         // IP地址
+        const naGameType = data.gameType                    // NA游戏大类
+        let naGameId = data.gameId || player.sid            // NA游戏ID
+        let naGameCompany = config.companyMap[naGameType]   // 游戏运营商
+        const amt = parseFloat(data.amt)                    // 变化金额
+        let prefix = `A${naGameCompany}`                    // 流水前缀
+        let billType = amt <= 0 ? 3 : 4                     // 流水类型(只有正数才是返奖，否则为下注)
+        data.userId = player.userId                         // 设置玩家ID
+        data.userName = player.userName                     // 设置玩家帐号
+        if (data.billType) {                                // 更新流水类型
             billType = data.billType
         }
         if (data.txnidTemp) {               // 设置SN流水号
@@ -213,7 +214,8 @@ module.exports = class PlayerModel extends BaseModel {
             gameId: isNaN(parseInt(naGameId)) ? parseInt(naGameType) : parseInt(naGameId),
             amount: amt,
             action: amt < 0 ? -1 : 1,
-            type: parseInt(billType)
+            type: parseInt(billType),
+            sourceIP
         }
         // 局号必须存在，否则直接返回当前玩家余额
         if (data.businessKey) {
