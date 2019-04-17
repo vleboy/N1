@@ -15,17 +15,15 @@ const moment = require('moment')
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
-// const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
-// const LogModel = require('./model/LogModel')
-
-
+const ipMap = {}
 /**
  * SA PC版本游戏链接
  * @param {*} userId   玩家ID
  * @param {*} token    玩家在NA的TOKEN
  * @param {*} lobbyType 0是电脑版1是移动版
  */
-router.get('/sa/gameurl/:userId/:token', async function (ctx, next) {
+router.get('/sa/gameurl/:userId/:token', async (ctx, next) => {
+    ipMap[ctx.params.userId] = ctx.request.ip
     // 请求N1服务器是否允许玩家进入游戏
     const nares = await axios.post(config.na.joingameurl, {
         userId: ctx.params.userId,
@@ -33,10 +31,8 @@ router.get('/sa/gameurl/:userId/:token', async function (ctx, next) {
         sid: config.sa.gameId,
         token: ctx.params.token
     })
-    // 根据返回结果是否允许玩家进入游戏
     if (nares.data.code != 0) {
-        ctx.body = { code: nares.data.code, msg: nares.data.msg }
-        return
+        return ctx.body = { code: nares.data.code, msg: nares.data.msg }
     }
     // 默认移动版
     let lobbyType = ctx.request.query.lobbyType != '0' ? true : false
@@ -63,7 +59,7 @@ router.get('/sa/gameurl/:userId/:token', async function (ctx, next) {
             // page += `<input type="hidden" id="mobile" name="mobile" value="true">`
             // page += `<input type="hidden" id="returnurl" name="returnurl" value="uniwebview://www.baidu.com?key=value&anotherKey=anotherValue">`
             page += `<input type="hidden" id="mobilepremium" name="mobilepremium" value="true">`
-            page += `<input type="hidden" id="returnurl" name="returnurl" value="${config.na.apidomain}/sa/logout/${ctx.params.userId}/${config.sa.gameId}">`
+            // page += `<input type="hidden" id="returnurl" name="returnurl" value="${config.na.apidomain}/sa/logout/${ctx.params.userId}/${config.sa.gameId}">`
         } else {
             page += `<input type="hidden" id="h5web" name="h5web" value="true">`
         }
@@ -80,7 +76,8 @@ router.get('/sa/gameurl/:userId/:token', async function (ctx, next) {
  * 获取SA捕鱼游戏链接
  * @param {*} token 玩家在NA的TOKEN
  */
-router.get('/sa/fisher/:token', async function (ctx, next) {
+router.get('/sa/fisher/:token', async (ctx, next) => {
+    ipMap[ctx.params.userId] = ctx.request.ip
     // 解析NA的玩家TOKEN
     const decoded = jwt.decode(ctx.params.token)
     // 请求N1服务器是否允许玩家进入游戏
@@ -90,10 +87,8 @@ router.get('/sa/fisher/:token', async function (ctx, next) {
         sid: config.sa.fishGameId,
         token: ctx.params.token
     })
-    // 根据返回结果是否允许玩家进入游戏
     if (nares.data.code != 0) {
-        ctx.body = { code: nares.data.code, msg: nares.data.msg }
-        return
+        return ctx.body = { code: nares.data.code, msg: nares.data.msg }
     }
     // 登录请求（因为SA不支持下划线，所以使用用户ID）
     const data = saParams('AnimatedGameLoginRequest', { Username: decoded.userId, CurrencyType: 'CNY', GameCode: 'Fishermen Gold', Language: 'zh_CN', Mobile: 1 })
@@ -105,33 +100,33 @@ router.get('/sa/fisher/:token', async function (ctx, next) {
     const finalRes = await xmlParse(res.data)
     if (finalRes && finalRes.AnimatedGameLoginRequestResponse && finalRes.AnimatedGameLoginRequestResponse.GameURL && finalRes.AnimatedGameLoginRequestResponse.GameURL[0]) {
         // log.info(`SA【捕鱼链接】${finalRes.AnimatedGameLoginRequestResponse.GameURL[0]}&returnurl=${config.na.apidomain}/sa/fishers/logout/${decoded.userId}`)
-        ctx.redirect(`${finalRes.AnimatedGameLoginRequestResponse.GameURL[0]}&returnurl=${config.na.apidomain}/sa/logout/${decoded.userId}/${config.sa.fishGameId}`)
+        ctx.redirect(`${finalRes.AnimatedGameLoginRequestResponse.GameURL[0]}`)//&returnurl=${config.na.apidomain}/sa/logout/${decoded.userId}/${config.sa.fishGameId}
     } else {
-        // ctx.body = { code: '-1', msg: '网络繁忙,请重试' }
-        ctx.redirect('https://uniwebview.na77.com?key=value&anotherKey=anotherValue')
+        ctx.body = { code: '-1', msg: '网络繁忙,请重试' }
+        // ctx.redirect('https://uniwebview.na77.com?key=value&anotherKey=anotherValue')
     }
 })
 
-/**
- * 获取SA玩家TOKEN
- * @param {*} userId 玩家ID
- */
-router.get('/sa/token/:userId', async function (ctx, next) {
-    const data = saParams('LoginRequest', { Username: ctx.params.userId, CurrencyType: 'CNY' })
-    // log.info(`请求SA【POST】${config.sa.apiurl}`)
-    // log.info('请求SA【参数】' + querystring.stringify(data))
-    const res = await axios.post(config.sa.apiurl, querystring.stringify(data), {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    })
-    const finalRes = await xmlParse(res.data)
-    ctx.body = finalRes.LoginRequestResponse
-})
+// /**
+//  * 获取SA玩家TOKEN
+//  * @param {*} userId 玩家ID
+//  */
+// router.get('/sa/token/:userId', async function (ctx, next) {
+//     const data = saParams('LoginRequest', { Username: ctx.params.userId, CurrencyType: 'CNY' })
+//     // log.info(`请求SA【POST】${config.sa.apiurl}`)
+//     // log.info('请求SA【参数】' + querystring.stringify(data))
+//     const res = await axios.post(config.sa.apiurl, querystring.stringify(data), {
+//         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+//     })
+//     const finalRes = await xmlParse(res.data)
+//     ctx.body = finalRes.LoginRequestResponse
+// })
 
 /**
  * SA查询余额
  * @param {*} userId 玩家ID
  */
-router.post('/sa/GetUserBalance', async function (ctx, next) {
+router.post('/sa/GetUserBalance', async (ctx, next) => {
     const inparam = querystring.parse(saDecrypt(decodeURIComponent(ctx.request.body), config.sa.encryptKey))
     const player = await new PlayerModel().getPlayerById(inparam.username)
     if (!player || _.isEmpty(player)) {
@@ -148,15 +143,14 @@ router.post('/sa/GetUserBalance', async function (ctx, next) {
  * @param {*} acctid 玩家帐号
  * @param {*} amt    流水变化
  */
-router.post('/sa/PlaceBet', async function (ctx, next) {
+router.post('/sa/PlaceBet', async (ctx, next) => {
     const inparam = querystring.parse(saDecrypt(decodeURIComponent(ctx.request.body), config.sa.encryptKey))
     // log.info(inparam)
     // 查询玩家
     const player = await new PlayerModel().getPlayerById(inparam.username)
     if (!player || _.isEmpty(player)) {
-        ctx.body = `<?xml version="1.0" encoding="utf-8"?><RequestResponse><username>${inparam.username}</username><currency>CNY</currency><amount>0</amount><error>1000</error></RequestResponse>`
         log.error(`玩家【${inparam.username}】不存在`)
-        return
+        return ctx.body = `<?xml version="1.0" encoding="utf-8"?><RequestResponse><username>${inparam.username}</username><currency>CNY</currency><amount>0</amount><error>1000</error></RequestResponse>`
     }
     // 计算玩家实时余额和更新
     inparam.gameType = config.sa.gameType
@@ -166,6 +160,7 @@ router.post('/sa/PlaceBet', async function (ctx, next) {
     inparam.amt = parseFloat(inparam.amount) * -1
     inparam.businessKey = `BSA_${inparam.username}_${inparam.gameid}`    // 设置局号
     inparam.txnidTemp = `${inparam.username}_BET_${inparam.txnid}`       // 使用第三方ID作为唯一建成分
+    inparam.sourceIP = ipMap[player.userId]                              // 记录IP
     const amtAfter = await new PlayerModel().updatebalance(player, inparam)
     if (amtAfter == 'err') {
         ctx.body = `<?xml version="1.0" encoding="utf-8"?><RequestResponse><username>${inparam.username}</username><currency>CNY</currency><amount>${player.balance}</amount><error>1004</error></RequestResponse>`
@@ -177,15 +172,14 @@ router.post('/sa/PlaceBet', async function (ctx, next) {
 /**
  * SA下注取消
  */
-router.post('/sa/PlaceBetCancel', async function (ctx, next) {
+router.post('/sa/PlaceBetCancel', async (ctx, next) => {
     const inparam = querystring.parse(saDecrypt(decodeURIComponent(ctx.request.body), config.sa.encryptKey))
     // log.info(inparam)
     // 查询玩家
     const player = await new PlayerModel().getPlayerById(inparam.username)
     if (!player || _.isEmpty(player)) {
-        ctx.body = `<?xml version="1.0" encoding="utf-8"?><RequestResponse><username>${inparam.username}</username><currency>CNY</currency><amount>0</amount><error>1000</error></RequestResponse>`
         log.error(`玩家【${inparam.username}】不存在`)
-        return
+        return ctx.body = `<?xml version="1.0" encoding="utf-8"?><RequestResponse><username>${inparam.username}</username><currency>CNY</currency><amount>0</amount><error>1000</error></RequestResponse>`
     }
     // 计算玩家实时余额和更新
     inparam.gameType = config.sa.gameType
@@ -193,10 +187,11 @@ router.post('/sa/PlaceBetCancel', async function (ctx, next) {
         inparam.gameType = config.sa.fishGameType
     }
     inparam.amt = parseFloat(inparam.amount)
-    inparam.billType = 5                                                 // 设置为退款
-    inparam.businessKey = `BSA_${inparam.username}_${inparam.gameid}`    // 设置局号
-    inparam.txnidTemp = `${inparam.username}_BETCANCEL_${inparam.txnid}` // 使用第三方ID作为唯一建成分
-    inparam.betsn = `ASA_${inparam.username}_BET_${inparam.txn_reverse_id}`  // 对应的下注SN
+    inparam.billType = 5                                                        // 设置为退款
+    inparam.businessKey = `BSA_${inparam.username}_${inparam.gameid}`           // 设置局号
+    inparam.txnidTemp = `${inparam.username}_BETCANCEL_${inparam.txnid}`        // 使用第三方ID作为唯一建成分
+    inparam.betsn = `ASA_${inparam.username}_BET_${inparam.txn_reverse_id}`     // 对应的下注SN
+    inparam.sourceIP = ipMap[player.userId]                                     // 记录IP
     const amtAfter = await new PlayerModel().updatebalance(player, inparam)
     ctx.body = `<?xml version="1.0" encoding="utf-8"?><RequestResponse><username>${inparam.username}</username><currency>CNY</currency><amount>${amtAfter}</amount><error>0</error></RequestResponse>`
     // 捕鱼游戏新增注单
@@ -208,15 +203,14 @@ router.post('/sa/PlaceBetCancel', async function (ctx, next) {
 /**
  * SA返奖
  */
-router.post('/sa/PlayerWin', async function (ctx, next) {
+router.post('/sa/PlayerWin', async (ctx, next) => {
     const inparam = querystring.parse(saDecrypt(decodeURIComponent(ctx.request.body), config.sa.encryptKey))
     // log.info(inparam)
     // 查询玩家
     const player = await new PlayerModel().getPlayerById(inparam.username)
     if (!player || _.isEmpty(player)) {
-        ctx.body = `<?xml version="1.0" encoding="utf-8"?><RequestResponse><username>${inparam.username}</username><currency>CNY</currency><amount>0</amount><error>1000</error></RequestResponse>`
         log.error(`玩家【${inparam.username}】不存在`)
-        return
+        return ctx.body = `<?xml version="1.0" encoding="utf-8"?><RequestResponse><username>${inparam.username}</username><currency>CNY</currency><amount>0</amount><error>1000</error></RequestResponse>`
     }
     // 计算玩家实时余额和更新
     inparam.gameType = config.sa.gameType
@@ -226,6 +220,7 @@ router.post('/sa/PlayerWin', async function (ctx, next) {
     inparam.amt = parseFloat(inparam.amount)
     inparam.businessKey = `BSA_${inparam.username}_${inparam.gameid}`    // 设置局号
     inparam.txnidTemp = `${inparam.username}_WIN_${inparam.txnid}`       // 使用第三方ID作为唯一建成分
+    inparam.sourceIP = ipMap[player.userId]                              // 记录IP
     const amtAfter = await new PlayerModel().updatebalance(player, inparam)
     ctx.body = `<?xml version="1.0" encoding="utf-8"?><RequestResponse><username>${inparam.username}</username><currency>CNY</currency><amount>${amtAfter}</amount><error>0</error></RequestResponse>`
     // 捕鱼游戏新增注单
@@ -237,22 +232,22 @@ router.post('/sa/PlayerWin', async function (ctx, next) {
 /**
  * SA玩家亏损
  */
-router.post('/sa/PlayerLost', async function (ctx, next) {
+router.post('/sa/PlayerLost', async (ctx, next) => {
     const inparam = querystring.parse(saDecrypt(decodeURIComponent(ctx.request.body), config.sa.encryptKey))
     // log.info(inparam)
     // 查询玩家
     const player = await new PlayerModel().getPlayerById(inparam.username)
     if (!player || _.isEmpty(player)) {
-        ctx.body = `<?xml version="1.0" encoding="utf-8"?><RequestResponse><username>${inparam.username}</username><currency>CNY</currency><amount>0</amount><error>1000</error></RequestResponse>`
         log.error(`玩家【${inparam.username}】不存在`)
-        return
+        return ctx.body = `<?xml version="1.0" encoding="utf-8"?><RequestResponse><username>${inparam.username}</username><currency>CNY</currency><amount>0</amount><error>1000</error></RequestResponse>`
     }
     ctx.body = `<?xml version="1.0" encoding="utf-8"?><RequestResponse><username>${inparam.username}</username><currency>CNY</currency><amount>${player.balance}</amount><error>0</error></RequestResponse>`
     // 捕鱼游戏生成注单
     inparam.gameType = config.sa.gameType
     inparam.amt = 0
     inparam.businessKey = `BSA_${inparam.username}_${inparam.gameid}`    // 设置局号
-    inparam.txnidTemp = `${inparam.username}_LOST_${inparam.txnid}`       // 使用第三方ID作为唯一建成分
+    inparam.txnidTemp = `${inparam.username}_LOST_${inparam.txnid}`      // 使用第三方ID作为唯一建成分
+    inparam.sourceIP = ipMap[player.userId]                              // 记录IP
     if (inparam.gamecode == 'FishermenGold') {
         inparam.gameType = config.sa.fishGameType
         new PlayerModel().addRound(player, inparam)
@@ -262,7 +257,7 @@ router.post('/sa/PlayerLost', async function (ctx, next) {
 /**
  * 查询SA用户下注详情
  */
-router.post('/sa/betdetail', async function (ctx, next) {
+router.post('/sa/betdetail', async (ctx, next) => {
     let inparam = ctx.request.body
     let resArr = []
     let finalRes = { GetUserBetItemResponse: { More: ['true'], Offset: [0] } }
@@ -276,7 +271,7 @@ router.post('/sa/betdetail', async function (ctx, next) {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             })
             finalRes = await xmlParse(res.data)
-            console.log(finalRes.GetUserBetItemResponse.More[0], finalRes.GetUserBetItemResponse.Offset[0])
+            // log.info(finalRes.GetUserBetItemResponse.More[0], finalRes.GetUserBetItemResponse.Offset[0])
             if (finalRes.GetUserBetItemResponse
                 && finalRes.GetUserBetItemResponse.UserBetItemList
                 && finalRes.GetUserBetItemResponse.UserBetItemList.length > 0
@@ -285,39 +280,39 @@ router.post('/sa/betdetail', async function (ctx, next) {
             }
         }
     } catch (error) {
-        console.error(error)
+        log.error(error)
     }
     ctx.body = resArr
 })
 
-/**
- * 网页玩家登出
- * @param {*} userId 玩家ID
- * @param {*} sid 具体游戏ID
- */
-router.get('/sa/logout/:userId/:sid', async function (ctx, next) {
-    // log.info(`准备退出玩家【${ctx.params.userId}】`)
-    // 请求N1退出
-    let data = {
-        exit: 1,
-        userId: ctx.params.userId,
-        gameType: config.sa.gameType,
-        gameId: ctx.params.sid,
-        timestamp: Date.now()
-    }
-    // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.sa.gameKey}`).toString(CryptoJS.enc.Hex)
-    axios.post(config.na.exiturl, data).then(res => {
-        res.data.code != 0 ? log.error(res.data) : null
-    }).catch(err => {
-        log.error(err)
-    })
-    // ctx.body = { code: 0, msg: '退出成功' }
-    if (ctx.request.query.homeurl) {
-        ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
-    } else {
-        ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
-    }
-})
+// /**
+//  * 网页玩家登出
+//  * @param {*} userId 玩家ID
+//  * @param {*} sid 具体游戏ID
+//  */
+// router.get('/sa/logout/:userId/:sid', async (ctx, next) => {
+//     // log.info(`准备退出玩家【${ctx.params.userId}】`)
+//     // 请求N1退出
+//     let data = {
+//         exit: 1,
+//         userId: ctx.params.userId,
+//         gameType: config.sa.gameType,
+//         gameId: ctx.params.sid,
+//         timestamp: Date.now()
+//     }
+//     // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.sa.gameKey}`).toString(CryptoJS.enc.Hex)
+//     axios.post(config.na.exiturl, data).then(res => {
+//         res.data.code != 0 ? log.error(res.data) : null
+//     }).catch(err => {
+//         log.error(err)
+//     })
+//     // ctx.body = { code: 0, msg: '退出成功' }
+//     if (ctx.request.query.homeurl) {
+//         ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
+//     } else {
+//         ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
+//     }
+// })
 
 // xml解析
 function xmlParse(xml) {

@@ -11,7 +11,7 @@ const jwt = require('jsonwebtoken')
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
-
+const ipMap = {}
 /**
  * PG PC版本游戏链接
  * gameName 游戏名称
@@ -20,12 +20,13 @@ const PlayerModel = require('./model/PlayerModel')
  * userId 玩家ID
  * token  玩家的NA令牌
  */
-router.get('/pg/gameurl/:gameName/:gameId/:sid/:userId/:token', async function (ctx, next) {
+router.get('/pg/gameurl/:gameName/:gameId/:sid/:userId/:token', async (ctx, next) => {
+    ipMap[ctx.params.userId] = ctx.request.ip
     let inparam = ctx.params
     let finalUrl = ''
     // 试玩
     if (inparam.userId == 0) {
-        finalUrl = `${config.pg.launchUrl}/${inparam.gameName}/index.html?&language=zh&bet_type=2&operator_token=${config.pg.operator_token}&from=${encodeURIComponent(ctx.request.query.homeurl || '')}&real_url=${encodeURIComponent(ctx.request.query.homeurl || '')}`
+        finalUrl = `${config.pg.launchUrl}/${inparam.gameName}/index.html?&language=zh&bet_type=2&operator_token=${config.pg.operator_token}`//&from=${encodeURIComponent(ctx.request.query.homeurl || '')}&real_url=${encodeURIComponent(ctx.request.query.homeurl || '')}
     }
     // 正式
     else {
@@ -42,14 +43,14 @@ router.get('/pg/gameurl/:gameName/:gameId/:sid/:userId/:token', async function (
         }
         //生成玩家token用户pg校验，一天有效期
         let pgToken = jwt.sign({ userId: inparam.userId, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 }, config.pg.gameKey)
-        finalUrl = `${config.pg.launchUrl}/${inparam.gameName}/index.html?&language=zh&bet_type=1&operator_token=${config.pg.operator_token}&operator_player_session=${pgToken}&from=${encodeURIComponent(ctx.request.query.homeurl || '')}`
+        finalUrl = `${config.pg.launchUrl}/${inparam.gameName}/index.html?&language=zh&bet_type=1&operator_token=${config.pg.operator_token}&operator_player_session=${pgToken}}`//&from=${encodeURIComponent(ctx.request.query.homeurl || '')
     }
     log.info(`PG最终游戏链接：${finalUrl}`)
     ctx.redirect(finalUrl)
 })
 
 // 登录认证
-router.post('/pg/VerifySession', async function (ctx, next) {
+router.post('/pg/VerifySession', async (ctx, next) => {
     //获取入参
     let inparam = ctx.request.body
     if (inparam.operator_token != config.pg.operator_token || inparam.secret_key != config.pg.secret_key) {
@@ -69,7 +70,7 @@ router.post('/pg/VerifySession', async function (ctx, next) {
 })
 
 // 获取玩家余额
-router.post('/pg/Cash/Get', async function (ctx, next) {
+router.post('/pg/Cash/Get', async (ctx, next) => {
     //获取入参
     let inparam = ctx.request.body
     if (inparam.operator_token != config.pg.operator_token || inparam.secret_key != config.pg.secret_key) {
@@ -89,7 +90,7 @@ router.post('/pg/Cash/Get', async function (ctx, next) {
 })
 
 // 下注
-router.post('/pg/Cash/TransferOut', async function (ctx, next) {
+router.post('/pg/Cash/TransferOut', async (ctx, next) => {
     //获取入参
     let inparam = ctx.request.body
     if (inparam.operator_token != config.pg.operator_token || inparam.secret_key != config.pg.secret_key || inparam.currency_code != 'CNY') {
@@ -111,6 +112,7 @@ router.post('/pg/Cash/TransferOut', async function (ctx, next) {
     inparam.businessKey = `BPG_${player.userId}_${inparam.bet_id}`                        // 设置bk
     inparam.txnidTemp = `BET_${player.userId}_${inparam.transaction_id}`                  // 设置sn
     inparam.anotherGameData = JSON.stringify(inparam)                                     // 原始游戏信息
+    inparam.sourceIP = ipMap[player.userId]                                               // 记录IP
     const amtAfter = await new PlayerModel().updatebalance(player, inparam)
     //返回结果
     if (amtAfter == 'err') {
@@ -121,7 +123,7 @@ router.post('/pg/Cash/TransferOut', async function (ctx, next) {
 })
 
 // 返奖
-router.post('/pg/Cash/TransferIn', async function (ctx, next) {
+router.post('/pg/Cash/TransferIn', async (ctx, next) => {
     //获取入参
     let inparam = ctx.request.body
     if (inparam.operator_token != config.pg.operator_token || inparam.secret_key != config.pg.secret_key || inparam.currency_code != 'CNY') {
@@ -143,40 +145,41 @@ router.post('/pg/Cash/TransferIn', async function (ctx, next) {
     inparam.businessKey = `BPG_${player.userId}_${inparam.bet_id}`                      // 设置bk
     inparam.txnidTemp = `WIN_${player.userId}_${inparam.transaction_id}`                // 设置sn
     inparam.anotherGameData = JSON.stringify(inparam)                                   // 原始游戏信息
+    inparam.sourceIP = ipMap[player.userId]                                             // 记录IP
     const amtAfter = await new PlayerModel().updatebalance(player, inparam)
     //返回结果
     ctx.body = { data: { currency_code: 'CNY', balance_amount: amtAfter, updated_time: inparam.updated_time }, error: null }
 })
 
-/**
- * 玩家登出
- * @param {*} userId 玩家ID
- * @param {*} sid    具体游戏ID
- */
-router.get('/pg/logout/:userId/:sid', async function (ctx, next) {
-    // log.info(`准备退出玩家【${userId}】`)
-    if (ctx.params.userId == 0) {
-        return ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
-    }
-    // 请求N1退出
-    let data = {
-        exit: 1,
-        userId: ctx.params.userId,
-        gameType: config.pg.gameType,
-        gameId: ctx.params.sid,
-        timestamp: Date.now()
-    }
-    // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.pg.gameKey}`).toString(CryptoJS.enc.Hex)
-    axios.post(config.na.exiturl, data).then(res => {
-        res.data.code != 0 ? log.error(res.data) : null
-    }).catch(err => {
-        log.error(err)
-    })
-    // ctx.body = { code: 0, msg: '退出成功' }
-    if (ctx.request.query.homeurl) {
-        ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
-    } else {
-        ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
-    }
-})
+// /**
+//  * 玩家登出
+//  * @param {*} userId 玩家ID
+//  * @param {*} sid    具体游戏ID
+//  */
+// router.get('/pg/logout/:userId/:sid', async (ctx, next) => {
+//     // log.info(`准备退出玩家【${userId}】`)
+//     if (ctx.params.userId == 0) {
+//         return ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
+//     }
+//     // 请求N1退出
+//     let data = {
+//         exit: 1,
+//         userId: ctx.params.userId,
+//         gameType: config.pg.gameType,
+//         gameId: ctx.params.sid,
+//         timestamp: Date.now()
+//     }
+//     // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.pg.gameKey}`).toString(CryptoJS.enc.Hex)
+//     axios.post(config.na.exiturl, data).then(res => {
+//         res.data.code != 0 ? log.error(res.data) : null
+//     }).catch(err => {
+//         log.error(err)
+//     })
+//     // ctx.body = { code: 0, msg: '退出成功' }
+//     if (ctx.request.query.homeurl) {
+//         ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
+//     } else {
+//         ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
+//     }
+// })
 module.exports = router

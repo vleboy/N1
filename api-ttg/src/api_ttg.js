@@ -36,8 +36,7 @@ router.get('/ttg/gameurl/:gameName/:gameId/:sid/:userName/:userId/:token', async
             token: ctx.params.token
         })
         if (nares.data.code != 0) {
-            ctx.body = { code: nares.data.code, msg: nares.data.msg }
-            return
+            return ctx.body = { code: nares.data.code, msg: nares.data.msg }
         }
         // 从TTG获取玩家TOKEN
         // log.info(`请求TTG【POST】${config.ttg.tokenurl}NA_${ctx.params.userName} 请求TTG【参数】<logindetail><player account="CNY" country="CN" firstName="" lastName="" userName="" nickName="" tester="${tester}" partnerId="NA" commonWallet="1" /><partners><partner partnerId="zero" partnerType="0" /><partner partnerId="NA" partnerType="1" /></partners></logindetail>`)
@@ -76,9 +75,8 @@ router.post('/ttg/fund', async (ctx, next) => {
     // 查询玩家
     const player = await new PlayerModel().getPlayer(ctx.request.body.cw.$.acctid.substring(3))
     if (!player || _.isEmpty(player)) {
-        ctx.body = '<cw type="getBalanceResp" err="1000" />'
         log.error(`玩家【${ctx.request.body.cw.$.acctid.substring(3)}】不存在`)
-        return
+        return ctx.body = '<cw type="getBalanceResp" err="1000" />'
     }
     // 计算玩家实时余额和更新
     ctx.request.body.cw.$.gameType = config.ttg.gameType                                             // TODO:从配置文件获取游戏类型，未来考虑自动获取
@@ -94,36 +92,36 @@ router.post('/ttg/fund', async (ctx, next) => {
     }
 })
 
-/**
- * 玩家登出
- * @param {*} userId 玩家ID
- * @param {*} sid    具体游戏ID
- */
-router.get('/ttg/logout/:userId/:sid', async (ctx, next) => {
-    if (ctx.params.userId == 0) {
-        return ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
-    }
-    // 请求N1退出
-    let data = {
-        exit: 1,
-        userId: ctx.params.userId,
-        gameType: config.ttg.gameType,
-        gameId: ctx.params.sid,
-        timestamp: Date.now()
-    }
-    // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.ttg.gameKey}`).toString(CryptoJS.enc.Hex)
-    axios.post(config.na.exiturl, data).then(res => {
-        res.data.code != 0 ? log.error(res.data) : null
-    }).catch(err => {
-        log.error(err)
-    })
-    // ctx.body = { code: 0, msg: '退出成功' }
-    if (ctx.request.query.homeurl) {
-        ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
-    } else {
-        ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
-    }
-})
+// /**
+//  * 玩家登出
+//  * @param {*} userId 玩家ID
+//  * @param {*} sid    具体游戏ID
+//  */
+// router.get('/ttg/logout/:userId/:sid', async (ctx, next) => {
+//     if (ctx.params.userId == 0) {
+//         return ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
+//     }
+//     // 请求N1退出
+//     let data = {
+//         exit: 1,
+//         userId: ctx.params.userId,
+//         gameType: config.ttg.gameType,
+//         gameId: ctx.params.sid,
+//         timestamp: Date.now()
+//     }
+//     // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.ttg.gameKey}`).toString(CryptoJS.enc.Hex)
+//     axios.post(config.na.exiturl, data).then(res => {
+//         res.data.code != 0 ? log.error(res.data) : null
+//     }).catch(err => {
+//         log.error(err)
+//     })
+//     // ctx.body = { code: 0, msg: '退出成功' }
+//     if (ctx.request.query.homeurl) {
+//         ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
+//     } else {
+//         ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
+//     }
+// })
 
 // 私有方法：XML解析
 function xmlParse(xml) {

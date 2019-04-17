@@ -13,11 +13,12 @@ const querystring = require('querystring')
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
-
+const ipMap = {}
 /**
  * PP 游戏链接
  */
-router.get('/pp/gameurl/:gameName/:gameId/:sid/:userId/:token', async function (ctx, next) {
+router.get('/pp/gameurl/:gameName/:gameId/:sid/:userId/:token', async (ctx, next) => {
+    ipMap[ctx.params.userId] = ctx.request.ip
     let inparam = ctx.params
     let finalUrl = ''
     // 试玩
@@ -35,8 +36,7 @@ router.get('/pp/gameurl/:gameName/:gameId/:sid/:userId/:token', async function (
         })
         if (nares.data.code != 0) {
             log.error(nares.data)
-            ctx.body = { code: nares.data.code, msg: nares.data.msg }
-            return
+            return ctx.body = { code: nares.data.code, msg: nares.data.msg }
         }
         const ppData = {
             'token': inparam.userId,
@@ -57,7 +57,7 @@ router.get('/pp/gameurl/:gameName/:gameId/:sid/:userId/:token', async function (
  * PP认证
  * @param {*} token 玩家TOKEN
  */
-router.post('/pp/Authenticate', async function (ctx, next) {
+router.post('/pp/Authenticate', async (ctx, next) => {
     let inparam = ctx.request.body
     if (!hashCheck(inparam)) {
         ctx.body = { userId: 0, currency: 'CNY', cash: 0, bonus: 0, error: 5, description: 'Sign error' }
@@ -76,7 +76,7 @@ router.post('/pp/Authenticate', async function (ctx, next) {
  * PP余额
  * @param {*} token 玩家TOKEN
  */
-router.post('/pp/Balance', async function (ctx, next) {
+router.post('/pp/Balance', async (ctx, next) => {
     let inparam = ctx.request.body
     if (!hashCheck(inparam)) {
         ctx.body = { userId: 0, currency: 'CNY', cash: 0, bonus: 0, error: 5, description: 'Sign error' }
@@ -94,7 +94,7 @@ router.post('/pp/Balance', async function (ctx, next) {
  * PP下注
  * @param {*} token 玩家TOKEN
  */
-router.post('/pp/Bet', async function (ctx, next) {
+router.post('/pp/Bet', async (ctx, next) => {
     let inparam = ctx.request.body
     if (!hashCheck(inparam)) {
         ctx.body = { userId: 0, currency: 'CNY', cash: 0, bonus: 0, error: 5, description: 'Sign error' }
@@ -108,6 +108,7 @@ router.post('/pp/Bet', async function (ctx, next) {
     data.businessKey = `BPP_${player.userId}_${inparam.roundId}`         // 设置局号
     data.txnidTemp = `BET_${player.userId}_${inparam.reference}`         // 缓存第三方交易号
     data.anotherGameData = JSON.stringify(inparam)
+    data.sourceIP = ipMap[player.userId]                                 // 记录IP
     const amtAfter = await new PlayerModel().updatebalance(player, data)
     if (amtAfter == 'err') {
         ctx.body = {
@@ -136,7 +137,7 @@ router.post('/pp/Bet', async function (ctx, next) {
  * PP返奖
  * @param {*} token 玩家TOKEN
  */
-router.post('/pp/Result', async function (ctx, next) {
+router.post('/pp/Result', async (ctx, next) => {
     let inparam = ctx.request.body
     if (!hashCheck(inparam)) {
         ctx.body = { userId: 0, currency: 'CNY', cash: 0, bonus: 0, error: 5, description: 'Sign error' }
@@ -150,6 +151,7 @@ router.post('/pp/Result', async function (ctx, next) {
     data.businessKey = `BPP_${player.userId}_${inparam.roundId}`    // 设置局号
     data.txnidTemp = `WIN_${player.userId}_${inparam.reference}`    // 缓存第三方交易号
     data.anotherGameData = JSON.stringify(inparam)
+    data.sourceIP = ipMap[player.userId]                            // 记录IP
     const amtAfter = await new PlayerModel().updatebalance(player, data)
     if (amtAfter == 'err') {
         ctx.body = {
@@ -177,7 +179,7 @@ router.post('/pp/Result', async function (ctx, next) {
  * PP退款
  * @param {*} token 玩家TOKEN
  */
-router.post('/pp/Refund', async function (ctx, next) {
+router.post('/pp/Refund', async (ctx, next) => {
     let inparam = ctx.request.body
     if (!hashCheck(inparam)) {
         ctx.body = { userId: 0, currency: 'CNY', cash: 0, bonus: 0, error: 5, description: 'Sign error' }
@@ -199,6 +201,7 @@ router.post('/pp/Refund', async function (ctx, next) {
     data.txnidTemp = `RET_${player.userId}_${inparam.reference}`    // 缓存第三方交易号
     data.betsn = `APP_BET_${player.userId}_${inparam.reference}`    // 缓存第三方下注SN
     data.anotherGameData = JSON.stringify(inparam)
+    data.sourceIP = ipMap[player.userId]                            // 记录IP
     const amtAfter = await new PlayerModel().updatebalance(player, data)
     if (amtAfter == 'err') {
         ctx.body = {
@@ -218,36 +221,36 @@ router.post('/pp/Refund', async function (ctx, next) {
     }
 })
 
-/**
- * 玩家登出
- * @param {*} userId 玩家ID
- * @param {*} sid    具体游戏ID
- */
-router.get('/pp/logout/:userId/:sid', async function (ctx, next) {
-    // log.info(`准备退出玩家【${userId}】`)
-    if (ctx.params.userId == 0) {
-        return ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
-    }
-    // 请求N1退出
-    let data = {
-        exit: 1,
-        userId: ctx.params.userId,
-        gameType: config.pp.gameType,
-        gameId: ctx.params.sid,
-        timestamp: Date.now()
-    }
-    // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.pp.gameKey}`).toString(CryptoJS.enc.Hex)
-    axios.post(config.na.exiturl, data).then(res => {
-        res.data.code != 0 ? log.error(res.data) : null
-    }).catch(err => {
-        log.error(err)
-    })
-    if (ctx.request.query.homeurl) {
-        ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
-    } else {
-        ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
-    }
-})
+// /**
+//  * 玩家登出
+//  * @param {*} userId 玩家ID
+//  * @param {*} sid    具体游戏ID
+//  */
+// router.get('/pp/logout/:userId/:sid', async (ctx, next) => {
+//     // log.info(`准备退出玩家【${userId}】`)
+//     if (ctx.params.userId == 0) {
+//         return ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
+//     }
+//     // 请求N1退出
+//     let data = {
+//         exit: 1,
+//         userId: ctx.params.userId,
+//         gameType: config.pp.gameType,
+//         gameId: ctx.params.sid,
+//         timestamp: Date.now()
+//     }
+//     // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.pp.gameKey}`).toString(CryptoJS.enc.Hex)
+//     axios.post(config.na.exiturl, data).then(res => {
+//         res.data.code != 0 ? log.error(res.data) : null
+//     }).catch(err => {
+//         log.error(err)
+//     })
+//     if (ctx.request.query.homeurl) {
+//         ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
+//     } else {
+//         ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
+//     }
+// })
 
 function hashCheck(inparam) {
     let sdic = Object.keys(inparam).sort()

@@ -24,7 +24,7 @@ router.get('/webapi/ipquery', async function (ctx, next) {
     const res = ipquery.search(ctx.request.ip)
     if (res) {
         country = res.country
-    }else{
+    } else {
         country = '国外'
     }
     // // 从缓存中查询

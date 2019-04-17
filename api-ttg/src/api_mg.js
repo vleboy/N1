@@ -13,7 +13,7 @@ const uuid = require('uuid/v4')
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
-
+const ipMap = {}
 /**
  * MG PC版本游戏链接
  * gameId 游戏大类
@@ -22,7 +22,8 @@ const PlayerModel = require('./model/PlayerModel')
  * userId 玩家ID
  * token  玩家的NA令牌
  */
-router.get('/mg/gameurl/:gameId/:sid/:userName/:userId/:token', async function (ctx, next) {
+router.get('/mg/gameurl/:gameId/:sid/:userName/:userId/:token', async (ctx, next) => {
+    ipMap[ctx.params.userId] = ctx.request.ip
     const inparam = ctx.params
     // 请求N1服务器是否允许玩家进入游戏
     const nares = await axios.post(config.na.joingameurl, {
@@ -38,7 +39,7 @@ router.get('/mg/gameurl/:gameId/:sid/:userName/:userId/:token', async function (
     }
     // 从MG获取游戏链接
     let lpsGameId = parseInt(inparam.sid) - parseInt(inparam.gameId)
-    const postdata = `<?xml version="1.0"?><launch-req seq="${uuid()}" token="${inparam.userName}" passPhrase="${config.mg.gameKey}" lpsGameId="${lpsGameId}" langCode="zh" currencyCode="${config.mg.currencyCode}" demoMode="false" partnerId="asia" lobbyUrl="http://${config.na.apidomain}/mg/logout/${inparam.userId}/${inparam.sid}" bankingUrl="http://${config.na.apidomain}/mg/logout/${inparam.userId}/${inparam.sid}" logoutRedirectUrl="http://${config.na.apidomain}/mg/logout/${inparam.userId}/${inparam.sid}"/>`
+    const postdata = `<?xml version="1.0"?><launch-req seq="${uuid()}" token="${inparam.userName}" passPhrase="${config.mg.gameKey}" lpsGameId="${lpsGameId}" langCode="zh" currencyCode="${config.mg.currencyCode}" demoMode="false" partnerId="asia" />`//lobbyUrl="http://${config.na.apidomain}/mg/logout/${inparam.userId}/${inparam.sid}" bankingUrl="http://${config.na.apidomain}/mg/logout/${inparam.userId}/${inparam.sid}" logoutRedirectUrl="http://${config.na.apidomain}/mg/logout/${inparam.userId}/${inparam.sid}"
     // log.info(`请求MG【POST】${config.mg.launchapi}`)
     // log.info(`请求MG【参数】${postdata}`)
     const res = await axios.post(config.mg.launchapi, postdata, {
@@ -57,48 +58,10 @@ router.get('/mg/gameurl/:gameId/:sid/:userName/:userId/:token', async function (
 })
 
 /**
- * MG请求进入链接
- * @param {*} token 玩家TOKEN
- */
-router.post('/mg/gameurl', async function (ctx, next) {
-    const inparam = ctx.request.body['gameurlreq'].$
-    // 请求N1服务器是否允许玩家进入游戏
-    const nares = await axios.post(config.na.joingameurl, {
-        userId: inparam.userId,
-        gameId: inparam.gameId,
-        sid: inparam.sid,
-        token: inparam.token
-    })
-    // 判断玩家是否在其他游戏中
-    if (nares.data.code != 0) {
-        ctx.body = { code: nares.data.code, msg: nares.data.msg }
-    } else {
-        // 从MG获取游戏链接
-        let lpsGameId = parseInt(inparam.sid) - parseInt(inparam.gameId)
-        const postdata = `<?xml version="1.0"?><launch-req seq="${uuid()}" token="${inparam.userName}" passPhrase="${config.mg.gameKey}" lpsGameId="${lpsGameId}" langCode="zh" currencyCode="${config.mg.currencyCode}" demoMode="false" partnerId="asia" lobbyUrl="http://${config.na.apidomain}/mg/logout/${inparam.userId}/${inparam.sid}" bankingUrl="http://${config.na.apidomain}/mg/logout/${inparam.userId}/${inparam.sid}" logoutRedirectUrl="http://${config.na.apidomain}/mg/logout/${inparam.userId}/${inparam.sid}"/>`
-        // log.info(`请求MG【POST】${config.mg.launchapi}`)
-        // log.info(`请求MG【参数】${postdata}`)
-        const res = await axios.post(config.mg.launchapi, postdata, {
-            headers: { 'Content-Type': 'application/xml' }
-        })
-        // log.info(`接收MG【返回】${res.data}`)
-        const finalRes = await xmlParse(res.data)
-        // log.info(`MG数据【转换】${JSON.stringify(finalRes)}`)
-        let finalUrl = finalRes['launch-resp'].$.url + '?'
-        for (let param of finalRes['launch-resp'].params[0].param) {
-            if (param.$.value) {
-                finalUrl += `${param.$.name}=${param.$.value}&`
-            }
-        }
-        ctx.body = { code: 0, url: finalUrl.substring(0, finalUrl.length - 1) }
-    }
-})
-
-/**
  * MG唯一接口
  * @param {*} token 玩家TOKEN
  */
-router.post('/mg/one', async function (ctx, next) {
+router.post('/mg/one', async (ctx, next) => {
     // 获取功能
     let tag = ''
     // 获取入参
@@ -143,6 +106,7 @@ router.post('/mg/one', async function (ctx, next) {
             inparam.businessKey = `BMG_${username}_${inparam.vendorTxNo}`               // 设置局号
             inparam.txnid = `MG_${username}_${inparam.vendorTxId}`                      // 设置第三方系统唯一流水号
             inparam.txnidTemp = `${inparam.txType}_${username}_${inparam.vendorTxId}`   // 缓存第三方系统唯一流水号
+            inparam.sourceIP = ipMap[player.userId]                                     // 记录IP
             let amtAfter = await new PlayerModel().updatebalance(player, inparam)
             if (amtAfter == 'err') {
                 resBody = `<transaction-resp seq="${inparam.seq}" token="${inparam.token}" status=”10” statusDesc="余额不足" />`
@@ -179,58 +143,96 @@ router.post('/mg/one', async function (ctx, next) {
     // log.info(`返回MG【结果】${resBody}`)
 })
 
-/**
- * 玩家登出
- * @param {*} userId 玩家ID
- * @param {*} sid    具体游戏ID
- */
-router.get('/mg/logout/:userId/:sid', async function (ctx, next) {
-    // log.info(`准备退出玩家【${userId}】`)
-    // 请求N1退出
-    let data = {
-        exit: 1,
-        userId: ctx.params.userId,
-        gameType: config.mg.gameType,
-        gameId: ctx.params.sid,
-        timestamp: Date.now()
-    }
-    // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.mg.gameKey}`).toString(CryptoJS.enc.Hex)
-    axios.post(config.na.exiturl, data).then(res => {
-        res.data.code != 0 ? log.error(res.data) : null
-    }).catch(err => {
-        log.error(err)
-    })
-    if (ctx.request.query.homeurl) {
-        ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
-    } else {
-        ctx.body = { code: 0, msg: '玩家退出成功' }
-    }
-})
+// /**
+//  * MG请求进入链接
+//  * @param {*} token 玩家TOKEN
+//  */
+// router.post('/mg/gameurl', async  (ctx, next) =>{
+//     const inparam = ctx.request.body['gameurlreq'].$
+//     // 请求N1服务器是否允许玩家进入游戏
+//     const nares = await axios.post(config.na.joingameurl, {
+//         userId: inparam.userId,
+//         gameId: inparam.gameId,
+//         sid: inparam.sid,
+//         token: inparam.token
+//     })
+//     // 判断玩家是否在其他游戏中
+//     if (nares.data.code != 0) {
+//         ctx.body = { code: nares.data.code, msg: nares.data.msg }
+//     } else {
+//         // 从MG获取游戏链接
+//         let lpsGameId = parseInt(inparam.sid) - parseInt(inparam.gameId)
+//         const postdata = `<?xml version="1.0"?><launch-req seq="${uuid()}" token="${inparam.userName}" passPhrase="${config.mg.gameKey}" lpsGameId="${lpsGameId}" langCode="zh" currencyCode="${config.mg.currencyCode}" demoMode="false" partnerId="asia" lobbyUrl="http://${config.na.apidomain}/mg/logout/${inparam.userId}/${inparam.sid}" bankingUrl="http://${config.na.apidomain}/mg/logout/${inparam.userId}/${inparam.sid}" logoutRedirectUrl="http://${config.na.apidomain}/mg/logout/${inparam.userId}/${inparam.sid}"/>`
+//         // log.info(`请求MG【POST】${config.mg.launchapi}`)
+//         // log.info(`请求MG【参数】${postdata}`)
+//         const res = await axios.post(config.mg.launchapi, postdata, {
+//             headers: { 'Content-Type': 'application/xml' }
+//         })
+//         // log.info(`接收MG【返回】${res.data}`)
+//         const finalRes = await xmlParse(res.data)
+//         // log.info(`MG数据【转换】${JSON.stringify(finalRes)}`)
+//         let finalUrl = finalRes['launch-resp'].$.url + '?'
+//         for (let param of finalRes['launch-resp'].params[0].param) {
+//             if (param.$.value) {
+//                 finalUrl += `${param.$.name}=${param.$.value}&`
+//             }
+//         }
+//         ctx.body = { code: 0, url: finalUrl.substring(0, finalUrl.length - 1) }
+//     }
+// })
 
-/**
- * 玩家登出
- * @param {*} userId 玩家ID
- * @param {*} sid    具体游戏ID
- */
-router.post('/mg/logout/:userId/:sid', async function (ctx, next) {
-    // log.info(`准备退出玩家【${userId}】`)
-    // 请求N1退出
-    let data = {
-        exit: 1,
-        userId: ctx.params.userId,
-        gameType: config.mg.gameType,
-        gameId: ctx.params.sid,
-        timestamp: Date.now()
-    }
-    // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.mg.gameKey}`).toString(CryptoJS.enc.Hex)
-    axios.post(config.na.exiturl, data).then(res => {
-        res.data.code != 0 ? log.error(res.data) : null
-    }).catch(err => {
-        log.error(err)
-    })
-    ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
-    // ctx.body = `<script>(function(){window.location.href="uniwebview://www.na77.com?key=value&anotherKey=anotherValue"})()</script>`
-})
+// /**
+//  * 玩家登出
+//  * @param {*} userId 玩家ID
+//  * @param {*} sid    具体游戏ID
+//  */
+// router.get('/mg/logout/:userId/:sid', async  (ctx, next)=> {
+//     // log.info(`准备退出玩家【${userId}】`)
+//     // 请求N1退出
+//     let data = {
+//         exit: 1,
+//         userId: ctx.params.userId,
+//         gameType: config.mg.gameType,
+//         gameId: ctx.params.sid,
+//         timestamp: Date.now()
+//     }
+//     // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.mg.gameKey}`).toString(CryptoJS.enc.Hex)
+//     axios.post(config.na.exiturl, data).then(res => {
+//         res.data.code != 0 ? log.error(res.data) : null
+//     }).catch(err => {
+//         log.error(err)
+//     })
+//     if (ctx.request.query.homeurl) {
+//         ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
+//     } else {
+//         ctx.body = { code: 0, msg: '玩家退出成功' }
+//     }
+// })
+
+// /**
+//  * 玩家登出
+//  * @param {*} userId 玩家ID
+//  * @param {*} sid    具体游戏ID
+//  */
+// router.post('/mg/logout/:userId/:sid', async  (ctx, next) =>{
+//     // log.info(`准备退出玩家【${userId}】`)
+//     // 请求N1退出
+//     let data = {
+//         exit: 1,
+//         userId: ctx.params.userId,
+//         gameType: config.mg.gameType,
+//         gameId: ctx.params.sid,
+//         timestamp: Date.now()
+//     }
+//     // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.mg.gameKey}`).toString(CryptoJS.enc.Hex)
+//     axios.post(config.na.exiturl, data).then(res => {
+//         res.data.code != 0 ? log.error(res.data) : null
+//     }).catch(err => {
+//         log.error(err)
+//     })
+//     ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
+//     // ctx.body = `<script>(function(){window.location.href="uniwebview://www.na77.com?key=value&anotherKey=anotherValue"})()</script>`
+// })
 
 // 私有方法：XML解析
 function xmlParse(xml) {

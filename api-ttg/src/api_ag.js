@@ -11,9 +11,9 @@ const CryptoJS = require('crypto-js')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
-let acMap = {}  // 试玩帐号缓存
+const acMap = {}  // 试玩帐号缓存
 const PlayerModel = require('./model/PlayerModel')
-
+const ipMap = {}
 /**
  * 获取AG游戏连接
  * @param {*} gameId NA游戏大类
@@ -22,7 +22,8 @@ const PlayerModel = require('./model/PlayerModel')
  * @param {*} token NA玩家TOKEN，0是试玩
  * @param {*} lobbyType 0是电脑版，1是移动版
  */
-router.get('/ag/gameurl/:gameId/:sid/:userId/:token', async function (ctx, next) {
+router.get('/ag/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
+    ipMap[ctx.params.userId] = ctx.request.ip
     const inparam = ctx.params
     // 移动版或电脑版
     const mh5 = ctx.request.query.lobbyType != '0' ? 'y' : 'n'
@@ -94,7 +95,7 @@ router.get('/ag/gameurl/:gameId/:sid/:userId/:token', async function (ctx, next)
  * AG唯一接口
  * @param {*} token 玩家TOKEN
  */
-router.post('/ag/postTransfer', async function (ctx, next) {
+router.post('/ag/postTransfer', async (ctx, next) => {
     // 获取入参
     let inparam = ctx.request.body.Data.Record[0]
     for (let key in inparam) {
@@ -143,6 +144,7 @@ router.post('/ag/postTransfer', async function (ctx, next) {
     // 正式玩家，真实扣款 
     else {
         const player = await new PlayerModel().getPlayer(username)
+        inparam.sourceIP = ipMap[player.userId]                                    // 记录IP
         amtAfter = await new PlayerModel().updatebalance(player, inparam)
     }
     let resBody = ''
@@ -161,41 +163,41 @@ router.post('/ag/postTransfer', async function (ctx, next) {
 /**
  * AG下注详情
  */
-// router.post('/ag/betResponse', async function (ctx, next) {
+// router.post('/ag/betResponse', async  (ctx, next)=> {
 // })
 
 /**
  * AG查询交易状态
  */
-router.get('/ag/checkTicketStatusUrl/:transactionID', async function (ctx, next) {
+router.get('/ag/checkTicketStatusUrl/:transactionID', async (ctx, next) => {
     let res = await axios.get(`${config.ag.checkTicketStatusUrl}?transactionID=${ctx.params.transactionID}`)
     ctx.body = res.data
 })
 
-/**
- * 玩家登出
- * @param {*} userId 玩家ID
- * @param {*} sid    具体游戏ID
- */
-router.get('/ag/logout/:userId/:sid', async function (ctx, next) {
-    // log.info(`准备退出玩家【${userId}】`)
-    // 请求N1退出
-    let data = {
-        exit: 1,
-        userId: ctx.params.userId,
-        gameType: config.ag.gameType,
-        gameId: ctx.params.sid,
-        timestamp: Date.now()
-    }
-    // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.ag.gameKey}`).toString(CryptoJS.enc.Hex)
-    axios.post(config.na.exiturl, data).then(res => {
-        res.data.code != 0 ? log.error(res.data) : null
-    }).catch(err => {
-        log.error(err)
-    })
-    ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
-    // ctx.body = `<script>(function(){window.location.href="uniwebview://www.na77.com?key=value&anotherKey=anotherValue"})()</script>`
-})
+// /**
+//  * 玩家登出
+//  * @param {*} userId 玩家ID
+//  * @param {*} sid    具体游戏ID
+//  */
+// router.get('/ag/logout/:userId/:sid', async  (ctx, next) =>{
+//     // log.info(`准备退出玩家【${userId}】`)
+//     // 请求N1退出
+//     let data = {
+//         exit: 1,
+//         userId: ctx.params.userId,
+//         gameType: config.ag.gameType,
+//         gameId: ctx.params.sid,
+//         timestamp: Date.now()
+//     }
+//     // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.ag.gameKey}`).toString(CryptoJS.enc.Hex)
+//     axios.post(config.na.exiturl, data).then(res => {
+//         res.data.code != 0 ? log.error(res.data) : null
+//     }).catch(err => {
+//         log.error(err)
+//     })
+//     ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
+//     // ctx.body = `<script>(function(){window.location.href="uniwebview://www.na77.com?key=value&anotherKey=anotherValue"})()</script>`
+// })
 
 // 私有方法：XML解析
 function xmlParse(xml) {

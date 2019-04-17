@@ -7,19 +7,20 @@ const router = new Router()
 const jwt = require('jsonwebtoken')
 const _ = require('lodash')
 const axios = require('axios')
-const CryptoJS = require('crypto-js')
+// const CryptoJS = require('crypto-js')
 const querystring = require('querystring')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
 const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
-
+const ipMap = {}
 /**
  * 进入游戏大厅
  * lobbyType 0是电脑版1是移动版
  */
-router.get('/sb/gameurl/:gameName/:gameId/:sid/:userId/:token', async function (ctx, next) {
+router.get('/sb/gameurl/:gameName/:gameId/:sid/:userId/:token', async (ctx, next) => {
+    ipMap[ctx.params.userId] = ctx.request.ip
     let inparam = ctx.params
     let gpcode = inparam.gameId == config.sb.gameType ? 'TGP' : 'SB'
     let launchUrl = config.sb.launchLiveUrl
@@ -39,8 +40,7 @@ router.get('/sb/gameurl/:gameName/:gameId/:sid/:userId/:token', async function (
     })
     if (nares.data.code != 0) {
         log.error(nares.data)
-        ctx.body = { code: nares.data.code, msg: nares.data.msg }
-        return
+        return ctx.body = { code: nares.data.code, msg: nares.data.msg }
     }
     //获取品牌访问令牌
     let authRes = {}
@@ -74,11 +74,11 @@ router.get('/sb/gameurl/:gameName/:gameId/:sid/:userId/:token', async function (
 
     let finalUrl = `${launchUrl}?gpcode=${gpcode}&gcode=${inparam.gameName}&platform=${lobbyType}`
     // 非电脑版增加返回按钮链接
-    if (lobbyType != '0') {
-        finalUrl += `&homeurl=http%3a%2f%2fext.na77.org%2fsb%2flogout%2f${inparam.userId}%2f${inparam.sid}&token=${playerTokenRes.data.authtoken}`
-    } else {
-        finalUrl += `&token=${playerTokenRes.data.authtoken}`
-    }
+    // if (lobbyType != '0') {
+    //     finalUrl += `&homeurl=http%3a%2f%2fext.na77.org%2fsb%2flogout%2f${inparam.userId}%2f${inparam.sid}&token=${playerTokenRes.data.authtoken}`
+    // } else {
+    finalUrl += `&token=${playerTokenRes.data.authtoken}`
+    // }
     log.info(`SB最终游戏链接：${finalUrl}`)
     ctx.redirect(finalUrl)
 })
@@ -86,7 +86,7 @@ router.get('/sb/gameurl/:gameName/:gameId/:sid/:userId/:token', async function (
 /**
  * 提供NA的token给SB
  */
-router.post('/sb/wallet/token', async function (ctx, next) {
+router.post('/sb/wallet/token', async (ctx, next) => {
     let inparam = ctx.request.body
     let res = {
         access_token: jwt.sign({
@@ -105,7 +105,7 @@ router.post('/sb/wallet/token', async function (ctx, next) {
 /**
  * SB查询余额
  */
-router.post('/sb/wallet/balance', async function (ctx, next) {
+router.post('/sb/wallet/balance', async (ctx, next) => {
     let inparam = ctx.request.body
     // let token = ctx.tokenVerify
     // log.info(`TOKEN解析：${JSON.stringify(token)}`)
@@ -135,7 +135,7 @@ router.post('/sb/wallet/balance', async function (ctx, next) {
 /**
  * SB下注
  */
-router.post('/sb/wallet/debit', async function (ctx, next) {
+router.post('/sb/wallet/debit', async (ctx, next) => {
     let inparam = ctx.request.body
     // let token = ctx.tokenVerify
     // log.info(`TOKEN解析：${JSON.stringify(token)}`)
@@ -163,6 +163,7 @@ router.post('/sb/wallet/debit', async function (ctx, next) {
         inparam.businessKey = `BSB_${transaction.userid}_${transaction.roundid}`    // 设置局号
         inparam.txnid = `SB_${transaction.userid}_BET_${transaction.ptxid}`         // 设置第三方系统唯一流水号
         inparam.txnidTemp = `BET_${transaction.userid}_${transaction.ptxid}`        // 缓存第三方交易号
+        inparam.sourceIP = ipMap[player.userId]                                     // 记录IP
         const amtAfter = await new PlayerModel().updatebalance(player, inparam)
         if (amtAfter == 'err') {
             finalArr.push({
@@ -193,7 +194,7 @@ router.post('/sb/wallet/debit', async function (ctx, next) {
 /**
  * SB返奖
  */
-router.post('/sb/wallet/credit', async function (ctx, next) {
+router.post('/sb/wallet/credit', async (ctx, next) => {
     let inparam = ctx.request.body
     let finalArr = []
     for (let transaction of inparam.transactions) {
@@ -219,6 +220,7 @@ router.post('/sb/wallet/credit', async function (ctx, next) {
         inparam.businessKey = `BSB_${transaction.userid}_${transaction.roundid}`       // 设置局号
         inparam.txnid = `SB_${transaction.userid}_RET_${transaction.ptxid}`            // 设置第三方系统唯一流水号
         inparam.txnidTemp = `RET_${transaction.userid}_${transaction.ptxid}`           // 缓存第三方交易号
+        inparam.sourceIP = ipMap[player.userId]                                        // 记录IP
         const amtAfter = await new PlayerModel().updatebalance(player, inparam)
         if (amtAfter == player.balance && inparam.amt != 0) {
             finalArr.push({
@@ -243,7 +245,7 @@ router.post('/sb/wallet/credit', async function (ctx, next) {
 /**
  * SB下注取消
  */
-router.post('/sb/wallet/cancel', async function (ctx, next) {
+router.post('/sb/wallet/cancel', async (ctx, next) => {
     let inparam = ctx.request.body
     let finalArr = []
     for (let transaction of inparam.transactions) {
@@ -278,6 +280,7 @@ router.post('/sb/wallet/cancel', async function (ctx, next) {
             item.txnid = cancelBill.txnid                                    // 设置第三方系统唯一流水号
             item.billType = 5                                                // 设置为返还
             item.txnidTemp = `REFUND_${transaction.userid}_${transaction.refptxid}`                // 缓存第三方交易号
+            item.sourceIP = ipMap[player.userId]                             // 记录IP            
             let amtAfter = await new PlayerModel().updatebalance(player, item)
             if (amtAfter == player.balance && item.amt != 0) {
                 finalArr.push({
@@ -310,40 +313,40 @@ router.post('/sb/wallet/cancel', async function (ctx, next) {
     ctx.body = { transactions: finalArr }
 })
 
-/**
- * 网页玩家登出
- * @param {*} userId 玩家ID
- * @param {*} sid 具体游戏ID
- */
-router.get('/sb/logout/:userId/:sid', async function (ctx, next) {
-    // log.info(`准备退出玩家【${ctx.params.userId}】`)
-    // 请求N1退出
-    let data = {
-        exit: 1,
-        userId: ctx.params.userId,
-        gameType: config.sb.gameType,
-        gameId: ctx.params.sid,
-        timestamp: Date.now()
-    }
-    // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.sb.gameKey}`).toString(CryptoJS.enc.Hex)
-    axios.post(config.na.exiturl, data).then(res => {
-        res.data.code != 0 ? log.error(res.data) : null
-    }).catch(err => {
-        log.error(err)
-    })
-    // ctx.body = { code: 0, msg: '退出成功' }
-    if (ctx.request.query.homeurl) {
-        ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
-    } else {
-        ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
-    }
-})
+// /**
+//  * 网页玩家登出
+//  * @param {*} userId 玩家ID
+//  * @param {*} sid 具体游戏ID
+//  */
+// router.get('/sb/logout/:userId/:sid', async (ctx, next) => {
+//     // log.info(`准备退出玩家【${ctx.params.userId}】`)
+//     // 请求N1退出
+//     let data = {
+//         exit: 1,
+//         userId: ctx.params.userId,
+//         gameType: config.sb.gameType,
+//         gameId: ctx.params.sid,
+//         timestamp: Date.now()
+//     }
+//     // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.sb.gameKey}`).toString(CryptoJS.enc.Hex)
+//     axios.post(config.na.exiturl, data).then(res => {
+//         res.data.code != 0 ? log.error(res.data) : null
+//     }).catch(err => {
+//         log.error(err)
+//     })
+//     // ctx.body = { code: 0, msg: '退出成功' }
+//     if (ctx.request.query.homeurl) {
+//         ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
+//     } else {
+//         ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
+//     }
+// })
 
 /**
  * 进入游戏大厅
  * lobbyType 大厅类型，有四种
  */
-// router.get('/sb/gameurl/:gameId/:sid/:userId/:token', async function (ctx, next) {
+// router.get('/sb/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
 //     let inparam = ctx.params
 //     let lobbyType = ''
 //     // 真人大厅

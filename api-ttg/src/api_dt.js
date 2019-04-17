@@ -12,7 +12,7 @@ const querystring = require('querystring')
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
-
+const ipMap = {}
 /**
  * DT PC版本游戏链接
  * gameName 游戏名称
@@ -21,12 +21,13 @@ const PlayerModel = require('./model/PlayerModel')
  * userId 玩家ID
  * token  玩家的NA令牌
  */
-router.get('/dt/gameurl/:gameName/:gameId/:sid/:userId/:token', async function (ctx, next) {
+router.get('/dt/gameurl/:gameName/:gameId/:sid/:userId/:token', async (ctx, next) => {
+    ipMap[ctx.params.userId] = ctx.request.ip
     let inparam = ctx.params
     let finalUrl = ''
     // 试玩 &clientType=1 可以增加返回按钮
     if (inparam.userId == 0) {
-        finalUrl = `${config.dt.launchUrl}?&language=zh_CN&gameCode=${inparam.gameName}&isfun=1&closeUrl=http://uniwebview.na77.com`
+        finalUrl = `${config.dt.launchUrl}?&language=zh_CN&gameCode=${inparam.gameName}&isfun=1`//&closeUrl=http://uniwebview.na77.com
     }
     // 正式 
     else {
@@ -39,8 +40,7 @@ router.get('/dt/gameurl/:gameName/:gameId/:sid/:userId/:token', async function (
         })
         if (nares.data.code != 0) {
             log.error(nares.data)
-            ctx.body = { code: nares.data.code, msg: nares.data.msg }
-            return
+            return ctx.body = { code: nares.data.code, msg: nares.data.msg }
         }
         const dtData = {
             'METHOD': 'LOGIN',
@@ -49,7 +49,7 @@ router.get('/dt/gameurl/:gameName/:gameId/:sid/:userId/:token', async function (
             'LANGUAGE': 'zh_CN',
             'TOKEN': inparam.userId,
             'REMARK': 'REMARK',
-            'CLOSEURL': `https://${config.na.apidomain}/dt/logout/${inparam.userId}/${inparam.sid}`
+            // 'CLOSEURL': `https://${config.na.apidomain}/dt/logout/${inparam.userId}/${inparam.sid}`
         }
         log.info(`登录DT请求链接：${config.dt.dturl}?${querystring.stringify(dtData)}`)
         const infoRes = await axios.get(`${config.dt.dturl}?${querystring.stringify(dtData)}`)
@@ -64,7 +64,7 @@ router.get('/dt/gameurl/:gameName/:gameId/:sid/:userId/:token', async function (
  * DT唯一接口
  * @param {*} token 玩家TOKEN
  */
-router.post('/dt/postTransfer', async function (ctx, next) {
+router.post('/dt/postTransfer', async (ctx, next) => {
     let inparam = ctx.request.body
     let betInparam = {}
     let retInparam = {}
@@ -124,6 +124,7 @@ router.post('/dt/postTransfer', async function (ctx, next) {
             betInparam.txnid = inparam.betId                                                           // 第三方游戏流水号
             betInparam.txnidTemp = `${betPlayer.userId}_BET_${inparam.betId}`
             betInparam.anotherGameData = JSON.stringify(inparam)
+            betInparam.sourceIP = ipMap[betPlayer.userId]                                              // 记录IP
             amtAfter = await new PlayerModel().updatebalance(betPlayer, betInparam)
             if (amtAfter == 'err') {
                 MSG = '失败，余额不足'
@@ -142,6 +143,7 @@ router.post('/dt/postTransfer', async function (ctx, next) {
                 retInparam.txnid = inparam.betId                                                       // 第三方游戏流水号
                 retInparam.txnidTemp = `${retPlayer.userId}_WIN_${inparam.betId}`
                 retInparam.anotherGameData = JSON.stringify(inparam)
+                retInparam.sourceIP = ipMap[retPlayer.userId]                                          // 记录IP
                 amtAfter = await new PlayerModel().updatebalance(retPlayer, retInparam)
                 MSG = 'SUCCESS'
                 CODE = '0000'
@@ -161,6 +163,7 @@ router.post('/dt/postTransfer', async function (ctx, next) {
             betInparam.txnid = inparam.id                                                           // 第三方游戏流水号
             betInparam.txnidTemp = `${betPlayer.userId}_BET_${inparam.id}`
             betInparam.anotherGameData = JSON.stringify(inparam)
+            betInparam.sourceIP = ipMap[betPlayer.userId]                                           // 记录IP
             amtAfter = await new PlayerModel().updatebalance(betPlayer, betInparam)
             if (amtAfter == 'err') {
                 MSG = '失败，余额不足'
@@ -181,6 +184,7 @@ router.post('/dt/postTransfer', async function (ctx, next) {
                 retInparam.txnid = inparam.id                                                       // 第三方游戏流水号
                 retInparam.txnidTemp = `${retPlayer.userId}_WIN_${inparam.id}`
                 retInparam.anotherGameData = JSON.stringify(inparam)
+                retInparam.sourceIP = ipMap[retPlayer.userId]                                       // 记录IP
                 amtAfter = await new PlayerModel().updatebalance(retPlayer, retInparam)
                 MSG = 'SUCCESS'
                 CODE = '0000'
@@ -196,7 +200,7 @@ router.post('/dt/postTransfer', async function (ctx, next) {
 //  * DT返奖重推
 //  * @param {*} token 玩家TOKEN
 //  */
-// router.post('/dt/ret', async function (ctx, next) {
+// router.post('/dt/ret', async (ctx, next) => {
 //     let inparam = ctx.request.body
 //     // let betInparam = {}
 //     let retInparam = {}
@@ -229,35 +233,35 @@ router.post('/dt/postTransfer', async function (ctx, next) {
 //     ctx.body = { MSG, data, CODE }
 // })
 
-/**
- * 玩家登出
- * @param {*} userId 玩家ID
- * @param {*} sid    具体游戏ID
- */
-router.get('/dt/logout/:userId/:sid', async function (ctx, next) {
-    // log.info(`准备退出玩家【${userId}】`)
-    if (ctx.params.userId == 0) {
-        return ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
-    }
-    // 请求N1退出
-    let data = {
-        exit: 1,
-        userId: ctx.params.userId,
-        gameType: config.dt.gameType,
-        gameId: ctx.params.sid,
-        timestamp: Date.now()
-    }
-    // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.dt.gameKey}`).toString(CryptoJS.enc.Hex)
-    axios.post(config.na.exiturl, data).then(res => {
-        res.data.code != 0 ? log.error(res.data) : null
-    }).catch(err => {
-        log.error(err)
-    })
-    // ctx.body = { code: 0, msg: '退出成功' }
-    if (ctx.request.query.homeurl) {
-        ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
-    } else {
-        ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
-    }
-})
+// /**
+//  * 玩家登出
+//  * @param {*} userId 玩家ID
+//  * @param {*} sid    具体游戏ID
+//  */
+// router.get('/dt/logout/:userId/:sid', async (ctx, next) => {
+//     // log.info(`准备退出玩家【${userId}】`)
+//     if (ctx.params.userId == 0) {
+//         return ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
+//     }
+//     // 请求N1退出
+//     let data = {
+//         exit: 1,
+//         userId: ctx.params.userId,
+//         gameType: config.dt.gameType,
+//         gameId: ctx.params.sid,
+//         timestamp: Date.now()
+//     }
+//     // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.dt.gameKey}`).toString(CryptoJS.enc.Hex)
+//     axios.post(config.na.exiturl, data).then(res => {
+//         res.data.code != 0 ? log.error(res.data) : null
+//     }).catch(err => {
+//         log.error(err)
+//     })
+//     // ctx.body = { code: 0, msg: '退出成功' }
+//     if (ctx.request.query.homeurl) {
+//         ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
+//     } else {
+//         ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
+//     }
+// })
 module.exports = router

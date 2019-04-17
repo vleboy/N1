@@ -14,7 +14,7 @@ const axios = require('axios')
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
-
+const ipMap = {}
 /**
  * PNG PC版本游戏链接
  * gameName 游戏名称
@@ -23,7 +23,8 @@ const PlayerModel = require('./model/PlayerModel')
  * userId 玩家ID
  * token  玩家的NA令牌
  */
-router.get('/png/gameurl/:gameName/:gameId/:sid/:userId/:token', async function (ctx, next) {
+router.get('/png/gameurl/:gameName/:gameId/:sid/:userId/:token', async (ctx, next) => {
+    ipMap[ctx.params.userId] = ctx.request.ip
     let inparam = ctx.params
     let finalUrl = ''
     // 试玩
@@ -41,8 +42,7 @@ router.get('/png/gameurl/:gameName/:gameId/:sid/:userId/:token', async function 
         })
         if (nares.data.code != 0) {
             log.error(nares.data)
-            ctx.body = { code: nares.data.code, msg: nares.data.msg }
-            return
+            return ctx.body = { code: nares.data.code, msg: nares.data.msg }
         }
         // const data = {
         //     userId: inparam.userId,
@@ -57,7 +57,7 @@ router.get('/png/gameurl/:gameName/:gameId/:sid/:userId/:token', async function 
 })
 
 // 登录认证
-router.post('/png/Authenticate', async function (ctx, next) {
+router.post('/png/Authenticate', async (ctx, next) => {
     //获取入参
     let inparam = ctx.request.body.authenticate
     //会话口令验证，一次有效15分钟之内
@@ -89,7 +89,7 @@ router.post('/png/Authenticate', async function (ctx, next) {
 })
 
 // 余额
-router.post('/png/Balance', async function (ctx, next) {
+router.post('/png/Balance', async (ctx, next) => {
     //获取入参
     let inparam = ctx.request.body.balance
     //验证玩家
@@ -103,7 +103,7 @@ router.post('/png/Balance', async function (ctx, next) {
 })
 
 // 下注
-router.post('/png/Reserve', async function (ctx, next) {
+router.post('/png/Reserve', async (ctx, next) => {
     //获取入参
     let inparam = ctx.request.body.reserve
     for (let key in inparam) {
@@ -127,6 +127,7 @@ router.post('/png/Reserve', async function (ctx, next) {
     inparam.businessKey = `BPNG_${player.userId}_${inparam.roundId[0]}`                      // 设置bk
     inparam.txnidTemp = `BET_${player.userId}_${inparam.transactionId[0]}`                   // 设置sn
     inparam.anotherGameData = JSON.stringify(inparam)                                        // 原始游戏信息
+    inparam.sourceIP = ipMap[player.userId]                                                  // 记录IP
     const amtAfter = await new PlayerModel().updatebalance(player, inparam)
     if (amtAfter == 'err') {
         ctx.body = `<reserve>
@@ -145,7 +146,7 @@ router.post('/png/Reserve', async function (ctx, next) {
 })
 
 // 返奖
-router.post('/png/Release', async function (ctx, next) {
+router.post('/png/Release', async (ctx, next) => {
     //获取入参
     let inparam = ctx.request.body.release
     for (let key in inparam) {
@@ -169,6 +170,7 @@ router.post('/png/Release', async function (ctx, next) {
     inparam.businessKey = `BPNG_${player.userId}_${inparam.roundId[0]}`                      // 设置bk
     inparam.txnidTemp = `WIN_${player.userId}_${inparam.transactionId[0]}`                   // 设置sn
     inparam.anotherGameData = JSON.stringify(inparam)                                        // 原始游戏信息
+    inparam.sourceIP = ipMap[player.userId]                                                  // 记录IP
     const amtAfter = await new PlayerModel().updatebalance(player, inparam)
     if (amtAfter == 'err') {
         ctx.body = `<release>
@@ -187,7 +189,7 @@ router.post('/png/Release', async function (ctx, next) {
 })
 
 // 退款
-router.post('/png/CancelReserve', async function (ctx, next) {
+router.post('/png/CancelReserve', async (ctx, next) => {
     //获取入参
     let inparam = ctx.request.body.cancelReserve
     for (let key in inparam) {
@@ -204,6 +206,7 @@ router.post('/png/CancelReserve', async function (ctx, next) {
     inparam.businessKey = `BPNG_${player.userId}_${inparam.roundId[0]}`                      // 设置bk
     inparam.txnidTemp = `REFUND_${player.userId}_${inparam.transactionId[0]}`                // 设置sn
     inparam.anotherGameData = JSON.stringify(inparam)                                        // 原始游戏信息
+    inparam.sourceIP = ipMap[player.userId]                                                  // 记录IP
     await new PlayerModel().updatebalance(player, inparam)
     ctx.body = `<cancelReserve>
                 <statusCode>0</statusCode>
@@ -211,37 +214,37 @@ router.post('/png/CancelReserve', async function (ctx, next) {
             </cancelReserve>`
 })
 
-/**
- * 玩家登出
- * @param {*} userId 玩家ID
- * @param {*} sid    具体游戏ID
- */
-router.get('/png/logout/:userId/:sid', async function (ctx, next) {
-    // log.info(`准备退出玩家【${userId}】`)
-    if (ctx.params.userId == 0) {
-        return ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
-    }
-    // 请求N1退出
-    let data = {
-        exit: 1,
-        userId: ctx.params.userId,
-        gameType: config.png.gameType,
-        gameId: ctx.params.sid,
-        timestamp: Date.now()
-    }
-    // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.png.gameKey}`).toString(CryptoJS.enc.Hex)
-    axios.post(config.na.exiturl, data).then(res => {
-        res.data.code != 0 ? log.error(res.data) : null
-    }).catch(err => {
-        log.error(err)
-    })
-    // ctx.body = { code: 0, msg: '退出成功' }
-    if (ctx.request.query.homeurl) {
-        ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
-    } else {
-        ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
-    }
-})
+// /**
+//  * 玩家登出
+//  * @param {*} userId 玩家ID
+//  * @param {*} sid    具体游戏ID
+//  */
+// router.get('/png/logout/:userId/:sid', async (ctx, next) => {
+//     // log.info(`准备退出玩家【${userId}】`)
+//     if (ctx.params.userId == 0) {
+//         return ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
+//     }
+//     // 请求N1退出
+//     let data = {
+//         exit: 1,
+//         userId: ctx.params.userId,
+//         gameType: config.png.gameType,
+//         gameId: ctx.params.sid,
+//         timestamp: Date.now()
+//     }
+//     // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.png.gameKey}`).toString(CryptoJS.enc.Hex)
+//     axios.post(config.na.exiturl, data).then(res => {
+//         res.data.code != 0 ? log.error(res.data) : null
+//     }).catch(err => {
+//         log.error(err)
+//     })
+//     // ctx.body = { code: 0, msg: '退出成功' }
+//     if (ctx.request.query.homeurl) {
+//         ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
+//     } else {
+//         ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
+//     }
+// })
 
 // //DES加密
 // function aesEncode(data, key) {

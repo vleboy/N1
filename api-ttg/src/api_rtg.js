@@ -6,12 +6,12 @@ const router = new Router()
 // 工具相关
 const _ = require('lodash')
 const axios = require('axios')
-const CryptoJS = require('crypto-js')
+// const CryptoJS = require('crypto-js')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
-
+const ipMap = {}
 /**
  * 获取RTG游戏连接
  * @param {*} gameId 游戏大类
@@ -19,14 +19,14 @@ const PlayerModel = require('./model/PlayerModel')
  * @param {*} userId 玩家ID，试玩传0
  * @param {*} token 玩家TOKEN
  */
-router.get('/rtg/gameurl/:gameId/:sid/:userId/:token', async function (ctx, next) {
+router.get('/rtg/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
+    ipMap[ctx.params.userId] = ctx.request.ip
     let inparam = ctx.params
     let machId = ((+inparam.sid) - (inparam.gameId)).toString()
     ctx.request.query.homeurl = ctx.request.query.homeurl || 'www.na77.com'
     // 试玩
     if (inparam.userId == 0) {
-        ctx.redirect(`${config.rtg.launchUrl}?cdkModule=gameLauncher&skinid=2&user=&forReal=False&token=&gameId=18&machId=${machId}&width=auto&height=auto&returnurl=http://${config.na.apidomain}/rtg/logout/0/0`)
-        return
+        return ctx.redirect(`${config.rtg.launchUrl}?cdkModule=gameLauncher&skinid=2&user=&forReal=False&token=&gameId=18&machId=${machId}&width=auto&height=auto`)//&returnurl=http://${config.na.apidomain}/rtg/logout/0/0
     }
     // 请求N1服务器是否允许玩家进入游戏
     const nares = await axios.post(config.na.joingameurl, {
@@ -36,8 +36,7 @@ router.get('/rtg/gameurl/:gameId/:sid/:userId/:token', async function (ctx, next
         token: inparam.token
     })
     if (nares.data.code != 0) {
-        ctx.body = { code: nares.data.code, msg: nares.data.msg }
-        return
+        return ctx.body = { code: nares.data.code, msg: nares.data.msg }
     }
     //获取玩家信息
     const player = await new PlayerModel().getPlayerById(inparam.userId)
@@ -104,7 +103,7 @@ router.get('/rtg/gameurl/:gameId/:sid/:userId/:token', async function (ctx, next
     let rtgToken = await axios.post(`${config.rtg.baseUrl}/players/${pid}/token`, { "token_type": "external_token" }, { headers: { 'Api_key': config.rtg.apikey, 'Content-Type': 'application/json' } })
     let [skinId, login, forReal, token, gameId, width, height, returnurl] = ['2', pid, 'True', rtgToken.data, '18', 'auto', 'auto', `http://${config.na.apidomain}/rtg/logout/${inparam.userId}/${inparam.sid}%3Fhomeurl%3D${Buffer.from(ctx.request.query.homeurl).toString('base64')}`]
     //获取rtg游戏连接
-    let finalUrl = `${config.rtg.launchUrl}?cdkModule=gameLauncher&skinid=${skinId}&user=${login}&forReal=${forReal}&token=${token}&gameId=${gameId}&machId=${machId}&width=${width}&height=${height}&returnurl=${returnurl}`
+    let finalUrl = `${config.rtg.launchUrl}?cdkModule=gameLauncher&skinid=${skinId}&user=${login}&forReal=${forReal}&token=${token}&gameId=${gameId}&machId=${machId}&width=${width}&height=${height}}`//&returnurl=${returnurl
     log.info(`最终RTG游戏链接：${finalUrl}`)
     ctx.redirect(finalUrl)
 })
@@ -113,7 +112,7 @@ router.get('/rtg/gameurl/:gameId/:sid/:userId/:token', async function (ctx, next
  * RTG获取玩家余额接口
  * @param {*} memberCode 
  */
-router.get('/rtg/account/getbalance/membercode/:memberCode', async function (ctx, next) {
+router.get('/rtg/account/getbalance/membercode/:memberCode', async (ctx, next) => {
     //查询玩家
     const player = await new PlayerModel().getPlayerById(ctx.params.memberCode)
     if (!player || _.isEmpty(player)) {
@@ -133,7 +132,7 @@ router.get('/rtg/account/getbalance/membercode/:memberCode', async function (ctx
  * @param {*} roundid 局id
  * @param {*} transactionid 第三方游戏流水号
  */
-router.post('/rtg/account/placeBet', async function (ctx, next) {
+router.post('/rtg/account/placeBet', async (ctx, next) => {
     //获取入参
     let inparam = ctx.request.body
     //参数检验
@@ -157,6 +156,7 @@ router.post('/rtg/account/placeBet', async function (ctx, next) {
     inparam.txnid = inparam.transactionid                                       // 第三方游戏流水号
     inparam.txnidTemp = `BET_${username}_${inparam.transactionid}`              // 缓存第三方交易号
     inparam.anotherGameData = JSON.stringify(inparam)
+    inparam.sourceIP = ipMap[player.userId]                                     // 记录IP
     //更新余额等系列操作
     let amtAfter = await new PlayerModel().updatebalance(player, inparam)
     if (amtAfter == 'err') {
@@ -176,7 +176,7 @@ router.post('/rtg/account/placeBet', async function (ctx, next) {
  * @param {*} roundid 局id
  * @param {*} transactionid 第三方游戏流水号
  */
-router.post('/rtg/account/settlement', async function (ctx, next) {
+router.post('/rtg/account/settlement', async (ctx, next) => {
     //获取入参
     let inparam = ctx.request.body
     //参数检验
@@ -200,42 +200,43 @@ router.post('/rtg/account/settlement', async function (ctx, next) {
     inparam.txnid = inparam.transactionid                                       // 第三方游戏流水号
     inparam.txnidTemp = `WIN_${username}_${inparam.transactionid}`              // 缓存第三方交易号
     inparam.anotherGameData = JSON.stringify(inparam)
+    inparam.sourceIP = ipMap[player.userId]                                     // 记录IP
     //更新余额等系列操作
     let amtAfter = await new PlayerModel().updatebalance(player, inparam)
     //返回结果
     ctx.body = { code: 0, message: "success", balance: amtAfter, status: "" }
 })
 
-/**
- * 玩家登出
- * @param {*} userId 玩家ID
- * @param {*} sid    具体游戏ID
- */
-router.get('/rtg/logout/:userId/:sid', async function (ctx, next) {
-    // log.info(`准备退出玩家【${userId}】`)
-    if(ctx.params.userId == 0){
-        return ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
-    }
-    // 请求N1退出
-    let data = {
-        exit: 1,
-        userId: ctx.params.userId,
-        gameType: config.rtg.gameType,
-        gameId: ctx.params.sid,
-        timestamp: Date.now()
-    }
-    // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.rtg.gameKey}`).toString(CryptoJS.enc.Hex)
-    axios.post(config.na.exiturl, data).then(res => {
-        res.data.code != 0 ? log.error(res.data) : null
-    }).catch(err => {
-        log.error(err)
-    })
-    // ctx.body = { code: 0, msg: '玩家退出成功' }
-    if (ctx.request.query.homeurl) {
-        ctx.redirect(Buffer.from(ctx.request.query.homeurl, 'base64').toString())
-    } else {
-        ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
-    }
-    // ctx.body = `<script>(function(){window.history.go(-2)})()</script>`
-})
+// /**
+//  * 玩家登出
+//  * @param {*} userId 玩家ID
+//  * @param {*} sid    具体游戏ID
+//  */
+// router.get('/rtg/logout/:userId/:sid', async (ctx, next) => {
+//     // log.info(`准备退出玩家【${userId}】`)
+//     if(ctx.params.userId == 0){
+//         return ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
+//     }
+//     // 请求N1退出
+//     let data = {
+//         exit: 1,
+//         userId: ctx.params.userId,
+//         gameType: config.rtg.gameType,
+//         gameId: ctx.params.sid,
+//         timestamp: Date.now()
+//     }
+//     // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.rtg.gameKey}`).toString(CryptoJS.enc.Hex)
+//     axios.post(config.na.exiturl, data).then(res => {
+//         res.data.code != 0 ? log.error(res.data) : null
+//     }).catch(err => {
+//         log.error(err)
+//     })
+//     // ctx.body = { code: 0, msg: '玩家退出成功' }
+//     if (ctx.request.query.homeurl) {
+//         ctx.redirect(Buffer.from(ctx.request.query.homeurl, 'base64').toString())
+//     } else {
+//         ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
+//     }
+//     // ctx.body = `<script>(function(){window.history.go(-2)})()</script>`
+// })
 module.exports = router

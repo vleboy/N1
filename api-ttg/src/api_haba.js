@@ -14,7 +14,7 @@ const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
 const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
-
+const ipMap = {}
 /**
  * HABA PC版本游戏链接
  * gameName 游戏名称
@@ -23,7 +23,8 @@ const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
  * userId 玩家ID
  * token  玩家的NA令牌
  */
-router.get('/haba/gameurl/:gameName/:gameId/:sid/:userId/:token', async function (ctx, next) {
+router.get('/haba/gameurl/:gameName/:gameId/:sid/:userId/:token', async (ctx, next) => {
+    ipMap[ctx.params.userId] = ctx.request.ip
     let inparam = ctx.params
     let finalUrl = ''
     // 试玩
@@ -52,7 +53,7 @@ router.get('/haba/gameurl/:gameName/:gameId/:sid/:userId/:token', async function
 })
 
 // 登录认证playerdetailrequest
-router.post('/haba/auth', async function (ctx, next) {
+router.post('/haba/auth', async (ctx, next) => {
     //获取入参
     let inparam = ctx.request.body
     //解析token
@@ -67,7 +68,7 @@ router.post('/haba/auth', async function (ctx, next) {
 })
 
 // 接收交易fundtransferrequest
-router.post('/haba/transaction', async function (ctx, next) {
+router.post('/haba/transaction', async (ctx, next) => {
     //获取入参
     let inparam = ctx.request.body
     let fundQuest = inparam.fundtransferrequest
@@ -82,6 +83,7 @@ router.post('/haba/transaction', async function (ctx, next) {
         inparam.txnidTemp = `REFUND_${player.userId}_${fundQuest.funds.refund.transferid}`      // 设置sn
         inparam.anotherGameData = JSON.stringify(inparam)                                       // 原始游戏信息
         delete inparam.auth                                                                     // 删掉auth
+        inparam.sourceIP = ipMap[player.userId]                                                 // 记录IP
         let amtAfter = await new PlayerModel().updatebalance(player, inparam)
         return ctx.body = { "fundtransferresponse": { "status": { "success": true, "refundstatus": 1 }, "balance": amtAfter, "currencycode": "CNY" } }
     }
@@ -109,7 +111,8 @@ router.post('/haba/transaction', async function (ctx, next) {
             inparam.businessKey = `BHABA_${player.userId}_${fundQuest.gameinstanceid}`   // 设置bk
             inparam.txnidTemp = `BET_${player.userId}_${item.transferid}`                // 设置sn
             inparam.anotherGameData = JSON.stringify(inparam)                            // 原始游戏信息
-            delete inparam.auth                                                                     // 删掉auth
+            delete inparam.auth                                                          // 删掉auth
+            inparam.sourceIP = ipMap[player.userId]                                      // 记录IP
             amtAfter = await new PlayerModel().updatebalance(player, inparam)
             if (amtAfter == 'err') {
                 isError = true
@@ -125,6 +128,7 @@ router.post('/haba/transaction', async function (ctx, next) {
             inparam.txnidTemp = `WIN_${player.userId}_${item.transferid}`                // 设置sn
             inparam.anotherGameData = JSON.stringify(inparam)                            // 原始游戏信息
             delete inparam.auth                                                          // 删掉auth
+            inparam.sourceIP = ipMap[player.userId]                                      // 记录IP
             amtAfter = await new PlayerModel().updatebalance(player, inparam)
         }
     }
@@ -153,7 +157,7 @@ router.post('/haba/transaction', async function (ctx, next) {
 })
 
 // 查询状态queryrequest
-router.post('/haba/query', async function (ctx, next) {
+router.post('/haba/query', async (ctx, next) => {
     //获取入参
     let inparam = ctx.request.body
     let sn = `BET_${inparam.queryrequest.accountid}_${inparam.queryrequest.transferid}`
@@ -170,35 +174,35 @@ router.post('/haba/query', async function (ctx, next) {
 
 // })
 
-/**
- * 玩家登出
- * @param {*} userId 玩家ID
- * @param {*} sid    具体游戏ID
- */
-router.get('/haba/logout/:userId/:sid', async function (ctx, next) {
-    // log.info(`准备退出玩家【${userId}】`)
-    if (ctx.params.userId == 0) {
-        return ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
-    }
-    // 请求N1退出
-    let data = {
-        exit: 1,
-        userId: ctx.params.userId,
-        gameType: config.haba.gameType,
-        gameId: ctx.params.sid,
-        timestamp: Date.now()
-    }
-    // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.haba.gameKey}`).toString(CryptoJS.enc.Hex)
-    axios.post(config.na.exiturl, data).then(res => {
-        res.data.code != 0 ? log.error(res.data) : null
-    }).catch(err => {
-        log.error(err)
-    })
-    // ctx.body = { code: 0, msg: '退出成功' }
-    if (ctx.request.query.homeurl) {
-        ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
-    } else {
-        ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
-    }
-})
+// /**
+//  * 玩家登出
+//  * @param {*} userId 玩家ID
+//  * @param {*} sid    具体游戏ID
+//  */
+// router.get('/haba/logout/:userId/:sid', async (ctx, next) => {
+//     // log.info(`准备退出玩家【${userId}】`)
+//     if (ctx.params.userId == 0) {
+//         return ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
+//     }
+//     // 请求N1退出
+//     let data = {
+//         exit: 1,
+//         userId: ctx.params.userId,
+//         gameType: config.haba.gameType,
+//         gameId: ctx.params.sid,
+//         timestamp: Date.now()
+//     }
+//     // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.haba.gameKey}`).toString(CryptoJS.enc.Hex)
+//     axios.post(config.na.exiturl, data).then(res => {
+//         res.data.code != 0 ? log.error(res.data) : null
+//     }).catch(err => {
+//         log.error(err)
+//     })
+//     // ctx.body = { code: 0, msg: '退出成功' }
+//     if (ctx.request.query.homeurl) {
+//         ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
+//     } else {
+//         ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
+//     }
+// })
 module.exports = router
