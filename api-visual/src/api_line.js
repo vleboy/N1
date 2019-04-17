@@ -176,7 +176,7 @@ router.get('/line/pie', async (ctx, next) => {
     // 获取区域玩家总退款
     promiseArr.push(queryGetPie('bill.refundAmountPie', inparam, 'refundAmount', pieMap))
     // 获取区域玩家总输赢
-    promiseArr.push(queryGetPie('bill.winloseAmountPie', inparam, 'winloseAmount', pieMap))
+    // promiseArr.push(queryGetPie('bill.winloseAmountPie', inparam, 'winloseAmount', pieMap))
     // 并发执行
     await Promise.all(promiseArr)
     ctx.body = { code: 0, data: pieMap }

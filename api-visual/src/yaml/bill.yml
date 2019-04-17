@@ -201,8 +201,8 @@ retAmountPie: # 统计返奖总额
 refundAmountPie: # 统计退款总金额
     - SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime and type=5 GROUP BY gameType
 
-winloseAmountPie: # 实时统计当天输赢金额
-    - SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime GROUP BY gameType
+# winloseAmountPie: # 实时统计当天输赢金额
+#     - SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime GROUP BY gameType
 
 
 
