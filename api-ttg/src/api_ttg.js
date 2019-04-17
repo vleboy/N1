@@ -85,7 +85,7 @@ router.post('/ttg/fund', async (ctx, next) => {
     ctx.request.body.cw.$.businessKey = `BTTG_${player.userName}_${ctx.request.body.cw.$.handid}`    // 设置局号
     ctx.request.body.cw.$.txnid = `${ctx.request.body.cw.$.txnid}`                                   // 设置第三方系统唯一流水号
     ctx.request.body.cw.$.txnidTemp = `${player.userName}_${ctx.request.body.cw.$.txnid}`            // 缓存第三方系统唯一流水号
-    ctx.request.body.cw.$.sourceIP = ipMap[ctx.params.userId]                                        // 记录IP
+    ctx.request.body.cw.$.sourceIP = ipMap[player.userId]                                            // 记录IP
     const amtAfter = await new PlayerModel().updatebalance(player, ctx.request.body.cw.$)
     if (amtAfter == 'err') {
         ctx.body = '<cw type="fundTransferResp" err="9999" />'
