@@ -25,6 +25,38 @@ let winloseMap = {
     winloseAmount: []
 }
 
+//累积统计5分钟输赢金额
+router.get('/line/winloseAmount', async (ctx, next) => {
+    console.time('实时统计耗时')
+    let inparam = ctx.request.query
+    inparam.inc = inparam.inc ? +inparam.inc : 1   //增量
+    inparam.minute = inparam.minute ? +inparam.minute : 5 * 60   //时间区域
+    if (winloseMap.winloseAmount.length == 0) { //初始
+        inparam.startTime = new Date(new Date().toLocaleDateString()).getTime()  //获取当天零点时间
+        inparam.endTime = Date.now()
+        inparam.init = true
+    } else {
+        inparam.startTime = winloseMap.winloseAmount[winloseMap.winloseAmount.length - 1].x
+        inparam.endTime = inparam.startTime + inparam.inc * 10000
+    }
+    // 获取区域玩家总输赢
+    let res = await nodebatis.query('bill.winloseAmountDay', { startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
+    let addNum = res[0].total ? res[0].total : 0
+    if (inparam.init) {
+        winloseMap.winloseAmount.push({ x: inparam.endTime, y: addNum })
+    } else {
+        if (winloseMap.winloseAmount.length == inparam.minute / inparam.inc) {
+            let lastmap = winloseMap.winloseAmount[winloseMap.winloseAmount.length - 1]  //取出最后一个
+            winloseMap.winloseAmount.shift()  // 删除第一个
+            winloseMap.winloseAmount.push({ x: inparam.endTime, y: lastmap.y + addNum })  //加入新的
+        } else {
+            winloseMap['winloseAmount'].push({ x: inparam.endTime, y: addNum })
+        }
+    }
+    ctx.body = { code: 0, data: winloseMap.winloseAmount }
+    console.timeEnd('实时统计耗时')
+})
+
 //时间段柱状图
 router.get('/line/graph', async (ctx, next) => {
     console.time('柱状图统计耗时')
@@ -66,10 +98,10 @@ router.get('/line/graph', async (ctx, next) => {
 })
 
 /**
- *  当天这些图统计
+ *  当天折线图统计
  */
 router.get('/line/everyDay', async (ctx, next) => {
-    console.time('实时统计耗时')
+    console.time('折线图统计耗时')
     let inparam = ctx.request.query
     inparam.startTime = new Date(new Date().toLocaleDateString()).getTime()  //获取当天零点时间
     inparam.endTime = Date.now() - 5 * 60 * 60 * 1000  //获取查询的时间
@@ -89,39 +121,40 @@ router.get('/line/everyDay', async (ctx, next) => {
     // 并发执行
     await Promise.all(promiseArr)
     ctx.body = { code: 0, data: lineMap }
-    console.timeEnd('实时统计耗时')
+    console.timeEnd('折线图统计耗时')
 })
 
-//累积统计5分钟输赢金额
-router.get('/line/winloseAmount', async (ctx, next) => {
-    console.time('实时统计耗时')
+/**
+ *  游戏分布饼图统计
+ */
+router.get('/line/pie', async (ctx, next) => {
+    console.time('饼状图统计耗时')
     let inparam = ctx.request.query
-    inparam.inc = inparam.inc ? +inparam.inc : 1   //增量
-    inparam.minute = inparam.minute ? +inparam.minute : 5 * 60   //时间区域
-    if (winloseMap.winloseAmount.length == 0) { //初始
-        inparam.startTime = new Date(new Date().toLocaleDateString()).getTime()  //获取当天零点时间
-        inparam.endTime = Date.now()
-        inparam.init = true
-    } else {
-        inparam.startTime = winloseMap.winloseAmount[winloseMap.winloseAmount.length - 1].x
-        inparam.endTime = inparam.startTime + inparam.inc * 10000
+    let promiseArr = []
+    let pieMap = {
+        playerCount: [],
+        betCount: [],
+        betAmount: [],
+        retAmount: [],
+        refundAmount: [],
+        winloseAmount: []
     }
+    // 获取区域玩家总人数
+    promiseArr.push(queryGetPie('bill.playerCountPie', inparam, 'playerCount', pieMap))
+    // 获取区域玩家总下注次数
+    promiseArr.push(queryGetPie('bill.betCountPie', inparam, 'betCount', pieMap))
+    // 获取区域玩家总下注金额
+    promiseArr.push(queryGetPie('bill.betAmountPie', inparam, 'betAmount', pieMap))
+    // 获取区域玩家总返奖
+    promiseArr.push(queryGetPie('bill.retAmountPie', inparam, 'retAmount', pieMap))
+    // 获取区域玩家总退款
+    promiseArr.push(queryGetPie('bill.refundAmountPie', inparam, 'refundAmount', pieMap))
     // 获取区域玩家总输赢
-    let res = await nodebatis.query('bill.winloseAmountDay', { startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
-    let addNum = res[0].total ? res[0].total : 0
-    if (inparam.init) {
-        winloseMap.winloseAmount.push({ x: inparam.endTime, y: addNum })
-    } else {
-        if (winloseMap.winloseAmount.length == inparam.minute / inparam.inc) {
-            let lastmap = winloseMap.winloseAmount[winloseMap.winloseAmount.length - 1]  //取出最后一个
-            winloseMap.winloseAmount.shift()  // 删除第一个
-            winloseMap.winloseAmount.push({ x: inparam.endTime, y: lastmap.y + addNum })  //加入新的
-        } else {
-            winloseMap['winloseAmount'].push({ x: inparam.endTime, y: addNum })
-        }
-    }
-    ctx.body = { code: 0, data: winloseMap.winloseAmount }
-    console.timeEnd('实时统计耗时')
+    promiseArr.push(queryGetPie('bill.winloseAmountPie', inparam, 'winloseAmount', pieMap))
+    // 并发执行
+    await Promise.all(promiseArr)
+    ctx.body = { code: 0, data: pieMap }
+    console.timeEnd('饼状图统计耗时')
 })
 
 
@@ -145,5 +178,13 @@ async function queryGetGraph(sqlName, inparam, key, map) {
         }
     }
 }
+// 饼状图sql查询
+async function queryGetPie(sqlName, inparam, key, map) {
+    let res = await nodebatis.query(sqlName, { startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
+    for (let item of res) {
+        map[key].push({ gameType: item.gameType, percent: item.percent })
+    }
+}
+
 
 module.exports = router
