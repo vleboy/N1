@@ -36,7 +36,7 @@ const pngrouter = require('./src/api_png')
 // const ugrouter = require('./src/api_ug')
 // 初始化应用服务，加载所有中间件
 const app = new Koa()
-// app.proxy = true
+app.proxy = true
 // 启用静态资源服务
 // app.use(mount(config.server.staticRoot, staticServer(__dirname + '/static')))
 app.use(xerror(config.error))           // 全局错误捕获中间件，必须第一位使用，参数1：错误配置
