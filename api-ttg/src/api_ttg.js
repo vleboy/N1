@@ -23,6 +23,7 @@ const PlayerModel = require('./model/PlayerModel')
  * token  玩家的NA令牌
  */
 router.get('/ttg/gameurl/:gameName/:gameId/:sid/:userName/:userId/:token', async (ctx, next) => {
+    console.info(ctx.request.ip)
     let finalUrl = ''
     if (ctx.params.userId == 0) {
         finalUrl = `http://pff.ttms.co/casino/default/game/casino5.html?playerHandle=999999&account=FunAcct&gameName=${ctx.params.gameName}&gameType=0&gameId=${(+ctx.params.sid) - (+ctx.params.gameId)}&lang=zh-cn&lsdId=zero&deviceType=web&t=${Date.now()}`
