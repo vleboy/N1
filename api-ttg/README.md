@@ -3,13 +3,12 @@ http://ext.na77.org/ttg/gameurl/DolphinGoldH5/1010000/1011055/QJSH_wwj02/268184/
 
 http://webgame.na77.org/ttg/gameurl/DolphinGoldH5/1010000/1011055/XYCHD_ns050/990614/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6IlhZQ0hEX25zMDUwIiwic3VmZml4IjoiWFlDSEQiLCJ1c2VySWQiOjk5MDYxNCwiaWF0IjoxNTE3OTg2NjkzfQ.aDV2_mOgREZKYi1FW76k3zyzmDoL3Sv_bQXDPqBJ4Q8
 # MG PC版本链接
-http://ext.na77.org/mg/gameurl/:gameId/:sid/:userName/:userId/:token
 http://ext.na77.org/mg/gameurl/10300000/10371283/QJSH_wwj02/268184/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6IlFKU0hfd3dqMDIiLCJzdWZmaXgiOiJRSlNIIiwidXNlcklkIjoyNjgxODQsImV4cGlyZSI6MTUzMDkzNzQzMTE4NiwiaWF0IjoxNTMwODUxMDMxfQ.50tUvo3l_Flkb4aVHrotoFD8yhKunXoBt4z3lfJDcUk
+
 http://webgame.na77.org/mg/gameurl/10300000/10371283/XYCHD_ns050/990614/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6IlhZQ0hEX25zMDUwIiwic3VmZml4IjoiWFlDSEQiLCJ1c2VySWQiOjk5MDYxNCwiaWF0IjoxNTE3OTg2NjkzfQ.aDV2_mOgREZKYi1FW76k3zyzmDoL3Sv_bQXDPqBJ4Q8
 #RTG PC版本链接
-http://ext.na77.org/rtg/gameurl/:gameId/:sid/:userId/:token
 https://ext.na77.org/rtg/gameurl/1140000/1140172/268184/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6IlFKU0hfd3dqMDIiLCJzdWZmaXgiOiJRSlNIIiwidXNlcklkIjoyNjgxODQsImV4cGlyZSI6MTUzMDkzNzQzMTE4NiwiaWF0IjoxNTMwODUxMDMxfQ.50tUvo3l_Flkb4aVHrotoFD8yhKunXoBt4z3lfJDcUk
-https://ext.na77.org/rtg/gameurl/1140000/1140172/0/0
+
 https://webgame.na77.org/rtg/gameurl/1140000/1140001/990614/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6IlhZQ0hEX25zMDUwIiwic3VmZml4IjoiWFlDSEQiLCJ1c2VySWQiOjk5MDYxNCwiaWF0IjoxNTE3OTg2NjkzfQ.aDV2_mOgREZKYi1FW76k3zyzmDoL3Sv_bQXDPqBJ4Q8
 #SA PC版本链接
 http://ext.na77.org/sa/gameurl/268184/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6IlFKU0hfd3dqMDIiLCJzdWZmaXgiOiJRSlNIIiwidXNlcklkIjoyNjgxODQsImV4cGlyZSI6MTUzMDkzNzQzMTE4NiwiaWF0IjoxNTMwODUxMDMxfQ.50tUvo3l_Flkb4aVHrotoFD8yhKunXoBt4z3lfJDcUk
@@ -17,10 +16,8 @@ http://ext.na77.org/sa/gameurl/268184/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c
 http://webgame.na77.org/sa/gameurl/990614/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6IlhZQ0hEX25zMDUwIiwic3VmZml4IjoiWFlDSEQiLCJ1c2VySWQiOjk5MDYxNCwiaWF0IjoxNTE3OTg2NjkzfQ.aDV2_mOgREZKYi1FW76k3zyzmDoL3Sv_bQXDPqBJ4Q8
 
 #SA捕鱼 PC版本链接
-http://ext.na77.org/sa/fisher/:token
 http://ext.na77.org/sa/fisher/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6IlFKU0hfd3dqMDIiLCJzdWZmaXgiOiJRSlNIIiwidXNlcklkIjoyNjgxODQsImV4cGlyZSI6MTUzMDkzNzQzMTE4NiwiaWF0IjoxNTMwODUxMDMxfQ.50tUvo3l_Flkb4aVHrotoFD8yhKunXoBt4z3lfJDcUk
 #AG PC版本链接
-https://ext.na77.org/ag/gameurl/:gameId/:sid/:userId/:token
 https://webgame.na77.org/ag/gameurl/1050000/1050018/990614/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6IlhZQ0hEX25zMDUwIiwic3VmZml4IjoiWFlDSEQiLCJ1c2VySWQiOjk5MDYxNCwiaWF0IjoxNTE3OTg2NjkzfQ.aDV2_mOgREZKYi1FW76k3zyzmDoL3Sv_bQXDPqBJ4Q8
 #YSB PC版本链接
 http://mwhitelabel.a1go.org/login.aspx?username=:userName&langcode=zh-cn&sign=:token&v=1203&rad=123456
