@@ -11,8 +11,8 @@ const nodebatis = new NodeBatis(`${process.cwd()}${config.server.mapperDir || '/
     user: config.db.username,
     password: config.db.password,
     pool: {
-        minSize: 5,
-        maxSize: 20,
+        minSize: 10,
+        maxSize: 100,
         acquireIncrement: 5
     }
 })
