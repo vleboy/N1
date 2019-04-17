@@ -39,8 +39,7 @@ router.post('/queryUserStat', async function (ctx, next) {
         ctx.body = { code: 0, payload: finalRes }
     } else {
         let ret = await new UserModel().queryChild(inparam) // 查询所有下级用户统计
-        finalRes = ret
-        // 判断是否需要进一步查询报表 
+        // 判断是否需要进一步查询报表
         if (inparam.gameType) {
             finalRes = []
             inparam.query = calcQuery
@@ -74,6 +73,8 @@ router.post('/queryUserStat', async function (ctx, next) {
                     }
                 }
             }
+        } else {
+            finalRes = _.orderBy(ret, [(o) => { return o.companyList ? o.companyList.length : 0 }], ['asc'])
         }
         ctx.body = { code: 0, payload: finalRes }
     }
