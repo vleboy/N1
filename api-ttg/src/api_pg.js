@@ -61,6 +61,7 @@ router.post('/pg/VerifySession', async (ctx, next) => {
     try {
         loginInfo = jwt.verify(inparam.operator_player_session, config.pg.gameKey)
     } catch (error) {
+        console.log(inparam.operator_player_session)
         console.error(error)
         console.log(loginInfo)
         return ctx.body = { data: null, error: { code: 1034, message: '无效的请求' } }
