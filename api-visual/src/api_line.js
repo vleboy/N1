@@ -83,9 +83,9 @@ async function queryGetLine(sqlName, inparam, key, map, type) {
     let res = await nodebatis.query(sqlName, { startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType, type: inparam.type })
     for (let item of res) {
         if (key == 'betAmount') {
-            map[key].push([item.days, Math.abs(item.count)])
+            map[key].push({ x: item.days, y: Math.abs(item.count)})
         } else {
-            map[key].push([item.days, item.count])
+            map[key].push({ x: item.days, y: Math.abs(item.count)})
         }
     }
 }
