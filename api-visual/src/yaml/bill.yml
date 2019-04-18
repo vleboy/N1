@@ -76,31 +76,35 @@ worldWinloseAmount: # 输赢总金额
         sql: and gameType=:gameType
     - group by country
 
-playerCountDay: # 实时统计当天人数
-    - select count(a.userId) as total from
-    - (select distinct(userId) from bill where createdAt between :startTime and :endTime 
+playerCountDay: # 日报表人数
+    - select count(userId) count,a.days from 
+    - (SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,userId from bill where createdAt between :startTime and :endTime
     - if:
         test: :gameType!=null
         sql: and gameType=:gameType
-    - group by userId ) as a
+    - group by days,userId)as a 
+    - GROUP BY a.days ORDER BY a.days
 
-betCountDay: # 实时统计当天下注总次数
-    - select count(*) as total from bill where createdAt between :startTime and :endTime and type=3
+betCountDay: # 日报表下注次数
+    - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,count(sn) count from bill where createdAt between :startTime and :endTime and type=3
     - if:
         test: :gameType!=null
         sql: and gameType=:gameType
+    - group by days ORDER BY days
 
-handleAmountDay: # 实时统计当天操作总金额
-    - select sum(amount) as total from bill where createdAt between :startTime and :endTime and type=:type
+handleAmountDay: # 日报表操作金额
+    - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,sum(amount) count from bill where createdAt between :startTime and :endTime and type=:type
     - if:
         test: :gameType!=null
         sql: and gameType=:gameType
+    - group by days ORDER BY days
 
-winloseAmountDay: # 实时统计当天输赢金额
-    - select sum(amount) as total from bill where createdAt between :startTime and :endTime 
+winloseAmountDay: # 日报表输赢金额
+    - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,sum(amount) count from bill where createdAt between :startTime and :endTime
     - if:
         test: :gameType!=null
         sql: and gameType=:gameType
+    - group by days ORDER BY days
 
 playerCountGraph: # 统计人数
     - SELECT FROM_UNIXTIME(createdAt/1000,'%k') hours,count(sn) count from bill where createdAt between :startTime and :endTime 

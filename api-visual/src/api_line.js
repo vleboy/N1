@@ -58,21 +58,19 @@ router.get('/line/day', async (ctx, next) => {
         refundAmount: [],
         winloseAmount: []
     }
-    inparam.startTime = new Date(new Date().toLocaleDateString()).getTime()  //获取当天零点时间
-    inparam.endTime = Date.now() - 5 * 60 * 60 * 1000  //获取查询的时间
     let promiseArr = []
     // 获取区域玩家总人数
-    promiseArr.push(queryGetLine('bill.playerCountDay', inparam, 'playerCount'))
+    promiseArr.push(queryGetLine('bill.playerCountDay', inparam, 'playerCount', lineMap))
     // 获取区域玩家总下注次数
-    promiseArr.push(queryGetLine('bill.betCountDay', inparam, 'betCount'))
+    promiseArr.push(queryGetLine('bill.betCountDay', inparam, 'betCount', lineMap))
     // 获取区域玩家总下注金额
-    promiseArr.push(queryGetLine('bill.handleAmountDay', inparam, 'betAmount', 3))
+    promiseArr.push(queryGetLine('bill.handleAmountDay', inparam, 'betAmount', lineMap, 3))
     // 获取区域玩家总返奖
-    promiseArr.push(queryGetLine('bill.handleAmountDay', inparam, 'retAmount', 4))
+    promiseArr.push(queryGetLine('bill.handleAmountDay', inparam, 'retAmount', lineMap, 4))
     // 获取区域玩家总退款
-    promiseArr.push(queryGetLine('bill.handleAmountDay', inparam, 'refundAmount', 5))
+    promiseArr.push(queryGetLine('bill.handleAmountDay', inparam, 'refundAmount', lineMap, 5))
     // 获取区域玩家总输赢
-    promiseArr.push(queryGetLine('bill.winloseAmountDay', inparam, 'winloseAmount'))
+    promiseArr.push(queryGetLine('bill.winloseAmountDay', inparam, 'winloseAmount', lineMap))
     // 并发执行
     await Promise.all(promiseArr)
     ctx.body = { code: 0, data: lineMap }
@@ -80,13 +78,15 @@ router.get('/line/day', async (ctx, next) => {
 })
 
 // 折线图sql查询
-async function queryGetLine(sqlName, inparam, key, type) {
+async function queryGetLine(sqlName, inparam, key, map, type) {
     if (type) { inparam.type = type }
     let res = await nodebatis.query(sqlName, { startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType, type: inparam.type })
-    if (res[0].total) {
-        lineMap[key].push(res[0].total)
-    } else {
-        lineMap[key].push(0)
+    for (let item of res) {
+        if (key == 'betAmount') {
+            map[key].push([item.days, Math.abs(item.count)])
+        } else {
+            map[key].push([item.days, item.count])
+        }
     }
 }
 
