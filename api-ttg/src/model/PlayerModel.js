@@ -98,76 +98,59 @@ module.exports = class PlayerModel extends BaseModel {
         const sourceIP = data.sourceIP || '0.0.0.0'         // IP地址
         const naGameType = data.gameType                    // NA游戏大类
         let naGameId = data.gameId || player.sid            // NA游戏ID
-        let naGameCompany = config.companyMap[naGameType]   // 游戏运营商
+        const naGameCompany = config.companyMap[naGameType] // 游戏运营商
         const amt = parseFloat(data.amt)                    // 变化金额
-        let prefix = `A${naGameCompany}`                    // 流水前缀
+        const prefix = `A${naGameCompany}`                  // 流水前缀
         let billType = amt <= 0 ? 3 : 4                     // 流水类型(只有正数才是返奖，否则为下注)
+        const isCheckRet = naGameType != config.ysb.gameType && naGameType != config.dt.gameType && billType != 3 ? true : false
+        let bkBet = {}                                      // 返奖对应的下注对象        
         data.userId = player.userId                         // 设置玩家ID
         data.userName = player.userName                     // 设置玩家帐号
         if (data.billType) {                                // 更新流水类型
             billType = data.billType
         }
-        if (data.txnidTemp) {               // 设置SN流水号
+        if (data.txnidTemp) {                               // 设置SN流水号
             data.sntemp = `${prefix}_${data.txnidTemp}`
         }
-        if (!data.sntemp) {                 // 如果SN号未赋值，则自动生成
+        if (!data.sntemp) {                                 // 如果SN号未赋值，则自动生成
             data.sntemp = prefix + this.billSerial(player.userId)
         }
         // 2，输入流水检查
-        // 检查：下注/冻结，如果下注金额大于玩家余额或者游戏状态在APP里面则不允许此次下注
         if ((billType == 3 && naGameType != config.ysb.gameType) || billType == 6) {
             if (player.gameId != naGameType) {
-                // console.error(player)
-                // console.error(naGameType)
-                console.error(`玩家${player.userId}的游戏状态${player.gameId},未在请求游戏大类${naGameType}中`)
+                console.error(`玩家${player.userId}当前游戏大类${player.gameId},未在请求游戏大类${naGameType}中`)
                 return 'err'
             }
-            if (+player.balance + amt < 0) {
-                console.error(`玩家${player.userId}的余额不足`)
+            if (player.balance + amt < 0) {
+                console.error(`玩家${player.userId}余额不足`)
                 return 'err'
             }
-            // 检查：下注/冻结时检查对应的玩家上级和上级对应的该款游戏是否可用
-            const parentUser = await new UserModel().queryUserById(player.parent)
+            let parentUser = await new UserModel().queryUserById(player.parent)
+            parentUser = parentUser.Items[0]
             if (!parentUser || parentUser.status != 1 || player.state == 0) {
-                // console.error(parentUser)
-                // console.error(player)
-                console.error(`玩家${player.userId}的所属商户状态${parentUser.status}被停用或玩家状态${player.state}被停用`)
+                console.error(`玩家${player.userId}所属商户状态${parentUser.status}被停用或玩家状态${player.state}被停用`)
                 return 'err'
             }
-            if (!parentUser.gameList || _.findIndex(parentUser.gameList, function (i) { return i.code == naGameType }) == -1) {
-                // console.error(parentUser.gameList)
-                // console.error(naGameType)
-                console.error(`玩家${player.userId}的所属商户没有购买此游戏大类${naGameType}`)
+            if (!parentUser.gameList || _.findIndex(parentUser.gameList, (i) => { return i.code == naGameType }) == -1) {
+                console.error(`玩家${player.userId}所属商户没有购买此游戏大类${naGameType}`)
                 return 'err'
             }
-            const companyIndex = _.findIndex(parentUser.companyList, function (i) { return i.company == naGameCompany })
+            const companyIndex = _.findIndex(parentUser.companyList, (i) => { return i.company == naGameCompany })
             if (companyIndex != -1 && parentUser.companyList[companyIndex].status != 1) {
-                // console.error(parentUser.companyList)
-                // console.error(naGameCompany)
-                console.error(`玩家${player.userId}的所属商户的游戏供应商${naGameCompany}已被控分警告停用`)
+                console.error(`玩家${player.userId}所属商户的游戏供应商${naGameCompany}已被控分警告停用`)
                 return 'err'
             }
         }
-        // 检查：检查流水是否重复，重复的流水，直接返回当前玩家余额
-        let billRepeat = false
-        switch (naGameType) {
-            case config.ysb.gameType:
-                break
-            default:
-                billRepeat = await new PlayerBillDetailModel().getBill(data.sntemp)
-                break
+        // 检查：重复的流水，直接返回当前玩家余额
+        if (naGameType != config.ysb.gameType) {
+            let billRepeat = await new PlayerBillDetailModel().getBill(data.sntemp)
+            if (billRepeat.Item && !_.isEmpty(billRepeat.Item)) {
+                return player.balance
+            }
         }
-        if (billRepeat.Item && !_.isEmpty(billRepeat.Item)) {
-            return player.balance
-        }
-        // 检查：返奖检查下注是否存在，下注不存在的返奖，直接返回当前玩家余额
-        let bkBet = {}
-        let isCheckRet = false
-        if (naGameType != config.ysb.gameType && naGameType != config.dt.gameType && billType != 3) {
-            isCheckRet = true
-        }
+        // 检查：下注不存在，直接返回当前玩家余额
         if (isCheckRet) {
-            // 使用betSN的退款（PP电子和SA真人），通过sn检查下注是否存在
+            // 使用betSN的返奖（PP电子和SA真人），通过sn检查下注是否存在
             if (data.betsn) {
                 let billBet = await new PlayerBillDetailModel().getBill(data.betsn)
                 if (!billBet.Item || _.isEmpty(billBet.Item)) {
@@ -182,7 +165,7 @@ module.exports = class PlayerModel extends BaseModel {
                 }
                 bkBet = { Items: [billBet.Item] }
             }
-            // 其他游戏的返奖/退款，通过bk检查下注是否存在
+            // 使用bk的返奖，通过bk检查下注是否存在
             else {
                 bkBet = await new PlayerBillDetailModel().queryBkBet(data)
                 if (!bkBet || !bkBet.Items || bkBet.Items.length < 1) {
@@ -208,7 +191,7 @@ module.exports = class PlayerModel extends BaseModel {
         let billItem = {
             sn: data.sntemp,
             parent: player.parent,
-            userId: parseInt(player.userId),
+            userId: player.userId,
             userName: player.userName,
             gameType: parseInt(naGameType),
             gameId: isNaN(parseInt(naGameId)) ? parseInt(naGameType) : parseInt(naGameId),
@@ -261,8 +244,7 @@ module.exports = class PlayerModel extends BaseModel {
      * @param {*} inparam 
      */
     addRound(player, inparam) {
-        let self = this
-        return new Promise(async function (resolve, reject) {
+        return new Promise(async (resolve, reject) => {
             // 查询BK对应的流水
             let bills = await new PlayerBillDetailModel().queryBk({ bk: inparam.businessKey })
             if (bills && bills.length > 0) {
@@ -314,25 +296,6 @@ module.exports = class PlayerModel extends BaseModel {
         })
     }
 
-    /**
-     * 更新玩家状态
-     * @param {*} userName
-     * @param {*} state
-     */
-    updateState(userName, state) {
-        // 更新玩家所属的洗码比和抽成比
-        return this.updateItem({
-            Key: { 'userName': userName },
-            UpdateExpression: "SET #state = :state",
-            ExpressionAttributeNames: {
-                '#state': 'state'
-            },
-            ExpressionAttributeValues: {
-                ':state': state
-            }
-        })
-    }
-
     // 私有方法：等待3秒钟
     waitASecond() {
         console.info('等待3秒后再次查询下注是否存在')
@@ -342,23 +305,5 @@ module.exports = class PlayerModel extends BaseModel {
             }, 3000);
         })
     }
-
-    /**
-     * 更新玩家结算状态
-     * @param {*} userName
-     * @param {*} waitSettlement
-     */
-    // async updateWaitSettlement(userName, waitSettlement) {
-    //     // 更新玩家所属的洗码比和抽成比
-    //     return this.updateItem({
-    //         Key: {
-    //             'userName': userName
-    //         },
-    //         UpdateExpression: "SET waitSettlement = :waitSettlement",
-    //         ExpressionAttributeValues: {
-    //             ':waitSettlement': waitSettlement
-    //         }
-    //     })
-    // }
 }
 

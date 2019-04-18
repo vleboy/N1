@@ -18,18 +18,13 @@ module.exports = class UserModel extends BaseModel {
         }
     }
 
-    async queryUserById(userId) {
-        const res = await this.query({
+    queryUserById(userId) {
+        return this.queryOnce({
             ProjectionExpression: '#status,gameList,companyList',
-            ExpressionAttributeNames: {
-                '#status': 'status'
-            },
+            ExpressionAttributeNames: { '#status': 'status' },
             IndexName: 'UserIdIndex',
             KeyConditionExpression: 'userId = :userId',
-            ExpressionAttributeValues: {
-                ':userId': userId
-            }
+            ExpressionAttributeValues: { ':userId': userId }
         })
-        return res.Items[0]
     }
 }
