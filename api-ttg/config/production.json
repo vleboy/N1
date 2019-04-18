@@ -63,7 +63,7 @@
         "1160000": "PP",
         "1020000": "PNG",
         "1040000": "HABA",
-        "1070000": "MAYA",
+        "1070000": "KY",
         "1090000": "PG"
     },
     "ttg": {
@@ -196,7 +196,7 @@
         "launchUrl":"https://m.pgnojk.com"
     },
     "maya": {
-        "gameType": "1070000",
+        "gameType": "",
         "gameKey": ""
     },
     "server": {
