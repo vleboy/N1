@@ -36,28 +36,43 @@ router.get('/ky/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
         return ctx.body = { code: nares.data.code, msg: nares.data.msg }
     }
     // 获取玩家的余额，全部上分
+    const lineCode = inparam.lineCode || 'NA'                                                                     //代理下面的站点标识
     const account = inparam.userId                                                                                //玩家账号
-    const player = await new PlayerModel().getPlayerById(account)
+    let player = await new PlayerModel().getPlayerById(account)
     const money = player.balance                                                                                  //玩家的余额
-    const orderId = inparam.orderId || config.ky.agent + moment().utcOffset(8).format("YYYYMMDDHHmmss") + account //流水号
-    const lineCode = inparam.lineCode || 1                                                                        //代理下面的站点标识
-    const param = `s=0&account=${account}&money=${money}&lineCode=${lineCode}&ip=${ip}&orderid=${orderId}&KindId=0`
-    const url = getURL(0, param)
-    const response = await axios.get(url, { timeout: 100 * 1000 })
-    if (response.data.d.code == 0) {
+    let orderid = config.ky.agent + moment().utcOffset(8).format("YYYYMMDDHHmmssSSS") + account                   //流水号
+    let res = false
+    let checkRes = true
+    try {
+        res = await axios.get(getURL(0, `s=0&account=${account}&money=${money}&lineCode=${lineCode}&ip=${ip}&orderid=${orderid}&KindId=0`))
+    } catch (error) {
+        checkRes = await checkOrder(orderid)
+    }
+    log.info(res)
+    if (checkRes && res && res.data.d.code == 0) {
         //如果操作成功则模拟下注
         const updateParams = { billType: 3 }
         updateParams.amt = money * -1
         updateParams.gameType = config.ky.gameType
-        updateParams.businessKey = `BKY_${account}_${orderId}`
+        updateParams.businessKey = `BKY_${account}_${orderid}`
         let amtAfter = await new PlayerModel().updatebalance(player, updateParams)
+        // 下注失败则下分回滚
         if (amtAfter == 'err') {
+            orderid = config.ky.agent + moment().utcOffset(8).format("YYYYMMDDHHmmssSSS") + account
+            try {
+                res = await axios.get(getURL(3, `s=0&account=${account}&money=${money}&orderid=${orderid}`))
+            } catch (error) {
+                checkRes = await checkOrder(orderid)
+                if (!checkRes) {
+                    // TODO 记录下分失败的日志
+                }
+            }
             ctx.body = { code: 404, message: "发生错误了" }
         } else {
-            ctx.redirect(response.data.d.url)
+            ctx.redirect(res.data.d.url)
         }
     } else {
-        ctx.body = { code: response.data.d.code, message: "上分失败", err: response.data.d }
+        ctx.body = { code: res.data.d.code, message: "上分失败", err: res.data.d }
     }
 })
 
@@ -65,37 +80,55 @@ router.get('/ky/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
  * 玩家下线（提供给ky的回调通知）
  */
 router.get('/ky/logout', async (ctx, next) => {
-    //获取入参
-    const inparam = ctx.request.query
-    const account = qs.parse(desDecode(config.ky.desKey, inparam.param)).account
-    // 获取玩家的余额，全部下分
-    const player = await new PlayerModel().getPlayerById(account)
-    const response = await axios.get(getURL(1, `s=1&account=${account}`), { timeout: 100 * 1000 })
-    if (response.data.d.code == 0) {
+    // 获取入参
+    const account = qs.parse(desDecode(config.ky.desKey, ctx.request.query.param)).account
+    // 获取玩家的余额
+    let res = await axios.get(getURL(1, `s=1&account=${account}`), { timeout: 100 * 1000 })
+    const money = res.data.d.money
+    // 全部下分
+    let checkRes = true
+    try {
+        const orderid = config.ky.agent + moment().utcOffset(8).format("YYYYMMDDHHmmssSSS") + account
+        res = await axios.get(getURL(3, `s=0&account=${account}&money=${money}&orderid=${orderid}`))
+    } catch (error) {
+        checkRes = await checkOrder(orderid)
+    }
+    if (checkRes && res.data.d.code == 0) {
         //模拟下注0
-        const updateParams = { billType: 4 }
-        updateParams.amt = response.data.d.money
-        updateParams.gameType = config.ky.gameType
-        updateParams.businessKey = `BKY_${account}_${orderId}`
-        let amtAfter = await new PlayerModel().updatebalance(player, updateParams)
+        let player = await new PlayerModel().getPlayerById(account)
+        const updateParams1 = { billType: 3 }
+        updateParams1.amt = 0
+        updateParams1.gameType = config.ky.gameType
+        updateParams1.businessKey = `BKY_${account}_${orderId}`
+        let amtAfter = await new PlayerModel().updatebalance(player, updateParams1)
         if (amtAfter == 'err') {
-            ctx.body = { code: 404, message: "发生错误了" }
-        } else {
-            ctx.redirect(response.data.d.url)
+            return ctx.body = { code: 404, message: "发生错误了" }
         }
         //模拟返奖
-        const updateParams = { billType: 4 }
-        updateParams.amt = response.data.d.money
-        updateParams.gameType = config.ky.gameType
-        updateParams.businessKey = `BKY_${account}_${orderId}`
-        let amtAfter = await new PlayerModel().updatebalance(player, updateParams)
+        player = await new PlayerModel().getPlayerById(account)
+        const updateParams2 = { billType: 4 }
+        updateParams2.amt = money
+        updateParams2.gameType = config.ky.gameType
+        updateParams2.businessKey = `BKY_${account}_${orderId}`
+        let amtAfter = await new PlayerModel().updatebalance(player, updateParams2)
         if (amtAfter == 'err') {
-            ctx.body = { code: 404, message: "发生错误了" }
-        } else {
-            ctx.redirect(response.data.d.url)
+            return ctx.body = { code: 404, message: "发生错误了" }
         }
+        // 请求N1退出
+        axios.post(config.na.exiturl, {
+            exit: 1,
+            userId: account,
+            gameType: config.ky.gameType,
+            gameId: config.ky.gameId,
+            timestamp: Date.now()
+        }).then(res => {
+            res.data.code != 0 ? log.error(res.data) : null
+        }).catch(err => {
+            log.error(err)
+        })
     } else {
-        ctx.body = { code: response.data.d.code, message: "下分失败", err: response.data.d }
+        // TODO 记录下分失败日志
+        ctx.body = { code: res.data.d.code, message: "下分失败", err: res.data.d }
     }
 })
 
@@ -110,12 +143,11 @@ router.post('/ky/betdetail', async (ctx, next) => {
     let param = param = `s=6&startTime=${startTime}&endTime=${endTime}`
     //获取请求url
     let url = getURL(6, param)
-    let response = await axios.get(url, { timeout: 100 * 1000 })
+    let res = await axios.get(url, { timeout: 100 * 1000 })
     //根据操作类型做相应处理
-    if (response.data.d.code == 0) {
-
+    if (res.data.d.code == 0) {
     } else {
-        ctx.body = { code: -1, msg: '操作失败', err: response.data }
+        ctx.body = { code: -1, msg: '操作失败', err: res.data }
     }
 })
 
@@ -125,7 +157,6 @@ router.post('/ky/betdetail', async (ctx, next) => {
  * @param account 玩家账号
  */
 router.get('/ky/:s/:account', async (ctx, next) => {
-    let time = new moment().utcOffset(8)
     //获取入参
     let inparam = ctx.params
     let account = inparam.account                                                               //会员账号
@@ -263,11 +294,34 @@ router.get('/ky/:s/:account', async (ctx, next) => {
 //     ctx.body = { code: 0, msg: '玩家退出成功' }
 // })
 
-
-/****** 开元棋牌的内部方法*/
-//1,组装获取请求的url
+// 间隔5秒请求一次订单状态，直到确认返回
+async function checkOrder(orderid) {
+    try {
+        res = await axios.get(getURL(0, `s=4&orderid=${orderid}`))
+        if (res.data.d.code == 0) {
+            if (res.data.d.status == 0) {
+                return true
+            }
+            if (res.data.d.status == -1 || res.data.d.status == 2) {
+                return false
+            }
+            if (res.data.d.status == 3) {
+                checkOrder(orderid)
+            }
+        } else {
+            log.error('KY棋牌检查订单异常')
+            checkOrder(orderid)
+        }
+    } catch (error) {
+        log.error('KY棋牌检查订单超时')
+        setTimeout(() => {
+            checkOrder(orderid)
+        }, 5000)
+    }
+}
+// 组装获取请求的url
 function getURL(s, param) {
-    let timestamp = moment().utcOffset(8).unix() * 1000
+    let timestamp = Date.now()
     let url = s != 6 ? config.ky.apiUrl : config.ky.recordUrl
     url = url + "?" + qs.stringify({
         agent: config.ky.agent,
@@ -277,7 +331,7 @@ function getURL(s, param) {
     })
     return url
 }
-//2,DES解密
+// DES解密
 function desDecode(desKey, data) {
     var cipherChunks = [];
     var decipher = crypto.createDecipheriv('aes-128-ecb', desKey, '');
@@ -286,7 +340,7 @@ function desDecode(desKey, data) {
     cipherChunks.push(decipher.final('utf8'));
     return cipherChunks.join('');
 }
-//3,DES加密
+// DES加密
 function desEncode(desKey, data) {
     var cipherChunks = [];
     var cipher = crypto.createCipheriv('aes-128-ecb', desKey, '');

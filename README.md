@@ -169,9 +169,9 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
-    #MAYA服务
-    location /maya/ {
-        proxy_pass http://localhost:3000/maya/;
+    #KY服务
+    location /ky/ {
+        proxy_pass http://localhost:3000/ky/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
