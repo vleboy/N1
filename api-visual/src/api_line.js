@@ -32,13 +32,11 @@ router.get('/line/winloseAmount', async (ctx, next) => {
     if (inparam.init) {
         winloseAmount.push([new Date(inparam.endTime).Format('yyyy-MM-dd hh:mm:ss'), addNum])
     } else {
+        let lastArr = winloseAmount[winloseAmount.length - 1]  //取出最后一个
         if (winloseAmount.length == inparam.minute / inparam.inc) {
-            let lastArr = winloseAmount[winloseAmount.length - 1]  //取出最后一个
             winloseAmount.shift()  // 删除第一个
-            winloseAmount.push([new Date(inparam.endTime).Format('yyyy-MM-dd hh:mm:ss'), lastArr[1] + addNum])  //加入新的
-        } else {
-            winloseAmount.push([new Date(inparam.endTime).Format('yyyy-MM-dd hh:mm:ss'), addNum])
         }
+        winloseAmount.push([new Date(inparam.endTime).Format('yyyy-MM-dd hh:mm:ss'), lastArr[1] + addNum])  //加入新的
     }
     ctx.body = { code: 0, data: winloseAmount }
     console.timeEnd('实时统计耗时')
