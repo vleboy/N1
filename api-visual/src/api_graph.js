@@ -34,7 +34,7 @@ router.get('/line/graph', async (ctx, next) => {
     // 获取区域玩家总人数
     promiseArr.push(queryGetGraph('bill.playerCountGraph', inparam, 'playerCount', GraphMap))
     // 获取区域玩家总下注次数
-    promiseArr.push(queryGetGraph('bill.betCountGraph', inparam, 'betCount', GraphMap))
+    promiseArr.push(queryGetGraph('bill.handleAmountGraph', inparam, 'betCount', GraphMap), 3)
     // 获取区域玩家总下注金额
     promiseArr.push(queryGetGraph('bill.handleAmountGraph', inparam, 'betAmount', GraphMap, 3))
     // 获取区域玩家总返奖
@@ -42,7 +42,7 @@ router.get('/line/graph', async (ctx, next) => {
     // 获取区域玩家总退款
     promiseArr.push(queryGetGraph('bill.handleAmountGraph', inparam, 'refundAmount', GraphMap, 5))
     // 获取区域玩家总输赢
-    promiseArr.push(queryGetGraph('bill.winloseAmountGraph', inparam, 'winloseAmount', GraphMap))
+    promiseArr.push(queryGetGraph('bill.handleAmountGraph', inparam, 'winloseAmount', GraphMap))
     // 并发执行
     await Promise.all(promiseArr)
     ctx.body = { code: 0, data: GraphMap }
@@ -52,7 +52,7 @@ router.get('/line/graph', async (ctx, next) => {
 // 柱状图sql查询
 async function queryGetGraph(sqlName, inparam, key, map, type) {
     if (type) { inparam.type = type }
-    let res = await nodebatis.query(sqlName, { startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType, type: inparam.type })
+    let res = await nodebatis.query(sqlName, { method: key, startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType, type: inparam.type })
     for (let item of res) {
         for (let valueMap of map[key]) {
             if (valueMap.x == item.hours) {
