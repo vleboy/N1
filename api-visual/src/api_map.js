@@ -22,11 +22,11 @@ router.get('/map/china', async (ctx, next) => {
     // 获取区域玩家总下注次数
     promiseArr.push(queryGetSql('bill.chinaBetCount', inparam))
     // 获取区域玩家总下注金额
-    promiseArr.push(queryGetSql('bill.chinaBetAmount', inparam))
+    promiseArr.push(queryGetSql('bill.chinaHandleAmount', inparam, 3))
     // 获取区域玩家总返奖
-    promiseArr.push(queryGetSql('bill.chinaRetAmount', inparam))
+    promiseArr.push(queryGetSql('bill.chinaHandleAmount', inparam, 4))
     // 获取区域玩家总退款
-    promiseArr.push(queryGetSql('bill.chinaRefundAmount', inparam))
+    promiseArr.push(queryGetSql('bill.chinaHandleAmount', inparam, 5))
     // 获取区域玩家总输赢
     promiseArr.push(queryGetSql('bill.chinaWinloseAmount', inparam))
     let chinaArr = await Promise.all(promiseArr)
@@ -47,11 +47,11 @@ router.get('/map/world', async (ctx, next) => {
     // 获取区域玩家总下注次数
     promiseArr.push(queryGetSql('bill.worldBetCount', inparam))
     // 获取区域玩家总下注金额
-    promiseArr.push(queryGetSql('bill.worldBetAmount', inparam))
+    promiseArr.push(queryGetSql('bill.worldHandleAmount', inparam, 3))
     // 获取区域玩家总返奖
-    promiseArr.push(queryGetSql('bill.worldRetAmount', inparam))
+    promiseArr.push(queryGetSql('bill.worldHandleAmount', inparam, 4))
     // 获取区域玩家总退款
-    promiseArr.push(queryGetSql('bill.worldRefundAmount', inparam))
+    promiseArr.push(queryGetSql('bill.worldHandleAmount', inparam, 5))
     // 获取区域玩家总输赢
     promiseArr.push(queryGetSql('bill.worldWinloseAmount', inparam))
     let worldArr = await Promise.all(promiseArr)
@@ -79,8 +79,9 @@ function getSplitList(arr, splitCount) {
 }
 
 // sql查询
-async function queryGetSql(sqlName, inparam) {
-    let res = await nodebatis.query(sqlName, { startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
+async function queryGetSql(sqlName, inparam, type) {
+    if (type) { inparam.type = type }
+    let res = await nodebatis.query(sqlName, { startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType, type: inparam.type })
     let arr = []
     //中国范围
     let chinaData = [

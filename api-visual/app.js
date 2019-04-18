@@ -17,6 +17,7 @@ const log = require('tracer').colorConsole({ level: config.log.level })
 const mapapirouter = require('./src/api_map')
 const lineapirouter = require('./src/api_line')
 const pieapirouter = require('./src/api_pie')
+const graphapirouter = require('./src/api_graph')
 
 // 初始化应用服务，加载所有中间件
 const app = new Koa()
@@ -50,6 +51,7 @@ app.use(xauth(config.auth, (v) => { // TOKEN身份认证中间件，参数1：�
 app.use(mount('/visual', mapapirouter.routes()))    // 地图接口路由
 app.use(mount('/visual', lineapirouter.routes()))   // 折线图接口路由
 app.use(mount('/visual', pieapirouter.routes()))    // 饼图接口路由
+app.use(mount('/visual', graphapirouter.routes()))  // 柱状图接口路由
 
 
 // 启动应用服务
