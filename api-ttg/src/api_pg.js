@@ -54,7 +54,7 @@ router.post('/pg/VerifySession', async (ctx, next) => {
     //获取入参
     let inparam = ctx.request.body
     if (inparam.operator_token != config.pg.operator_token || inparam.secret_key != config.pg.secret_key) {
-        console.log({ data: null, error: { code: 1034, message: '无效的请求' } })
+        console.log({ data: null, error: { code: 1034, message: '无效的请求1' } })
         return ctx.body = { data: null, error: { code: 1034, message: '无效的请求' } }
     }
     //验证玩家
@@ -62,7 +62,7 @@ router.post('/pg/VerifySession', async (ctx, next) => {
     try {
         loginInfo = jwt.verify(inparam.operator_player_session, config.pg.gameKey)
     } catch (error) {
-        console.log({ data: null, error: { code: 1034, message: '无效的请求' } })
+        console.log({ data: null, error: { code: 1034, message: '无效的请求2' } })
         return ctx.body = { data: null, error: { code: 1034, message: '无效的请求' } }
     }
     //获取玩家
