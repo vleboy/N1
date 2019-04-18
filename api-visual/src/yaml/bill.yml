@@ -121,8 +121,9 @@ handleAmountGraph: # 时间段柱状图-统计金额
     - from bill where createdAt between :startTime and :endTime
     # 判断是否使用type
     - if:
-        test: :method != 'winloseAmount'
+        test: :type != null
         sql: and type=:type
+    # 判断是否使用gameType
     - if:
         test: :gameType != null
         sql: and gameType = :gameType
