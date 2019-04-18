@@ -110,7 +110,7 @@ router.get('/ky/logout', async (ctx, next) => {
         updateParams2.amt = money
         updateParams2.gameType = config.ky.gameType
         updateParams2.businessKey = `BKY_${account}_${orderId}`
-        let amtAfter = await new PlayerModel().updatebalance(player, updateParams2)
+        amtAfter = await new PlayerModel().updatebalance(player, updateParams2)
         if (amtAfter == 'err') {
             return ctx.body = { code: 404, message: "发生错误了" }
         }
