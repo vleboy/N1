@@ -9,8 +9,6 @@ const _ = require('lodash')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 
-
-
 //五分钟全局对象统计输赢金额
 let winloseAmount = []
 
@@ -22,11 +20,11 @@ router.get('/line/winloseAmount', async (ctx, next) => {
     inparam.minute = inparam.minute ? +inparam.minute : 5 * 60   //时间区域
     if (winloseAmount.length == 0) { //初始
         inparam.startTime = new Date(new Date().toLocaleDateString()).getTime()  //获取当天零点时间
-        inparam.endTime = Date.now()
+        inparam.endTime = Date.now() - 300000
         inparam.init = true
     } else {
         inparam.startTime = new Date(winloseAmount[winloseAmount.length - 1][0]).getTime()
-        inparam.endTime = inparam.startTime + inparam.inc * 10000
+        inparam.endTime = inparam.startTime + inparam.inc * 1000
     }
     // 获取区域玩家总输赢
     let res = await nodebatis.query('bill.winloseAmountDay', { startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
