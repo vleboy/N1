@@ -102,20 +102,21 @@ winloseAmountDay: # 日报表输赢金额
         sql: and gameType=:gameType
     - group by days ORDER BY days
 
-playerCountGraph: # 统计人数
+playerCountGraph: # 时间段柱状图-统计人数
     - SELECT FROM_UNIXTIME(createdAt/1000,'%k') hours,count(sn) count from bill where createdAt between :startTime and :endTime 
     - if:
         test: :gameType!=null
         sql: and gameType=:gameType
     - GROUP BY hours
 
-handleAmountGraph: # 时间段柱状图
+handleAmountGraph: # 时间段柱状图-统计金额
     - SELECT FROM_UNIXTIME(createdAt/1000,'%k') hours,
     # 判断count与sum
     - if:
         test: :method == 'betCount'
         sql: count(sn) count
-    - else:
+    - if:
+        test: :method != 'betCount'
         sql: sum(amount) count
     - from bill where createdAt between :startTime and :endTime
     # 判断是否使用type
@@ -123,8 +124,8 @@ handleAmountGraph: # 时间段柱状图
         test: :method != 'winloseAmount'
         sql: and type=:type
     - if:
-        test: :gameType!=null
-        sql: and gameType=:gameType
+        test: :gameType != null
+        sql: and gameType = :gameType
     - GROUP BY hours
 
 # betCountGraph: # 统计下注总次数
