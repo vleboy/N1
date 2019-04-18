@@ -9,19 +9,10 @@ const _ = require('lodash')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 
-//当天全局折线图map
-let lineMap = {
-    playerCount: [],
-    betCount: [],
-    betAmount: [],
-    retAmount: [],
-    refundAmount: [],
-    winloseAmount: []
-}
+
 
 //五分钟全局对象统计输赢金额
 let winloseAmount = []
-
 
 //累积统计5分钟输赢金额
 router.get('/line/winloseAmount', async (ctx, next) => {
@@ -57,11 +48,20 @@ router.get('/line/winloseAmount', async (ctx, next) => {
 
 
 /**
- *  当天折线图统计
+ *  日报表折线图统计
  */
 router.get('/line/day', async (ctx, next) => {
-    console.time('折线图统计耗时')
+    console.time('日报表折线图统计耗时')
     let inparam = ctx.request.query
+    //当天全局折线图map
+    let lineMap = {
+        playerCount: [],
+        betCount: [],
+        betAmount: [],
+        retAmount: [],
+        refundAmount: [],
+        winloseAmount: []
+    }
     inparam.startTime = new Date(new Date().toLocaleDateString()).getTime()  //获取当天零点时间
     inparam.endTime = Date.now() - 5 * 60 * 60 * 1000  //获取查询的时间
     let promiseArr = []
@@ -80,7 +80,7 @@ router.get('/line/day', async (ctx, next) => {
     // 并发执行
     await Promise.all(promiseArr)
     ctx.body = { code: 0, data: lineMap }
-    console.timeEnd('折线图统计耗时')
+    console.timeEnd('日报表折线图统计耗时')
 })
 
 // 折线图sql查询

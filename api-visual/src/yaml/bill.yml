@@ -107,28 +107,28 @@ playerCountGraph: # 统计人数
     - if:
         test: :gameType!=null
         sql: and gameType=:gameType
-    - GROUP BY days
+    - GROUP BY hours
 
 betCountGraph: # 统计下注总次数
     - SELECT FROM_UNIXTIME(createdAt/1000,'%k') hours,count(sn) count from bill where createdAt between :startTime and :endTime and type=3
     - if:
         test: :gameType!=null
         sql: and gameType=:gameType
-    - GROUP BY days
+    - GROUP BY hours
 
 handleAmountGraph: # 统计下注总金额
     - SELECT FROM_UNIXTIME(createdAt/1000,'%k') hours,sum(amount) count from bill where createdAt between :startTime and :endTime and type=:type
     - if:
         test: :gameType!=null
         sql: and gameType=:gameType
-    - GROUP BY days
+    - GROUP BY hours
 
 winloseAmountGraph: # 实时统计当天输赢金额
     - SELECT FROM_UNIXTIME(createdAt/1000,'%k') hours,sum(amount) count from bill where createdAt between :startTime and :endTime 
     - if:
         test: :gameType!=null
         sql: and gameType=:gameType
-    - GROUP BY days
+    - GROUP BY hours
 
 playerCountPie: # 统计人数
     - select count(c.userId) as num,c.gameType from 
