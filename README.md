@@ -229,4 +229,3 @@ anotherGameData{data:[{\"GameResult\":[{\"BaccaratResult\":[]}]}],mixAmount:0}
 正式服大厅
 【国内】http://webpage.risheng3d.com/h5_lobby.html?userId=268184&token=0
 【国外】http://webpage.na77.org/h5_lobby.html?userId=268184&token=0
-
