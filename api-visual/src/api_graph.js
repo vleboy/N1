@@ -51,8 +51,7 @@ router.get('/line/graph', async (ctx, next) => {
 
 // 柱状图sql查询
 async function queryGetGraph(sqlName, inparam, key, map, type) {
-    if (type) { inparam.type = type }
-    let res = await nodebatis.query(sqlName, { method: key, startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType, type: inparam.type })
+    let res = await nodebatis.query(sqlName, { method: key, type, startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
     for (let item of res) {
         for (let valueMap of map[key]) {
             if (valueMap.x == item.hours) {
