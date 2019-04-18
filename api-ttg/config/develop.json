@@ -148,10 +148,9 @@
         "launchUrl": "https://sandbox04app.rt-services.co:2072/lobby.aspx"
     },
     "ky": {
-        "gameType": "",
-        "gameId": "",
+        "gameType": "1070000",
+        "gameId": "1070001",
         "gameKey": "",
-        "apikey": "",
         "agent": "70144",
         "desKey": "SRQF8YCFSOIR5TQ6",
         "md5key": "EVCHIHBIJWYW46S3",

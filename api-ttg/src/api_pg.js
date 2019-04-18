@@ -66,6 +66,7 @@ router.post('/pg/VerifySession', async (ctx, next) => {
     //获取玩家
     const player = await new PlayerModel().getPlayerById(loginInfo.userId)
     //返回结果
+    console.log({ data: { player_name: player.userId, nickname: player.userId, currency: 'CNY', reminder_time: Date.now() }, error: null })
     ctx.body = { data: { player_name: player.userId, nickname: player.userId, currency: 'CNY', reminder_time: Date.now() }, error: null }
 })
 

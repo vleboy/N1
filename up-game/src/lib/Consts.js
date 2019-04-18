@@ -13,7 +13,7 @@ const GameTypeEnum = {
     '1040000': { type: 2, code: '1040000', name: 'HABA电子游戏', company: 'HABA' },
     '1050000': { type: 1, code: '1050000', name: 'AG真人游戏', company: 'AG' },
     '1060000': { type: 1, code: '1060000', name: 'SA真人游戏', company: 'SA' },
-    // '1070000': { type: 1, code: '1070000', name: 'MAYA真人游戏', company: 'MAYA' },
+    '1070000': { type: 4, code: '1070000', name: 'KY棋牌游戏', company: 'KY' },
     '1080000': { type: 2, code: '1080000', name: 'SB电子游戏', company: 'SB' },
     '1090000': { type: 2, code: '1090000', name: 'PG电子游戏', company: 'PG' },
     // '1100000': { type: 5, code: '1100000', name: 'UG体育游戏', company: 'UG' },

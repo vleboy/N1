@@ -45,9 +45,8 @@ router.get('/ky/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
     const url = getURL(0, param)
     const response = await axios.get(url, { timeout: 100 * 1000 })
     if (response.data.d.code == 0) {
-        //如果操作成功则（模拟）下注扣除玩家的上分（余额）
-        const updateParams = {}
-        updateParams.billType = 3
+        //如果操作成功则模拟下注
+        const updateParams = { billType: 3 }
         updateParams.amt = money * -1
         updateParams.gameType = config.ky.gameType
         updateParams.businessKey = `BKY_${account}_${orderId}`
@@ -67,19 +66,43 @@ router.get('/ky/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
  */
 router.get('/ky/logout', async (ctx, next) => {
     //获取入参
-    let inparam = ctx.request.body
-    let agent = inparam.agent
-    let account = inparam.account
-    let money = inparam.money
-    //模拟返奖更新余额
+    const inparam = ctx.request.query
+    const account = qs.parse(desDecode(config.ky.desKey, inparam.param)).account
+    // 获取玩家的余额，全部下分
     const player = await new PlayerModel().getPlayerById(account)
+    const response = await axios.get(getURL(1, `s=1&account=${account}`), { timeout: 100 * 1000 })
+    if (response.data.d.code == 0) {
+        //模拟下注0
+        const updateParams = { billType: 4 }
+        updateParams.amt = response.data.d.money
+        updateParams.gameType = config.ky.gameType
+        updateParams.businessKey = `BKY_${account}_${orderId}`
+        let amtAfter = await new PlayerModel().updatebalance(player, updateParams)
+        if (amtAfter == 'err') {
+            ctx.body = { code: 404, message: "发生错误了" }
+        } else {
+            ctx.redirect(response.data.d.url)
+        }
+        //模拟返奖
+        const updateParams = { billType: 4 }
+        updateParams.amt = response.data.d.money
+        updateParams.gameType = config.ky.gameType
+        updateParams.businessKey = `BKY_${account}_${orderId}`
+        let amtAfter = await new PlayerModel().updatebalance(player, updateParams)
+        if (amtAfter == 'err') {
+            ctx.body = { code: 404, message: "发生错误了" }
+        } else {
+            ctx.redirect(response.data.d.url)
+        }
+    } else {
+        ctx.body = { code: response.data.d.code, message: "下分失败", err: response.data.d }
+    }
 })
 
 /**
  * 获取游戏注单（拉去时间最大不能超过60分钟）
  */
 router.post('/ky/betdetail', async (ctx, next) => {
-    let time = new moment().utcOffset(8)
     //获取入参
     let inparam = ctx.request.body
     let startTime = inparam.startTime                                                           //开始时间
@@ -244,8 +267,7 @@ router.get('/ky/:s/:account', async (ctx, next) => {
 /****** 开元棋牌的内部方法*/
 //1,组装获取请求的url
 function getURL(s, param) {
-    let time = new moment().utcOffset(8)
-    let timestamp = time.unix() * 1000
+    let timestamp = moment().utcOffset(8).unix() * 1000
     let url = s != 6 ? config.ky.apiUrl : config.ky.recordUrl
     url = url + "?" + qs.stringify({
         agent: config.ky.agent,
