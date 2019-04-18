@@ -54,7 +54,7 @@ class MerchantModel extends BaseModel {
         if (Model.isPlatformAdmin(token)) {
             query = {
                 KeyConditionExpression: '#role = :role',
-                ProjectionExpression: 'userId,sn,displayId,displayName,msn,parent,parentName,parentDisplayName,parentRole,balance,gameList,createdAt,loginAt,#status,remark,uname,username,#role,points,isTest',
+                ProjectionExpression: 'userId,sn,displayId,displayName,msn,parent,parentSuffix,parentName,parentDisplayName,parentRole,balance,gameList,createdAt,loginAt,#status,remark,uname,username,#role,points,isTest',
                 ExpressionAttributeNames: {
                     '#role': 'role',
                     '#status': 'status'
