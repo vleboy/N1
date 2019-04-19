@@ -34,7 +34,7 @@ router.get('/line/graph', async (ctx, next) => {
     // 获取区域玩家总人数
     promiseArr.push(queryGetGraph('bill.playerCountGraph', inparam, 'playerCount', GraphMap))
     // 获取区域玩家总下注次数
-    promiseArr.push(queryGetGraph('bill.handleAmountGraph', inparam, 'betCount', GraphMap), 3)
+    promiseArr.push(queryGetGraph('bill.playerCountGraph', inparam, 'betCount', GraphMap), 3)
     // 获取区域玩家总下注金额
     promiseArr.push(queryGetGraph('bill.handleAmountGraph', inparam, 'betAmount', GraphMap, 3))
     // 获取区域玩家总返奖
