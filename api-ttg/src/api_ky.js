@@ -97,7 +97,7 @@ router.get('/ky/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
  */
 router.get('/ky/logout', async (ctx, next) => {
     // 获取入参
-    const account = qs.parse(desDecode(config.ky.desKey, ctx.request.query.param)).account
+    const account = qs.parse(desDecode(config.ky.desKey, decodeURIComponent(ctx.request.query.param))).account
     // 获取玩家可下分金额
     let res = await axios.get(getURL(1, `s=1&account=${account}`), { timeout: 100 * 1000 })
     const money = res.data.d.money
