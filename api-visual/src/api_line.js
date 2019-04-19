@@ -81,16 +81,30 @@ router.get('/line/day', async (ctx, next) => {
 router.get('/line/player', async (ctx, next) => {
     console.time('玩家折线图统计耗时')
     let inparam = ctx.request.query
+    //查询时间段的每天注册人数
     let res = await nodebatis.query('player.queryRegisterDay', { startTime: inparam.startTime, endTime: inparam.endTime })
+    //查询该时间段之前的所有注册人数
+    let resTotal = await nodebatis.query('player.querycountDay', { startTime: 0, endTime: inparam.startTime })
     // 初始折线图数据
-    let lineMap = []
-    for (let i = +inparam.startTime; i <= +inparam.endTime; i += 24 * 60 * 60 * 1000) {
-        lineMap.push([new Date(i).Format('yyyy-MM-dd'), 0])
+    let lineMap = {
+        everyDay: [],
+        sumDay: []
     }
-    for (let item of lineMap) {
+    for (let i = +inparam.startTime; i <= +inparam.endTime; i += 24 * 60 * 60 * 1000) {
+        lineMap.everyDay.push([new Date(i).Format('yyyy-MM-dd'), 0])
+        lineMap.sumDay.push([new Date(i).Format('yyyy-MM-dd'), resTotal[0].total])
+    }
+    for (let item of lineMap.everyDay) {
         for (let info of res) {
             if (item[0] == info.days) {
                 item[1] = info.count
+            }
+        }
+    }
+    for (let item of lineMap.sumDay) {
+        for (let info of res) {
+            if (item[0] == info.days) {
+                item[1] += info.count
             }
         }
     }
