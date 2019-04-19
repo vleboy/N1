@@ -28,7 +28,7 @@ router.get('/map/china', async (ctx, next) => {
     // 获取区域玩家总退款
     promiseArr.push(queryGetSql('bill.chinaHandleAmount', 'refundAmount', inparam, 5))
     // 获取区域玩家总输赢
-    promiseArr.push(queryGetSql('bill.chinaWinloseAmount', 'winloseAmount', inparam))
+    promiseArr.push(queryGetSql('bill.chinaHandleAmount', 'winloseAmount', inparam))
     let chinaArr = await Promise.all(promiseArr)
     ctx.body = { code: 0, data: { playerCount: chinaArr[0], betCount: chinaArr[1], betAmount: chinaArr[2], retAmount: chinaArr[3], refundAmount: chinaArr[4], winloseAmount: chinaArr[5] } }
     console.timeEnd('中国地图查询用时')
