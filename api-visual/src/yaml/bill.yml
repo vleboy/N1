@@ -97,10 +97,12 @@ handleAmountDay: # 日报表-金额汇总
     - group by days ORDER BY days
 
 playerCountGraph: # 时间段柱状图-玩家人数
-    - SELECT FROM_UNIXTIME(createdAt/1000,'%k') hours,count(sn) count from bill where createdAt between :startTime and :endTime 
+    - SELECT FROM_UNIXTIME(createdAt/1000,'%k') hours,count(sn) count from 
+    - (select distinct(userId),createdAt from bill where createdAt between :startTime and :endTime
     - if:
         test: :gameType!=null
         sql: and gameType=:gameType
+    - ) as t
     - GROUP BY hours
 
 handleAmountGraph: # 时间段柱状图-金额汇总
