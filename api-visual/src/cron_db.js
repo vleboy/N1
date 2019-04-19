@@ -60,15 +60,14 @@ async function queryIp(ip) {
 
 // 流水定时服务
 cron.schedule('*/30 * * * * *', async () => {
-    console.time('【全部载入】')
-    // 配置文件查询
+    console.time('【流水载入】')
     let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
     if (configArr[0].flag) {
         await nodebatis.execute('config.updateFlag', { type: 'queryTime', flag: 0 })
         let startTime = configArr[0].createdAt
         let nowTime = Date.now() - 3 * 60 * 1000
         let endTime = startTime + configArr[0].rangeHour * 3600000 > nowTime ? nowTime : startTime + configArr[0].rangeHour * 3600000
-        console.time(`读取 ${dayjs(startTime).format('YYYY-MM-DD HH:mm:ss')} 至 ${dayjs(endTime).format('YYYY-MM-DD HH:mm:ss')} 流水`)
+        // console.time(`读取 ${dayjs(startTime).format('YYYY-MM-DD HH:mm:ss')} 至 ${dayjs(endTime).format('YYYY-MM-DD HH:mm:ss')} 流水`)
         let promiseReadArr = []
         for (let i = 3; i <= 5; i++) {
             promiseReadArr.push(queryInc('query', {
@@ -88,9 +87,8 @@ cron.schedule('*/30 * * * * *', async () => {
         }
         let resArr = await Promise.all(promiseReadArr)
         resArr = resArr[0].Items.concat(resArr[1].Items.concat(resArr[2].Items))
-        console.timeEnd(`读取 ${dayjs(startTime).format('YYYY-MM-DD HH:mm:ss')} 至 ${dayjs(endTime).format('YYYY-MM-DD HH:mm:ss')} 流水`)
-        // 写入
-        console.time(`写入 ${resArr.length} 条`)
+        // console.timeEnd(`读取 ${dayjs(startTime).format('YYYY-MM-DD HH:mm:ss')} 至 ${dayjs(endTime).format('YYYY-MM-DD HH:mm:ss')} 流水`)
+        console.time(`写入流水 ${resArr.length} 条`)
         let ipMap = {}
         let promiseWriteArr = []
         if (resArr.length > 0) {
@@ -121,18 +119,18 @@ cron.schedule('*/30 * * * * *', async () => {
         }
         await Promise.all(promiseWriteArr)
         await nodebatis.execute('config.updateOne', { type: 'queryTime', createdAt: endTime + 1, flag: 1 })
-        console.timeEnd(`写入 ${resArr.length} 条`)
+        console.timeEnd(`写入流水 ${resArr.length} 条`)
     }
-    console.timeEnd('【全部载入】')
+    console.timeEnd('【流水载入】')
 })
 
 // 玩家定时服务
-cron.schedule('0 14 1 * * *', async () => {
+cron.schedule('0 18 1 * * *', async () => {
     console.time('【玩家载入】')
     let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
     let startTime = configArr[0].playerCreatedAt
     let endTime = Date.now()
-    let scanQuery = {
+    let res = await queryInc('scan', {
         TableName: 'HeraGamePlayer',
         ProjectionExpression: 'userName,userId,nickname,buId,parent,parentName,parentSn,msn,createdAt,createAt',
         FilterExpression: `createAt between :createAt0 and :createAt1`,
@@ -140,8 +138,7 @@ cron.schedule('0 14 1 * * *', async () => {
             ':createAt0': startTime,
             ':createAt1': endTime
         }
-    }
-    let res = await queryInc('scan', scanQuery)
+    })
     console.time(`写入玩家 ${res.Items.length} 条`)
     let promiseWriteArr = []
     if (res.Items.length > 0) {
@@ -162,7 +159,7 @@ cron.schedule('0 14 1 * * *', async () => {
     console.timeEnd('【玩家载入】')
 
     console.time('【用户载入】')
-    scanQuery = {
+    res = await queryInc('scan', {
         TableName: 'ZeusPlatformUser',
         ProjectionExpression: '#role,userId,displayId,displayName,username,sn,#suffix,uname,#level,levelIndex,msn,#parent,parentName,parentDisplayName,parentSuffix,parentRole,createdAt',
         ExpressionAttributeNames: { '#role': 'role', '#suffix': 'suffix', '#level': 'level', '#parent': 'parent' },
@@ -171,8 +168,7 @@ cron.schedule('0 14 1 * * *', async () => {
             ':createdAt0': startTime,
             ':createdAt1': endTime
         }
-    }
-    res = await queryInc('scan', scanQuery)
+    })
     console.time(`写入用户 ${res.Items.length} 条`)
     promiseWriteArr = []
     if (res.Items.length > 0) {
