@@ -185,7 +185,7 @@ router.get('/ky/:s/:account', async (ctx, next) => {
     let inparam = ctx.params
     let account = inparam.account
     //获取请求url
-    let res = await axios.get(getURL(parseInt(inparam.s), `s=${s}&account=${account}`))
+    let res = await axios.get(getURL(parseInt(inparam.s), `s=${inparam.s}&account=${account}`))
     //根据操作类型做相应处理
     if (res.data.d.code == 0) {
         switch (parseInt(inparam.s)) {
