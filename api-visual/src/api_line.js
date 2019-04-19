@@ -83,13 +83,18 @@ router.get('/line/player', async (ctx, next) => {
     let inparam = ctx.request.query
     let res = await nodebatis.query('player.queryRegisterDay', { startTime: inparam.startTime, endTime: inparam.endTime })
     // 初始折线图数据
-    let lineMap=[]
-    let startPoint= new Date(inparam.startTime).Format('yyyyMMdd')
-    let endPoint=new Date(inparam.endTime).Format('yyyyMMdd')
-    for(let i=startPoint;i<=endPoint;i++){
-        
+    let lineMap = []
+    for (let i = inparam.startTime; i <= inparam.endTime; i += 24 * 60 * 60 * 1000) {
+        lineMap.push([new Date(i).Format('yyyy-MM-dd'), 0])
     }
-    ctx.body = { code: 0, data: [] }
+    for (let item of lineMap) {
+        for (let info of res[0]) {
+            if (item[0] == info.days) {
+                item[1] = info.count
+            }
+        }
+    }
+    ctx.body = { code: 0, data: lineMap }
     console.timeEnd('玩家折线图统计耗时')
 })
 

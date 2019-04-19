@@ -129,14 +129,14 @@ cron.schedule('*/30 * * * * *', async () => {
 })
 
 // 玩家定时服务
-cron.schedule('0 2 14 * * *', async () => {
+cron.schedule('0 18 14 * * *', async () => {
     console.time('玩家定时统计')
     let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
     let startTime = configArr[0].playerCreatedAt
     let endTime = Date.now()
     let scanQuery = {
         TableName: 'HeraGamePlayer',
-        ProjectionExpression: 'userName,userId,nickname,buId,parent,parentName,parentSn,msn,createdAt',
+        ProjectionExpression: 'userName,userId,nickname,buId,parent,parentName,parentSn,msn,createdAt,createAt',
         FilterExpression: `createAt between :createAt0 and :createAt1`,
         ExpressionAttributeValues: {
             ':createAt0': startTime,
