@@ -127,7 +127,7 @@ cron.schedule('*/30 * * * * *', async () => {
 })
 
 // 玩家定时服务
-cron.schedule('0 6 1 * * *', async () => {
+cron.schedule('0 10 1 * * *', async () => {
     console.time('【玩家载入】')
     let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
     let startTime = configArr[0].playerCreatedAt
@@ -166,10 +166,10 @@ cron.schedule('0 6 1 * * *', async () => {
         TableName: 'ZeusPlatformUser',
         ProjectionExpression: '#role,userId,displayId,displayName,username,sn,#suffix,uname,#level,levelIndex,msn,#parent,parentName,parentDisplayName,parentSuffix,parentRole,createdAt',
         ExpressionAttributeNames: { '#role': 'role', '#suffix': 'suffix', '#level': 'level', '#parent': 'parent' },
-        FilterExpression: `createAt between :createAt0 and :createAt1`,
+        FilterExpression: `createdAt between :createdAt0 and :createdAt1`,
         ExpressionAttributeValues: {
-            ':createAt0': startTime,
-            ':createAt1': endTime
+            ':createdAt0': startTime,
+            ':createdAt1': endTime
         }
     }
     res = await queryInc('scan', scanQuery)
