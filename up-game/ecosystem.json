@@ -20,9 +20,9 @@
   ],
   "deploy": {
     "develop": {
-      "key": "../../testserver.pem",
+      "key": "../../gamedev.pem",
       "user": "root",
-      "host": "testgame.cncshe.com",
+      "host": "test.cncshe.com",
       "ref": "origin/master",
       "repo": "git@github.com:vleboy/N1.git",
       "path": "/usr/dev/up-game",
