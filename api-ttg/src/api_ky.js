@@ -44,23 +44,25 @@ router.get('/ky/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
     if (res.data.d.money > 0) {
         money = 0
     }
-    // 获取玩家的余额，全部上分
     const lineCode = inparam.lineCode || 'NA'                                                                     //代理下面的站点标识
     const account = inparam.userId                                                                                //玩家账号
-    const orderid = config.ky.agent + moment().utcOffset(8).format("YYYYMMDDHHmmssSSS") + account                 //流水号
+    const orderid = `${config.ky.agent}${moment().utcOffset(8).format("YYYYMMDDHHmmssSSS")}${account}`            //流水号
     // 无需上分，直接进入
     if (money == 0) {
         res = await axios.get(getURL(0, `s=0&account=${account}&money=${money}&lineCode=${lineCode}&ip=${ip}&orderid=${orderid}&KindId=0`))
         return ctx.redirect(res.data.d.url)
     }
     // 上分，必须先模拟下注
+    const txnidTemp = `${account}_BET_${orderid}`
     const updateParams = { billType: 3 }
     updateParams.amt = money * -1
     updateParams.gameType = config.ky.gameType
     updateParams.businessKey = `BKY_${account}_${orderid}`
+    updateParams.txnidTemp = txnidTemp
     let amtAfter = await new PlayerModel().updatebalance(player, updateParams)
+    console.log(updateParams)
     if (amtAfter == 'err') {
-        ctx.body = { code: 404, message: "发生错误了" }
+        ctx.body = { code: -1, msg: "游戏状态错误" }
     } else {
         // 获取游戏URL，上分
         let checkRes = true
@@ -70,7 +72,7 @@ router.get('/ky/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
         } catch (error) {
             checkRes = await checkOrder(orderid)
         }
-        log.info(res)
+        console.log(res)
         // 上分成功，进入游戏
         if (checkRes && res && res.data.d.code == 0) {
             ctx.redirect(res.data.d.url)
@@ -81,13 +83,14 @@ router.get('/ky/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
             updateParams2.amt = money
             updateParams2.gameType = config.ky.gameType
             updateParams2.businessKey = `BKY_${account}_${orderid}`
+            updateParams2.betsn = `AKY_${txnidTemp}`
+            updateParams2.txnidTemp = `${account}_BETCANCEL_${orderid}`
             let amtAfter = await new PlayerModel().updatebalance(player, updateParams2)
             if (amtAfter == 'err') {
-                new LogModel().add('2', 'KYUPError', updateParams2, `KY上分失败${orderid}`)
+                new LogModel().add('2', 'KYUPError', updateParams2, `KY退款失败${orderid}`)
             }
-            ctx.body = { code: res.data.d.code, message: "上分失败", err: res.data.d }
+            ctx.body = { code: -1, msg: res.data.d }
         }
-        ctx.redirect(res.data.d.url)
     }
 })
 
@@ -100,9 +103,12 @@ router.get('/ky/logout', async (ctx, next) => {
     // 获取玩家可下分金额
     let res = await axios.get(getURL(1, `s=1&account=${account}`), { timeout: 100 * 1000 })
     const money = res.data.d.money
+    if (!money) {
+        return ctx.body = { s: 101, m: "/channelHandle", d: { code: 0 } }
+    }
     // 全部下分
     let checkRes = true
-    const orderid = config.ky.agent + moment().utcOffset(8).format("YYYYMMDDHHmmssSSS") + account
+    const orderid = `${config.ky.agent}${moment().utcOffset(8).format("YYYYMMDDHHmmssSSS")}${account}`
     try {
         res = await axios.get(getURL(3, `s=0&account=${account}&money=${money}&orderid=${orderid}`))
     } catch (error) {
@@ -111,24 +117,27 @@ router.get('/ky/logout', async (ctx, next) => {
     if (checkRes && res.data.d.code == 0) {
         //模拟下注0
         let player = await new PlayerModel().getPlayerById(account)
+        const txnidTemp = `${account}_BET_${orderid}`
         const updateParams1 = { billType: 3 }
         updateParams1.amt = 0
         updateParams1.gameType = config.ky.gameType
-        updateParams1.businessKey = `BKY_${account}_${orderId}`
+        updateParams1.businessKey = `BKY_${account}_${orderid}`
+        updateParams1.txnidTemp = txnidTemp
         let amtAfter = await new PlayerModel().updatebalance(player, updateParams1)
         if (amtAfter == 'err') {
             new LogModel().add('2', 'KYDOWNError', updateParams1, `KY下分投注0失败${orderid}`)
-            return ctx.body = { code: 404, message: "发生错误了" }
+            return ctx.body = { s: 101, m: "/channelHandle", d: { code: 27 } }
         }
         //模拟返奖
         const updateParams2 = { billType: 4 }
         updateParams2.amt = money
         updateParams2.gameType = config.ky.gameType
-        updateParams2.businessKey = `BKY_${account}_${orderId}`
+        updateParams2.businessKey = `BKY_${account}_${orderid}`
+        updateParams2.betsn = `AKY_${txnidTemp}`
         amtAfter = await new PlayerModel().updatebalance(player, updateParams2)
         if (amtAfter == 'err') {
             new LogModel().add('2', 'KYDOWNError', updateParams2, `KY下分返奖失败${orderid}`)
-            return ctx.body = { code: 404, message: "发生错误了" }
+            return ctx.body = { s: 101, m: "/channelHandle", d: { code: 27 } }
         }
         // 请求N1退出
         axios.post(config.na.exiturl, {
@@ -142,9 +151,10 @@ router.get('/ky/logout', async (ctx, next) => {
         }).catch(err => {
             log.error(err)
         })
+        ctx.body = { s: 101, m: "/channelHandle", d: { code: 0 } }
     } else {
-        new LogModel().add('2', 'KYDOWNError', res, `KY下分异常${orderid}`)
-        ctx.body = { code: res.data.d.code, message: "下分失败", err: res.data.d }
+        new LogModel().add('2', 'KYDOWNError', { userId: account, userName: account }, `KY下分异常${orderid}`)
+        ctx.body = { s: 101, m: "/channelHandle", d: { code: res.data.d.code } }
     }
 })
 
@@ -313,7 +323,7 @@ router.get('/ky/:s/:account', async (ctx, next) => {
 // 间隔5秒请求一次订单状态，直到确认返回
 async function checkOrder(orderid) {
     try {
-        res = await axios.get(getURL(0, `s=4&orderid=${orderid}`))
+        const res = await axios.get(getURL(0, `s=4&orderid=${orderid}`))
         if (res.data.d.code == 0) {
             if (res.data.d.status == 0) {
                 return true
@@ -325,11 +335,11 @@ async function checkOrder(orderid) {
                 checkOrder(orderid)
             }
         } else {
-            log.error('KY棋牌检查订单异常')
+            log.error(`KY棋牌检查订单${orderid}异常`)
             checkOrder(orderid)
         }
     } catch (error) {
-        log.error('KY棋牌检查订单超时')
+        log.error(`KY棋牌检查订单${orderid}超时`)
         setTimeout(() => {
             checkOrder(orderid)
         }, 5000)

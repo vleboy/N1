@@ -103,6 +103,8 @@ module.exports = class PlayerModel extends BaseModel {
         const prefix = `A${naGameCompany}`                  // 流水前缀
         let billType = amt <= 0 ? 3 : 4                     // 流水类型(只有正数才是返奖，否则为下注)
         const isCheckRet = naGameType != config.ysb.gameType && naGameType != config.dt.gameType && billType != 3 ? true : false
+        const isCheckKYBet = naGameType == config.ky.gameType && amt != 0 ? true : false
+        const isCheckKYRet = naGameType == config.ky.gameType && data.billType != 5 ? true : false
         let bkBet = {}                                      // 返奖对应的下注对象        
         data.userId = player.userId                         // 设置玩家ID
         data.userName = player.userName                     // 设置玩家帐号
@@ -116,7 +118,7 @@ module.exports = class PlayerModel extends BaseModel {
             data.sntemp = prefix + this.billSerial(player.userId)
         }
         // 2，输入流水检查
-        if ((billType == 3 && naGameType != config.ysb.gameType) || billType == 6) {
+        if ((billType == 3 && naGameType != config.ysb.gameType && isCheckKYBet) || billType == 6) {
             if (player.gameId != naGameType) {
                 console.error(`玩家${player.userId}当前游戏大类${player.gameId},未在请求游戏大类${naGameType}中`)
                 return 'err'
@@ -149,7 +151,7 @@ module.exports = class PlayerModel extends BaseModel {
             }
         }
         // 检查：下注不存在，直接返回当前玩家余额
-        if (isCheckRet) {
+        if (isCheckRet && isCheckKYRet) {
             // 使用betSN的返奖（PP电子和SA真人），通过sn检查下注是否存在
             if (data.betsn) {
                 let billBet = await new PlayerBillDetailModel().getBill(data.betsn)
@@ -231,7 +233,7 @@ module.exports = class PlayerModel extends BaseModel {
         billItem.balance = parseFloat((res.Attributes.balance + amt).toFixed(2)) // 玩家余额
         await new PlayerBillDetailModel().putItem(billItem)
         // 6，非延时长的游戏,非下注流水检查是否超时
-        if (isCheckRet && naGameType != config.sa.fishGameType) {
+        if (isCheckRet && naGameType != config.sa.fishGameType && isCheckKYRet) {
             new PlayerBillDetailModel().checkExpire(bkBet, billItem)
         }
         console.timeEnd('单笔流水处理耗时')
