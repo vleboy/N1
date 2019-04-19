@@ -127,7 +127,7 @@ cron.schedule('*/30 * * * * *', async () => {
 })
 
 // 玩家定时服务
-cron.schedule('0 10 1 * * *', async () => {
+cron.schedule('0 12 1 * * *', async () => {
     console.time('【玩家载入】')
     let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
     let startTime = configArr[0].playerCreatedAt
