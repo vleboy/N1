@@ -99,7 +99,7 @@ router.get('/ky/logout', async (ctx, next) => {
     // 获取入参
     const account = qs.parse(desDecode(config.ky.desKey, decodeURIComponent(ctx.request.query.param))).account
     // 获取玩家可下分金额
-    let res = await axios.get(getURL(1, `s=1&account=${account}`), { timeout: 100 * 1000 })
+    let res = await axios.get(getURL(1, `s=1&account=${account}`))
     const money = res.data.d.money
     if (!money) {
         return ctx.body = { s: 101, m: "/channelHandle", d: { code: 0 } }
@@ -159,17 +159,13 @@ router.get('/ky/logout', async (ctx, next) => {
 /**
  * 获取游戏注单（拉去时间最大不能超过60分钟）
  */
-router.post('/ky/betdetail', async (ctx, next) => {
+router.get('/ky/betdetail', async (ctx, next) => {
     //获取入参
-    let inparam = ctx.request.body
-    let startTime = inparam.startTime                                                           //开始时间
-    let endTime = inparam.endTime                                                               //结束时间                                       
-    let param = param = `s=6&startTime=${startTime}&endTime=${endTime}`
-    //获取请求url
-    let url = getURL(6, param)
-    let res = await axios.get(url, { timeout: 100 * 1000 })
+    let inparam = ctx.request.query
+    let res = await axios.get(getURL(6, `s=6&startTime=${inparam.startTime}&endTime=${inparam.endTime}`))
     //根据操作类型做相应处理
     if (res.data.d.code == 0) {
+        ctx.body = res.data.d
     } else {
         ctx.body = { code: -1, msg: '操作失败', err: res.data }
     }
@@ -207,111 +203,6 @@ router.get('/ky/:s/:account', async (ctx, next) => {
         ctx.body = { code: -1, msg: res.data }
     }
 })
-// /**
-//  * 上下分订单状态接口
-//  * @param orderId 流水号
-//  */
-// router.get('/ky/:orderId', async function (ctx, next) {
-//     let time = new moment().utcOffset(8)
-//     //获取入参
-//     let inparam = ctx.params
-//     let orderId = inparam.orderId                                                               //流水号                                           
-//     let param = `s=4&orderid=${orderId}`
-//     //获取请求url
-//     let url = getURL(parseInt(s), param)
-//     let response = await axios.get(url, { timeout: 100 * 1000 })
-//     //根据操作类型做相应处理
-//     if (response.data.d.code == 0) {
-//         ctx.body = { code: 0, message: "success", status: response.data.d.status }
-//     } else {
-//         ctx.body = { code: -1, msg: '操作失败', err: response.data }
-//     }
-// })
-// /**
-//  * 上分/下分
-//  */
-// router.post('/ky/handleBalance', async function (ctx, next) {
-//     let time = new moment().utcOffset(8)
-//     //获取入参
-//     let inparam = ctx.request.body
-//     let account = inparam.account                                                               //会员账号
-//     let money = inparam.money                                                                   //金额
-//     let orderId = inparam.orderId || config.ky.agent + time.format("YYYYMMDDHHmmss") + account  //流水号
-//     let s = inparam.s                                                                           //操作子类型
-//     let ip = ctx.request.ip                                                                     //玩家IP
-//     let param = ""
-//     if (parseInt(s) == 2) {//上分
-//         //获取玩家余额是否够上分
-//         const player = await new PlayerModel().getPlayerById(account)
-//         //（模拟）下注扣除玩家的上分（余额）
-//         let updateParams = {}
-//         updateParams.billType = 3
-//         updateParams.amt = parseFloat(inparam.amount) * -1
-//         updateParams.gameType = config.ky.gameType
-//         updateParams.businessKey = `BKY_${account}_${orderId}`                        // 设置局号
-//         updateParams.userId = player.userId
-//         updateParams.userName = player.userName
-//         let amtAfter = await new PlayerModel().updatebalance(player, updateParams)
-//         if (amtAfter == 'err') {
-//             ctx.body = { code: 404, message: "余额不足或系统内部错误" }
-//             return
-//         }
-//         param = `s=${s}&account=${account}&orderid=${orderId}&money=${money}&ip=${ip}`
-//     } else if (parseInt(s) == 3) {//下分
-//         param = `s=${s}&account=${account}&orderid=${orderId}&money=${money}&ip=${ip}`
-//     }
-//     //获取请求url
-//     let url = getURL(parseInt(s), param)
-//     let response = await axios.get(url, { timeout: 100 * 1000 })
-//     //根据操作类型做相应处理
-//     if (response.data.d.code == 0) {
-//         switch (parseInt(s)) {
-//             case 2://上分
-//                 ctx.body = { code: 0, message: "success", money: response.data.d.money }
-//                 break;
-//             case 3://下分
-//                 //下分成功需要更新余额 相当于返奖
-
-//                 ctx.body = { code: 0, message: "success", money: response.data.d.money }
-//                 break;
-//         }
-//     } else {
-//         ctx.body = { code: -1, msg: '操作失败', err: response.data }
-//     }
-// })
-
-
-
-// /**
-//  * 玩家登出
-//  * @param {*} userId 玩家ID
-//  * @param {*} sid    具体游戏ID
-//  */
-// router.get('/ky/logout/:userId/:sid', async function (ctx, next) {
-//     let userId = ctx.params.userId
-//     let sid = ctx.params.sid
-//     log.info(`准备退出玩家【${userId}】`)
-//     // 绑定签名
-//     const data = {
-//         gameId: sid,
-//         userId: userId,
-//         timestamp: Date.now(),
-//         exit: 1,
-//         records: [],
-//         zlib: 1
-//     }
-//     NASign.bindSign(config.ky.gameKey, ['gameId', 'timestamp', 'records'], data)
-//     // 登出NA平台
-//     log.info(`请求NA平台【POST】${config.na.settlementurl}`)
-//     log.info('请求NA平台【参数】' + JSON.stringify(data))
-//     const res = await axios.post(config.na.settlementurl, data)
-//     if (res.data.code != 0) {
-//         res.data.errUserId = userId
-//         ctx.body = res.data
-//         log.error(res.data)
-//     }
-//     ctx.body = { code: 0, msg: '玩家退出成功' }
-// })
 
 // 间隔5秒请求一次订单状态，直到确认返回
 async function checkOrder(orderid) {
