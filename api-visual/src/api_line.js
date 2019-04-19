@@ -84,13 +84,13 @@ router.get('/line/player', async (ctx, next) => {
     let res = await nodebatis.query('player.queryRegisterDay', { startTime: inparam.startTime, endTime: inparam.endTime })
     // 初始折线图数据
     let lineMap = []
-    for (let i = inparam.startTime; i <= inparam.endTime; i += 24 * 60 * 60 * 1000) {
+    for (let i = +inparam.startTime; i <= +inparam.endTime; i += 24 * 60 * 60 * 1000) {
         lineMap.push([new Date(i).Format('yyyy-MM-dd'), 0])
     }
     for (let item of lineMap) {
-        for (let info of res[0]) {
-            if (item[0] == info.days) {
-                item[1] = info.count
+        for (let info of res) {
+            if (item == info.days) {
+                item = info.count
             }
         }
     }
