@@ -47,6 +47,24 @@ CREATE TABLE `config` (
   `rangeHour` smallint(6) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+DROP TABLE IF EXISTS `player`;
+CREATE TABLE `player` (
+  `userId` int(11) NOT NULL,
+  `userName` varchar(64) NOT NULL,
+  `nickname` varchar(64) NOT NULL,
+  `buId` int(11) NOT NULL,
+  `parent` varchar(36) NOT NULL,
+  `parentName` int(64) NOT NULL,
+  `parentSn` int(20) NOT NULL,
+  `msn` varchar(3) NOT NULL,
+  `createdAt` bigint(20) NOT NULL,
+  PRIMARY KEY (`userId`),
+  KEY `buId_createdAt` (`buId`,`createdAt`),
+  KEY `parent_createdAt` (`parent`,`createdAt`),
+  KEY `parentSn_createdAt` (`parentSn`,`createdAt`),
+  KEY `msn_createdAt` (`msn`,`createdAt`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 INSERT INTO `config` (`type`, `createdAt`, `flag`, `rangeHour`) VALUES
 ('queryTime',	1554048000000,	0,	1);
 
