@@ -50,10 +50,11 @@ CREATE TABLE `player` (
   `msn` varchar(3) NOT NULL,
   `createdAt` bigint(20) NOT NULL,
   PRIMARY KEY (`userId`),
-  KEY `buId_createdAt` (`buId`,`createdAt`),
-  KEY `parent_createdAt` (`parent`,`createdAt`),
-  KEY `parentSn_createdAt` (`parentSn`,`createdAt`),
-  KEY `msn_createdAt` (`msn`,`createdAt`)
+  KEY `buId_createdAt` (`buId`,`createdAt` DESC),
+  KEY `parent_createdAt` (`parent`,`createdAt` DESC),
+  KEY `parentSn_createdAt` (`parentSn`,`createdAt` DESC),
+  KEY `msn_createdAt` (`msn`,`createdAt` DESC)
+  KEY `createdAt` (`createdAt` DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 DROP TABLE IF EXISTS `config`;
