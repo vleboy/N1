@@ -188,7 +188,7 @@ router.get('/ky/:s/:account', async (ctx, next) => {
     let res = await axios.get(getURL(parseInt(inparam.s), `s=${s}&account=${account}`))
     //根据操作类型做相应处理
     if (res.data.d.code == 0) {
-        switch (parseInt(s)) {
+        switch (parseInt(inparam.s)) {
             case 1://查询玩家可下分余额
                 ctx.body = { code: 0, msg: "success", money: res.data.d.money }
                 break;
