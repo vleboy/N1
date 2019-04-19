@@ -46,7 +46,7 @@ CREATE TABLE `player` (
   `buId` int(11) NOT NULL,
   `parent` varchar(36) NOT NULL,
   `parentName` varchar(64) NOT NULL,
-  `parentSn` int(20) NOT NULL,
+  `parentSn` varchar(20) NOT NULL,
   `msn` varchar(3) NOT NULL,
   `createdAt` bigint(20) NOT NULL,
   PRIMARY KEY (`userId`),
