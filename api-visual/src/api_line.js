@@ -89,8 +89,8 @@ router.get('/line/player', async (ctx, next) => {
     }
     for (let item of lineMap) {
         for (let info of res) {
-            if (item == info.days) {
-                item = info.count
+            if (item[0] == info.days) {
+                item[1] = info.count
             }
         }
     }
