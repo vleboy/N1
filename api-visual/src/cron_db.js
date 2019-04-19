@@ -162,7 +162,7 @@ cron.schedule('0 21 14 * * *', async () => {
     }
     await Promise.all(promiseWriteArr)
     console.timeEnd(`玩家表写入 ${res.Items.length} 条`)
-    await nodebatis.execute('config.updateParams', { type: 'queryTime', playerCreatedAt: endTime + 1 })
+    await nodebatis.execute('config.updatePlayerCreatedAt', { type: 'queryTime', playerCreatedAt: endTime + 1 })
     console.timeEnd('玩家定时统计')
 })
 
