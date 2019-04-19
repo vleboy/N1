@@ -88,7 +88,7 @@ cron.schedule('*/30 * * * * *', async () => {
         let resArr = await Promise.all(promiseReadArr)
         resArr = resArr[0].Items.concat(resArr[1].Items.concat(resArr[2].Items))
         // console.timeEnd(`读取 ${dayjs(startTime).format('YYYY-MM-DD HH:mm:ss')} 至 ${dayjs(endTime).format('YYYY-MM-DD HH:mm:ss')} 流水`)
-        console.time(`写入流水 ${resArr.length} 条`)
+        console.time(`写入流水${resArr.length} 条`)
         let ipMap = {}
         let promiseWriteArr = []
         if (resArr.length > 0) {
@@ -119,13 +119,13 @@ cron.schedule('*/30 * * * * *', async () => {
         }
         await Promise.all(promiseWriteArr)
         await nodebatis.execute('config.updateOne', { type: 'queryTime', createdAt: endTime + 1, flag: 1 })
-        console.timeEnd(`写入流水 ${resArr.length} 条`)
+        console.timeEnd(`写入流水${resArr.length} 条`)
     }
     console.timeEnd('【流水载入】')
 })
 
 // 玩家定时服务
-cron.schedule('0 18 1 * * *', async () => {
+cron.schedule('0 20 1 * * *', async () => {
     console.time('【玩家载入】')
     let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
     let startTime = configArr[0].playerCreatedAt
@@ -139,7 +139,7 @@ cron.schedule('0 18 1 * * *', async () => {
             ':createAt1': endTime
         }
     })
-    console.time(`写入玩家 ${res.Items.length} 条`)
+    console.time(`写入玩家${res.Items.length} 条`)
     let promiseWriteArr = []
     if (res.Items.length > 0) {
         let chunkArr = _.chunk(res.Items, 100)
@@ -155,7 +155,7 @@ cron.schedule('0 18 1 * * *', async () => {
         }
     }
     await Promise.all(promiseWriteArr)
-    console.timeEnd(`写入玩家 ${res.Items.length} 条`)
+    console.timeEnd(`写入玩家${res.Items.length} 条`)
     console.timeEnd('【玩家载入】')
 
     console.time('【用户载入】')
@@ -169,7 +169,7 @@ cron.schedule('0 18 1 * * *', async () => {
             ':createdAt1': endTime
         }
     })
-    console.time(`写入用户 ${res.Items.length} 条`)
+    console.time(`写入用户${res.Items.length} 条`)
     promiseWriteArr = []
     if (res.Items.length > 0) {
         let chunkArr = _.chunk(res.Items, 100)
@@ -189,7 +189,7 @@ cron.schedule('0 18 1 * * *', async () => {
         }
     }
     await Promise.all(promiseWriteArr)
-    console.timeEnd(`写入用户 ${res.Items.length} 条`)
+    console.timeEnd(`写入用户${res.Items.length} 条`)
     console.timeEnd('【用户载入】')
 
     await nodebatis.execute('config.updatePlayerCreatedAt', { type: 'queryTime', playerCreatedAt: endTime + 1 })
