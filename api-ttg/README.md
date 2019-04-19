@@ -119,4 +119,8 @@ https://ext.na77.org/maya/GetMemberLimitInfo
 https://ext.na77.org/maya/GetMainBalance
 https://ext.na77.org/maya/GameFundTransfer
 
+#KY棋牌游戏
+https://ext.na77.org/ky/gameurl/1070000/1070001/268184/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6IlFKU0hfd3dqMDIiLCJzdWZmaXgiOiJRSlNIIiwidXNlcklkIjoyNjgxODQsImV4cGlyZSI6MTUzMDkzNzQzMTE4NiwiaWF0IjoxNTMwODUxMDMxfQ.50tUvo3l_Flkb4aVHrotoFD8yhKunXoBt4z3lfJDcUk	
+
+
 

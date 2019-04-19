@@ -36,6 +36,9 @@ router.get('/ky/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
     if (nares.data.code != 0) {
         return ctx.body = { code: nares.data.code, msg: nares.data.msg }
     }
+    const lineCode = inparam.lineCode || 'NA'                                                                     //代理下面的站点标识
+    const account = inparam.userId                                                                                //玩家账号
+    const orderid = `${config.ky.agent}${moment().utcOffset(8).format("YYYYMMDDHHmmssSSS")}${account}`            //流水号
     // 查询获取玩家余额
     const player = await new PlayerModel().getPlayerById(account)
     let money = player.balance
@@ -44,9 +47,6 @@ router.get('/ky/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
     if (res.data.d.money > 0) {
         money = 0
     }
-    const lineCode = inparam.lineCode || 'NA'                                                                     //代理下面的站点标识
-    const account = inparam.userId                                                                                //玩家账号
-    const orderid = `${config.ky.agent}${moment().utcOffset(8).format("YYYYMMDDHHmmssSSS")}${account}`            //流水号
     // 无需上分，直接进入
     if (money == 0) {
         res = await axios.get(getURL(0, `s=0&account=${account}&money=${money}&lineCode=${lineCode}&ip=${ip}&orderid=${orderid}&KindId=0`))
