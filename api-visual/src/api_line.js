@@ -84,8 +84,8 @@ router.get('/line/player', async (ctx, next) => {
     //查询时间段的每天注册人数
     let p1 = nodebatis.query('player.queryRegisterDay', { startTime: inparam.startTime, endTime: inparam.endTime })
     //查询该时间段之前的所有注册人数
-    let p2 = nodebatis.query('player.querycountDay', { startTime: 0, endTime: new Date(new Date(inparam.startTime).Format('yyyy-MM-dd')).getTime() - 1 })
-    console.log(new Date(new Date(inparam.startTime).Format('yyyy-MM-dd')).getTime() - 1)
+    let p2 = nodebatis.query('player.querycountDay', { startTime: 0, endTime: new Date(new Date(inparam.endTime).setHours(0, 0, 0, 0)).getTime() - 1 })
+    console.log(new Date(new Date(inparam.endTime).setHours(0, 0, 0, 0)).getTime() - 1)
     let [res, resTotal] = await Promise.all(p1, p2)
     // 初始折线图数据
     let lineMap = {
