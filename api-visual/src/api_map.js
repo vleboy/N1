@@ -79,7 +79,7 @@ function getSplitList(arr, splitCount) {
 }
 
 // sql查询
-async function queryGetSql(sqlName, inparam, method, type) {
+async function queryGetSql(sqlName, method, inparam, type) {
     let res = await nodebatis.query(sqlName, { method, type, startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
     let arr = []
     //中国范围
