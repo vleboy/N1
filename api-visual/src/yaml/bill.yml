@@ -26,7 +26,7 @@ chinaHandleAmount: # 中国地图-金额汇总
         sql: count(sn) as total,province
     - if:
         test: :method != 'betCount'
-        sql: sum(amount) as total,province
+        sql: round(sum(amount),2) as total,province
     - from bill where createdAt between :startTime and :endTime
     # 判断是否使用type
     - if:
@@ -55,7 +55,7 @@ worldHandleAmount: # 世界地图-金额汇总
         sql: count(sn) as total,country as province
     - if:
         test: :method != 'betCount'
-        sql: sum(amount) as total,country as province
+        sql: round(sum(amount),2) as total,country as province
     - from bill where createdAt between :startTime and :endTime
     # 判断是否使用type
     - if:
@@ -84,7 +84,7 @@ handleAmountDay: # 日报表-金额汇总
         sql: count(sn) count
     - if:
         test: :method != 'betCount'
-        sql: sum(amount) count
+        sql: round(sum(amount),2) count
     - from bill where createdAt between :startTime and :endTime
     # 判断是否使用type
     - if:
@@ -113,7 +113,7 @@ handleAmountGraph: # 时间段柱状图-金额汇总
         sql: count(sn) count
     - if:
         test: :method != 'betCount'
-        sql: sum(amount) count
+        sql: round(sum(amount),2) count
     - from bill where createdAt between :startTime and :endTime
     # 判断是否使用type
     - if:
@@ -138,7 +138,7 @@ handleAmountPie: # 饼图-金额汇总
         sql: count(sn) as num,gameType
     - if:
         test: :method != 'betCount'
-        sql: sum(amount) as num,gameType
+        sql: round(sum(amount),2) as num,gameType
     - from bill where createdAt between :startTime and :endTime
     # 判断是否使用type
     - if:
