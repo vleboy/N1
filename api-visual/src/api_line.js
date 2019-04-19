@@ -62,7 +62,7 @@ router.get('/line/day', async (ctx, next) => {
     // 获取区域玩家总人数
     promiseArr.push(queryGetLine('bill.playerCountDay', inparam, 'playerCount', lineMap))
     // 获取区域玩家总下注次数
-    promiseArr.push(queryGetLine('bill.betCountDay', inparam, 'betCount', lineMap))
+    promiseArr.push(queryGetLine('bill.handleAmountDay', inparam, 'betCount', lineMap), 3)
     // 获取区域玩家总下注金额
     promiseArr.push(queryGetLine('bill.handleAmountDay', inparam, 'betAmount', lineMap, 3))
     // 获取区域玩家总返奖
@@ -70,7 +70,7 @@ router.get('/line/day', async (ctx, next) => {
     // 获取区域玩家总退款
     promiseArr.push(queryGetLine('bill.handleAmountDay', inparam, 'refundAmount', lineMap, 5))
     // 获取区域玩家总输赢
-    promiseArr.push(queryGetLine('bill.winloseAmountDay', inparam, 'winloseAmount', lineMap))
+    promiseArr.push(queryGetLine('bill.handleAmountDay', inparam, 'winloseAmount', lineMap))
     // 并发执行
     await Promise.all(promiseArr)
     ctx.body = { code: 0, data: lineMap }
@@ -83,9 +83,9 @@ async function queryGetLine(sqlName, inparam, key, map, type) {
     let res = await nodebatis.query(sqlName, { startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType, type: inparam.type })
     for (let item of res) {
         if (key == 'betAmount') {
-            map[key].push({ x: item.days, y: Math.abs(item.count)})
+            map[key].push({ x: item.days, y: Math.abs(item.count) })
         } else {
-            map[key].push({ x: item.days, y: Math.abs(item.count)})
+            map[key].push({ x: item.days, y: Math.abs(item.count) })
         }
     }
 }

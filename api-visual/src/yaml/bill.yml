@@ -81,26 +81,39 @@ playerCountDay: # 日报表人数
     - group by days,userId)as a 
     - GROUP BY a.days ORDER BY a.days
 
-betCountDay: # 日报表下注次数
-    - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,count(sn) count from bill where createdAt between :startTime and :endTime and type=3
-    - if:
-        test: :gameType!=null
-        sql: and gameType=:gameType
-    - group by days ORDER BY days
+# betCountDay: # 日报表下注次数
+#     - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,count(sn) count from bill where createdAt between :startTime and :endTime and type=3
+#     - if:
+#         test: :gameType!=null
+#         sql: and gameType=:gameType
+#     - group by days ORDER BY days
 
 handleAmountDay: # 日报表操作金额
-    - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,sum(amount) count from bill where createdAt between :startTime and :endTime and type=:type
+    - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,
+    # 判断count与sum
+    - if:
+        test: :method == 'betCount'
+        sql: count(sn) count
+    - if:
+        test: :method != 'betCount'
+        sql: sum(amount) count
+    - from bill where createdAt between :startTime and :endTime
+    # 判断是否使用type
+    - if:
+        test: :type != null
+        sql: and type=:type
+    # 判断是否使用gameType
     - if:
         test: :gameType!=null
         sql: and gameType=:gameType
     - group by days ORDER BY days
 
-winloseAmountDay: # 日报表输赢金额
-    - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,sum(amount) count from bill where createdAt between :startTime and :endTime
-    - if:
-        test: :gameType!=null
-        sql: and gameType=:gameType
-    - group by days ORDER BY days
+# winloseAmountDay: # 日报表输赢金额
+#     - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,sum(amount) count from bill where createdAt between :startTime and :endTime
+#     - if:
+#         test: :gameType!=null
+#         sql: and gameType=:gameType
+#     - group by days ORDER BY days
 
 playerCountGraph: # 时间段柱状图-统计人数
     - SELECT FROM_UNIXTIME(createdAt/1000,'%k') hours,count(sn) count from bill where createdAt between :startTime and :endTime 
