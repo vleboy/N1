@@ -3,10 +3,23 @@ namespace: 'config'
 attrs:  type,createdAt,flag,rangeHour
 
 findOne:
-    - select createdAt,flag,rangeHour from config where type = :type
+    - select createdAt,flag,rangeHour,playerCreatedAt from config where type = :type
 
 updateFlag:
     - update config set flag = :flag where type = :type
 
 updateOne:
     - update config set createdAt = :createdAt,flag = :flag where type = :type
+
+updateParams:
+    - update config set 
+    - if:
+        test: :createdAt != null
+        sql: and createdAt=:createdAt
+    - if:
+        test: :flag != null
+        sql: and flag=:flag
+    - if:
+        test: :playerCreatedAt != null
+        sql: and playerCreatedAt=:playerCreatedAt
+    - where type=:type

@@ -10,8 +10,8 @@ AWS.config.update({ region: 'ap-southeast-1' })
 const dbClient = new AWS.DynamoDB.DocumentClient()
 
 //数据库查询
-function queryInc(params, result) {
-    return dbClient.query(params).promise().then((res) => {
+function queryInc(type, params, result) {
+    return dbClient[type](params).promise().then((res) => {
         if (!result) {
             result = res
         } else {
@@ -19,7 +19,7 @@ function queryInc(params, result) {
         }
         if (res.LastEvaluatedKey) {
             params.ExclusiveStartKey = res.LastEvaluatedKey
-            return queryInc(params, result)
+            return queryInc(type, params, result)
         } else {
             return result
         }
@@ -28,6 +28,7 @@ function queryInc(params, result) {
         return err
     })
 }
+
 //ip查询
 async function queryIp(ip) {
     if (ip == '0.0.0.0') {
@@ -57,12 +58,12 @@ async function queryIp(ip) {
     }
 }
 
-// 定时服务
+// 流水定时服务
 cron.schedule('*/30 * * * * *', async () => {
     console.time('【全部载入】')
+    // 配置文件查询
     let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
     if (configArr[0].flag) {
-        // 读取
         await nodebatis.execute('config.updateFlag', { type: 'queryTime', flag: 0 })
         let startTime = configArr[0].createdAt
         let nowTime = Date.now() - 3 * 60 * 1000
@@ -70,7 +71,7 @@ cron.schedule('*/30 * * * * *', async () => {
         console.time(`读取 ${dayjs(startTime).format('YYYY-MM-DD HH:mm:ss')} 至 ${dayjs(endTime).format('YYYY-MM-DD HH:mm:ss')} 流水`)
         let promiseReadArr = []
         for (let i = 3; i <= 5; i++) {
-            promiseReadArr.push(queryInc({
+            promiseReadArr.push(queryInc('query', {
                 TableName: 'PlayerBillDetail',
                 IndexName: 'TypeIndex',
                 KeyConditionExpression: '#type=:type AND createdAt BETWEEN :createdAt1 AND :createdAt2',
@@ -122,7 +123,45 @@ cron.schedule('*/30 * * * * *', async () => {
         await nodebatis.execute('config.updateOne', { type: 'queryTime', createdAt: endTime + 1, flag: 1 })
         console.timeEnd(`写入 ${resArr.length} 条`)
     }
+
+
     console.timeEnd('【全部载入】')
+})
+
+// 玩家定时服务
+cron.schedule('0 48 11 * * *', async () => {
+    console.time('玩家定时统计')
+    let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
+    let startTime = configArr[0].playerCreatedAt
+    let endTime = Date.now()
+    let scanQuery = {
+        TableName: 'HeraGamePlayer',
+        ProjectionExpression: 'userName,userId,nickname,buId,parent,parentName,parentSn,msn,createdAt',
+        FilterExpression: `createAt between :createAt0 and :createAt1`,
+        ExpressionAttributeValues: {
+            ':createAt0': startTime,
+            ':createAt1': endTime
+        }
+    }
+    console.log('玩家查询中...')
+    let res = await queryInc('scan', scanQuery)
+    console.timeEnd(`玩家表写入 ${res.Items.length} 条`)
+    let promiseWriteArr = []
+    if (res.Items.length > 0) {
+        let chunkArr = _.chunk(res.Items, 100)
+        for (let arr of chunkArr) {
+            promiseWriteArr.push(nodebatis.execute('player.batchInsert', {
+                data: arr.map((item) => {
+                    item.createdAt = item.createdAt ? item.createdAt : item.createAt
+                    return item
+                })
+            }))
+        }
+    }
+    await Promise.all(promiseWriteArr)
+    console.timeEnd(`玩家表写入 ${res.Items.length} 条`)
+    await nodebatis.execute('config.updateParams', { type: 'queryTime', playerCreatedAt: endTime + 1 })
+    console.timeEnd('玩家定时统计')
 })
 
 

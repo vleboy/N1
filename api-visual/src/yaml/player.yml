@@ -1,0 +1,10 @@
+namespace: 'player'
+
+attrs: userId,userName,nickname,buId,parent,parentName,parentSn,msn,createdAt
+    
+batchInsert:
+    - replace into bill({{ bill.attrs }}) values
+    - for:
+        array: data
+        sql: (:userId,:userName,:nickname,:buId,:parent,:parentName,:parentSn,:msn,:createdAt)
+        seperator: ','
