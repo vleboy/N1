@@ -99,13 +99,23 @@ router.get('/line/player', async (ctx, next) => {
         for (let info of res) {
             if (item[0] == info.days) {
                 item[1] = info.count
+                break;
             }
         }
     }
+    let sumarr = []
+    for (let i = 0; i < lineMap.everyDay.length; i++) {
+        let newArr = [lineMap.everyDay[i][0], 0]
+        for (var j = 0; j <= i; j++) {
+            newArr[1] += lineMap.everyDay[j][1]
+        }
+        sumarr.push(newArr)
+    }
     for (let item of lineMap.sumDay) {
-        for (let info of res) {
-            if (item[0] == info.days) {
-                item[1] += info.count
+        for (let info of sumarr) {
+            if (item[0] == info[0]) {
+                item[1] += info[1]
+                break;
             }
         }
     }
