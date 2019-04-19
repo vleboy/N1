@@ -183,33 +183,27 @@ router.post('/ky/betdetail', async (ctx, next) => {
 router.get('/ky/:s/:account', async (ctx, next) => {
     //获取入参
     let inparam = ctx.params
-    let account = inparam.account                                                               //会员账号
-    let s = inparam.s                                                                           //操作子类型
-    let param = `s=${s}&account=${account}`
+    let account = inparam.account
     //获取请求url
-    let url = getURL(parseInt(s), param)
-    let response = await axios.get(url, { timeout: 100 * 1000 })
+    let res = await axios.get(getURL(parseInt(inparam.s), `s=${s}&account=${account}`))
     //根据操作类型做相应处理
-    if (response.data.d.code == 0) {
+    if (res.data.d.code == 0) {
         switch (parseInt(s)) {
             case 1://查询玩家可下分余额
-                ctx.body = { code: 0, message: "success", money: response.data.d.money }
+                ctx.body = { code: 0, msg: "success", money: res.data.d.money }
                 break;
             case 5://查询玩家是否在线
-                ctx.body = { code: 0, message: "success", status: response.data.d.status }
+                ctx.body = { code: 0, msg: "success", status: res.data.d.status }
                 break;
             case 7://查询游戏总余额
-                ctx.body = { code: 0, message: "success", totalMoney: response.data.d.totalMoney, freeMoney: response.data.d.freeMoney }
+                ctx.body = { code: 0, msg: "success", totalMoney: res.data.d.totalMoney, freeMoney: res.data.d.freeMoney }
                 break;
             case 8://根据玩家账号提玩家下线
-                //如果是踢玩家下线那么应该做些什么处理？？？？
-                //通知服务器，查询可下分余额并返奖等。。。。
-                //未完！！！
-                ctx.body = { code: 0, message: "success" }
+                // ctx.body = await axios.get(`http://localhost:5000/ky/logout?agent=${config.ky.agent}&timestamp=${Date.now()}&param=${desEncode(config.ky.desKey, `s=11&account=${account}`)}`)
                 break;
         }
     } else {
-        ctx.body = { code: -1, msg: '操作失败', err: response.data }
+        ctx.body = { code: -1, msg: res.data }
     }
 })
 // /**
