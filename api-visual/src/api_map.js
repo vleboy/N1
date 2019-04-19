@@ -45,15 +45,15 @@ router.get('/map/world', async (ctx, next) => {
     // 获取区域玩家总人数
     promiseArr.push(queryGetSql('bill.worldPlayerCount', 'playerCount', inparam))
     // 获取区域玩家总下注次数
-    promiseArr.push(queryGetSql('bill.worldHandleAmount', 'playerCount', inparam, 3))
+    promiseArr.push(queryGetSql('bill.worldHandleAmount', 'betCount', inparam, 3))
     // 获取区域玩家总下注金额
-    promiseArr.push(queryGetSql('bill.worldHandleAmount', 'playerCount', inparam, 3))
+    promiseArr.push(queryGetSql('bill.worldHandleAmount', 'betAmount', inparam, 3))
     // 获取区域玩家总返奖
-    promiseArr.push(queryGetSql('bill.worldHandleAmount', 'playerCount', inparam, 4))
+    promiseArr.push(queryGetSql('bill.worldHandleAmount', 'retAmount', inparam, 4))
     // 获取区域玩家总退款
-    promiseArr.push(queryGetSql('bill.worldHandleAmount', 'playerCount', inparam, 5))
+    promiseArr.push(queryGetSql('bill.worldHandleAmount', 'refundAmount', inparam, 5))
     // 获取区域玩家总输赢
-    promiseArr.push(queryGetSql('bill.worldHandleAmount', 'playerCount', inparam))
+    promiseArr.push(queryGetSql('bill.worldHandleAmount', 'winloseAmount', inparam))
     let worldArr = await Promise.all(promiseArr)
     ctx.body = { code: 0, data: { playerCount: worldArr[0], betCount: worldArr[1], betAmount: worldArr[2], retAmount: worldArr[3], refundAmount: worldArr[4], winloseAmount: worldArr[5] } }
     console.timeEnd('世界地图查询用时')
@@ -80,8 +80,7 @@ function getSplitList(arr, splitCount) {
 
 // sql查询
 async function queryGetSql(sqlName, inparam, method, type) {
-    if (type) { inparam.type = type }
-    let res = await nodebatis.query(sqlName, { method, startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType, type: inparam.type })
+    let res = await nodebatis.query(sqlName, { method, type, startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
     let arr = []
     //中国范围
     let chinaData = [

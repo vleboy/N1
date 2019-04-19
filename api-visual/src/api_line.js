@@ -79,8 +79,7 @@ router.get('/line/day', async (ctx, next) => {
 
 // 折线图sql查询
 async function queryGetLine(sqlName, inparam, key, map, type) {
-    if (type) { inparam.type = type }
-    let res = await nodebatis.query(sqlName, { startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType, type: inparam.type })
+    let res = await nodebatis.query(sqlName, { method: key, type, startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
     for (let item of res) {
         if (key == 'betAmount') {
             map[key].push({ x: item.days, y: Math.abs(item.count) })

@@ -38,15 +38,6 @@ CREATE TABLE `bill` (
   KEY `country` (`country`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-
-DROP TABLE IF EXISTS `config`;
-CREATE TABLE `config` (
-  `type` varchar(20) NOT NULL,
-  `createdAt` bigint(20) NOT NULL,
-  `flag` tinyint(4) NOT NULL,
-  `rangeHour` smallint(6) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
 DROP TABLE IF EXISTS `player`;
 CREATE TABLE `player` (
   `userId` int(11) NOT NULL,
@@ -65,7 +56,16 @@ CREATE TABLE `player` (
   KEY `msn_createdAt` (`msn`,`createdAt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-INSERT INTO `config` (`type`, `createdAt`, `flag`, `rangeHour`) VALUES
-('queryTime',	1554048000000,	0,	1);
+DROP TABLE IF EXISTS `config`;
+CREATE TABLE `config` (
+  `type` varchar(20) NOT NULL,
+  `createdAt` bigint(20) NOT NULL,
+  `flag` tinyint(4) NOT NULL,
+  `rangeHour` smallint(6) NOT NULL,
+  `playerCreatedAt` bigint(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO `config` (`type`, `createdAt`, `flag`, `rangeHour`, `playerCreatedAt`) VALUES
+('queryTime',	1554048000000,	1,	24,	0);
 
 -- 2019-04-10 06:46:25

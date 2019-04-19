@@ -68,7 +68,7 @@ worldHandleAmount: # 世界地图-金额汇总
     - group by country
 
 playerCountDay: # 日报表-玩家人数
-    - select count(userId) count,a.days from 
+    - select count(userId) count,a.days from
     - (SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,userId from bill where createdAt between :startTime and :endTime
     - if:
         test: :gameType!=null
