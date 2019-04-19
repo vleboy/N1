@@ -129,7 +129,7 @@ cron.schedule('*/30 * * * * *', async () => {
 })
 
 // 玩家定时服务
-cron.schedule('0 18 14 * * *', async () => {
+cron.schedule('0 21 14 * * *', async () => {
     console.time('玩家定时统计')
     let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
     let startTime = configArr[0].playerCreatedAt
@@ -153,6 +153,8 @@ cron.schedule('0 18 14 * * *', async () => {
             promiseWriteArr.push(nodebatis.execute('player.batchInsert', {
                 data: arr.map((item) => {
                     item.createdAt = item.createdAt ? item.createdAt : item.createAt
+                    item.parentSn= item.parentSn || 'NULL!'
+                    item.parentName= item.parentName || 'NULL!'
                     return item
                 })
             }))
