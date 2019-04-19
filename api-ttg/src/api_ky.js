@@ -165,9 +165,10 @@ router.get('/ky/betdetail', async (ctx, next) => {
     let inparam = ctx.request.query
     let res = await axios.get(getURL(6, `s=6&startTime=${inparam.startTime}&endTime=${inparam.endTime}`))
     //根据操作类型做相应处理
-    if (res.data.d.code == 0) {
+    if (res.data.d.code == 0 || res.data.d.code == 16) {
         ctx.body = res.data.d
-    } else {
+    }
+    else {
         ctx.body = { code: -1, msg: '操作失败', err: res.data }
     }
 })

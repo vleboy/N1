@@ -129,5 +129,7 @@ https://ext.na77.org/ky/5/268184
 https://ext.na77.org/ky/7/268184
 #根据玩家账号提玩家下线
 https://ext.na77.org/ky/8/268184
+#KY查询注单
+https://ext.na77.org/ky/betdetail?startTime=1555660200000&endTime=1555662600000
 
 
