@@ -53,7 +53,7 @@ router.get('/pie/game', async (ctx, next) => {
     // 获取区域玩家总人数
     promiseArr.push(queryGetPie('bill.playerCountPie', inparam, 'playerCount', pieMap))
     // 获取区域玩家总下注次数
-    promiseArr.push(queryGetPie('bill.betCountPie', inparam, 'betCount', pieMap))
+    promiseArr.push(queryGetPie('bill.handleAmountPie', inparam, 'betCount', pieMap))
     // 获取区域玩家总下注金额
     promiseArr.push(queryGetPie('bill.handleAmountPie', inparam, 'betAmount', pieMap, 3))
     // 获取区域玩家总返奖
