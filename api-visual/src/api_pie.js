@@ -70,8 +70,7 @@ router.get('/pie/game', async (ctx, next) => {
 
 // 饼状图sql查询
 async function queryGetPie(sqlName, inparam, key, map, type) {
-    if (type) { inparam.type = type }
-    let res = await nodebatis.query(sqlName, { startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType, type: inparam.type })
+    let res = await nodebatis.query(sqlName, { method: key, type, startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
     for (let item of res) {
         map[key].push({ name: GameTypeEnum[item.gameType].name || '其他', value: key == 'betAmount' ? Math.abs(item.num) : item.num })
     }
