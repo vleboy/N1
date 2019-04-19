@@ -120,7 +120,7 @@ async function queryGetLine(sqlName, inparam, key, map, type) {
         if (key == 'betAmount') {
             map[key].push({ x: item.days, y: Math.abs(item.count) })
         } else {
-            map[key].push({ x: item.days, y: Math.abs(item.count) })
+            map[key].push({ x: item.days, y: item.count })
         }
     }
 }
