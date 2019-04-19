@@ -11,6 +11,7 @@ const crypto = require('crypto')
 const qs = require('querystring')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
+const LogModel = require('./model/LogModel')
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
 const ipMap = {}
@@ -35,44 +36,58 @@ router.get('/ky/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
     if (nares.data.code != 0) {
         return ctx.body = { code: nares.data.code, msg: nares.data.msg }
     }
+    // 查询获取玩家余额
+    const player = await new PlayerModel().getPlayerById(account)
+    let money = player.balance
+    // 查询玩家是否已经上分，如果已经上分，则不需要重复上分
+    let res = await axios.get(getURL(1, `s=1&account=${account}`))
+    if (res.data.d.money > 0) {
+        money = 0
+    }
     // 获取玩家的余额，全部上分
     const lineCode = inparam.lineCode || 'NA'                                                                     //代理下面的站点标识
     const account = inparam.userId                                                                                //玩家账号
-    let player = await new PlayerModel().getPlayerById(account)
-    const money = player.balance                                                                                  //玩家的余额
-    let orderid = config.ky.agent + moment().utcOffset(8).format("YYYYMMDDHHmmssSSS") + account                   //流水号
-    let res = false
-    let checkRes = true
-    try {
+    const orderid = config.ky.agent + moment().utcOffset(8).format("YYYYMMDDHHmmssSSS") + account                 //流水号
+    // 无需上分，直接进入
+    if (money == 0) {
         res = await axios.get(getURL(0, `s=0&account=${account}&money=${money}&lineCode=${lineCode}&ip=${ip}&orderid=${orderid}&KindId=0`))
-    } catch (error) {
-        checkRes = await checkOrder(orderid)
+        return ctx.redirect(res.data.d.url)
     }
-    log.info(res)
-    if (checkRes && res && res.data.d.code == 0) {
-        //如果操作成功则模拟下注
-        const updateParams = { billType: 3 }
-        updateParams.amt = money * -1
-        updateParams.gameType = config.ky.gameType
-        updateParams.businessKey = `BKY_${account}_${orderid}`
-        let amtAfter = await new PlayerModel().updatebalance(player, updateParams)
-        // 下注失败则下分回滚
-        if (amtAfter == 'err') {
-            orderid = config.ky.agent + moment().utcOffset(8).format("YYYYMMDDHHmmssSSS") + account
-            try {
-                res = await axios.get(getURL(3, `s=0&account=${account}&money=${money}&orderid=${orderid}`))
-            } catch (error) {
-                checkRes = await checkOrder(orderid)
-                if (!checkRes) {
-                    // TODO 记录下分失败的日志
-                }
-            }
-            ctx.body = { code: 404, message: "发生错误了" }
-        } else {
+    // 上分，必须先模拟下注
+    const updateParams = { billType: 3 }
+    updateParams.amt = money * -1
+    updateParams.gameType = config.ky.gameType
+    updateParams.businessKey = `BKY_${account}_${orderid}`
+    let amtAfter = await new PlayerModel().updatebalance(player, updateParams)
+    if (amtAfter == 'err') {
+        ctx.body = { code: 404, message: "发生错误了" }
+    } else {
+        // 获取游戏URL，上分
+        let checkRes = true
+        let res = false
+        try {
+            res = await axios.get(getURL(0, `s=0&account=${account}&money=${money}&lineCode=${lineCode}&ip=${ip}&orderid=${orderid}&KindId=0`))
+        } catch (error) {
+            checkRes = await checkOrder(orderid)
+        }
+        log.info(res)
+        // 上分成功，进入游戏
+        if (checkRes && res && res.data.d.code == 0) {
             ctx.redirect(res.data.d.url)
         }
-    } else {
-        ctx.body = { code: res.data.d.code, message: "上分失败", err: res.data.d }
+        // 上分失败，退款 
+        else {
+            const updateParams2 = { billType: 5 }
+            updateParams2.amt = money
+            updateParams2.gameType = config.ky.gameType
+            updateParams2.businessKey = `BKY_${account}_${orderid}`
+            let amtAfter = await new PlayerModel().updatebalance(player, updateParams2)
+            if (amtAfter == 'err') {
+                new LogModel().add('2', 'KYUPError', updateParams2, `KY上分失败${orderid}`)
+            }
+            ctx.body = { code: res.data.d.code, message: "上分失败", err: res.data.d }
+        }
+        ctx.redirect(res.data.d.url)
     }
 })
 
@@ -82,13 +97,13 @@ router.get('/ky/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
 router.get('/ky/logout', async (ctx, next) => {
     // 获取入参
     const account = qs.parse(desDecode(config.ky.desKey, ctx.request.query.param)).account
-    // 获取玩家的余额
+    // 获取玩家可下分金额
     let res = await axios.get(getURL(1, `s=1&account=${account}`), { timeout: 100 * 1000 })
     const money = res.data.d.money
     // 全部下分
     let checkRes = true
+    const orderid = config.ky.agent + moment().utcOffset(8).format("YYYYMMDDHHmmssSSS") + account
     try {
-        const orderid = config.ky.agent + moment().utcOffset(8).format("YYYYMMDDHHmmssSSS") + account
         res = await axios.get(getURL(3, `s=0&account=${account}&money=${money}&orderid=${orderid}`))
     } catch (error) {
         checkRes = await checkOrder(orderid)
@@ -102,16 +117,17 @@ router.get('/ky/logout', async (ctx, next) => {
         updateParams1.businessKey = `BKY_${account}_${orderId}`
         let amtAfter = await new PlayerModel().updatebalance(player, updateParams1)
         if (amtAfter == 'err') {
+            new LogModel().add('2', 'KYDOWNError', updateParams1, `KY下分投注0失败${orderid}`)
             return ctx.body = { code: 404, message: "发生错误了" }
         }
         //模拟返奖
-        player = await new PlayerModel().getPlayerById(account)
         const updateParams2 = { billType: 4 }
         updateParams2.amt = money
         updateParams2.gameType = config.ky.gameType
         updateParams2.businessKey = `BKY_${account}_${orderId}`
         amtAfter = await new PlayerModel().updatebalance(player, updateParams2)
         if (amtAfter == 'err') {
+            new LogModel().add('2', 'KYDOWNError', updateParams2, `KY下分返奖失败${orderid}`)
             return ctx.body = { code: 404, message: "发生错误了" }
         }
         // 请求N1退出
@@ -127,7 +143,7 @@ router.get('/ky/logout', async (ctx, next) => {
             log.error(err)
         })
     } else {
-        // TODO 记录下分失败日志
+        new LogModel().add('2', 'KYDOWNError', res, `KY下分异常${orderid}`)
         ctx.body = { code: res.data.d.code, message: "下分失败", err: res.data.d }
     }
 })
