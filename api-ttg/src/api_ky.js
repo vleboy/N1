@@ -72,7 +72,7 @@ router.get('/ky/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
         } catch (error) {
             checkRes = await checkOrder(orderid)
         }
-        console.log(res)
+        console.log(res.data)
         // 上分成功，进入游戏
         if (checkRes && res && res.data.d.code == 0) {
             ctx.redirect(res.data.d.url)
