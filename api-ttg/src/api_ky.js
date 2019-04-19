@@ -199,6 +199,7 @@ router.get('/ky/:s/:account', async (ctx, next) => {
                 ctx.body = { code: 0, msg: "success", totalMoney: res.data.d.totalMoney, freeMoney: res.data.d.freeMoney }
                 break;
             case 8://根据玩家账号提玩家下线
+                ctx.body = { code: 0, msg: "success" }
                 // ctx.body = await axios.get(`http://localhost:5000/ky/logout?agent=${config.ky.agent}&timestamp=${Date.now()}&param=${desEncode(config.ky.desKey, `s=11&account=${account}`)}`)
                 break;
         }
