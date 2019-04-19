@@ -101,7 +101,7 @@ router.get('/ky/logout', async (ctx, next) => {
     console.log(account)
     // 获取玩家可下分金额
     let res = await axios.get(getURL(1, `s=1&account=${account}`))
-    const money = res.data.d.money
+    const money = parseFloat(res.data.d.money)
     if (!money) {
         return ctx.body = { s: 101, m: "/channelHandle", d: { code: 0 } }
     }
