@@ -124,7 +124,7 @@ cron.schedule('*/30 * * * * *', async () => {
     console.timeEnd('【流水载入】')
 })
 
-// 玩家定时服务
+// 玩家/用户定时服务
 cron.schedule('0 0 1 * * *', async () => {
     console.time('【玩家载入】')
     let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
