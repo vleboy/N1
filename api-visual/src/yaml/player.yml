@@ -3,8 +3,11 @@ namespace: 'player'
 attrs: userId,userName,nickname,buId,parent,parentName,parentSn,msn,createdAt
     
 batchInsert:
-    - replace into bill({{ bill.attrs }}) values
+    - replace into player({{ player.attrs }}) values
     - for:
         array: data
         sql: (:userId,:userName,:nickname,:buId,:parent,:parentName,:parentSn,:msn,:createdAt)
         seperator: ','
+
+queryRegisterDay:
+    - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,count(userId) count from player where createdAt between :startTime and :endTime GROUP BY days ORDER BY days

@@ -77,6 +77,17 @@ router.get('/line/day', async (ctx, next) => {
     console.timeEnd('日报表折线图统计耗时')
 })
 
+// 玩家注册折线图
+router.get('/line/player', async (ctx, next) => {
+    console.time('玩家折线图统计耗时')
+    let inparam = ctx.request.query
+    let res = await nodebatis.query('player.queryRegisterDay', { startTime: inparam.startTime, endTime: inparam.endTime })
+    // 初始折线图数据
+    let lineMap=
+    ctx.body = { code: 0, data: [] }
+    console.timeEnd('玩家折线图统计耗时')
+})
+
 // 折线图sql查询
 async function queryGetLine(sqlName, inparam, key, map, type) {
     let res = await nodebatis.query(sqlName, { method: key, type, startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
