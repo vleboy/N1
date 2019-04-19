@@ -97,8 +97,8 @@ router.get('/ky/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
  */
 router.get('/ky/logout', async (ctx, next) => {
     // 获取入参
-    const account = qs.parse(desDecode(config.ky.desKey, decodeURIComponent(ctx.request.query.param))).account
-    console.log(account)
+    const account = qs.parse(desDecode(config.ky.desKey, decodeURIComponent(ctx.request.query.param))).account.split('_')[1]
+    log.info(`玩家${account}离线下分`)
     // 获取玩家可下分金额
     let res = await axios.get(getURL(1, `s=1&account=${account}`))
     const money = parseFloat(res.data.d.money)
