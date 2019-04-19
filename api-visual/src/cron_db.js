@@ -127,7 +127,7 @@ cron.schedule('*/30 * * * * *', async () => {
 })
 
 // 玩家定时服务
-cron.schedule('0 0 1 * * *', async () => {
+cron.schedule('0 6 1 * * *', async () => {
     console.time('【玩家载入】')
     let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
     let startTime = configArr[0].playerCreatedAt
@@ -159,11 +159,41 @@ cron.schedule('0 0 1 * * *', async () => {
     }
     await Promise.all(promiseWriteArr)
     console.timeEnd(`写入玩家 ${res.Items.length} 条`)
-    await nodebatis.execute('config.updatePlayerCreatedAt', { type: 'queryTime', playerCreatedAt: endTime + 1 })
     console.timeEnd('【玩家载入】')
+
+    console.time('【用户载入】')
+    scanQuery = {
+        TableName: 'ZeusPlatformUser',
+        ProjectionExpression: '#role,userId,displayId,displayName,username,sn,#suffix,uname,#level,levelIndex,msn,#parent,parentName,parentDisplayName,parentSuffix,parentRole,createdAt',
+        ExpressionAttributeNames: { '#role': 'role', '#suffix': 'suffix', '#level': 'level', '#parent': 'parent' },
+        FilterExpression: `createAt between :createAt0 and :createAt1`,
+        ExpressionAttributeValues: {
+            ':createAt0': startTime,
+            ':createAt1': endTime
+        }
+    }
+    res = await queryInc('scan', scanQuery)
+    console.time(`写入用户 ${res.Items.length} 条`)
+    promiseWriteArr = []
+    if (res.Items.length > 0) {
+        let chunkArr = _.chunk(res.Items, 100)
+        for (let arr of chunkArr) {
+            promiseWriteArr.push(nodebatis.execute('user.batchInsert', {
+                data: arr.map((item) => {
+                    item.sn = item.sn || 'NULL!'
+                    item.suffix = item.suffix || 'NULL!'
+                    item.msn = item.msn || 'NULL!'
+                    item.displayId = item.displayId || 0
+                    item.displayName = item.displayName || 'NULL!'
+                    return item
+                })
+            }))
+        }
+    }
+    await Promise.all(promiseWriteArr)
+    console.timeEnd(`写入用户 ${res.Items.length} 条`)
+    console.timeEnd('【用户载入】')
+
+    await nodebatis.execute('config.updatePlayerCreatedAt', { type: 'queryTime', playerCreatedAt: endTime + 1 })
 })
-
-
-
-
 

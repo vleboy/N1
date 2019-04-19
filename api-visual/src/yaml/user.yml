@@ -1,0 +1,10 @@
+namespace: 'user'
+
+attrs: role,userId,displayId,displayName,username,sn,suffix,uname,level,levelIndex,msn,parent,parentName,parentDisplayName,parentSuffix,parentRole,createdAt
+    
+batchInsert:
+    - replace into user({{ user.attrs }}) values
+    - for:
+        array: data
+        sql: (:role,:userId,:displayId,:displayName,:username,:sn,:suffix,:uname,:level,:levelIndex,:msn,:parent,:parentName,:parentDisplayName,:parentSuffix,:parentRole,:createdAt)
+        seperator: ','

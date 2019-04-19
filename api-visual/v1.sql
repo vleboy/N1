@@ -47,7 +47,7 @@ CREATE TABLE `player` (
   `parent` varchar(36) NOT NULL,
   `parentName` varchar(64) NOT NULL,
   `parentSn` varchar(20) NOT NULL,
-  `msn` varchar(3) NOT NULL,
+  `msn` varchar(5) NOT NULL,
   `createdAt` bigint(20) NOT NULL,
   PRIMARY KEY (`userId`),
   KEY `buId_createdAt` (`buId`,`createdAt` DESC),
@@ -55,6 +55,37 @@ CREATE TABLE `player` (
   KEY `parentSn_createdAt` (`parentSn`,`createdAt` DESC),
   KEY `msn_createdAt` (`msn`,`createdAt` DESC)
   KEY `createdAt` (`createdAt` DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user` (
+  `role` varchar(5) NOT NULL,
+  `userId` varchar(36) NOT NULL,
+  `displayId` int(11) NOT NULL,
+  `displayName` varchar(20) NOT NULL,
+  `username` varchar(36) NOT NULL,
+  `sn` varchar(20) NOT NULL,
+  `suffix` varchar(20) NOT NULL,
+  `uname` varchar(20) NOT NULL,
+  `level` int(11) NOT NULL,
+  `levelIndex` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `msn` varchar(5) NOT NULL,
+  `parent` varchar(36) NOT NULL,
+  `parentName` varchar(36) NOT NULL,
+  `parentDisplayName` varchar(20) NOT NULL,
+  `parentSuffix` varchar(20) NOT NULL,
+  `parentRole` varchar(5) NOT NULL,
+  `createdAt` bigint(20) NOT NULL,
+  PRIMARY KEY (`userId`),
+  KEY `levelIndex` (`levelIndex`),
+  KEY `createdAt` (`createdAt` DESC),
+  KEY `role` (`role`),
+  KEY `parent` (`parent`),
+  KEY `parentSuffix` (`parentSuffix`),
+  KEY `sn` (`sn`),
+  KEY `displayId` (`displayId`),
+  KEY `level` (`level`),
+  KEY `msn` (`msn`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 DROP TABLE IF EXISTS `config`;
