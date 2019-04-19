@@ -60,7 +60,6 @@ router.get('/ky/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
     updateParams.businessKey = `BKY_${account}_${orderid}`
     updateParams.txnidTemp = txnidTemp
     let amtAfter = await new PlayerModel().updatebalance(player, updateParams)
-    console.log(updateParams)
     if (amtAfter == 'err') {
         ctx.body = { code: -1, msg: "游戏状态错误" }
     } else {
@@ -72,7 +71,6 @@ router.get('/ky/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
         } catch (error) {
             checkRes = await checkOrder(orderid)
         }
-        console.log(res.data)
         // 上分成功，进入游戏
         if (checkRes && res && res.data.d.code == 0) {
             ctx.redirect(res.data.d.url)
