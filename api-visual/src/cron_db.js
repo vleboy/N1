@@ -185,6 +185,7 @@ cron.schedule('0 10 1 * * *', async () => {
                     item.msn = item.msn || 'NULL!'
                     item.displayId = item.displayId || 0
                     item.displayName = item.displayName || 'NULL!'
+                    item.parentDisplayName = item.parentDisplayName || 'NULL!'
                     return item
                 })
             }))
