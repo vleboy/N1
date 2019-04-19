@@ -13,8 +13,8 @@ chinaPlayerCount: # 中国地图-玩家人数
     - select count(a.userId) as total,a.province from
     - (select distinct(userId),province from bill where createdAt between :startTime and :endTime
     - if:
-        test: :gameType!=null
-        sql: and gameType=:gameType
+        test: :gameType != null
+        sql: and gameType = :gameType
     - ) as a
     - group by a.province
 
@@ -31,19 +31,19 @@ chinaHandleAmount: # 中国地图-金额汇总
     # 判断是否使用type
     - if:
         test: :type != null
-        sql: and type=:type
+        sql: and type = :type
     # 判断是否使用gameType
     - if:
-        test: :gameType!=null
-        sql: and gameType=:gameType
+        test: :gameType != null
+        sql: and gameType = :gameType
     - group by province
 
 worldPlayerCount: # 世界地图-玩家人数
     - select count(a.userId) as total,a.province from 
     - (select distinct(userId),country as province from bill where createdAt between :startTime and :endTime
     - if:
-        test: :gameType!=null
-        sql: and gameType=:gameType
+        test: :gameType != null
+        sql: and gameType = :gameType
     - ) as a
     - group by a.province
 
@@ -60,19 +60,19 @@ worldHandleAmount: # 世界地图-金额汇总
     # 判断是否使用type
     - if:
         test: :type != null
-        sql: and type=:type
+        sql: and type = :type
     # 判断是否使用gameType
     - if:
-        test: :gameType!=null
-        sql: and gameType=:gameType
+        test: :gameType != null
+        sql: and gameType = :gameType
     - group by country
 
 playerCountDay: # 日报表-玩家人数
     - select count(userId) count,a.days from
     - (SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,userId from bill where createdAt between :startTime and :endTime
     - if:
-        test: :gameType!=null
-        sql: and gameType=:gameType
+        test: :gameType != null
+        sql: and gameType = :gameType
     - group by days,userId)as a 
     - GROUP BY a.days ORDER BY a.days
 
@@ -89,19 +89,19 @@ handleAmountDay: # 日报表-金额汇总
     # 判断是否使用type
     - if:
         test: :type != null
-        sql: and type=:type
+        sql: and type = :type
     # 判断是否使用gameType
     - if:
-        test: :gameType!=null
-        sql: and gameType=:gameType
+        test: :gameType != null
+        sql: and gameType = :gameType
     - group by days ORDER BY days
 
 playerCountGraph: # 时间段柱状图-玩家人数
     - SELECT t.hours,count(t.userId) count from
     - (select distinct(userId),FROM_UNIXTIME(createdAt/1000,'%k') hours from bill where createdAt between :startTime and :endTime
     - if:
-        test: :gameType!=null
-        sql: and gameType=:gameType
+        test: :gameType != null
+        sql: and gameType = :gameType
     - ) as t
     - GROUP BY t.hours
 
@@ -118,7 +118,7 @@ handleAmountGraph: # 时间段柱状图-金额汇总
     # 判断是否使用type
     - if:
         test: :type != null
-        sql: and type=:type
+        sql: and type = :type
     # 判断是否使用gameType
     - if:
         test: :gameType != null
@@ -143,7 +143,7 @@ handleAmountPie: # 饼图-金额汇总
     # 判断是否使用type
     - if:
         test: :type != null
-        sql: and type=:type
+        sql: and type = :type
     - GROUP BY gameType
 
 # betCountPie: # 统计下注总次数
@@ -152,56 +152,56 @@ handleAmountPie: # 饼图-金额汇总
 # winloseAmountDay: # 日报表输赢金额
 #     - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,sum(amount) count from bill where createdAt between :startTime and :endTime
 #     - if:
-#         test: :gameType!=null
+#         test: :gameType != null
 #         sql: and gameType=:gameType
 #     - group by days ORDER BY days
 
 # betCountDay: # 日报表下注次数
 #     - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,count(sn) count from bill where createdAt between :startTime and :endTime and type=3
 #     - if:
-#         test: :gameType!=null
+#         test: :gameType != null
 #         sql: and gameType=:gameType
 #     - group by days ORDER BY days
 
 # chinaBetCount:  # 下注总次数
 #     - select count(*) as total,province from bill where createdAt between :startTime and :endTime and type=3
 #     - if:
-#         test: :gameType!=null
+#         test: :gameType != null
 #         sql: and gameType=:gameType
 #     - group by province
 
 # chinaWinloseAmount: # 输赢总金额
 #     - select sum(amount) as total,province from bill where createdAt between :startTime and :endTime 
 #     - if:
-#         test: :gameType!=null
+#         test: :gameType != null
 #         sql: and gameType=:gameType
 #     - group by province
 
 # worldBetCount:  # 下注总次数
 #     - select count(*) as total,country as province from bill where createdAt between :startTime and :endTime and type=3
 #     - if:
-#         test: :gameType!=null
+#         test: :gameType != null
 #         sql: and gameType=:gameType
 #     - group by country
 
 # worldWinloseAmount: # 输赢总金额
 #     - select sum(amount) as total,country as province from bill where createdAt between :startTime and :endTime 
 #     - if:
-#         test: :gameType!=null
+#         test: :gameType != null
 #         sql: and gameType=:gameType
 #     - group by country
 
 # betCountGraph: # 统计下注总次数
 #     - SELECT FROM_UNIXTIME(createdAt/1000,'%k') hours,count(sn) count from bill where createdAt between :startTime and :endTime and type=3
 #     - if:
-#         test: :gameType!=null
+#         test: :gameType != null
 #         sql: and gameType=:gameType
 #     - GROUP BY hours
 
 # winloseAmountGraph: # 实时统计当天输赢金额
 #     - SELECT FROM_UNIXTIME(createdAt/1000,'%k') hours,sum(amount) count from bill where createdAt between :startTime and :endTime 
 #     - if:
-#         test: :gameType!=null
+#         test: :gameType != null
 #         sql: and gameType=:gameType
 #     - GROUP BY hours
 
