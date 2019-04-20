@@ -51,17 +51,17 @@ router.get('/pie/game', async (ctx, next) => {
         winloseAmount: []
     }
     // 获取区域玩家总人数
-    promiseArr.push(queryGetPie('bill.playerCountPie', inparam, 'playerCount', pieMap))
+    promiseArr.push(queryGetPie('bill.playerCountPie', 'playerCount', inparam, pieMap))
     // 获取区域玩家总下注次数
-    promiseArr.push(queryGetPie('bill.handleAmountPie', inparam, 'betCount', pieMap))
+    promiseArr.push(queryGetPie('bill.handleAmountPie', 'betCount', inparam, pieMap, 3))
     // 获取区域玩家总下注金额
-    promiseArr.push(queryGetPie('bill.handleAmountPie', inparam, 'betAmount', pieMap, 3))
+    promiseArr.push(queryGetPie('bill.handleAmountPie', 'betAmount', inparam, pieMap, 3))
     // 获取区域玩家总返奖
-    promiseArr.push(queryGetPie('bill.handleAmountPie', inparam, 'retAmount', pieMap, 4))
+    promiseArr.push(queryGetPie('bill.handleAmountPie', 'retAmount', inparam, pieMap, 4))
     // 获取区域玩家总退款
-    promiseArr.push(queryGetPie('bill.handleAmountPie', inparam, 'refundAmount', pieMap, 5))
+    promiseArr.push(queryGetPie('bill.handleAmountPie', 'refundAmount', inparam, pieMap, 5))
     // 获取区域玩家总输赢
-    // promiseArr.push(queryGetPie('bill.winloseAmountPie', inparam, 'winloseAmount', pieMap))
+    // promiseArr.push(queryGetPie('bill.winloseAmountPie', 'winloseAmount', inparam, pieMap))
     // 并发执行
     await Promise.all(promiseArr)
     ctx.body = { code: 0, data: pieMap }
@@ -69,8 +69,8 @@ router.get('/pie/game', async (ctx, next) => {
 })
 
 // 饼状图sql查询
-async function queryGetPie(sqlName, inparam, key, map, type) {
-    let res = await nodebatis.query(sqlName, { method: key, type, startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
+async function queryGetPie(sqlName, key, inparam, map, type) {
+    let res = await nodebatis.query(sqlName, { method: key, type, ...inparam })
     for (let item of res) {
         map[key].push({ name: GameTypeEnum[item.gameType].name || '其他', value: key == 'betAmount' ? Math.abs(item.num) : item.num })
     }

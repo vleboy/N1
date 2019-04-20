@@ -32,17 +32,17 @@ router.get('/line/graph', async (ctx, next) => {
         GraphMap.winloseAmount.push({ x: i, y: 0 })
     }
     // 获取区间玩家总人数
-    promiseArr.push(queryGetGraph('bill.playerCountGraph', inparam, 'playerCount', GraphMap))
+    promiseArr.push(queryGetGraph('bill.playerCountGraph', 'playerCount', inparam, GraphMap))
     // 获取区间玩家总下注次数
-    promiseArr.push(queryGetGraph('bill.handleAmountGraph', inparam, 'betCount', GraphMap), 3)
+    promiseArr.push(queryGetGraph('bill.handleAmountGraph', 'betCount', inparam, GraphMap, 3))
     // 获取区间玩家总下注金额
-    promiseArr.push(queryGetGraph('bill.handleAmountGraph', inparam, 'betAmount', GraphMap, 3))
+    promiseArr.push(queryGetGraph('bill.handleAmountGraph', 'betAmount', inparam, GraphMap, 3))
     // 获取区间玩家总返奖
-    promiseArr.push(queryGetGraph('bill.handleAmountGraph', inparam, 'retAmount', GraphMap, 4))
+    promiseArr.push(queryGetGraph('bill.handleAmountGraph', 'retAmount', inparam, GraphMap, 4))
     // 获取区间玩家总退款
-    promiseArr.push(queryGetGraph('bill.handleAmountGraph', inparam, 'refundAmount', GraphMap, 5))
+    promiseArr.push(queryGetGraph('bill.handleAmountGraph', 'refundAmount', inparam, GraphMap, 5))
     // 获取区间玩家总输赢
-    promiseArr.push(queryGetGraph('bill.handleAmountGraph', inparam, 'winloseAmount', GraphMap))
+    promiseArr.push(queryGetGraph('bill.handleAmountGraph', 'winloseAmount', inparam, GraphMap))
     // 并发执行
     await Promise.all(promiseArr)
     ctx.body = { code: 0, data: GraphMap }
@@ -50,8 +50,8 @@ router.get('/line/graph', async (ctx, next) => {
 })
 
 // 柱状图sql查询
-async function queryGetGraph(sqlName, inparam, key, map, type) {
-    let res = await nodebatis.query(sqlName, { method: key, type, startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
+async function queryGetGraph(sqlName, key, inparam, map, type) {
+    let res = await nodebatis.query(sqlName, { method: key, type, ...inparam })
     for (let item of res) {
         for (let valueMap of map[key]) {
             if (valueMap.x == item.hours) {
@@ -60,7 +60,5 @@ async function queryGetGraph(sqlName, inparam, key, map, type) {
         }
     }
 }
-
-
 
 module.exports = router
