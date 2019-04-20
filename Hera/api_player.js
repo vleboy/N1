@@ -79,7 +79,7 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
             parentName: userInfo.username,
             amount: 0,
             sex: 0,
-            nickname: 'NULL!',
+            nickname: inparam.nickname || 'NULL!',
             headPic: 'NULL!',
             gameState: 1,
             parentSn: userInfo.sn
