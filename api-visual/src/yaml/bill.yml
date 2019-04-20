@@ -9,24 +9,24 @@ batchInsert:
         sql: (:sn,:businessKey,:parent,:parentRole,:parentSn,:parentName,:parentDisplayId,:parentDisplayName,:userId,:userName,:gameType,:gameId,:type,:originalAmount,:amount,:balance,:sourceIP,:country,:province,:city,:createdAt)
         seperator: ','
 
-playerCountMap: # 地图-玩家人数
-    - select count(t.userId) as total,t.province from
-    - (select distinct(userId),:queryFlag as province from bill where createdAt between :startTime and :endTime
+chinaPlayerCount: # 中国地图-玩家人数
+    - select count(a.userId) as total,a.province from
+    - (select distinct(userId),province from bill where createdAt between :startTime and :endTime
     - if:
         test: :gameType != null
         sql: and gameType = :gameType
-    - ) as t
-    - group by t.province
+    - ) as a
+    - group by a.province
 
-mapHandleAmount: # 地图-金额汇总
+chinaHandleAmount: # 中国地图-金额汇总
     - select
     # 判断count与sum
     - if:
         test: :method == 'betCount'
-        sql: count(sn) as total,:queryFlag as province
+        sql: count(sn) as total,province
     - if:
         test: :method != 'betCount'
-        sql: round(sum(amount),2) as total,:queryFlag as province
+        sql: round(sum(amount),2) as total,province
     - from bill where createdAt between :startTime and :endTime
     # 判断是否使用type
     - if:
@@ -36,36 +36,36 @@ mapHandleAmount: # 地图-金额汇总
     - if:
         test: :gameType != null
         sql: and gameType = :gameType
-    - group by :queryFlag
+    - group by province
 
-# worldPlayerCount: # 世界地图-玩家人数
-#     - select count(t.userId) as total,t.province from 
-#     - (select distinct(userId),country as province from bill where createdAt between :startTime and :endTime
-#     - if:
-#         test: :gameType != null
-#         sql: and gameType = :gameType
-#     - ) as t
-#     - group by t.province
+worldPlayerCount: # 世界地图-玩家人数
+    - select count(a.userId) as total,a.province from 
+    - (select distinct(userId),country as province from bill where createdAt between :startTime and :endTime
+    - if:
+        test: :gameType != null
+        sql: and gameType = :gameType
+    - ) as a
+    - group by a.province
 
-# worldHandleAmount: # 世界地图-金额汇总
-#     - select
-#     # 判断count与sum
-#     - if:
-#         test: :method == 'betCount'
-#         sql: count(sn) as total,country as province
-#     - if:
-#         test: :method != 'betCount'
-#         sql: round(sum(amount),2) as total,country as province
-#     - from bill where createdAt between :startTime and :endTime
-#     # 判断是否使用type
-#     - if:
-#         test: :type != null
-#         sql: and type = :type
-#     # 判断是否使用gameType
-#     - if:
-#         test: :gameType != null
-#         sql: and gameType = :gameType
-#     - group by country
+worldHandleAmount: # 世界地图-金额汇总
+    - select
+    # 判断count与sum
+    - if:
+        test: :method == 'betCount'
+        sql: count(sn) as total,country as province
+    - if:
+        test: :method != 'betCount'
+        sql: round(sum(amount),2) as total,country as province
+    - from bill where createdAt between :startTime and :endTime
+    # 判断是否使用type
+    - if:
+        test: :type != null
+        sql: and type = :type
+    # 判断是否使用gameType
+    - if:
+        test: :gameType != null
+        sql: and gameType = :gameType
+    - group by country
 
 playerCountDay: # 日报表-玩家人数
     - select count(userId) count,t.days from
