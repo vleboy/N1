@@ -353,6 +353,19 @@ module.exports = class PlayerModel extends BaseModel {
     }
 
     /**
+     * 更新玩家昵称
+     * @param {*} userName
+     * @param {*} state
+     */
+    updateNickname(userName, nickname) {
+        return this.updateItem({
+            Key: { 'userName': userName },
+            UpdateExpression: "SET nickname = :nickname",
+            ExpressionAttributeValues: { ':nickname': nickname }
+        })
+    }
+
+    /**
      * 大厅修改玩家信息
      */
     hallUpdateInfo(userName, query) {

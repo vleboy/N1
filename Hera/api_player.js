@@ -33,7 +33,19 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
         let userName = `${userInfo.suffix}_${inparam.userName}`
         let playerInfo = await new PlayerModel().getPlayerByUserName(userName)
         if (!_.isEmpty(playerInfo)) {
-            return ResFail(cb, { msg: '玩家已存在' }, 10003)
+            // 如果变更了nickname，则更新玩家昵称
+            if (inparam.nickname) {
+                if (inparam.nickname != playerInfo.nickname) {
+                    await new PlayerModel().updateNickname(userName, inparam.nickname)
+                    return ResOK(cb, { msg: 'success' }, 0)
+                } else if (!inparam.userPwd) {
+                    return ResOK(cb, { msg: 'success' }, 0)
+                } else {
+                    return ResFail(cb, { msg: '玩家已存在' }, 10003)
+                }
+            } else {
+                return ResFail(cb, { msg: '玩家已存在' }, 10003)
+            }
         }
         //5,组装参数
         //加密密码
