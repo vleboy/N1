@@ -353,6 +353,21 @@ module.exports = class PlayerModel extends BaseModel {
     }
 
     /**
+     * 检查同一商户下的玩家昵称不重复
+     * @param {*} parent
+     * @param {*} nickname
+     */
+    checkNickname(parent, userName, nickname) {
+        return this.query({
+            IndexName: 'parentIdIndex',
+            KeyConditionExpression: 'parent=:parent',
+            FilterExpression: 'userName <> :userName AND nickname = :nickname',
+            ProjectionExpression: 'userId',
+            ExpressionAttributeValues: { ':parent': parent, ':userName': userName, ':nickname': nickname }
+        })
+    }
+
+    /**
      * 更新玩家昵称
      * @param {*} userName
      * @param {*} state
