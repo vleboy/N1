@@ -85,7 +85,22 @@ cron.schedule('*/30 * * * * *', async () => {
                 }
             }))
         }
+        // 查询用户表，获得所有用户
+        promiseReadArr.push(queryInc('scan', {
+            TableName: 'ZeusPlatformUser',
+            ProjectionExpression: 'userId,#role,sn,username,displayId,displayName',
+            ExpressionAttributeNames: { '#role': 'role' },
+            FilterExpression: `#role = :role100 or #role = :role1000`,
+            ExpressionAttributeValues: {
+                ':role100': '100',
+                ':role1000': '1000'
+            }
+        }))
         let resArr = await Promise.all(promiseReadArr)
+        let userMap = {}
+        for (let item of resArr[3].Items) {
+            userMap[item.userId] = item
+        }
         resArr = resArr[0].Items.concat(resArr[1].Items.concat(resArr[2].Items))
         // console.timeEnd(`读取 ${dayjs(startTime).format('YYYY-MM-DD HH:mm:ss')} 至 ${dayjs(endTime).format('YYYY-MM-DD HH:mm:ss')} 流水`)
         console.time(`写入流水${resArr.length} 条`)
@@ -112,6 +127,12 @@ cron.schedule('*/30 * * * * *', async () => {
                         item.country = ipMap[item.sourceIP][0]
                         item.province = ipMap[item.sourceIP][1]
                         item.city = ipMap[item.sourceIP][2]
+                        // 补充父级用户信息
+                        item.parentRole = userMap[item.parent].role
+                        item.parentSn = userMap[item.parent].sn || 'NULL!'
+                        item.parentName = userMap[item.parent].username
+                        item.parentDisplayId = userMap[item.parent].displayId || 0
+                        item.parentDisplayName = userMap[item.parent].displayName
                         return item
                     })
                 }))

@@ -9,7 +9,7 @@ batchInsert:
         sql: (:sn,:businessKey,:parent,:userId,:userName,:gameType,:gameId,:type,:originalAmount,:amount,:balance,:sourceIP,:country,:province,:city,:createdAt)
         seperator: ','
 
-chinaPlayerCount: # 地图-玩家人数
+playerCountMap: # 地图-玩家人数
     - select count(t.userId) as total,t.province from
     - (select distinct(userId),:queryFlag as province from bill where createdAt between :startTime and :endTime
     - if:
@@ -18,7 +18,7 @@ chinaPlayerCount: # 地图-玩家人数
     - ) as t
     - group by t.province
 
-chinaHandleAmount: # 地图-金额汇总
+mapHandleAmount: # 地图-金额汇总
     - select
     # 判断count与sum
     - if:
