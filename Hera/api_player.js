@@ -36,7 +36,7 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
             // 如果变更了nickname，则更新玩家昵称
             if (inparam.nickname) {
                 if (inparam.nickname != playerInfo.nickname) {
-                    let checkNicknameRes = await new PlayerModel().checkNickname(userName, inparam.nickname)
+                    let checkNicknameRes = await new PlayerModel().checkNickname(playerInfo.parent, userName, inparam.nickname)
                     if (checkNicknameRes.Items.length == 0) {
                         await new PlayerModel().updateNickname(userName, inparam.nickname)
                         return ResOK(cb, { msg: 'success' }, 0)
