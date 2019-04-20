@@ -128,9 +128,6 @@ cron.schedule('*/30 * * * * *', async () => {
                         item.province = ipMap[item.sourceIP][1]
                         item.city = ipMap[item.sourceIP][2]
                         // 补充父级用户信息
-                        if(!userMap[item.parent].role){
-                            console.log(item.parent)
-                        }
                         item.parentRole = userMap[item.parent].role
                         item.parentSn = userMap[item.parent].sn || 'NULL!'
                         item.parentName = userMap[item.parent].username

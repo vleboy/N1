@@ -1,12 +1,12 @@
 namespace: 'bill'
 
-attrs: sn,businessKey,parent,userId,userName,gameType,gameId,type,originalAmount,amount,balance,sourceIP,country,province,city,createdAt
+attrs: sn,businessKey,parent,parentRole,parentSn,parentName,parentDisplayId,parentDisplayName,userId,userName,gameType,gameId,type,originalAmount,amount,balance,sourceIP,country,province,city,createdAt
     
 batchInsert:
     - replace into bill({{ bill.attrs }}) values
     - for:
         array: data
-        sql: (:sn,:businessKey,:parent,:userId,:userName,:gameType,:gameId,:type,:originalAmount,:amount,:balance,:sourceIP,:country,:province,:city,:createdAt)
+        sql: (:sn,:businessKey,:parent,:parentRole,:parentSn,:parentName,:parentDisplayId,:parentDisplayName,:userId,:userName,:gameType,:gameId,:type,:originalAmount,:amount,:balance,:sourceIP,:country,:province,:city,:createdAt)
         seperator: ','
 
 playerCountMap: # 地图-玩家人数
