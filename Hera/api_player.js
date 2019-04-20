@@ -104,6 +104,7 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
     } catch (err) {
         console.error(err)
         let code = err == '非法IP' ? 10002 : 500
+        code = err.code == 10001 ? 10001 : 500
         return ResFail(cb, { msg: err }, code)
     }
 }
