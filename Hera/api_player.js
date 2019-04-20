@@ -52,6 +52,13 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
                 return ResFail(cb, { msg: '玩家已存在' }, 10003)
             }
         }
+        // 新创建的玩家，检查昵称是否重复
+        else if (inparam.nickname) {
+            let checkNicknameRes = await new PlayerModel().checkNickname(playerInfo.parent, userName, inparam.nickname)
+            if (checkNicknameRes.Items.length > 0) {
+                return ResFail(cb, { msg: '昵称已存在' }, 10013)
+            }
+        }
         //5,组装参数
         //加密密码
         const sha = crypto.createHash('sha256')
