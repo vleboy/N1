@@ -54,6 +54,9 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
         }
         // 新创建的玩家，检查昵称是否重复
         else if (inparam.nickname) {
+            if (!inparam.userPwd) {
+                throw { code: 10001, msg: '入参数据不合法', params: ['userPwd'] }
+            }
             let checkNicknameRes = await new PlayerModel().checkNickname(userInfo.userId, userName, inparam.nickname)
             if (checkNicknameRes.Items.length > 0) {
                 return ResFail(cb, { msg: '昵称已存在' }, 10013)
