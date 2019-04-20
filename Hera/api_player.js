@@ -32,11 +32,11 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
         //4,检验玩家是否存在
         let userName = `${userInfo.suffix}_${inparam.userName}`
         let playerInfo = await new PlayerModel().getPlayerByUserName(userName)
+        // 玩家已经存在，检查是否需要更新昵称
         if (!_.isEmpty(playerInfo)) {
-            // 如果变更了nickname，则更新玩家昵称
             if (inparam.nickname) {
                 if (inparam.nickname != playerInfo.nickname) {
-                    let checkNicknameRes = await new PlayerModel().checkNickname(playerInfo.parent, userName, inparam.nickname)
+                    let checkNicknameRes = await new PlayerModel().checkNickname(userInfo.userId, userName, inparam.nickname)
                     if (checkNicknameRes.Items.length == 0) {
                         await new PlayerModel().updateNickname(userName, inparam.nickname)
                         return ResOK(cb, { msg: 'success' }, 0)
@@ -54,7 +54,7 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
         }
         // 新创建的玩家，检查昵称是否重复
         else if (inparam.nickname) {
-            let checkNicknameRes = await new PlayerModel().checkNickname(playerInfo.parent, userName, inparam.nickname)
+            let checkNicknameRes = await new PlayerModel().checkNickname(userInfo.userId, userName, inparam.nickname)
             if (checkNicknameRes.Items.length > 0) {
                 return ResFail(cb, { msg: '昵称已存在' }, 10013)
             }
