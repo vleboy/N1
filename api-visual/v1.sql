@@ -16,6 +16,10 @@ CREATE TABLE `bill` (
   `sn` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `businessKey` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `parent` varchar(36) NOT NULL,
+  `parentDisplayId` int(11) NOT NULL,
+  `parentSn` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `parentDisplayName` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `parentRole` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `userId` int(11) NOT NULL,
   `userName` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `gameType` int(11) NOT NULL,
@@ -31,11 +35,14 @@ CREATE TABLE `bill` (
   `createdAt` bigint(20) NOT NULL,
   PRIMARY KEY (`sn`),
   KEY `createdAt` (`createdAt` DESC),
+  KEY `country` (`country`),
   KEY `parent_createdAt` (`parent`,`createdAt` DESC),
   KEY `type_createdAt` (`type`,`createdAt` DESC),
   KEY `gameType_createdAt` (`gameType`,`createdAt` DESC),
   KEY `gameId_createdAt` (`gameId`,`createdAt` DESC),
-  KEY `country` (`country`)
+  KEY `parentDisplayId_createdAt` (`parentDisplayId`,`createdAt` DESC),
+  KEY `parentSn_createdAt` (`parentSn`,`createdAt`),
+  KEY `parentRole_createdAt` (`parentRole`,`createdAt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 DROP TABLE IF EXISTS `player`;

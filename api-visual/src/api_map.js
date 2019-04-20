@@ -15,7 +15,7 @@ const log = require('tracer').colorConsole({ level: config.log.level })
 router.get('/map/china', async (ctx, next) => {
     console.time('中国地图查询用时')
     let inparam = ctx.request.query
-    inparam.queryFlag = 'china'
+    inparam.queryFlag = 'province'
     let promiseArr = []
     // 获取区域玩家总人数
     promiseArr.push(queryGetSql('bill.chinaPlayerCount', 'playerCount', inparam))
@@ -40,20 +40,20 @@ router.get('/map/china', async (ctx, next) => {
 router.get('/map/world', async (ctx, next) => {
     console.time('世界地图查询用时')
     let inparam = ctx.request.query
-    inparam.queryFlag = 'world'
+    inparam.queryFlag = 'country'
     let promiseArr = []
     // 获取区域玩家总人数
-    promiseArr.push(queryGetSql('bill.worldPlayerCount', 'playerCount', inparam))
+    promiseArr.push(queryGetSql('bill.chinaPlayerCount', 'playerCount', inparam))
     // 获取区域玩家总下注次数
-    promiseArr.push(queryGetSql('bill.worldHandleAmount', 'betCount', inparam, 3))
+    promiseArr.push(queryGetSql('bill.chinaHandleAmount', 'betCount', inparam, 3))
     // 获取区域玩家总下注金额
-    promiseArr.push(queryGetSql('bill.worldHandleAmount', 'betAmount', inparam, 3))
+    promiseArr.push(queryGetSql('bill.chinaHandleAmount', 'betAmount', inparam, 3))
     // 获取区域玩家总返奖
-    promiseArr.push(queryGetSql('bill.worldHandleAmount', 'retAmount', inparam, 4))
+    promiseArr.push(queryGetSql('bill.chinaHandleAmount', 'retAmount', inparam, 4))
     // 获取区域玩家总退款
-    promiseArr.push(queryGetSql('bill.worldHandleAmount', 'refundAmount', inparam, 5))
+    promiseArr.push(queryGetSql('bill.chinaHandleAmount', 'refundAmount', inparam, 5))
     // 获取区域玩家总输赢
-    promiseArr.push(queryGetSql('bill.worldHandleAmount', 'winloseAmount', inparam))
+    promiseArr.push(queryGetSql('bill.chinaHandleAmount', 'winloseAmount', inparam))
     let worldArr = await Promise.all(promiseArr)
     ctx.body = { code: 0, data: { playerCount: worldArr[0], betCount: worldArr[1], betAmount: worldArr[2], retAmount: worldArr[3], refundAmount: worldArr[4], winloseAmount: worldArr[5] } }
     console.timeEnd('世界地图查询用时')
@@ -80,7 +80,7 @@ function getSplitList(arr, splitCount) {
 
 // sql查询
 async function queryGetSql(sqlName, method, inparam, type) {
-    let res = await nodebatis.query(sqlName, { method, type, startTime: inparam.startTime, endTime: inparam.endTime, gameType: inparam.gameType })
+    let res = await nodebatis.query(sqlName, { method, ...inparam, type })
     let arr = []
     //中国范围
     let chinaData = [
@@ -299,7 +299,7 @@ async function queryGetSql(sqlName, method, inparam, type) {
         { name: "赞比亚", value: 0 },
         { name: "津巴布韦", value: 0 }
     ]
-    let data = inparam.queryFlag == 'china' ? chinaData : worldData
+    let data = inparam.queryFlag == 'province' ? chinaData : worldData
     // 地区名称匹配
     if (res.length > 0) {
         for (let item of res) {

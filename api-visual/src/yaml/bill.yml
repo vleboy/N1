@@ -9,24 +9,24 @@ batchInsert:
         sql: (:sn,:businessKey,:parent,:userId,:userName,:gameType,:gameId,:type,:originalAmount,:amount,:balance,:sourceIP,:country,:province,:city,:createdAt)
         seperator: ','
 
-chinaPlayerCount: # 中国地图-玩家人数
-    - select count(a.userId) as total,a.province from
-    - (select distinct(userId),province from bill where createdAt between :startTime and :endTime
+chinaPlayerCount: # 地图-玩家人数
+    - select count(t.userId) as total,t.province from
+    - (select distinct(userId),:queryFlag as province from bill where createdAt between :startTime and :endTime
     - if:
         test: :gameType != null
         sql: and gameType = :gameType
-    - ) as a
-    - group by a.province
+    - ) as t
+    - group by t.province
 
-chinaHandleAmount: # 中国地图-金额汇总
+chinaHandleAmount: # 地图-金额汇总
     - select
     # 判断count与sum
     - if:
         test: :method == 'betCount'
-        sql: count(sn) as total,province
+        sql: count(sn) as total,:queryFlag as province
     - if:
         test: :method != 'betCount'
-        sql: round(sum(amount),2) as total,province
+        sql: round(sum(amount),2) as total,:queryFlag as province
     - from bill where createdAt between :startTime and :endTime
     # 判断是否使用type
     - if:
@@ -36,45 +36,45 @@ chinaHandleAmount: # 中国地图-金额汇总
     - if:
         test: :gameType != null
         sql: and gameType = :gameType
-    - group by province
+    - group by :queryFlag
 
-worldPlayerCount: # 世界地图-玩家人数
-    - select count(a.userId) as total,a.province from 
-    - (select distinct(userId),country as province from bill where createdAt between :startTime and :endTime
-    - if:
-        test: :gameType != null
-        sql: and gameType = :gameType
-    - ) as a
-    - group by a.province
+# worldPlayerCount: # 世界地图-玩家人数
+#     - select count(t.userId) as total,t.province from 
+#     - (select distinct(userId),country as province from bill where createdAt between :startTime and :endTime
+#     - if:
+#         test: :gameType != null
+#         sql: and gameType = :gameType
+#     - ) as t
+#     - group by t.province
 
-worldHandleAmount: # 世界地图-金额汇总
-    - select
-    # 判断count与sum
-    - if:
-        test: :method == 'betCount'
-        sql: count(sn) as total,country as province
-    - if:
-        test: :method != 'betCount'
-        sql: round(sum(amount),2) as total,country as province
-    - from bill where createdAt between :startTime and :endTime
-    # 判断是否使用type
-    - if:
-        test: :type != null
-        sql: and type = :type
-    # 判断是否使用gameType
-    - if:
-        test: :gameType != null
-        sql: and gameType = :gameType
-    - group by country
+# worldHandleAmount: # 世界地图-金额汇总
+#     - select
+#     # 判断count与sum
+#     - if:
+#         test: :method == 'betCount'
+#         sql: count(sn) as total,country as province
+#     - if:
+#         test: :method != 'betCount'
+#         sql: round(sum(amount),2) as total,country as province
+#     - from bill where createdAt between :startTime and :endTime
+#     # 判断是否使用type
+#     - if:
+#         test: :type != null
+#         sql: and type = :type
+#     # 判断是否使用gameType
+#     - if:
+#         test: :gameType != null
+#         sql: and gameType = :gameType
+#     - group by country
 
 playerCountDay: # 日报表-玩家人数
-    - select count(userId) count,a.days from
+    - select count(userId) count,t.days from
     - (SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,userId from bill where createdAt between :startTime and :endTime
     - if:
         test: :gameType != null
         sql: and gameType = :gameType
-    - group by days,userId)as a 
-    - GROUP BY a.days ORDER BY a.days
+    - group by days,userId) as t
+    - GROUP BY t.days ORDER BY t.days
 
 handleAmountDay: # 日报表-金额汇总
     - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,
@@ -146,94 +146,3 @@ handleAmountPie: # 饼图-金额汇总
         sql: and type = :type
     - GROUP BY gameType
 
-# betCountPie: # 统计下注总次数
-#     - SELECT count(*) as num,gameType from bill where createdAt between :startTime and :endTime and type=3 GROUP BY gameType
-
-# winloseAmountDay: # 日报表输赢金额
-#     - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,sum(amount) count from bill where createdAt between :startTime and :endTime
-#     - if:
-#         test: :gameType != null
-#         sql: and gameType=:gameType
-#     - group by days ORDER BY days
-
-# betCountDay: # 日报表下注次数
-#     - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,count(sn) count from bill where createdAt between :startTime and :endTime and type=3
-#     - if:
-#         test: :gameType != null
-#         sql: and gameType=:gameType
-#     - group by days ORDER BY days
-
-# chinaBetCount:  # 下注总次数
-#     - select count(*) as total,province from bill where createdAt between :startTime and :endTime and type=3
-#     - if:
-#         test: :gameType != null
-#         sql: and gameType=:gameType
-#     - group by province
-
-# chinaWinloseAmount: # 输赢总金额
-#     - select sum(amount) as total,province from bill where createdAt between :startTime and :endTime 
-#     - if:
-#         test: :gameType != null
-#         sql: and gameType=:gameType
-#     - group by province
-
-# worldBetCount:  # 下注总次数
-#     - select count(*) as total,country as province from bill where createdAt between :startTime and :endTime and type=3
-#     - if:
-#         test: :gameType != null
-#         sql: and gameType=:gameType
-#     - group by country
-
-# worldWinloseAmount: # 输赢总金额
-#     - select sum(amount) as total,country as province from bill where createdAt between :startTime and :endTime 
-#     - if:
-#         test: :gameType != null
-#         sql: and gameType=:gameType
-#     - group by country
-
-# betCountGraph: # 统计下注总次数
-#     - SELECT FROM_UNIXTIME(createdAt/1000,'%k') hours,count(sn) count from bill where createdAt between :startTime and :endTime and type=3
-#     - if:
-#         test: :gameType != null
-#         sql: and gameType=:gameType
-#     - GROUP BY hours
-
-# winloseAmountGraph: # 实时统计当天输赢金额
-#     - SELECT FROM_UNIXTIME(createdAt/1000,'%k') hours,sum(amount) count from bill where createdAt between :startTime and :endTime 
-#     - if:
-#         test: :gameType != null
-#         sql: and gameType=:gameType
-#     - GROUP BY hours
-
-# winloseAmountPie: # 实时统计当天输赢金额
-#     - SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime GROUP BY gameType
-
-# playerCountPie: # 统计人数
-#     - SELECT ROUND(a.num/b.total*100,2) as percent,a.gameType from (select count(c.userId) as num,c.gameType from 
-#     - (SELECT gameType,userId from bill where createdAt between :startTime and :endTime GROUP BY gameType,userId) as c GROUP BY c.gameType) as a,
-#     - (SELECT count(DISTINCT userId,gameType) as total from bill) as b
-
-# betCountPie: # 统计下注总次数
-#     - SELECT ROUND(a.num/b.total *100,2) as percent,a.gameType from 
-#     - (SELECT count(*) as num,gameType from bill where createdAt between :startTime and :endTime and type=3 GROUP BY gameType) as a,
-#     - (SELECT count(*) as total from bill)as b;
-
-# betAmountPie: # 统计下注总金额
-#     - SELECT ROUND(a.num/b.total *100,2) as percent,a.gameType from 
-#     - (SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime and type=3 GROUP BY gameType) as a,
-#     - (SELECT sum(amount) as total from bill where type=3 )as b;
-
-# retAmountPie: # 统计返奖总额
-#     - SELECT ROUND(a.num/b.total *100,2) as percent,a.gameType from 
-#     - (SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime and type=4 GROUP BY gameType) as a,
-#     - (SELECT sum(amount) as total from bill where type=4 )as b;
-
-# refundAmountPie: # 统计退款总金额
-#     - SELECT ROUND(a.num/b.total *100,2) as percent,a.gameType from 
-#     - (SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime and type=5 GROUP BY gameType) as a,
-#     - (SELECT sum(amount) as total from bill where type=5 )as b;
-
-# winloseAmountPie: # 实时统计当天输赢金额
-#     - SELECT ROUND(a.num/b.total *100,2) as percent,a.gameType from 
-#     - (SELECT sum(amount) as num,gameType from bill where createdAt between :startTime and :endTime GROUP BY gameType) as a,
-#     - (SELECT sum(amount) as total from bill )as b;
