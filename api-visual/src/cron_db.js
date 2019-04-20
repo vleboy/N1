@@ -101,7 +101,6 @@ cron.schedule('*/30 * * * * *', async () => {
         for (let item of resArr[3].Items) {
             userMap[item.userId] = item
         }
-        console.log(userMap)
         resArr = resArr[0].Items.concat(resArr[1].Items.concat(resArr[2].Items))
         // console.timeEnd(`读取 ${dayjs(startTime).format('YYYY-MM-DD HH:mm:ss')} 至 ${dayjs(endTime).format('YYYY-MM-DD HH:mm:ss')} 流水`)
         console.time(`写入流水${resArr.length} 条`)
@@ -129,6 +128,9 @@ cron.schedule('*/30 * * * * *', async () => {
                         item.province = ipMap[item.sourceIP][1]
                         item.city = ipMap[item.sourceIP][2]
                         // 补充父级用户信息
+                        if(!userMap[item.parent].role){
+                            console.log(item.parent)
+                        }
                         item.parentRole = userMap[item.parent].role
                         item.parentSn = userMap[item.parent].sn || 'NULL!'
                         item.parentName = userMap[item.parent].username
