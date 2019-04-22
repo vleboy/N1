@@ -357,13 +357,13 @@ module.exports = class PlayerModel extends BaseModel {
      * @param {*} parent
      * @param {*} nickname
      */
-    checkNickname(parent, userName, nickname) {
+    checkNickname(parent, nickname) {
         return this.query({
             IndexName: 'parentIdIndex',
             KeyConditionExpression: 'parent=:parent',
-            FilterExpression: 'userName <> :userName AND nickname = :nickname',
+            FilterExpression: 'nickname = :nickname',
             ProjectionExpression: 'userId',
-            ExpressionAttributeValues: { ':parent': parent, ':userName': userName, ':nickname': nickname }
+            ExpressionAttributeValues: { ':parent': parent, ':nickname': nickname }
         })
     }
 

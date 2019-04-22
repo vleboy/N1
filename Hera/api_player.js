@@ -36,17 +36,15 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
         if (!_.isEmpty(playerInfo)) {
             if (inparam.nickname) {
                 if (inparam.nickname != playerInfo.nickname) {
-                    let checkNicknameRes = await new PlayerModel().checkNickname(userInfo.userId, userName, inparam.nickname)
+                    let checkNicknameRes = await new PlayerModel().checkNickname(userInfo.userId, inparam.nickname)
                     if (checkNicknameRes.Items.length == 0) {
                         await new PlayerModel().updateNickname(userName, inparam.nickname)
                         return ResOK(cb, { msg: 'success' }, 0)
                     } else {
                         return ResFail(cb, { msg: '昵称已存在' }, 10013)
                     }
-                } else if (!inparam.userPwd) {
-                    return ResOK(cb, { msg: 'success' }, 0)
                 } else {
-                    return ResFail(cb, { msg: '玩家已存在' }, 10003)
+                    return ResFail(cb, { msg: '昵称已存在' }, 10003)
                 }
             } else {
                 return ResFail(cb, { msg: '玩家已存在' }, 10003)
@@ -57,7 +55,7 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
             if (!inparam.userPwd) {
                 throw { code: 10001, msg: '入参数据不合法', params: ['userPwd'] }
             }
-            let checkNicknameRes = await new PlayerModel().checkNickname(userInfo.userId, userName, inparam.nickname)
+            let checkNicknameRes = await new PlayerModel().checkNickname(userInfo.userId, inparam.nickname)
             if (checkNicknameRes.Items.length > 0) {
                 return ResFail(cb, { msg: '昵称已存在' }, 10013)
             }
