@@ -246,5 +246,5 @@ handleAmountPlayerRank: # 玩家排行榜-金额汇总
         sql: ORDER BY num asc
     - if:
         test: :method == 'winloseAmount'
-        sql: ORDER BY num desc
+        sql: ORDER BY num asc
     - limit 10
