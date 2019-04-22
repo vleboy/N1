@@ -15,6 +15,9 @@ chinaPlayerCount: # 中国地图-玩家人数
     - if:
         test: :gameType != null
         sql: and gameType = :gameType
+    - if:
+        test: :parent != null
+        sql: and gameType = :gameType
     - ) as a
     - group by a.province
 
@@ -149,7 +152,7 @@ handleAmountPie: # 饼图-金额汇总
 playerCountRank: # 商户排行-玩家人数
     - SELECT t.parentSn,t.parentDisplayName,count(t.userId) as num from 
     - (select distinct(userId), parentDisplayName,parentSn from bill where createdAt between :startTime and :endTime) 
-    - as t group by t.parentDisplayName,t.parentSn ORDER BY num desc
+    - as t group by t.parentDisplayName,t.parentSn ORDER BY num asc
 
 handleAmountRank: # 商户排行榜-金额汇总
     - SELECT
@@ -174,10 +177,10 @@ handleAmountRank: # 商户排行榜-金额汇总
         sql: ORDER BY num asc
     - if:
         test: :method == 'retAmount'
-        sql: ORDER BY num desc
+        sql: ORDER BY num asc
     - if:
         test: :method == 'winloseAmount'
-        sql: ORDER BY num asc
+        sql: ORDER BY num desc
 
 handleAmountPlayerRank: # 玩家排行榜-金额汇总
     - SELECT 
@@ -202,7 +205,7 @@ handleAmountPlayerRank: # 玩家排行榜-金额汇总
         sql: ORDER BY num asc
     - if:
         test: :method == 'retAmount'
-        sql: ORDER BY num desc
+        sql: ORDER BY num asc
     - if:
         test: :method == 'winloseAmount'
-        sql: ORDER BY num asc
+        sql: ORDER BY num desc
