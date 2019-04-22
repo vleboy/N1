@@ -54,13 +54,14 @@ router.get('/line/player', async (ctx, next) => {
     let [res, resTotal] = await Promise.all([p1, p2])
     // 初始折线图数据
     let lineMap = {
-        everyDay: [],
-        sumDay: []
+        everyDay: [],  //每天注册数
+        sumDay: []     //历史累计注册数
     }
     for (let i = +inparam.startTime; i <= +inparam.endTime; i += 24 * 60 * 60 * 1000) {
         lineMap.everyDay.push([new Date(i).Format('yyyy-MM-dd'), 0])
         lineMap.sumDay.push([new Date(i).Format('yyyy-MM-dd'), resTotal[0].total])
     }
+    // 更新到对应时间每天注册数
     for (let item of lineMap.everyDay) {
         for (let info of res) {
             if (item[0] == info.days) {
@@ -69,7 +70,7 @@ router.get('/line/player', async (ctx, next) => {
             }
         }
     }
-    let sumarr = []
+    let sumarr = []  //需要累加的每天注册数
     for (let i = 0; i < lineMap.everyDay.length; i++) {
         let newArr = [lineMap.everyDay[i][0], 0]
         for (var j = 0; j <= i; j++) {
@@ -77,6 +78,7 @@ router.get('/line/player', async (ctx, next) => {
         }
         sumarr.push(newArr)
     }
+    //  更新历史累计注册数
     for (let item of lineMap.sumDay) {
         for (let info of sumarr) {
             if (item[0] == info[0]) {

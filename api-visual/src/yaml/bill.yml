@@ -146,3 +146,23 @@ handleAmountPie: # 饼图-金额汇总
         sql: and type = :type
     - GROUP BY gameType
 
+playerCountRank: # 商户排行-玩家人数
+    - SELECT t.parentSn,t.parentDisplayName,count(t.userId) as num from 
+    - (select distinct(userId), parentDisplayName,parentSn from bill where createdAt between :startTime and :endTime) 
+    - as t group by t.parentDisplayName,t.parentSn ORDER BY num desc
+
+handleAmountRank: # 商户排行榜-金额汇总
+    - SELECT
+    # 判断count与sum
+    - if:
+        test: :method == 'betCount'
+        sql: count(sn) as num,parentDisplayName,parentSn
+    - if:
+        test: :method != 'betCount'
+        sql: round(sum(amount),2) as num,parentDisplayName,parentSn
+    - from bill where createdAt between :startTime and :endTime
+    # 判断是否使用type
+    - if:
+        test: :type != null
+        sql: and type = :type
+    - GROUP BY parentDisplayName,parentSn ORDER BY num desc

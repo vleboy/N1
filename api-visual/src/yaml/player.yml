@@ -14,3 +14,4 @@ queryRegisterDay:
 
 querycountDay:
     - select count(userId) total from player where createdAt between :startTime and :endTime
+
