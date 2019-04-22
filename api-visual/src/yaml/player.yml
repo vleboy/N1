@@ -10,8 +10,15 @@ batchInsert:
         seperator: ','
 
 queryRegisterDay:
-    - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,count(userId) count from player where createdAt between :startTime and :endTime GROUP BY days ORDER BY days
+    - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,count(userId) count from player where createdAt between :startTime and :endTime 
+    - if:
+        test: :parent != null
+        sql: and gameType = :gameType
+    - GROUP BY days ORDER BY days
 
 querycountDay:
     - select count(userId) total from player where createdAt between :startTime and :endTime
+    - if:
+        test: :parent != null
+        sql: and gameType = :gameType
 
