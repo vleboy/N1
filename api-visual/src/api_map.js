@@ -63,6 +63,7 @@ router.get('/map/world', async (ctx, next) => {
 function getSplitList(arr, splitCount) {
     let splitList = [{ start: 0, end: 0 }]
     let max = _.max(arr)
+    console.log(arr)
     console.log(max)
     let avg = parseInt(max / splitCount)
     if (avg > 1) {
