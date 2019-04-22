@@ -67,8 +67,6 @@ function getSplitList(map, splitCount) {
     }
     let splitList = [{ start: 0, end: 0 }]
     let max = _.max(arr)
-    console.log(arr)
-    console.log(max)
     let avg = parseInt(max / splitCount)
     if (avg > 1) {
         for (let i = 0; i < splitCount; i++) {
