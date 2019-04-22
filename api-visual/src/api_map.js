@@ -60,7 +60,11 @@ router.get('/map/world', async (ctx, next) => {
 })
 
 // 统计数值分组
-function getSplitList(arr, splitCount) {
+function getSplitList(map, splitCount) {
+    let arr = []
+    for (let key in map) {
+        arr.push(map[key].value)
+    }
     let splitList = [{ start: 0, end: 0 }]
     let max = _.max(arr)
     console.log(arr)
@@ -83,43 +87,42 @@ function getSplitList(arr, splitCount) {
 // sql查询
 async function queryGetSql(sqlName, method, inparam, type) {
     let res = await nodebatis.query(sqlName, { method, ...inparam, type })
-    let arr = []
     //中国范围
     let chinaData = [
-        { name: "北京", value: "0" },
-        { name: "天津", value: "0" },
-        { name: "上海", value: "0" },
-        { name: "重庆", value: "0" },
-        { name: "河北", value: "0" },
-        { name: "河南", value: "0" },
-        { name: "云南", value: "0" },
-        { name: "辽宁", value: "0" },
-        { name: "黑龙江", value: "0" },
-        { name: "湖南", value: "0" },
-        { name: "安徽", value: "0" },
-        { name: "山东", value: "0" },
-        { name: "新疆", value: "0" },
-        { name: "江苏", value: "0" },
-        { name: "浙江", value: "0" },
-        { name: "江西", value: "0" },
-        { name: "湖北", value: "0" },
-        { name: "广西", value: "0" },
-        { name: "甘肃", value: "0" },
-        { name: "山西", value: "0" },
-        { name: "内蒙古", value: "0" },
-        { name: "陕西", value: "0" },
-        { name: "吉林", value: "0" },
-        { name: "福建", value: "0" },
-        { name: "贵州", value: "0" },
-        { name: "广东", value: "0" },
-        { name: "青海", value: "0" },
-        { name: "西藏", value: "0" },
-        { name: "四川", value: "0" },
-        { name: "宁夏", value: "0" },
-        { name: "海南", value: "0" },
-        { name: "台湾", value: "0" },
-        { name: "香港", value: "0" },
-        { name: "澳门", value: "0" }
+        { name: "北京", value: 0 },
+        { name: "天津", value: 0 },
+        { name: "上海", value: 0 },
+        { name: "重庆", value: 0 },
+        { name: "河北", value: 0 },
+        { name: "河南", value: 0 },
+        { name: "云南", value: 0 },
+        { name: "辽宁", value: 0 },
+        { name: "黑龙江", value: 0 },
+        { name: "湖南", value: 0 },
+        { name: "安徽", value: 0 },
+        { name: "山东", value: 0 },
+        { name: "新疆", value: 0 },
+        { name: "江苏", value: 0 },
+        { name: "浙江", value: 0 },
+        { name: "江西", value: 0 },
+        { name: "湖北", value: 0 },
+        { name: "广西", value: 0 },
+        { name: "甘肃", value: 0 },
+        { name: "山西", value: 0 },
+        { name: "内蒙古", value: 0 },
+        { name: "陕西", value: 0 },
+        { name: "吉林", value: 0 },
+        { name: "福建", value: 0 },
+        { name: "贵州", value: 0 },
+        { name: "广东", value: 0 },
+        { name: "青海", value: 0 },
+        { name: "西藏", value: 0 },
+        { name: "四川", value: 0 },
+        { name: "宁夏", value: 0 },
+        { name: "海南", value: 0 },
+        { name: "台湾", value: 0 },
+        { name: "香港", value: 0 },
+        { name: "澳门", value: 0 }
     ]
     //世界范围
     let worldData = [
@@ -309,13 +312,12 @@ async function queryGetSql(sqlName, method, inparam, type) {
                 return item.province.indexOf(o.name) != -1
             })
             if (index != -1) {
-                data[index].value = Math.abs(item.total)
-                arr.push(Math.abs(item.total))
+                data[index].value += Math.abs(item.total)
             }
         }
     }
     // 分5组数据
-    let splitList = getSplitList(arr, 5)
+    let splitList = getSplitList(data, 5)
     return [data, splitList]
 }
 
