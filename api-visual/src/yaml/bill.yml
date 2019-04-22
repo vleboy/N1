@@ -17,7 +17,7 @@ chinaPlayerCount: # 中国地图-玩家人数
         sql: and gameType = :gameType
     - if:
         test: :parent != null
-        sql: and gameType = :gameType
+        sql: and parent = :parent
     - ) as a
     - group by a.province
 
@@ -41,7 +41,7 @@ chinaHandleAmount: # 中国地图-金额汇总
         sql: and gameType = :gameType
     - if:
         test: :parent != null
-        sql: and gameType = :gameType
+        sql: and parent = :parent
     - group by province
 
 worldPlayerCount: # 世界地图-玩家人数
@@ -52,7 +52,7 @@ worldPlayerCount: # 世界地图-玩家人数
         sql: and gameType = :gameType
     - if:
         test: :parent != null
-        sql: and gameType = :gameType
+        sql: and parent = :parent
     - ) as a
     - group by a.province
 
@@ -76,7 +76,7 @@ worldHandleAmount: # 世界地图-金额汇总
         sql: and gameType = :gameType
     - if:
         test: :parent != null
-        sql: and gameType = :gameType
+        sql: and parent = :parent
     - group by country
 
 playerCountDay: # 日报表-玩家人数
@@ -87,7 +87,7 @@ playerCountDay: # 日报表-玩家人数
         sql: and gameType = :gameType
     - if:
         test: :parent != null
-        sql: and gameType = :gameType
+        sql: and parent = :parent
     - group by days,userId) as t
     - GROUP BY t.days ORDER BY t.days
 
@@ -111,7 +111,7 @@ handleAmountDay: # 日报表-金额汇总
         sql: and gameType = :gameType
     - if:
         test: :parent != null
-        sql: and gameType = :gameType
+        sql: and parent = :parent
     - group by days ORDER BY days
 
 playerCountGraph: # 时间段柱状图-玩家人数
@@ -122,7 +122,7 @@ playerCountGraph: # 时间段柱状图-玩家人数
         sql: and gameType = :gameType
     - if:
         test: :parent != null
-        sql: and gameType = :gameType
+        sql: and parent = :parent
     - ) as t
     - GROUP BY t.hours
 
@@ -146,7 +146,7 @@ handleAmountGraph: # 时间段柱状图-金额汇总
         sql: and gameType = :gameType
     - if:
         test: :parent != null
-        sql: and gameType = :gameType
+        sql: and parent = :parent
     - GROUP BY hours
 
 playerCountPie: # 饼图-玩家人数
@@ -154,7 +154,7 @@ playerCountPie: # 饼图-玩家人数
     - (SELECT gameType,userId from bill where createdAt between :startTime and :endTime 
     - if:
         test: :parent != null
-        sql: and gameType = :gameType
+        sql: and parent = :parent
     - GROUP BY gameType,userId) as c 
     - GROUP BY c.gameType
 
@@ -174,7 +174,7 @@ handleAmountPie: # 饼图-金额汇总
         sql: and type = :type
     - if:
         test: :parent != null
-        sql: and gameType = :gameType
+        sql: and parent = :parent
     - GROUP BY gameType
 
 playerCountRank: # 商户排行-玩家人数
@@ -182,7 +182,7 @@ playerCountRank: # 商户排行-玩家人数
     - (select distinct(userId), parentDisplayName,parentSn from bill where createdAt between :startTime and :endTime
     - if:
         test: :parent != null
-        sql: and gameType = :gameType
+        sql: and parent = :parent
     - ) 
     - as t group by t.parentDisplayName,t.parentSn ORDER BY num asc
 
@@ -202,7 +202,7 @@ handleAmountRank: # 商户排行榜-金额汇总
         sql: and type = :type
     - if:
         test: :parent != null
-        sql: and gameType = :gameType
+        sql: and parent = :parent
     - GROUP BY parentDisplayName,parentSn 
     - if:
         test: :method == 'betAmount'
@@ -233,7 +233,7 @@ handleAmountPlayerRank: # 玩家排行榜-金额汇总
         sql: and type = :type
     - if:
         test: :parent != null
-        sql: and gameType = :gameType
+        sql: and parent = :parent
     - GROUP BY userName
     - if:
         test: :method == 'betAmount'
