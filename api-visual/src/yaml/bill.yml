@@ -169,7 +169,9 @@ handleAmountRank: # 商户排行榜-金额汇总
     - if:
         test: :method == 'betAmount'
         sql: ORDER BY num asc
-    - ORDER BY num desc
+    - if:
+        test: :method != 'betAmount'
+        sql: ORDER BY num desc
 
 handleAmountPlayerRank: # 玩家排行榜-金额汇总
     - SELECT 
@@ -189,4 +191,6 @@ handleAmountPlayerRank: # 玩家排行榜-金额汇总
     - if:
         test: :method == 'betAmount'
         sql: ORDER BY num asc
-    - ORDER BY num desc
+    - if:
+        test: :method != 'betAmount'
+        sql: ORDER BY num desc
