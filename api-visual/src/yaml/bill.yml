@@ -165,7 +165,11 @@ handleAmountRank: # 商户排行榜-金额汇总
     - if:
         test: :type != null
         sql: and type = :type
-    - GROUP BY parentDisplayName,parentSn ORDER BY num desc
+    - GROUP BY parentDisplayName,parentSn 
+    - if:
+        test: :method == 'betAmount'
+        sql: ORDER BY num asc
+    - ORDER BY num desc
 
 handleAmountPlayerRank: # 玩家排行榜-金额汇总
     - SELECT 
@@ -181,4 +185,8 @@ handleAmountPlayerRank: # 玩家排行榜-金额汇总
     - if:
         test: :type != null
         sql: and type = :type
-    - GROUP BY userName ORDER BY num desc
+    - GROUP BY userName
+    - if:
+        test: :method == 'betAmount'
+        sql: ORDER BY num asc
+    - ORDER BY num desc
