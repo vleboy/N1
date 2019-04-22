@@ -116,7 +116,7 @@ cron.schedule('*/30 * * * * *', async () => {
                 }
                 ipMap[ip] = await queryIp(ip)
             }
-            let chunkArr = _.chunk(resArr, 100)
+            let chunkArr = _.chunk(resArr, 1000)
             for (let arr of chunkArr) {
                 promiseWriteArr.push(nodebatis.execute('bill.batchInsert', {
                     data: arr.map((item) => {
@@ -163,7 +163,7 @@ cron.schedule('0 0 1 * * *', async () => {
     console.time(`写入玩家${res.Items.length} 条`)
     let promiseWriteArr = []
     if (res.Items.length > 0) {
-        let chunkArr = _.chunk(res.Items, 100)
+        let chunkArr = _.chunk(res.Items, 1000)
         for (let arr of chunkArr) {
             promiseWriteArr.push(nodebatis.execute('player.batchInsert', {
                 data: arr.map((item) => {
