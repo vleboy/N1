@@ -166,3 +166,19 @@ handleAmountRank: # 商户排行榜-金额汇总
         test: :type != null
         sql: and type = :type
     - GROUP BY parentDisplayName,parentSn ORDER BY num desc
+
+handleAmountPlayerRank: # 玩家排行榜-金额汇总
+    - SELECT 
+    # 判断count与sum
+    - if:
+        test: :method == 'betCount'
+        sql: count(sn) as num,userName
+    - if:
+        test: :method != 'betCount'
+        sql: round(sum(amount),2) as num,userName
+    - from bill where createdAt between :startTime and :endTime
+    # 判断是否使用type
+    - if:
+        test: :type != null
+        sql: and type = :type
+    - GROUP BY userName ORDER BY num desc
