@@ -216,6 +216,7 @@ handleAmountRank: # 商户排行榜-金额汇总
     - if:
         test: :method == 'winloseAmount'
         sql: ORDER BY num desc
+    - limit 10
 
 handleAmountPlayerRank: # 玩家排行榜-金额汇总
     - SELECT 
@@ -247,3 +248,4 @@ handleAmountPlayerRank: # 玩家排行榜-金额汇总
     - if:
         test: :method == 'winloseAmount'
         sql: ORDER BY num desc
+    - limit 10
