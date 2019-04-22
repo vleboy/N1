@@ -237,16 +237,13 @@ handleAmountPlayerRank: # 玩家排行榜-金额汇总
     - GROUP BY userName
     - if:
         test: :method == 'betAmount'
-        sql: ORDER BY num desc
-    - limit 10
+        sql: ORDER BY num desc limit 10
     - if:
         test: :method == 'betCount'
-        sql: ORDER BY num asc
-    - limit 10
+        sql: ORDER BY num asc limit 10
     - if:
         test: :method == 'retAmount'
-        sql: ORDER BY num asc
-    - limit 10
+        sql: ORDER BY num asc  limit 10
     - if:
         test: :method == 'winloseAmount'
         sql: ORDER BY num asc
