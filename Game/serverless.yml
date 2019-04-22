@@ -54,17 +54,17 @@ functions:
           method: post
           cors: true
           authorizer: tokenAuth
-  cronRegisterPlayer: #定时统计玩家注册数量
-    handler: api_cron.cronRegisterPlayer
-    memorySize: 3008
-    events:
-      - schedule: cron(0 18 * * ? *)
-      -
-        http:
-          path: /cronRegisterPlayer
-          method: post
-          cors: true
-          authorizer: tokenAuth
+  # cronRegisterPlayer: #定时统计玩家注册数量
+  #   handler: api_cron.cronRegisterPlayer
+  #   memorySize: 3008
+  #   events:
+  #     - schedule: cron(0 18 * * ? *)
+  #     -
+  #       http:
+  #         path: /cronRegisterPlayer
+  #         method: post
+  #         cors: true
+  #         authorizer: tokenAuth
 resources:
   Resources:
     #第一阶段部署

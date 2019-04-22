@@ -1,9 +1,0 @@
-{
-    "requestContext" : {
-        "authorizer" : [0, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyNDJiNWRhYy01YjYwLTQ5YmYtYjFmYS1jM2YxYzE2MDA2YWQiLCJyb2xlIjoiMSIsInN1ZmZpeCI6IlBsYXRmb3JtIiwidXNlcm5hbWUiOiJQbGF0Zm9ybV9OQXRlc3QiLCJwYXJlbnQiOiIwMCIsInBhcmVudE5hbWUiOiJTdXBlckFkbWluIiwicGFyZW50Um9sZSI6IjAwIiwiZGlzcGxheU5hbWUiOiLlubPlj7DnrqHnkIblkZgiLCJsZXZlbCI6MCwic3ViUm9sZSI6ImFkbWluIiwic3ViUm9sZVBlcm1pc3Npb24iOnsibWVyY2hhbnQiOnRydWUsInBsYXllciI6dHJ1ZSwiZ2FtZSI6dHJ1ZSwicGVyc29uIjp0cnVlLCJvcGVyYXRpb24iOnRydWUsImZpbmFuY2UiOnRydWUsInJpc2siOnRydWUsInNlcnZpY2UiOnRydWUsInN5c3RlbSI6dHJ1ZX0sImlhdCI6MTUwNzg3ODI3M30.TUAMfLgg_vsls6k5uZkDckSZSRU1UsvcpkiYEyMCvtY"]
-    },
-    "body" : {
-        "sortkey" : "win",
-        "userName" : "0"
-    }
-}

@@ -1,10 +1,7 @@
 // 所有数据库表
 const Tables = {
-  ZeusPlatformUser: "ZeusPlatformUser",
   ZeusPlatformLog: "ZeusPlatformLog",
-  HeraGamePlayer: "HeraGamePlayer",
   SYSConfig: "SYSConfig",
-  UserRankStat: "UserRankStat",
   PlayerBillDetail: "PlayerBillDetail",
   StatRound: "StatRound",
   StatRoundDay: "StatRoundDay",
