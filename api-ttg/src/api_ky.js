@@ -59,6 +59,7 @@ router.get('/ky/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
     updateParams.gameType = config.ky.gameType
     updateParams.businessKey = `BKY_${account}_${orderid}`
     updateParams.txnidTemp = txnidTemp
+    updateParams.sourceIP = ipMap[player.userId]
     let amtAfter = await new PlayerModel().updatebalance(player, updateParams)
     if (amtAfter == 'err') {
         ctx.body = { code: -1, msg: "游戏状态错误" }
@@ -83,6 +84,7 @@ router.get('/ky/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
             updateParams2.businessKey = `BKY_${account}_${orderid}`
             updateParams2.betsn = `AKY_${txnidTemp}`
             updateParams2.txnidTemp = `${account}_BETCANCEL_${orderid}`
+            updateParams2.sourceIP = ipMap[player.userId]
             let amtAfter = await new PlayerModel().updatebalance(player, updateParams2)
             if (amtAfter == 'err') {
                 new LogModel().add('2', 'KYUPError', updateParams2, `KY退款失败${orderid}`)
@@ -122,6 +124,7 @@ router.get('/ky/logout', async (ctx, next) => {
         updateParams1.gameType = config.ky.gameType
         updateParams1.businessKey = `BKY_${account}_${orderid}`
         updateParams1.txnidTemp = txnidTemp
+        updateParams1.sourceIP = ipMap[player.userId]
         let amtAfter = await new PlayerModel().updatebalance(player, updateParams1)
         if (amtAfter == 'err') {
             new LogModel().add('2', 'KYDOWNError', updateParams1, `KY下分投注0失败${orderid}`)
@@ -133,6 +136,7 @@ router.get('/ky/logout', async (ctx, next) => {
         updateParams2.gameType = config.ky.gameType
         updateParams2.businessKey = `BKY_${account}_${orderid}`
         updateParams2.betsn = `AKY_${txnidTemp}`
+        updateParams2.sourceIP = ipMap[player.userId]
         amtAfter = await new PlayerModel().updatebalance(player, updateParams2)
         if (amtAfter == 'err') {
             new LogModel().add('2', 'KYDOWNError', updateParams2, `KY下分返奖失败${orderid}`)
@@ -158,7 +162,7 @@ router.get('/ky/logout', async (ctx, next) => {
 })
 
 /**
- * 获取游戏注单（拉去时间最大不能超过60分钟）
+ * 获取游戏注单（30秒拉取一次）
  */
 router.get('/ky/betdetail', async (ctx, next) => {
     //获取入参
@@ -198,7 +202,6 @@ router.get('/ky/:s/:account', async (ctx, next) => {
                 break;
             case 8://根据玩家账号提玩家下线
                 ctx.body = { code: 0, msg: "success" }
-                // ctx.body = await axios.get(`http://localhost:5000/ky/logout?agent=${config.ky.agent}&timestamp=${Date.now()}&param=${desEncode(config.ky.desKey, `s=11&account=${account}`)}`)
                 break;
         }
     } else {
