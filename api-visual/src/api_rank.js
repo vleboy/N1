@@ -72,6 +72,11 @@ router.get('/rank/player', async (ctx, next) => {
 // 排行榜统计sql
 async function queryGetRank(sqlName, key, inparam, map, type) {
     let res = await nodebatis.query(sqlName, { method: key, type, ...inparam })
+    if (sqlName == 'bill.handleAmountPlayerRank') {
+        if (res.length >= 20) {
+            res = res.slice(0, 10).concat(res.slice(res.length - 10))
+        }
+    }
     for (let item of res) {
         map[key].push({ x: item.parentDisplayName || item.userName, y: key == 'betAmount' ? Math.abs(item.num) : item.num })
     }
