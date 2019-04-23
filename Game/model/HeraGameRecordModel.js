@@ -1,8 +1,9 @@
 
-const Tables = require('../lib/Dynamo').Tables
+const { Tables, RoleCodeEnum } = require('../lib/Dynamo')
 const BaseModel = require('./BaseModel')
 const _ = require('lodash')
 const moment = require('moment')
+const axios = require('axios')
 
 /**
  * 战绩表实体
@@ -24,10 +25,15 @@ module.exports = class HeraGameRecordModel extends BaseModel {
      * 批量写入第三方游戏汇总数据
      * @param {*} roundAll
      */
-    batchWriteRound(roundAll) {
+    batchWriteRound(roundAll, beginTime, endTime) {
         let promiseArr = []
         if (!roundAll || roundAll.length == 0) {
             return promiseArr
+        }
+        // 获取开元数据
+        let kyArr = await getKYRecord(beginTime, endTime)
+        if (kyArr.length != 0) {
+            roundAll.concat(kyArr)
         }
         let chunkRound = _.chunk(roundAll, 25)
         for (let chunk of chunkRound) {
@@ -36,19 +42,6 @@ module.exports = class HeraGameRecordModel extends BaseModel {
             for (let item of chunk) {
                 // 只处理第三方游戏
                 if (parseInt(item.gameType) > 100000) {
-                    //初始数据
-                    // let initObj = {
-                    //     bet: Math.abs(item.content.bet[0].amount),                          // 下注金额
-                    //     totalGold: 0,                                                       // 返奖金额（默认为零）
-                    //     userBalance: item.content.bet[0].balance,                           // 用户余额（默认为没有返奖的）
-                    //     preBalance: item.content.bet[0].originalAmount                      // 下注前用户余额
-                    // }
-                    // if (parseInt(item.gameType) == 1010000 || parseInt(item.gameType) == 10300000) {  // TTG 和 MG 电子游戏
-                    //     if (item.content.ret && item.content.ret.length > 0) {
-                    //         initObj.totalGold = item.content.ret[0].amount                  // 返奖余额
-                    //         initObj.userBalance = item.content.ret[0].balance               // 用户余额（返奖后）
-                    //     }
-                    // }
                     // 单条战绩
                     let gameRecord = {
                         userId: +item.userId,
@@ -79,5 +72,74 @@ module.exports = class HeraGameRecordModel extends BaseModel {
             }
         }
         return promiseArr
+    }
+}
+
+// 查询ky战绩
+async function getKYRecord(beginTime, endTime) {
+    let tokenAdmin = await jwt.sign({
+        role: RoleCodeEnum.PlatformAdmin,
+        exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) * 3,
+        iat: Math.floor(Date.now() / 1000) - 30
+    }, process.env.TOKEN_SECRET)
+    try {
+        let res = await axios.get(`https://${process.env.ANOTHER_GAME_CENTER}/ky/betdetail?startTime=${beginTime}&endTime=${endTime}`, { headers: { 'Authorization': `Bearer ${tokenAdmin}` } })
+        let listArr = []
+        if (res.data.code == 0) {
+            let listMap = res.data.list
+            //玩家分组查询对应的商户id
+            let groupByMap = _.groupBy(listMap.Accounts)
+            let parentIdMap = []
+            for (let userId in groupByMap) {
+                let playerRes = await new BaseModel().query({
+                    TableName: 'HeraGamePlayer',
+                    IndexName: 'userIdIndex',
+                    KeyConditionExpression: 'userId = :userId',
+                    ProjectionExpression: 'parent,userName',
+                    ExpressionAttributeValues: {
+                        ':userId': +userId.split('_')[1]
+                    }
+                })
+                parentIdMap.push({ userId, parent: playerRes.Items[0].parent, userName: playerRes.Items[0].userName })
+            }
+            for (let i = 0; i < res.data.count; i++) {
+                let anotherGameData = {
+                    GameId: listMap.GameId[i],
+                    Accounts: listMap.Accounts[i],
+                    ServerID: listMap.ServerID[i],
+                    KindID: listMap.KindID[i],
+                    TableID: listMap.TableID[i],
+                    ChairID: listMap.ChairID[i],
+                    UserCount: listMap.UserCount[i],
+                    CellScore: listMap.CellScore[i],
+                    AllBet: listMap.AllBet[i],
+                    Profit: listMap.Profit[i],
+                    Revenue: listMap.Revenue[i],
+                    GameStartTime: listMap.GameStartTime[i],
+                    GameEndTime: listMap.GameEndTime[i],
+                    CardValue: listMap.CardValue[i]
+                }
+                let gameRecord = {
+                    userId: listMap.Accounts[i].split('_')[1],
+                    betTime: new Date(listMap.GameStartTime[i]).getTime(),
+                    createdAt: new Date(listMap.GameEndTime[i]).getTime(),
+                    createdStr: listMap.GameEndTime[i],
+                    gameId: '1070001',
+                    gameType: 1070000,
+                    anotherGameData
+                }
+                for (let item of parentIdMap) {
+                    if (item.userId == listMap.Accounts[i]) {
+                        gameRecord.parent = item.parent
+                        gameRecord.userName = item.userName
+                        gameRecord.betId = item.userName + '_' + listMap.GameId[i]
+                    }
+                }
+                listArr.push(gameRecord)
+            }
+        }
+        return listArr
+    } catch (error) {
+        console.error(error)
     }
 }
