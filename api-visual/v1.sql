@@ -61,7 +61,7 @@ CREATE TABLE `player` (
   KEY `buId_createdAt` (`buId`,`createdAt` DESC),
   KEY `parent_createdAt` (`parent`,`createdAt` DESC),
   KEY `parentSn_createdAt` (`parentSn`,`createdAt` DESC),
-  KEY `msn_createdAt` (`msn`,`createdAt` DESC)
+  KEY `msn_createdAt` (`msn`,`createdAt` DESC),
   KEY `createdAt` (`createdAt` DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
