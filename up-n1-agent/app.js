@@ -21,10 +21,11 @@ const pingRoute = require('./src/api_ping')
 const playerRoute = require('./src/api_player')
 const queryRoute = require('./src/api_query')
 const subroleRoute = require('./src/api_subrole')
-const statRoute = require('./src/api_sys_stat')
 const uploadRoute = require('./src/api_upload')
 const userRoute = require('./src/api_user')
 const mysteryRoute = require('./src/api_mystery')
+
+// const statRoute = require('./src/api_sys_stat')
 
 // 初始化应用服务，加载所有中间件
 const app = new Koa()
@@ -88,7 +89,6 @@ app.use(xauth(config.auth, (v) => {             // TOKEN身份认证中间件，
 //     }
 // })
 // app.use(authtestrouter.routes())        // 业务路由中间件
-// app.use(mount("/game", playerGameRoute.routes())) // 游戏大厅服务器与玩家相关
 
 app.use(billRoute.routes())                 // 账单日志接口
 app.use(calcRoute.routes())                 // 报表统计接口
@@ -98,11 +98,11 @@ app.use(pingRoute.routes())                 // PING接口
 app.use(playerRoute.routes())               // 后台管理系统与玩家相关（新）
 app.use(queryRoute.routes())                // 查询平台用户统计接口
 app.use(subroleRoute.routes())              // 子角色配置接口
-app.use(statRoute.routes())                 // 看板
 app.use(uploadRoute.routes())               // 图片上传
 app.use(userRoute.routes())                 // 代理接口
 app.use(mysteryRoute.routes())              // 神秘大奖
-// app.use(gameRoute.routes())                 // NA平台游戏接口
+
+// app.use(statRoute.routes())                 // 看板
 
 app.use(function (ctx, next) {
     ctx.status = 404

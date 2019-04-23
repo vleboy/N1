@@ -87,7 +87,7 @@ class UserModel extends BaseModel {
                     }
                 }
                 let res = await this.query(queryParms)
-                let userIdArr=res.Items
+                let userIdArr = res.Items
                 userIdArr.unshift({ userId: inparam.parentId })
                 return userIdArr
             } else { //查询自己
@@ -240,153 +240,6 @@ class UserModel extends BaseModel {
         } else {
             return true
         }
-    }
-    /**
-    * 获取看板售出相关的用户信息
-    */
-    async getSYSInfo(tokenInfo, inparam) {
-        let isAdmin = tokenInfo.role == '1000' && tokenInfo.parent == '00'  //代理管理员
-        let parentUids = []                         //用于查直属的用户
-        let usersInfo = []                          //查出的用户信息
-        let usersAdmin = []                         //所有的管理员
-        let isTest = 2                              //默认给个全部查询
-        if (inparam.isTest == 0) {
-            isTest = 0
-        } else if (inparam.isTest == 1) {
-            isTest = 1
-        }
-        if (isAdmin) {
-            let userRes = await new UserModel().query({//查出所有的管理员
-                IndexName: 'RoleParentIndex',
-                KeyConditionExpression: '#role = :role AND #parent=:parent',
-                ProjectionExpression: 'userId',
-                ExpressionAttributeNames: {
-                    '#role': 'role',
-                    '#parent': 'parent'
-                },
-                ExpressionAttributeValues: {
-                    ':parent': '00',
-                    ':role': '1000'
-                }
-            })
-            usersAdmin = userRes.Items
-            parentUids.push('01')
-        } else {
-            usersAdmin = [{ userId: tokenInfo.userId }]  //不是管理员则直接就是最顶层
-            parentUids.push(tokenInfo.userId)
-        }
-        //查出直属用户（正式还是测试）
-        for (let userId of parentUids) {
-            let scanParms = {
-                ProjectionExpression: 'userId,username',
-                ExpressionAttributeNames: {
-                    '#parent': 'parent',
-                    '#role': 'role'
-                }
-            }
-            if (isTest == 0) {              //只查正式
-                scanParms.FilterExpression = 'isTest<>:isTest AND #parent=:parent AND #role=:role'
-                scanParms.ExpressionAttributeValues = {
-                    ':parent': userId,
-                    ':isTest': 1,
-                    ':role': '1000'
-                }
-            } else if (isTest == 1) {       //只查测试
-                scanParms.FilterExpression = 'isTest=:isTest AND #parent=:parent AND #role=:role'
-                scanParms.ExpressionAttributeValues = {
-                    ':parent': userId,
-                    ':isTest': isTest,
-                    ':role': '1000'
-                }
-            } else {                        //全查
-                scanParms.FilterExpression = '#parent=:parent AND #role=:role'
-                scanParms.ExpressionAttributeValues = {
-                    ':parent': userId,
-                    ':role': '1000'
-                }
-            }
-            let users = await new UserModel().scan(scanParms)
-            usersInfo.push(users.Items)
-        }
-        usersInfo = _.uniq(_.flatten(usersInfo))
-        let userNames = []   //正式/测试/全部的用户名
-        for (let user of usersInfo) {
-            userNames.push(user.username)
-        }
-        return [usersAdmin, userNames]
-    }
-    /**
-     * 看板收益等用户信息
-     */
-    async getWinInfo(tokenInfo, inparam) {
-        let isAdmin = tokenInfo.role == '1000' && tokenInfo.parent == '00'  //是否是超级管理员或者平台管理员
-        let usersInfo = []              //查出的用户信息
-        let isTest = 2 //默认给个全部查询
-        if (inparam.isTest == 0) {
-            isTest = 0
-        } else if (inparam.isTest == 1) {
-            isTest = 1
-        }
-        if (isAdmin) {
-            let query = {
-                KeyConditionExpression: '#role = :role',
-                ProjectionExpression: 'userId',
-                ExpressionAttributeNames: {
-                    '#role': 'role'
-                }
-            }
-            if (isTest == 0) {              //只查正式
-                query.FilterExpression = 'isTest<>:isTest'
-                query.ExpressionAttributeValues = {
-                    ':isTest': 1,
-                    ':role': '1000'
-                }
-            } else if (isTest == 1) {       //只查测试
-                query.FilterExpression = 'isTest=:isTest'
-                query.ExpressionAttributeValues = {
-                    ':isTest': isTest,
-                    ':role': '1000'
-                }
-            } else {                        //全查
-                query.ExpressionAttributeValues = {
-                    ':role': '1000'
-                }
-            }
-            usersInfo = await new UserModel().query(query)
-        } else {
-            let scanParms = {
-                ProjectionExpression: 'userId',
-                ExpressionAttributeNames: {
-                    '#levelIndex': 'levelIndex',
-                    '#role': 'role'
-                }
-            }
-            if (isTest == 0) {              //只查正式
-                scanParms.FilterExpression = '#role=:role AND isTest<>:isTest AND contains(#levelIndex,:levelIndex)'
-                scanParms.ExpressionAttributeValues = {
-                    ':levelIndex': tokenInfo.userId,
-                    ':isTest': 1,
-                    ':role': '1000'
-                }
-            } else if (isTest == 1) {       //只查测试
-                scanParms.FilterExpression = '#role=:role AND isTest=:isTest AND contains(#levelIndex,:levelIndex)'
-                scanParms.ExpressionAttributeValues = {
-                    ':levelIndex': tokenInfo.userId,
-                    ':isTest': isTest,
-                    ':role': '1000'
-                }
-            } else {                        //全查
-                scanParms.FilterExpression = '#role=:role AND contains(#levelIndex,:levelIndex)'
-                scanParms.ExpressionAttributeValues = {
-                    ':levelIndex': tokenInfo.userId,
-                    ':role': '1000'
-                }
-            }
-            usersInfo = await new UserModel().scan(scanParms)
-            //还要包括自己本身代理
-            usersInfo.Items.push({ userId: tokenInfo.userId })
-        }
-        return usersInfo
     }
 
     /**
@@ -739,6 +592,23 @@ class UserModel extends BaseModel {
         return organizeTree
     }
 
+    //查询指定父级的代理数量
+    async count(parent) {
+        let res = await this.query({
+            IndexName: 'RoleParentIndex',
+            KeyConditionExpression: '#role = :role AND parent = :parent',
+            ProjectionExpression: 'userId',
+            ExpressionAttributeNames: {
+                '#role': 'role'
+            },
+            ExpressionAttributeValues: {
+                ':role': RoleCodeEnum.Agent,
+                ':parent': parent
+            }
+        })
+        return res.Count
+    }
+
     /**
      * 根据sn获取信息
      * @param {*} sn 
@@ -764,22 +634,153 @@ class UserModel extends BaseModel {
     //     }
     // }
 
-    //查询指定父级的代理数量
-    async count(parent) {
-        let res = await this.query({
-            IndexName: 'RoleParentIndex',
-            KeyConditionExpression: '#role = :role AND parent = :parent',
-            ProjectionExpression: 'userId',
-            ExpressionAttributeNames: {
-                '#role': 'role'
-            },
-            ExpressionAttributeValues: {
-                ':role': RoleCodeEnum.Agent,
-                ':parent': parent
-            }
-        })
-        return res.Count
-    }
+    // /**
+    //  * 获取看板售出相关的用户信息
+    //  */
+    // async getSYSInfo(tokenInfo, inparam) {
+    //     let isAdmin = tokenInfo.role == '1000' && tokenInfo.parent == '00'  //代理管理员
+    //     let parentUids = []                         //用于查直属的用户
+    //     let usersInfo = []                          //查出的用户信息
+    //     let usersAdmin = []                         //所有的管理员
+    //     let isTest = 2                              //默认给个全部查询
+    //     if (inparam.isTest == 0) {
+    //         isTest = 0
+    //     } else if (inparam.isTest == 1) {
+    //         isTest = 1
+    //     }
+    //     if (isAdmin) {
+    //         let userRes = await new UserModel().query({//查出所有的管理员
+    //             IndexName: 'RoleParentIndex',
+    //             KeyConditionExpression: '#role = :role AND #parent=:parent',
+    //             ProjectionExpression: 'userId',
+    //             ExpressionAttributeNames: {
+    //                 '#role': 'role',
+    //                 '#parent': 'parent'
+    //             },
+    //             ExpressionAttributeValues: {
+    //                 ':parent': '00',
+    //                 ':role': '1000'
+    //             }
+    //         })
+    //         usersAdmin = userRes.Items
+    //         parentUids.push('01')
+    //     } else {
+    //         usersAdmin = [{ userId: tokenInfo.userId }]  //不是管理员则直接就是最顶层
+    //         parentUids.push(tokenInfo.userId)
+    //     }
+    //     //查出直属用户（正式还是测试）
+    //     for (let userId of parentUids) {
+    //         let scanParms = {
+    //             ProjectionExpression: 'userId,username',
+    //             ExpressionAttributeNames: {
+    //                 '#parent': 'parent',
+    //                 '#role': 'role'
+    //             }
+    //         }
+    //         if (isTest == 0) {              //只查正式
+    //             scanParms.FilterExpression = 'isTest<>:isTest AND #parent=:parent AND #role=:role'
+    //             scanParms.ExpressionAttributeValues = {
+    //                 ':parent': userId,
+    //                 ':isTest': 1,
+    //                 ':role': '1000'
+    //             }
+    //         } else if (isTest == 1) {       //只查测试
+    //             scanParms.FilterExpression = 'isTest=:isTest AND #parent=:parent AND #role=:role'
+    //             scanParms.ExpressionAttributeValues = {
+    //                 ':parent': userId,
+    //                 ':isTest': isTest,
+    //                 ':role': '1000'
+    //             }
+    //         } else {                        //全查
+    //             scanParms.FilterExpression = '#parent=:parent AND #role=:role'
+    //             scanParms.ExpressionAttributeValues = {
+    //                 ':parent': userId,
+    //                 ':role': '1000'
+    //             }
+    //         }
+    //         let users = await new UserModel().scan(scanParms)
+    //         usersInfo.push(users.Items)
+    //     }
+    //     usersInfo = _.uniq(_.flatten(usersInfo))
+    //     let userNames = []   //正式/测试/全部的用户名
+    //     for (let user of usersInfo) {
+    //         userNames.push(user.username)
+    //     }
+    //     return [usersAdmin, userNames]
+    // }
+    // /**
+    //  * 看板收益等用户信息
+    //  */
+    // async getWinInfo(tokenInfo, inparam) {
+    //     let isAdmin = tokenInfo.role == '1000' && tokenInfo.parent == '00'  //是否是超级管理员或者平台管理员
+    //     let usersInfo = []              //查出的用户信息
+    //     let isTest = 2 //默认给个全部查询
+    //     if (inparam.isTest == 0) {
+    //         isTest = 0
+    //     } else if (inparam.isTest == 1) {
+    //         isTest = 1
+    //     }
+    //     if (isAdmin) {
+    //         let query = {
+    //             KeyConditionExpression: '#role = :role',
+    //             ProjectionExpression: 'userId',
+    //             ExpressionAttributeNames: {
+    //                 '#role': 'role'
+    //             }
+    //         }
+    //         if (isTest == 0) {              //只查正式
+    //             query.FilterExpression = 'isTest<>:isTest'
+    //             query.ExpressionAttributeValues = {
+    //                 ':isTest': 1,
+    //                 ':role': '1000'
+    //             }
+    //         } else if (isTest == 1) {       //只查测试
+    //             query.FilterExpression = 'isTest=:isTest'
+    //             query.ExpressionAttributeValues = {
+    //                 ':isTest': isTest,
+    //                 ':role': '1000'
+    //             }
+    //         } else {                        //全查
+    //             query.ExpressionAttributeValues = {
+    //                 ':role': '1000'
+    //             }
+    //         }
+    //         usersInfo = await new UserModel().query(query)
+    //     } else {
+    //         let scanParms = {
+    //             ProjectionExpression: 'userId',
+    //             ExpressionAttributeNames: {
+    //                 '#levelIndex': 'levelIndex',
+    //                 '#role': 'role'
+    //             }
+    //         }
+    //         if (isTest == 0) {              //只查正式
+    //             scanParms.FilterExpression = '#role=:role AND isTest<>:isTest AND contains(#levelIndex,:levelIndex)'
+    //             scanParms.ExpressionAttributeValues = {
+    //                 ':levelIndex': tokenInfo.userId,
+    //                 ':isTest': 1,
+    //                 ':role': '1000'
+    //             }
+    //         } else if (isTest == 1) {       //只查测试
+    //             scanParms.FilterExpression = '#role=:role AND isTest=:isTest AND contains(#levelIndex,:levelIndex)'
+    //             scanParms.ExpressionAttributeValues = {
+    //                 ':levelIndex': tokenInfo.userId,
+    //                 ':isTest': isTest,
+    //                 ':role': '1000'
+    //             }
+    //         } else {                        //全查
+    //             scanParms.FilterExpression = '#role=:role AND contains(#levelIndex,:levelIndex)'
+    //             scanParms.ExpressionAttributeValues = {
+    //                 ':levelIndex': tokenInfo.userId,
+    //                 ':role': '1000'
+    //             }
+    //         }
+    //         usersInfo = await new UserModel().scan(scanParms)
+    //         //还要包括自己本身代理
+    //         usersInfo.Items.push({ userId: tokenInfo.userId })
+    //     }
+    //     return usersInfo
+    // }
 }
 
 /**
