@@ -44,10 +44,7 @@ router.get('/ky/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
     let money = player.balance
     // 查询玩家是否已经上分，如果已经上分，则不需要重复上分
     let res = await axios.get(getURL(1, `s=1&account=${account}`))
-    console.log('玩家已上分数据1')
-    console.log(res.data)
-    console.log('玩家已上分数据2')
-    if (res.data.d.money > 0) {
+    if (+res.data.d.money > 0) {
         money = 0
     }
     // 无需上分，直接进入
@@ -106,9 +103,6 @@ router.get('/ky/logout', async (ctx, next) => {
     log.info(`玩家${account}离线下分`)
     // 获取玩家可下分金额
     let res = await axios.get(getURL(1, `s=1&account=${account}`))
-    console.log('玩家可下分金额1')
-    console.log(res.data)
-    console.log('玩家可下分金额2')
     const money = parseFloat(res.data.d.money)
     if (!money) {
         return ctx.body = { s: 101, m: "/channelHandle", d: { code: 0 } }
@@ -118,9 +112,6 @@ router.get('/ky/logout', async (ctx, next) => {
     const orderid = `${config.ky.agent}${moment().utcOffset(8).format("YYYYMMDDHHmmssSSS")}${account}`
     try {
         res = await axios.get(getURL(3, `s=3&account=${account}&money=${money}&orderid=${orderid}`))
-        console.log('下分结果1')
-        console.log(res.data)
-        console.log('下分结果2')
     } catch (error) {
         checkRes = await checkOrder(orderid)
     }
@@ -218,34 +209,33 @@ router.get('/ky/:s/:account', async (ctx, next) => {
     }
 })
 
-/**
- * 上分/下分接口
- * @param s 操作类型 2：上分 3：下分
- * @param account 玩家账号
- */
-router.get('/ky/:s/:account/:money', async (ctx, next) => {
-    //获取入参
-    let inparam = ctx.params
-    let account = inparam.account
-    let money = inparam.money
-    //获取请求url
-    const orderid = `${config.ky.agent}${moment().utcOffset(8).format("YYYYMMDDHHmmssSSS")}${account}`
-    let res = await axios.get(getURL(parseInt(inparam.s), `s=${inparam.s}&account=${account}&money=${money}&orderid=${orderid}`))
-    console.log(res.data)
-    //根据操作类型做相应处理
-    if (res.data.d.code == 0) {
-        switch (parseInt(inparam.s)) {
-            case 2://上分
-                ctx.body = { code: 0, msg: "success", money: res.data.d.money }
-                break;
-            case 3://下分
-                ctx.body = { code: 0, msg: "success", status: res.data.d.status }
-                break;
-        }
-    } else {
-        ctx.body = { code: -1, msg: res.data }
-    }
-})
+// /**
+//  * 上分/下分接口(一般情况下禁用)
+//  * @param s 操作类型 2：上分 3：下分
+//  * @param account 玩家账号
+//  */
+// router.get('/ky/:s/:account/:money', async (ctx, next) => {
+//     //获取入参
+//     let inparam = ctx.params
+//     let account = inparam.account
+//     let money = inparam.money
+//     //获取请求url
+//     const orderid = `${config.ky.agent}${moment().utcOffset(8).format("YYYYMMDDHHmmssSSS")}${account}`
+//     let res = await axios.get(getURL(parseInt(inparam.s), `s=${inparam.s}&account=${account}&money=${money}&orderid=${orderid}`))
+//     //根据操作类型做相应处理
+//     if (res.data.d.code == 0) {
+//         switch (parseInt(inparam.s)) {
+//             case 2://上分
+//                 ctx.body = { code: 0, msg: "success", money: res.data.d.money }
+//                 break;
+//             case 3://下分
+//                 ctx.body = { code: 0, msg: "success", status: res.data.d.status }
+//                 break;
+//         }
+//     } else {
+//         ctx.body = { code: -1, msg: res.data }
+//     }
+// })
 
 // 间隔5秒请求一次订单状态，直到确认返回
 async function checkOrder(orderid) {
