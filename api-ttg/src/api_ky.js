@@ -230,6 +230,7 @@ router.get('/ky/:s/:account/:money', async (ctx, next) => {
     //获取请求url
     const orderid = `${config.ky.agent}${moment().utcOffset(8).format("YYYYMMDDHHmmssSSS")}${account}`
     let res = await axios.get(getURL(parseInt(inparam.s), `s=${inparam.s}&account=${account}&money=${money}&orderid=${orderid}`))
+    console.log(res.data)
     //根据操作类型做相应处理
     if (res.data.d.code == 0) {
         switch (parseInt(inparam.s)) {
