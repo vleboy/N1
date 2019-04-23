@@ -117,7 +117,7 @@ router.get('/ky/logout', async (ctx, next) => {
     let checkRes = true
     const orderid = `${config.ky.agent}${moment().utcOffset(8).format("YYYYMMDDHHmmssSSS")}${account}`
     try {
-        res = await axios.get(getURL(3, `s=0&account=${account}&money=${money}&orderid=${orderid}`))
+        res = await axios.get(getURL(3, `s=3&account=${account}&money=${money}&orderid=${orderid}`))
         console.log('下分结果1')
         console.log(res.data)
         console.log('下分结果2')

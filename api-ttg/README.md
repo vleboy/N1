@@ -134,7 +134,7 @@ https://ext.na77.org/ky/betdetail?startTime=1555660200000&endTime=1555662600000
 
 #临时下分
 https://ext.na77.org/ky/3/268184/:money
-https://ext.na77.org/ky/3/268184/812715.76
+https://ext.na77.org/ky/3/268184/406765.88
 
 
 
