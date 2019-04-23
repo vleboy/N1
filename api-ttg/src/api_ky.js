@@ -44,6 +44,9 @@ router.get('/ky/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
     let money = player.balance
     // 查询玩家是否已经上分，如果已经上分，则不需要重复上分
     let res = await axios.get(getURL(1, `s=1&account=${account}`))
+    console.log('玩家已上分数据1')
+    console.log(res.data)
+    console.log('玩家已上分数据2')
     if (res.data.d.money > 0) {
         money = 0
     }
@@ -103,6 +106,9 @@ router.get('/ky/logout', async (ctx, next) => {
     log.info(`玩家${account}离线下分`)
     // 获取玩家可下分金额
     let res = await axios.get(getURL(1, `s=1&account=${account}`))
+    console.log('玩家可下分金额1')
+    console.log(res.data)
+    console.log('玩家可下分金额2')
     const money = parseFloat(res.data.d.money)
     if (!money) {
         return ctx.body = { s: 101, m: "/channelHandle", d: { code: 0 } }
