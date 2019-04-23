@@ -218,6 +218,33 @@ router.get('/ky/:s/:account', async (ctx, next) => {
     }
 })
 
+/**
+ * 上分/下分接口
+ * @param s 操作类型 2：上分 3：下分
+ * @param account 玩家账号
+ */
+router.get('/ky/:s/:account/:money', async (ctx, next) => {
+    //获取入参
+    let inparam = ctx.params
+    let account = inparam.account
+    //获取请求url
+    const orderid = `${config.ky.agent}${moment().utcOffset(8).format("YYYYMMDDHHmmssSSS")}${account}`
+    let res = await axios.get(getURL(parseInt(inparam.s), `s=${inparam.s}&account=${account}&money=${money}&orderid=${orderid}`))
+    //根据操作类型做相应处理
+    if (res.data.d.code == 0) {
+        switch (parseInt(inparam.s)) {
+            case 2://上分
+                ctx.body = { code: 0, msg: "success", money: res.data.d.money }
+                break;
+            case 3://下分
+                ctx.body = { code: 0, msg: "success", status: res.data.d.status }
+                break;
+        }
+    } else {
+        ctx.body = { code: -1, msg: res.data }
+    }
+})
+
 // 间隔5秒请求一次订单状态，直到确认返回
 async function checkOrder(orderid) {
     try {
