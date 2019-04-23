@@ -107,7 +107,7 @@ cron.schedule('*/30 * * * * *', async () => {
             console.log(`测试写入流水${resArr.length} 条`)
             console.time(`写入流水${resArr.length} 条`)
             let ipMap = {}
-            let promiseWriteArr = []
+            // let promiseWriteArr = []
             if (resArr.length > 0) {
                 let ipGroup = _.groupBy(resArr, 'sourceIP')
                 for (let ip in ipGroup) {
@@ -120,7 +120,8 @@ cron.schedule('*/30 * * * * *', async () => {
                 }
                 let chunkArr = _.chunk(resArr, 200)
                 for (let arr of chunkArr) {
-                    promiseWriteArr.push(nodebatis.execute('bill.batchInsert', {
+                    // promiseWriteArr.push( 
+                    await nodebatis.execute('bill.batchInsert', {
                         data: arr.map((item) => {
                             item.sourceIP = (item.sourceIP || '0.0.0.0').toLowerCase()
                             if (item.sourceIP.indexOf('::ffff:') != -1) {
@@ -137,10 +138,12 @@ cron.schedule('*/30 * * * * *', async () => {
                             item.parentDisplayName = userMap[item.parent].displayName
                             return item
                         })
-                    }))
+                    })
+                    console.log(`写入流水200条`)
+                    // )
                 }
             }
-            await Promise.all(promiseWriteArr)
+            // await Promise.all(promiseWriteArr)
             await nodebatis.execute('config.updateOne', { type: 'queryTime', createdAt: endTime + 1, flag: 1 })
             console.timeEnd(`写入流水${resArr.length} 条`)
         }
