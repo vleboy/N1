@@ -104,7 +104,6 @@ cron.schedule('*/30 * * * * *', async () => {
             }
             resArr = resArr[0].Items.concat(resArr[1].Items.concat(resArr[2].Items))
             // console.timeEnd(`读取 ${dayjs(startTime).format('YYYY-MM-DD HH:mm:ss')} 至 ${dayjs(endTime).format('YYYY-MM-DD HH:mm:ss')} 流水`)
-            console.log(`测试写入流水${resArr.length} 条`)
             console.time(`写入流水${resArr.length} 条`)
             let ipMap = {}
             // let promiseWriteArr = []
@@ -139,7 +138,6 @@ cron.schedule('*/30 * * * * *', async () => {
                             return item
                         })
                     })
-                    console.log(`写入流水200条`)
                     // )
                 }
             }
@@ -173,21 +171,23 @@ cron.schedule('0 0 1 * * *', async () => {
             }
         })
         console.time(`写入玩家${res.Items.length} 条`)
-        let promiseWriteArr = []
+        // let promiseWriteArr = []
         if (res.Items.length > 0) {
             let chunkArr = _.chunk(res.Items, 200)
             for (let arr of chunkArr) {
-                promiseWriteArr.push(nodebatis.execute('player.batchInsert', {
+                // promiseWriteArr.push(
+                await nodebatis.execute('player.batchInsert', {
                     data: arr.map((item) => {
                         item.createdAt = item.createdAt ? item.createdAt : item.createAt
                         item.parentSn = item.parentSn || 'NULL!'
                         item.parentName = item.parentName || 'NULL!'
                         return item
                     })
-                }))
+                })
+                // )
             }
         }
-        await Promise.all(promiseWriteArr)
+        // await Promise.all(promiseWriteArr)
         console.timeEnd(`写入玩家${res.Items.length} 条`)
         console.timeEnd('【玩家载入】')
 
@@ -203,11 +203,12 @@ cron.schedule('0 0 1 * * *', async () => {
             }
         })
         console.time(`写入用户${res.Items.length} 条`)
-        promiseWriteArr = []
+        // promiseWriteArr = []
         if (res.Items.length > 0) {
-            let chunkArr = _.chunk(res.Items, 100)
+            let chunkArr = _.chunk(res.Items, 200)
             for (let arr of chunkArr) {
-                promiseWriteArr.push(nodebatis.execute('user.batchInsert', {
+                // promiseWriteArr.push(
+                await nodebatis.execute('user.batchInsert', {
                     data: arr.map((item) => {
                         item.sn = item.sn || 'NULL!'
                         item.suffix = item.suffix || 'NULL!'
@@ -218,7 +219,8 @@ cron.schedule('0 0 1 * * *', async () => {
                         item.parentSuffix = item.parentSuffix || 'NULL!'
                         return item
                     })
-                }))
+                })
+                // )
             }
         }
         await Promise.all(promiseWriteArr)
