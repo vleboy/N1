@@ -227,6 +227,7 @@ router.get('/ky/:s/:account/:money', async (ctx, next) => {
     //获取入参
     let inparam = ctx.params
     let account = inparam.account
+    let money = inparam.money
     //获取请求url
     const orderid = `${config.ky.agent}${moment().utcOffset(8).format("YYYYMMDDHHmmssSSS")}${account}`
     let res = await axios.get(getURL(parseInt(inparam.s), `s=${inparam.s}&account=${account}&money=${money}&orderid=${orderid}`))
