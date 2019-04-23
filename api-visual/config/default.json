@@ -28,11 +28,6 @@
             "/visual/*"
         ]
     },
-    "na": {
-        "apidomain": "ext.na77.org",
-        "TOKEN_SECRET": "gsy0913",
-        "domain": "xbbw2jfb58.execute-api.ap-southeast-1.amazonaws.com"
-    },
     "server": {
         "port": 5000,
         "mapperDir": "/src/yaml/"

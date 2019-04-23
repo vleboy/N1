@@ -57,4 +57,4 @@ app.use(mount('/visual', rankapirouter.routes()))  // 排行榜接口路由
 
 // 启动应用服务
 app.listen(PORT)
-log.info(`API-VISUAL服务启动【执行环境:${process.env.NODE_ENV},端口:${PORT}，服务域名:【${config.na.apidomain}】】`)
+log.info(`API-VISUAL服务启动【执行环境:${process.env.NODE_ENV},端口:${PORT}】`)
