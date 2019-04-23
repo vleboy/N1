@@ -58,8 +58,8 @@ router.get('/line/player', async (ctx, next) => {
         sumDay: []     //历史累计注册数
     }
     for (let i = +inparam.startTime; i <= +inparam.endTime; i += 24 * 60 * 60 * 1000) {
-        lineMap.everyDay.push([new Date(i).Format('MM-dd'), 0])
-        lineMap.sumDay.push([new Date(i).Format('MM-dd'), resTotal[0].total])
+        lineMap.everyDay.push([new Date(i).Format('yyyy-MM-dd'), 0])
+        lineMap.sumDay.push([new Date(i).Format('yyyy-MM-dd'), resTotal[0].total])
     }
     // 更新到对应时间每天注册数
     for (let item of lineMap.everyDay) {
