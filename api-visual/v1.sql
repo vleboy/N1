@@ -106,6 +106,6 @@ CREATE TABLE `config` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `config` (`type`, `createdAt`, `flag`, `rangeHour`, `playerCreatedAt`) VALUES
-('queryTime',	1554048000000,	1,	24,	0);
+('queryTime',	1554048000000,	0,	24,	0);
 
 -- 2019-04-10 06:46:25
