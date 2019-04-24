@@ -1,9 +1,9 @@
 const config = require('config')
 const jwt = require('jsonwebtoken')
 const _ = require('lodash')
-const bcrypt = require('bcryptjs')
-const RoleCodeEnum = require('../lib/UserConsts').RoleCodeEnum
 const TOKEN_SECRET = config.auth.secret
+const RoleCodeEnum = require('./Consts').RoleCodeEnum
+
 const Model = {
   StringValue: 'NULL!',
   NumberValue: 0.0,
@@ -13,25 +13,6 @@ const Model = {
   NoParent: '00', // 没有
   NoParentName: 'SuperAdmin',
   /**
-   * 所有实体基类
-   */
-  baseModel: function () {
-    return {
-      createdAt: (new Date()).getTime(),
-      updatedAt: (new Date()).getTime(),
-      createdDate: new Date().Format("yyyy-MM-dd")
-    }
-  },
-  //生成随机数
-  getLengthNum: function (len) {
-    let number = Number.parseInt(Math.random() * Math.pow(10, len))
-    if (number > Math.pow(10, len - 1) && number < Math.pow(10, len)) {
-      return number.toString()
-    } else {
-      return this.getLengthNum(len)
-    }
-  },
-  /**
    * token处理
    */
   token: (userInfo) => {
@@ -40,16 +21,6 @@ const Model = {
       exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) * 3,
       iat: Math.floor(Date.now() / 1000) - 30
     }, TOKEN_SECRET)
-  },
-  /**
-   * 密码处理
-   */
-  hashGen: (pass) => {
-    return bcrypt.hashSync(pass, 10)
-  },
-  hashValidate: async (pass, hash) => {
-    const result = await bcrypt.compare(pass, hash)
-    return result
   },
   // 判断用户是否为代理
   isAgent(user) {
@@ -135,22 +106,6 @@ const Model = {
     }, {})
     return values
   }
-}
-// 私有日期格式化方法
-Date.prototype.Format = function (fmt) {
-  var o = {
-    "M+": this.getMonth() + 1, //月份 
-    "d+": this.getDate(), //日 
-    "h+": this.getHours(), //小时 
-    "m+": this.getMinutes(), //分 
-    "s+": this.getSeconds(), //秒 
-    "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
-    "S": this.getMilliseconds() //毫秒 
-  };
-  if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
-  for (var k in o)
-    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-  return fmt;
 }
 
 module.exports = {

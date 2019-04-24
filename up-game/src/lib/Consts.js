@@ -25,6 +25,15 @@ const GameTypeEnum = {
     '1160000': { type: 2, code: '1160000', name: 'PP电子游戏', company: 'PP' },
 }
 
+const RoleCodeEnum = {
+    'SuperAdmin': '0',
+    'PlatformAdmin': '1',
+    'Manager': '10',
+    'Merchant': '100',
+    'Agent': '1000',
+    'Player': '10000'
+}
+
 // 游戏厂商状态枚举
 const CompanyStatusEnum = {
     Enable: 1,
@@ -55,6 +64,7 @@ const SeatTypeEnum = {
 
 module.exports = {
     GameTypeEnum,
+    RoleCodeEnum,
     CompanyStatusEnum,
     GameStatusEnum,
     ToolStatusEnum,

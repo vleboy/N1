@@ -14,7 +14,7 @@ const LogModel = require('./model/LogModel')
 const CompanyModel = require('./model/CompanyModel')
 const GameModel = require('./model/GameModel')
 const GameCheck = require('./biz/GameCheck')
-const RoleCodeEnum = require('./lib/UserConsts').RoleCodeEnum
+const RoleCodeEnum = require('./lib/Consts').RoleCodeEnum
 const GameTypeEnum = require('./lib/Consts').GameTypeEnum
 
 /**
@@ -203,7 +203,7 @@ router.post('/companySelect', async function (ctx, next) {
     ProjectionExpression: 'companyIden,companyName'
   })
   // 管理员或上级是管理员，则获取全部游戏类别
-  if (!inparam.parent || inparam.parent == RoleCodeEnum['PlatformAdmin'] || inparam.parent == '01') {
+  if (!inparam.parent || inparam.parent == RoleCodeEnum.PlatformAdmin || inparam.parent == '01') {
     for (let item of companyRet.Items) {
       gameTypeArr.push({ company: item.companyIden, companyName: item.companyName })
     }
