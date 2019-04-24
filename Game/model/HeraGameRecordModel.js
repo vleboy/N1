@@ -54,6 +54,7 @@ module.exports = class HeraGameRecordModel extends BaseModel {
                             // gameDetail: JSON.stringify(initObj)
                         }
                     }
+                    console.log(gameRecord)
                     batch.RequestItems[Tables.HeraGameRecord].push({
                         PutRequest: {
                             Item: gameRecord
