@@ -147,12 +147,12 @@ function getOtherObj(record) {
         otherObj = {
             gameName: "开元棋牌",
             preBalance: 0,
-            betAmount: betObj.AllBet,
-            winAmount: betObj.AllBet + betObj.Profit,
+            betAmount: +betObj.AllBet,
+            winAmount: +betObj.AllBet + +betObj.Profit,
             refundAmount: 0,
-            retAmount: betObj.AllBet + betObj.Profit,
-            winloseAmount: betObj.Profit,
-            mixAmount: betObj.CellScore,
+            retAmount: +betObj.AllBet + +betObj.Profit,
+            winloseAmount: +betObj.Profit,
+            mixAmount: +betObj.CellScore,
             betCount: 1
         }
         delete betObj.Accounts
