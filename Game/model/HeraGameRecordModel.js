@@ -23,16 +23,11 @@ module.exports = class HeraGameRecordModel extends BaseModel {
     }
 
     /**
-     * 批量写入第三方游戏汇总数据
+     * 批量写入第三方游戏记录
      * @param {*} roundAll
      */
-    async batchWriteRound(roundAll, beginTime, endTime) {
+    batchWriteRound(roundAll) {
         let promiseArr = []
-        // 获取开元数据
-        if (!roundAll && beginTime && endTime) {
-            roundAll = await getKYRecord(beginTime, endTime)
-        }
-        // 判断是否空数据
         if (!roundAll || roundAll.length == 0) {
             return promiseArr
         }
@@ -74,72 +69,74 @@ module.exports = class HeraGameRecordModel extends BaseModel {
         }
         return promiseArr
     }
+
+    // 查询ky战绩
+    async getKYRecord(beginTime, endTime) {
+        let tokenAdmin = jwt.sign({
+            role: RoleCodeEnum.PlatformAdmin,
+            exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) * 3,
+            iat: Math.floor(Date.now() / 1000) - 30
+        }, process.env.TOKEN_SECRET)
+        try {
+            let res = await axios.get(`https://${process.env.ANOTHER_GAME_CENTER}/ky/betdetail?startTime=${beginTime}&endTime=${endTime}`, { headers: { 'Authorization': `Bearer ${tokenAdmin}` } })
+            let listArr = []
+            if (res.data.code == 0) {
+                let listMap = res.data.list
+                //玩家分组查询对应的商户id
+                let groupByMap = _.groupBy(listMap.Accounts)
+                let parentIdArr = []
+                for (let userId in groupByMap) {
+                    let playerRes = await new BaseModel().query({
+                        TableName: 'HeraGamePlayer',
+                        IndexName: 'userIdIndex',
+                        KeyConditionExpression: 'userId = :userId',
+                        ProjectionExpression: 'parent,userName',
+                        ExpressionAttributeValues: {
+                            ':userId': +userId.split('_')[1]
+                        }
+                    })
+                    parentIdArr.push({ userId, parent: playerRes.Items[0].parent, userName: playerRes.Items[0].userName })
+                }
+                for (let i = 0; i < res.data.count; i++) {
+                    let anotherGameData = {
+                        GameId: listMap.GameId[i],
+                        Accounts: listMap.Accounts[i],
+                        ServerID: listMap.ServerID[i],
+                        KindID: listMap.KindID[i],
+                        TableID: listMap.TableID[i],
+                        ChairID: listMap.ChairID[i],
+                        UserCount: listMap.UserCount[i],
+                        CellScore: listMap.CellScore[i],
+                        AllBet: listMap.AllBet[i],
+                        Profit: listMap.Profit[i],
+                        Revenue: listMap.Revenue[i],
+                        GameStartTime: listMap.GameStartTime[i],
+                        GameEndTime: listMap.GameEndTime[i],
+                        CardValue: listMap.CardValue[i]
+                    }
+                    let gameRecord = {
+                        userId: anotherGameData.Accounts.split('_')[1],
+                        betTime: new Date(anotherGameData.GameStartTime).getTime(),
+                        createdAt: new Date(anotherGameData.GameEndTime).getTime(),
+                        createdStr: anotherGameData.GameEndTime,
+                        gameId: '1070001',
+                        gameType: 1070000,
+                        anotherGameData
+                    }
+                    let item = _.find(parentIdArr, (o) => { return o.userId == anotherGameData.Accounts })
+                    gameRecord.parent = item.parent
+                    gameRecord.userName = item.userName
+                    gameRecord.betId = `${item.userName}_${listMap.GameId[i]}`
+                    listArr.push(gameRecord)
+                }
+            } else if (res.data.code != 16) {
+                console.error('记录查询失败日志')
+            }
+            return listArr
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
 }
 
-// 查询ky战绩
-async function getKYRecord(beginTime, endTime) {
-    let tokenAdmin = jwt.sign({
-        role: RoleCodeEnum.PlatformAdmin,
-        exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) * 3,
-        iat: Math.floor(Date.now() / 1000) - 30
-    }, process.env.TOKEN_SECRET)
-    try {
-        let res = await axios.get(`https://${process.env.ANOTHER_GAME_CENTER}/ky/betdetail?startTime=${beginTime}&endTime=${endTime}`, { headers: { 'Authorization': `Bearer ${tokenAdmin}` } })
-        let listArr = []
-        if (res.data.code == 0) {
-            let listMap = res.data.list
-            //玩家分组查询对应的商户id
-            let groupByMap = _.groupBy(listMap.Accounts)
-            let parentIdArr = []
-            for (let userId in groupByMap) {
-                let playerRes = await new BaseModel().query({
-                    TableName: 'HeraGamePlayer',
-                    IndexName: 'userIdIndex',
-                    KeyConditionExpression: 'userId = :userId',
-                    ProjectionExpression: 'parent,userName',
-                    ExpressionAttributeValues: {
-                        ':userId': +userId.split('_')[1]
-                    }
-                })
-                parentIdArr.push({ userId, parent: playerRes.Items[0].parent, userName: playerRes.Items[0].userName })
-            }
-            for (let i = 0; i < res.data.count; i++) {
-                let anotherGameData = {
-                    GameId: listMap.GameId[i],
-                    Accounts: listMap.Accounts[i],
-                    ServerID: listMap.ServerID[i],
-                    KindID: listMap.KindID[i],
-                    TableID: listMap.TableID[i],
-                    ChairID: listMap.ChairID[i],
-                    UserCount: listMap.UserCount[i],
-                    CellScore: listMap.CellScore[i],
-                    AllBet: listMap.AllBet[i],
-                    Profit: listMap.Profit[i],
-                    Revenue: listMap.Revenue[i],
-                    GameStartTime: listMap.GameStartTime[i],
-                    GameEndTime: listMap.GameEndTime[i],
-                    CardValue: listMap.CardValue[i]
-                }
-                let gameRecord = {
-                    userId: anotherGameData.Accounts.split('_')[1],
-                    betTime: new Date(anotherGameData.GameStartTime).getTime(),
-                    createdAt: new Date(anotherGameData.GameEndTime).getTime(),
-                    createdStr: anotherGameData.GameEndTime,
-                    gameId: '1070001',
-                    gameType: 1070000,
-                    anotherGameData
-                }
-                let item = _.find(parentIdArr, (o) => { return o.userId == anotherGameData.Accounts })
-                gameRecord.parent = item.parent
-                gameRecord.userName = item.userName
-                gameRecord.betId = `${item.userName}_${listMap.GameId[i]}`
-                listArr.push(gameRecord)
-            }
-        } else if (res.data.code != 16) {
-            console.error('记录查询失败日志')
-        }
-        return listArr
-    } catch (error) {
-        console.error(error)
-    }
-}
