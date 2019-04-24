@@ -83,6 +83,7 @@ module.exports = class HeraGameRecordModel extends BaseModel {
         }, process.env.TOKEN_SECRET)
         try {
             let res = await axios.get(`https://${process.env.ANOTHER_GAME_CENTER}/ky/betdetail?startTime=${beginTime}&endTime=${endTime}`, { headers: { 'Authorization': `Bearer ${tokenAdmin}` } })
+            console.log(res.data)
             let listArr = []
             if (res.data.code == 0) {
                 let listMap = res.data.list
