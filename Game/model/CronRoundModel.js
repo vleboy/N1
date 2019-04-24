@@ -48,7 +48,9 @@ module.exports = class CronRoundModel extends BaseModel {
 
         // 查询和写入KY游戏记录
         roundAll = await heraGameRecordModel.getKYRecord(beginTime, endTime)
-        await Promise.all(heraGameRecordModel.batchWrite(roundAll))
+        let p3Arr = heraGameRecordModel.batchWrite(roundAll)
+        console.log(p3Arr)
+        await Promise.all(p3Arr)
         
         // 5，成功后配置文件记录当前时间
         queryRet.lastTime = endTime
