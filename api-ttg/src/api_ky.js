@@ -169,7 +169,7 @@ router.get('/ky/betdetail', async (ctx, next) => {
     let inparam = ctx.request.query
     try {
         let res = await axios.get(getURL(6, `s=6&startTime=${inparam.startTime}&endTime=${inparam.endTime}`))
-        ctx.body = { code: res.data.d.code, data: res.data.d }
+        ctx.body = res.data.d
     } catch (error) {
         ctx.body = { code: -1, err: res.data }
     }
