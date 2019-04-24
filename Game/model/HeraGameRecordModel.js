@@ -95,17 +95,17 @@ module.exports = class HeraGameRecordModel extends BaseModel {
                 //玩家分组查询对应的商户id
                 let groupByMap = _.groupBy(listMap.Accounts)
                 let parentIdArr = []
-                for (let userId in groupByMap) {
+                for (let kyUserId in groupByMap) {
                     let playerRes = await new BaseModel().query({
                         TableName: 'HeraGamePlayer',
                         IndexName: 'userIdIndex',
                         KeyConditionExpression: 'userId = :userId',
-                        ProjectionExpression: 'parent,userName',
+                        ProjectionExpression: 'parent,userId,userName',
                         ExpressionAttributeValues: {
-                            ':userId': +userId.split('_')[1]
+                            ':userId': +kyUserId.split('_')[1]
                         }
                     })
-                    parentIdArr.push({ userId, parent: playerRes.Items[0].parent, userName: playerRes.Items[0].userName })
+                    parentIdArr.push({ kyUserId, parent: playerRes.Items[0].parent, userId: playerRes.Items[0].userId, userName: playerRes.Items[0].userName })
                 }
                 for (let i = 0; i < res.data.count; i++) {
                     let anotherGameData = {
@@ -125,7 +125,6 @@ module.exports = class HeraGameRecordModel extends BaseModel {
                         CardValue: listMap.CardValue[i]
                     }
                     let gameRecord = {
-                        userId: anotherGameData.Accounts.split('_')[1],
                         betTime: new Date(anotherGameData.GameStartTime).getTime(),
                         createdAt: new Date(anotherGameData.GameEndTime).getTime(),
                         createdStr: anotherGameData.GameEndTime,
@@ -133,8 +132,9 @@ module.exports = class HeraGameRecordModel extends BaseModel {
                         gameType: 1070000,
                         anotherGameData
                     }
-                    let item = _.find(parentIdArr, (o) => { return o.userId == anotherGameData.Accounts })
+                    let item = _.find(parentIdArr, (o) => { return o.kyUserId == anotherGameData.Accounts })
                     gameRecord.parent = item.parent
+                    gameRecord.userId = item.userId
                     gameRecord.userName = item.userName
                     gameRecord.businessKey = `BKY_${item.userName}_${listMap.GameID[i]}`
                     listArr.push(gameRecord)
