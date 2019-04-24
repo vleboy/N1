@@ -50,7 +50,7 @@ class BaseModel {
             return res
         }).catch((err) => {
             console.error(`表${item.TableName}写入失败，重新写入，以下是详细错误信息`)
-            console.error(item)            
+            console.error(item)
             console.error(err)
             return this.putData(item)
         })
@@ -61,7 +61,6 @@ class BaseModel {
      * @param {*} item
      */
     putItem(item) {
-        // return new Promise((reslove, reject) => {
         const params = {
             ...this.params,
             Item: {
@@ -77,7 +76,6 @@ class BaseModel {
             console.error(err)
             return this.putItem(item)
         })
-        // })
     }
 
     /**
@@ -118,18 +116,11 @@ class BaseModel {
      * @param {*} conditions 
      */
     updateItem(conditions) {
-        // return new Promise((reslove, reject) => {
         const params = {
             ...this.params,
             ...conditions
         }
         return this.db$('update', params)
-        // .then((res) => {
-        //     return reslove(res)
-        // }).catch((err) => {
-        //     return reject(err)
-        // })
-        // })
     }
 
     /**
@@ -137,19 +128,11 @@ class BaseModel {
      * @param {*} conditions 
      */
     deleteItem(conditions) {
-        // return new Promise((reslove, reject) => {
         const params = {
             ...this.params,
             ...conditions
         }
         return this.db$('delete', params)
-        // .then((res) => {
-        //     return reslove(res)
-        // }).catch((err) => {
-        //     console.error(err)
-        //     return reject(err)
-        // })
-        // })
     }
 
     /**
@@ -178,18 +161,11 @@ class BaseModel {
      * @param {*} conditions 
      */
     getItem(conditions = {}) {
-        // return new Promise((reslove, reject) => {
         const params = {
             ...this.params,
             ...conditions
         }
         return this.db$('get', params)
-        // .then((res) => {
-        //     return reslove(res)
-        // }).catch((err) => {
-        //     return reject(err)
-        // })
-        // })
     }
 
     /**
@@ -197,18 +173,11 @@ class BaseModel {
      * @param {*} conditions 
      */
     queryOnce(conditions = {}) {
-        // return new Promise((reslove, reject) => {
         const params = {
             ...this.params,
             ...conditions
         }
         return this.db$('query', params)
-        // .then((res) => {
-        //     return reslove(res)
-        // }).catch((err) => {
-        //     return reject(err)
-        // })
-        // })
     }
 
     /**
@@ -510,23 +479,6 @@ class BaseModel {
         date.setHours(date.getHours() + 8)
         return date.getFullYear() + twoNumber(date.getMonth() + 1) + twoNumber(date.getDate()) + userId + (timestramp + num)
     }
-}
-
-// 私有日期格式化方法
-Date.prototype.Format = function (fmt) {
-    var o = {
-        "M+": this.getMonth() + 1, //月份 
-        "d+": this.getDate(), //日 
-        "h+": this.getHours(), //小时 
-        "m+": this.getMinutes(), //分 
-        "s+": this.getSeconds(), //秒 
-        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
-        "S": this.getMilliseconds() //毫秒 
-    };
-    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
-    for (var k in o)
-        if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-    return fmt;
 }
 
 module.exports = BaseModel
