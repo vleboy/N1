@@ -148,9 +148,9 @@ function getOtherObj(record) {
             gameName: "开元棋牌",
             preBalance: 0,
             betAmount: +betObj.AllBet,
-            winAmount: +betObj.AllBet + +betObj.Profit,
+            winAmount: parseFloat((+betObj.AllBet + +betObj.Profit).toFixed(2)),
             refundAmount: 0,
-            retAmount: +betObj.AllBet + +betObj.Profit,
+            retAmount: parseFloat(+(+betObj.AllBet + +betObj.Profit).toFixed(2)),
             winloseAmount: +betObj.Profit,
             mixAmount: +betObj.CellScore,
             betCount: 1
