@@ -31,10 +31,10 @@ module.exports = class HeraGameRecordModel extends BaseModel {
             return promiseArr
         }
         // 获取开元数据
-        let kyArr = await getKYRecord(beginTime, endTime)
-        if (kyArr.length != 0) {
-            roundAll.concat(kyArr)
-        }
+        // let kyArr = await getKYRecord(beginTime, endTime)
+        // if (kyArr.length > 0) {
+        //     roundAll.concat(kyArr)
+        // }
         let chunkRound = _.chunk(roundAll, 25)
         for (let chunk of chunkRound) {
             let batch = { RequestItems: {} }
