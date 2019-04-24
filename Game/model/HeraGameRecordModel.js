@@ -25,7 +25,7 @@ module.exports = class HeraGameRecordModel extends BaseModel {
      * 批量写入第三方游戏汇总数据
      * @param {*} roundAll
      */
-    batchWriteRound(roundAll, beginTime, endTime) {
+    async batchWriteRound(roundAll, beginTime, endTime) {
         let promiseArr = []
         if (!roundAll || roundAll.length == 0) {
             return promiseArr
