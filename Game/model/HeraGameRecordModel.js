@@ -60,6 +60,7 @@ module.exports = class HeraGameRecordModel extends BaseModel {
                         gameRecord.createdStr = item.createdStr
                         delete gameRecord.createdDate
                     }
+                    console.log(gameRecord)
                     batch.RequestItems[Tables.HeraGameRecord].push({
                         PutRequest: {
                             Item: gameRecord
@@ -125,8 +126,8 @@ module.exports = class HeraGameRecordModel extends BaseModel {
                         CardValue: listMap.CardValue[i]
                     }
                     let gameRecord = {
-                        betTime: new Date(anotherGameData.GameStartTime).getTime(),
-                        createdAt: new Date(anotherGameData.GameEndTime).getTime(),
+                        betTime: new Date(`${anotherGameData.GameStartTime}+08:00`).getTime(),
+                        createdAt: new Date(`${anotherGameData.GameEndTime}+08:00`).getTime(),
                         createdStr: anotherGameData.GameEndTime,
                         gameId: '1070001',
                         gameType: 1070000,
