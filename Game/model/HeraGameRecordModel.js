@@ -104,7 +104,7 @@ module.exports = class HeraGameRecordModel extends BaseModel {
                 }
                 for (let i = 0; i < res.data.count; i++) {
                     let anotherGameData = {
-                        GameId: listMap.GameId[i],
+                        GameID: listMap.GameID[i],
                         Accounts: listMap.Accounts[i],
                         ServerID: listMap.ServerID[i],
                         KindID: listMap.KindID[i],
@@ -131,7 +131,7 @@ module.exports = class HeraGameRecordModel extends BaseModel {
                     let item = _.find(parentIdArr, (o) => { return o.userId == anotherGameData.Accounts })
                     gameRecord.parent = item.parent
                     gameRecord.userName = item.userName
-                    gameRecord.betId = `${item.userName}_${listMap.GameId[i]}`
+                    gameRecord.betId = `${item.userName}_${listMap.GameID[i]}`
                     listArr.push(gameRecord)
                 }
             } else if (res.data.code != 16) {
