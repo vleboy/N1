@@ -54,7 +54,6 @@ module.exports = class HeraGameRecordModel extends BaseModel {
                             // gameDetail: JSON.stringify(initObj)
                         }
                     }
-                    console.log(gameRecord)
                     batch.RequestItems[Tables.HeraGameRecord].push({
                         PutRequest: {
                             Item: gameRecord
@@ -84,7 +83,6 @@ module.exports = class HeraGameRecordModel extends BaseModel {
         }, process.env.TOKEN_SECRET)
         try {
             let res = await axios.get(`https://${process.env.ANOTHER_GAME_CENTER}/ky/betdetail?startTime=${beginTime}&endTime=${endTime}`, { headers: { 'Authorization': `Bearer ${tokenAdmin}` } })
-            console.log(res.data)
             let listArr = []
             if (res.data.code == 0) {
                 let listMap = res.data.list
@@ -132,7 +130,7 @@ module.exports = class HeraGameRecordModel extends BaseModel {
                     let item = _.find(parentIdArr, (o) => { return o.userId == anotherGameData.Accounts })
                     gameRecord.parent = item.parent
                     gameRecord.userName = item.userName
-                    gameRecord.businessKey = `${item.userName}_${listMap.GameID[i]}`
+                    gameRecord.businessKey = `BKY_${item.userName}_${listMap.GameID[i]}`
                     listArr.push(gameRecord)
                 }
             } else if (res.data.code != 16) {
