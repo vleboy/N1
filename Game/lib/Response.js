@@ -1,5 +1,3 @@
-const Codes = require('./Codes').Codes
-
 // 返回模板
 const responseTemplate = (statusCode, body, code, headers = {}) => {
   headers = {
@@ -10,14 +8,14 @@ const responseTemplate = (statusCode, body, code, headers = {}) => {
   return { statusCode, headers, body: JSON.stringify(body) }
 }
 // 返回工具类
-const Success = (body, code = Codes.OK, headers = {}) => {
+const Success = (body, code = '0', headers = {}) => {
   const content = {
     ...body,
     code: code
   }
   return responseTemplate(200, content, code, headers)
 }
-const Fail = (body, code = Codes.Error, headers = {}) => {
+const Fail = (body, code = '-1', headers = {}) => {
   const content = {
     ...body,
     code: code
@@ -25,7 +23,7 @@ const Fail = (body, code = Codes.Error, headers = {}) => {
   return responseTemplate(500, content, code, headers)
 }
 const ResOK = (callback, res) => callback(null, Success(res))
-const ResFail = (callback, res, code = Codes.Error) => callback(null, Fail(res, code))
+const ResFail = (callback, res, code = '-1') => callback(null, Fail(res, code))
 const ResErr = (callback, err) => ResFail(callback, { err: err }, err.code)
 
 // 策略文档工具
