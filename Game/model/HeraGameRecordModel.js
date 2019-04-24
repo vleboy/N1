@@ -70,7 +70,11 @@ module.exports = class HeraGameRecordModel extends BaseModel {
         return promiseArr
     }
 
-    // 查询ky战绩
+    /**
+     * 查询KY战绩
+     * @param {*} beginTime 
+     * @param {*} endTime 
+     */
     async getKYRecord(beginTime, endTime) {
         let tokenAdmin = jwt.sign({
             role: RoleCodeEnum.PlatformAdmin,
