@@ -23,8 +23,13 @@ module.exports = {
             }
             let otherObj = getOtherObj(record)
             let obj = { ...baseObj, ...otherObj }
-            if (obj.gameType != '1070000' || obj.settleTime) {
-                return obj
+            return obj
+        })
+        page.list = page.list.filter((record) => {
+            if (record.gameType != '1070000' || record.settleTime) {
+                return true
+            } else {
+                return false
             }
         })
     },
