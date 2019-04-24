@@ -54,6 +54,12 @@ module.exports = class HeraGameRecordModel extends BaseModel {
                             // gameDetail: JSON.stringify(initObj)
                         }
                     }
+                    if (parseInt(item.gameType) == 1070000 && item.anotherGameData != 'NULL!') {
+                        gameRecord.betTime = item.betTime
+                        gameRecord.createdAt = item.createdAt
+                        gameRecord.createdStr = item.createdStr
+                        delete gameRecord.createdDate
+                    }
                     batch.RequestItems[Tables.HeraGameRecord].push({
                         PutRequest: {
                             Item: gameRecord

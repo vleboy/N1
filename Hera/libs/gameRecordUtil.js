@@ -23,7 +23,9 @@ module.exports = {
             }
             let otherObj = getOtherObj(record)
             let obj = { ...baseObj, ...otherObj }
-            return obj
+            if (obj.gameType != '1070000' || obj.settleTime) {
+                return obj
+            }
         })
     },
     // 对内查询单条
@@ -131,6 +133,27 @@ function getOtherObj(record) {
             settleTime: retObj.settleTime,
             oddsStyle: item.ODDFORMAT
         }
+    } else if (gameType == "1070000") { //开元棋牌
+        let betObj = record.anotherGameData
+        if (betObj == 'NULL!') {
+            return {}
+        }
+        otherObj = {
+            gameName: "开元棋牌",
+            preBalance: 0,
+            betAmount: betObj.AllBet,
+            winAmount: betObj.AllBet + betObj.Profit,
+            refundAmount: 0,
+            retAmount: betObj.AllBet + betObj.Profit,
+            winloseAmount: betObj.Profit,
+            mixAmount: betObj.CellScore,
+            betCount: 1
+        }
+        delete betObj.Accounts
+        delete betObj.AllBet
+        delete betObj.CellScore
+        delete betObj.Profit
+        otherObj.roundResult = betObj
     } else {                            //其他第三方游戏
         let betObj = getContentBetObj(record)
         let retObj = getContentRetObj(record)
