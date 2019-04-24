@@ -27,13 +27,13 @@ module.exports = class HeraGameRecordModel extends BaseModel {
      */
     async batchWriteRound(roundAll, beginTime, endTime) {
         let promiseArr = []
+        // 获取开元数据
+        if (!roundAll && beginTime && endTime) {
+            roundAll = await getKYRecord(beginTime, endTime)
+        }
+        // 判断是否空数据
         if (!roundAll || roundAll.length == 0) {
             return promiseArr
-        }
-        // 获取开元数据
-        let kyArr = await getKYRecord(beginTime, endTime)
-        if (kyArr.length > 0) {
-            roundAll.concat(kyArr)
         }
         let chunkRound = _.chunk(roundAll, 25)
         for (let chunk of chunkRound) {
