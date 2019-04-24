@@ -18,29 +18,6 @@ class PlayerModel extends BaseModel {
             userName: Model.StringValue
         }
     }
-    async scanWeekOnline(inparam) {
-        let [err, res] = await this.scan({
-            FilterExpression: 'nickname <> :nickname AND updateAt between :updateAt0 and :updateAt1',
-            ExpressionAttributeValues: {
-                ':nickname': 'NULL!',
-                ':updateAt0': inparam.mondayTime,
-                ':updateAt1': inparam.nowTime
-            }
-        })
-        return res.Items
-    }
-
-    //查询昵称不为NULL!的玩家
-    async scanByNickname() {
-        let [err, res] = await this.scan({
-            ProjectionExpression: 'parent,userId,userName,balance,headPic,nickname,updateAt',
-            FilterExpression: 'nickname <> :nickname',
-            ExpressionAttributeValues: {
-                ':nickname': 'NULL!'
-            }
-        })
-        return res.Items
-    }
 
     /**
      * 从缓存表获取最新玩家的余额

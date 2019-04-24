@@ -35,19 +35,6 @@ class HeraGameRecordModel extends BaseModel {
             for (let item of chunk) {
                 // 只处理第三方游戏
                 if (parseInt(item.gameType) > 100000) {
-                    //初始数据
-                    // let initObj = {
-                    //     bet: Math.abs(item.content.bet[0].amount),                          // 下注金额
-                    //     totalGold: 0,                                                       // 返奖金额（默认为零）
-                    //     userBalance: item.content.bet[0].balance,                           // 用户余额（默认为没有返奖的）
-                    //     preBalance: item.content.bet[0].originalAmount                      // 下注前用户余额
-                    // }
-                    // if (parseInt(item.gameType) == 1010000 || parseInt(item.gameType) == 10300000) {  // TTG 和 MG 电子游戏
-                    //     if (item.content.ret && item.content.ret.length > 0) {
-                    //         initObj.totalGold = item.content.ret[0].amount                  // 返奖余额
-                    //         initObj.userBalance = item.content.ret[0].balance               // 用户余额（返奖后）
-                    //     }
-                    // }
                     // 单条战绩
                     let gameRecord = {
                         userId: +item.userId,

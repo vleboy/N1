@@ -63,30 +63,6 @@ class LogModel extends BaseModel {
                     console.error(err)
                 })
                 break;
-            case '100000':
-                this.putItem({
-                    ...this.item,
-                    detail: error,
-                    ret: 'Y',
-                    type: 'statPlayerCount',
-                    ...inparam
-                }).then((res) => {
-                }).catch((err) => {
-                    console.error(err)
-                })
-                break;
-            case '101000':
-                this.putItem({
-                    ...this.item,
-                    detail: error,
-                    ret: 'Y',
-                    type: 'statAgentPlayerCount',
-                    ...inparam
-                }).then((res) => {
-                }).catch((err) => {
-                    console.error(err)
-                })
-                break;
             default:
                 break;
         }
