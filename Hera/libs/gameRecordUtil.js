@@ -32,6 +32,7 @@ module.exports = {
                 return false
             }
         })
+        page.pageSize = page.list.length
     },
     // 对内查询单条
     buildOnePageRows: function (record) {
