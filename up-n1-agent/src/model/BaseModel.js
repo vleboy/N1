@@ -44,7 +44,6 @@ class BaseModel {
      * @param {*} item
      */
     putItem(item) {
-        // return new Promise((reslove, reject) => {
         const params = {
             ...this.params,
             Item: {
@@ -53,12 +52,6 @@ class BaseModel {
             }
         }
         return this.db$('put', params)
-        // .then((res) => {
-        //     return reslove(res)
-        // }).catch((err) => {
-        //     return reject(err)
-        // })
-        // })
     }
 
     /**
@@ -99,18 +92,11 @@ class BaseModel {
      * @param {*} conditions 
      */
     updateItem(conditions) {
-        // return new Promise((reslove, reject) => {
         const params = {
             ...this.params,
             ...conditions
         }
         return this.db$('update', params)
-        // .then((res) => {
-        //     return reslove(res)
-        // }).catch((err) => {
-        //     return reject(err)
-        // })
-        // })
     }
 
     /**
@@ -118,19 +104,11 @@ class BaseModel {
      * @param {*} conditions 
      */
     deleteItem(conditions) {
-        // return new Promise((reslove, reject) => {
         const params = {
             ...this.params,
             ...conditions
         }
         return this.db$('delete', params)
-        // .then((res) => {
-        //     return reslove(res)
-        // }).catch((err) => {
-        //     console.error(err)
-        //     return reject(err)
-        // })
-        // })
     }
 
     /**
@@ -158,18 +136,11 @@ class BaseModel {
      * @param {*} conditions 
      */
     getItem(conditions = {}) {
-        // return new Promise((reslove, reject) => {
         const params = {
             ...this.params,
             ...conditions
         }
         return this.db$('get', params)
-        // .then((res) => {
-        //     return reslove(res)
-        // }).catch((err) => {
-        //     return reject(err)
-        // })
-        // })
     }
 
     /**
@@ -177,18 +148,11 @@ class BaseModel {
      * @param {*} conditions 
      */
     queryOnce(conditions = {}) {
-        // return new Promise((reslove, reject) => {
         const params = {
             ...this.params,
             ...conditions
         }
         return this.db$('query', params)
-        // .then((res) => {
-        //     return reslove(res)
-        // }).catch((err) => {
-        //     return reject(err)
-        // })
-        // })
     }
 
     /**
