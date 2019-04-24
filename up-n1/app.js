@@ -28,8 +28,6 @@ const hallRoute = require('./src/api_hall')
 const transferRoute = require('./src/api_transfer')
 const mysteryRoute = require('./src/api_mystery')
 
-// const statRoute = require('./src/api_sys_stat')
-
 // 初始化应用服务，加载所有中间件
 const app = new Koa()
 app.proxy = true
@@ -94,8 +92,6 @@ app.use(fixRoute.routes())              // 修正接口
 app.use(hallRoute.routes())             // 大厅请求接口
 app.use(transferRoute.routes())         // 共享钱包流水请求接口
 app.use(mysteryRoute.routes())          // 神秘大奖接口
-
-// app.use(statRoute.routes())             // 看板接口
 
 app.use(function (ctx, next) {
     ctx.status = 404
