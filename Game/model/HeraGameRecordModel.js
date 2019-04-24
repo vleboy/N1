@@ -1,6 +1,7 @@
 
 const { Tables, RoleCodeEnum } = require('../lib/Dynamo')
 const BaseModel = require('./BaseModel')
+const jwt = require('jsonwebtoken')
 const _ = require('lodash')
 const moment = require('moment')
 const axios = require('axios')

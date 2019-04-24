@@ -289,10 +289,10 @@ module.exports = class CronRoundModel extends BaseModel {
     /**
      * 内部方法6：请求执行金额map统计
      */
-    async axiosCron(inparam) {
+    axiosCron(inparam) {
         let cronUrl = `https://${process.env.ANOTHER_GAME_CENTER}/stat/${inparam.methodName}`
         console.log(`请求${inparam.methodName}接口【${cronUrl}】`)
-        let tokenAdmin = await jwt.sign({
+        let tokenAdmin = jwt.sign({
             role: RoleCodeEnum.PlatformAdmin,
             exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) * 3,
             iat: Math.floor(Date.now() / 1000) - 30
