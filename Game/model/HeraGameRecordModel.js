@@ -77,7 +77,7 @@ module.exports = class HeraGameRecordModel extends BaseModel {
 
 // 查询ky战绩
 async function getKYRecord(beginTime, endTime) {
-    let tokenAdmin = await jwt.sign({
+    let tokenAdmin = jwt.sign({
         role: RoleCodeEnum.PlatformAdmin,
         exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) * 3,
         iat: Math.floor(Date.now() / 1000) - 30
