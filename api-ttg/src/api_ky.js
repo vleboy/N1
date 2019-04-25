@@ -169,7 +169,7 @@ router.get('/ky/logout', async (ctx, next) => {
         })
         ctx.body = { s: 101, m: "/channelHandle", d: { code: 0 } }
     } else {
-        new LogModel().add('2', 'KYDOWNError', { userId: account, userName: account }, `KY下分异常${orderid}`)
+        new LogModel().add('2', 'KYDOWNError', { userId: account, userName: account, checkRes, code: res.data.d.code }, `KY下分异常${orderid}`)
         ctx.body = { s: 101, m: "/channelHandle", d: { code: res.data.d.code } }
     }
 })
