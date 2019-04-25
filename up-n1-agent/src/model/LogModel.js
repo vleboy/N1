@@ -241,22 +241,6 @@ module.exports = class LogModel extends BaseModel {
      */
     add(role, error, inparam) {
         switch (role) {
-            case '4':
-                this.putItem({
-                    ...this.item,
-                    createdStr: moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
-                    detail: `玩家【${inparam.userName}】【${inparam.userId}】在【${inparam.gameType}】第三方游戏系统，时间范围【${moment(inparam.createdAt - 60000).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}-${moment(inparam.createdAt + 300000).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}】没有查找到游戏结果`,
-                    inparams: inparam,
-                    ret: 'N',
-                    role: role,
-                    type: 'anotherGameDataError',
-                    userId: inparam.userId.toString(),
-                    userName: inparam.userName
-                }).then((res) => {
-                }).catch((err) => {
-                    console.error(err)
-                })
-                break;
             case '7':
                 this.putItem({
                     ...this.item,

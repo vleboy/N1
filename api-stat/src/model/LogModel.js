@@ -22,10 +22,10 @@ class LogModel extends BaseModel {
     /**
      * 添加日志
      * @param {*} role 
-     * @param {*} error 
+     * @param {*} type 
      * @param {*} inparam 
      */
-    add(role, error, inparam) {
+    add(role, type, inparam, detail) {
         switch (role) {
             case '4':
                 this.putItem({
@@ -34,10 +34,8 @@ class LogModel extends BaseModel {
                     detail: `玩家【${inparam.userName}】【${inparam.userId}】在【${inparam.gameType}】第三方游戏系统，时间范围【${moment(inparam.createdAt - 60000).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')} ${moment(inparam.createdAt + 300000).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}】没有查找到游戏结果`,
                     inparams: inparam,
                     ret: 'N',
-                    role: role,
-                    type: 'anotherGameDataError',
-                    userId: inparam.userId.toString(),
-                    userName: inparam.userName,
+                    role,
+                    type,
                     betTime: inparam.createdAt
                 }).then((res) => {
                 }).catch((err) => {
@@ -49,10 +47,10 @@ class LogModel extends BaseModel {
                     ...this.item,
                     createdStr: moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
                     detail: `用户【${inparam.userName}】【${inparam.userId}】在【${moment(inparam.createdAt).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}】时间点的运营商标识【${inparam.company}】点数总值为:【${inparam.totalWinloseAmount}】超过了预设值【${inparam.topAmount}】而被停用！`,
-                    inparams: error,
+                    inparams: inparam,
                     ret: 'N',
-                    role: role,
-                    type: 'pointControl',
+                    role,
+                    type,
                     userId: inparam.userId.toString(),
                     userName: inparam.userName,
                     topAmount: inparam.topAmount,

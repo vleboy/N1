@@ -1,5 +1,4 @@
-const Tables = require('../lib/Model').Tables
-const Model = require('../lib/Model').Model
+const { Tables, Model } = require('../lib/Model')
 const BaseModel = require('./BaseModel')
 const StatRoundModel = require('./StatRoundModel')
 const HeraGameRecordModel = require('./HeraGameRecordModel')
@@ -210,14 +209,14 @@ class CronRoundModel extends BaseModel {
                     let gameRecord = gameRecordRes.Items[0].record
                     return { mixAmount: +gameRecord.validAmount, data: JSON.stringify(gameRecord) }
                 } else {
-                    new LogModel().add('4', null, betItem)
+                    new LogModel().add('4', 'anotherGameDataError', betItem, null)
                     return null
                 }
             }
         } catch (error) {
             console.error('第三方游戏数据获取发生服务响应异常')
             console.error(error)
-            new LogModel().add('4', error, betItem)
+            new LogModel().add('4', 'anotherGameDataError', betItem, error)
         }
     }
 
@@ -258,7 +257,7 @@ class CronRoundModel extends BaseModel {
                     userAnotherGameData[userId][betItem.businessKey] = { mixAmount, data: JSON.stringify(anotherGameBetArr) }
                     // 如果没有查找到，记录LOG报警
                     if (anotherGameBetArr.length == 0) {
-                        new LogModel().add('4', null, betItem)
+                        new LogModel().add('4', 'anotherGameDataError', betItem, null)
                     }
                 }
 
@@ -267,7 +266,7 @@ class CronRoundModel extends BaseModel {
         } catch (error) {
             console.error('第三方游戏数据获取发生服务响应异常')
             console.error(error)
-            new LogModel().add('4', error, betItem)
+            new LogModel().add('4', 'anotherGameDataError', betItem, error)
         }
     }
 

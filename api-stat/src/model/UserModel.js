@@ -626,7 +626,7 @@ function checkMapTop(winloseAmountMap, user, createdAt) {
                             topAmount: item.topAmount,
                             company: item.company
                         }
-                        new LogModel().add('7', '超过预警值', inparam)
+                        new LogModel().add('7', 'pointControl', inparam, '超过预警值')
                     }
                 }
             }
