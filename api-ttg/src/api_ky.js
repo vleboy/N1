@@ -171,6 +171,7 @@ router.get('/ky/betdetail', async (ctx, next) => {
         let res = await axios.get(getURL(6, `s=6&startTime=${inparam.startTime}&endTime=${inparam.endTime}`))
         ctx.body = res.data.d
     } catch (error) {
+        new LogModel().add('2', 'KYRecordError', { userId: '-1', userName: '-1' }, `KY获取游戏注单异常&startTime=${inparam.startTime}&endTime=${inparam.endTime}`)
         ctx.body = { code: -1, err: res.data }
     }
 })
