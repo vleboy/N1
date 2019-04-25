@@ -44,7 +44,8 @@ module.exports = class HeraGameRecordModel extends BaseModel {
                         userName: item.userName,
                         betId: item.businessKey,
                         betTime: +item.createdAt,
-                        createdDate: moment(+item.createdAt).utcOffset(8).format('YYYY-MM-DD'),
+                        createdAt: +item.createdAt,
+                        createdStr: moment(+item.createdAt).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
                         gameId: item.gameId ? item.gameId.toString() : item.gameType.toString(),
                         gameType: +item.gameType,
                         parentId: item.parent,
@@ -56,11 +57,7 @@ module.exports = class HeraGameRecordModel extends BaseModel {
                     }
                     if (parseInt(item.gameType) == 1070000 && item.anotherGameData != 'NULL!') {
                         gameRecord.betTime = item.betTime
-                        gameRecord.createdAt = item.createdAt
-                        gameRecord.createdStr = item.createdStr
-                        delete gameRecord.createdDate
                     }
-                    console.log(gameRecord)
                     batch.RequestItems[Tables.HeraGameRecord].push({
                         PutRequest: {
                             Item: gameRecord
@@ -128,7 +125,6 @@ module.exports = class HeraGameRecordModel extends BaseModel {
                     let gameRecord = {
                         betTime: new Date(`${anotherGameData.GameStartTime}+08:00`).getTime(),
                         createdAt: new Date(`${anotherGameData.GameEndTime}+08:00`).getTime(),
-                        createdStr: anotherGameData.GameEndTime,
                         gameId: '1070001',
                         gameType: 1070000,
                         anotherGameData
@@ -137,7 +133,7 @@ module.exports = class HeraGameRecordModel extends BaseModel {
                     gameRecord.parent = item.parent
                     gameRecord.userId = item.userId
                     gameRecord.userName = item.userName
-                    gameRecord.businessKey = `BKY_${item.userName}_${listMap.GameID[i]}`
+                    gameRecord.businessKey = `BKY_${item.userId}_${listMap.GameID[i]}`
                     listArr.push(gameRecord)
                 }
             } else if (res.data.code != 16) {
