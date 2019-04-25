@@ -62,7 +62,7 @@ async function queryIp(ip) {
 cron.schedule('*/30 * * * * *', async () => {
     console.time('【流水载入】')
     let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
-    if (configArr[0].flag || Date.now() - configArr[0].createdAt > 10 * 60 * 1000) {
+    if (configArr[0].flag || Date.now() - configArr[0].createdAt > 5 * 60 * 1000) {
         await nodebatis.execute('config.updateFlag', { type: 'queryTime', flag: 0 })
         let startTime = configArr[0].createdAt
         let nowTime = Date.now() - 3 * 60 * 1000
