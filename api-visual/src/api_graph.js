@@ -9,12 +9,13 @@ const _ = require('lodash')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 
-//时间段柱状图
-router.get('/line/graph', async (ctx, next) => {
+//时间段统计柱状图(时、周、月)
+router.get('/graph/:queryType', async (ctx, next) => {
     console.time('柱状图统计耗时')
     let inparam = ctx.request.query
+    let formatType = ctx.params.queryType
     let promiseArr = []
-    // 初始时间柱状图map
+    // 时间柱状图map
     let GraphMap = {
         playerCount: [],
         betCount: [],
@@ -23,7 +24,25 @@ router.get('/line/graph', async (ctx, next) => {
         refundAmount: [],
         winloseAmount: []
     }
-    for (let i = 0; i < 24; i++) {
+    switch (formatType) {
+        case 'hours':
+            inparam.formatType = '%k'
+            inparam.start = 0
+            inparam.end = 24
+            break;
+        case 'weeks':
+            inparam.formatType = '%w'
+            inparam.start = 0
+            inparam.end = 7
+            break;
+        case 'months':
+            inparam.formatType = '%c'
+            inparam.start = 1
+            inparam.end = 13
+            break;
+    }
+
+    for (let i = inparam.start; i < inparam.end; i++) {
         GraphMap.playerCount.push({ x: i, y: 0 })
         GraphMap.betCount.push({ x: i, y: 0 })
         GraphMap.betAmount.push({ x: i, y: 0 })
@@ -45,9 +64,56 @@ router.get('/line/graph', async (ctx, next) => {
     promiseArr.push(queryGetGraph('bill.handleAmountGraph', 'winloseAmount', inparam, GraphMap))
     // 并发执行
     await Promise.all(promiseArr)
+
+    //月查询过滤掉y为0的值
+    if (formatType == 'months') {
+        for (let key in GraphMap) {
+            GraphMap[key] = GraphMap[key].filter((item) => {
+                if (item.y == 0) {
+                    return false
+                } else {
+                    return true
+                }
+            })
+        }
+    }
+    //周统计将结果映射成中文
+    if (formatType == 'weeks') {
+        for (let key in GraphMap) {
+            GraphMap[key] = GraphMap[key].map((item) => {
+                switch (item.x) {
+                    case 0:
+                        item.x = '星期日'
+                        break;
+                    case 1:
+                        item.x = '星期一'
+                        break;
+                    case 2:
+                        item.x = '星期二'
+                        break;
+                    case 3:
+                        item.x = '星期三'
+                        break;
+                    case 4:
+                        item.x = '星期四'
+                        break;
+                    case 5:
+                        item.x = '星期五'
+                        break;
+                    case 6:
+                        item.x = '星期六'
+                        break;
+                }
+                return item
+            })
+        }
+    }
+
     ctx.body = { code: 0, data: GraphMap }
     console.timeEnd('柱状图统计耗时')
 })
+
+
 
 // 柱状图sql查询
 async function queryGetGraph(sqlName, key, inparam, map, type) {
