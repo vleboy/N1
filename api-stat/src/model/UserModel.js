@@ -313,7 +313,7 @@ class UserModel extends BaseModel {
                 ':lastAllAmountTime': createdAt[1]
             }
         })
-        console.log('【点数告警列表】统计结束')
+        // console.log('【点数告警列表】统计结束')
     }
 
     /**
@@ -324,7 +324,7 @@ class UserModel extends BaseModel {
         const [configErr, configRet] = await new ConfigModel().queryLastTime({ code: 'roundLast' })
         let startTime = configRet.lastTransferTime ? configRet.lastTransferTime + 1 : 1538323200000 // 上次统计时间
         let endTime = Date.now()
-        console.log(`【接入方点数累计】统计时间范围【${startTime}-${endTime}】`)
+        console.log(`【接入方点数累计】统计时间范围【${startTime} - ${endTime}】`)
         //2.查询需要统计的用户
         let [userErr, userRes] = await this.query({
             KeyConditionExpression: '#role = :role',
