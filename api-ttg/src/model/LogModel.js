@@ -31,11 +31,11 @@ module.exports = class LogModel extends BaseModel {
         let log = {
             ...this.item,
             createdStr: moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
-            detail: detail,
+            detail,
             inparams: inparam,
             ret: 'N',
-            role: role,
-            type: type,
+            role,
+            type,
             userId: inparam.userId.toString(),
             userName: inparam.userName,
         }

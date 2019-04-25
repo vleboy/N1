@@ -1,6 +1,7 @@
 
 const { Tables, RoleCodeEnum } = require('../lib/Dynamo')
 const BaseModel = require('./BaseModel')
+const LogModel = require('./LogModel')
 const jwt = require('jsonwebtoken')
 const _ = require('lodash')
 const moment = require('moment')
@@ -86,6 +87,7 @@ module.exports = class HeraGameRecordModel extends BaseModel {
             iat: Math.floor(Date.now() / 1000) - 30
         }, process.env.TOKEN_SECRET)
         try {
+            // 向KY查询
             let res = await axios.get(`https://${process.env.ANOTHER_GAME_CENTER}/ky/betdetail?startTime=${beginTime}&endTime=${endTime}`, { headers: { 'Authorization': `Bearer ${tokenAdmin}` } })
             let listArr = []
             if (res.data.code == 0) {
@@ -136,11 +138,11 @@ module.exports = class HeraGameRecordModel extends BaseModel {
                     gameRecord.businessKey = `BKY_${item.userId}_${listMap.GameID[i]}`
                     listArr.push(gameRecord)
                 }
-            } else if (res.data.code != 16) {
-                console.error('记录查询失败日志')
+                // 写入KY游戏记录
+                await Promise.all(this.batchWriteRound(listArr))
             }
-            return listArr
         } catch (error) {
+            new LogModel().add('2', 'KYRecordError', { beginTime, endTime }, `KY获取游戏注单请求异常&startTime=${beginTime}&endTime=${endTime}`)
             console.error(error)
         }
     }

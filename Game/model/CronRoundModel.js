@@ -47,9 +47,8 @@ module.exports = class CronRoundModel extends BaseModel {
         await Promise.all(p1Arr.concat(p2Arr))
 
         // 查询和写入KY游戏记录
-        roundAll = await heraGameRecordModel.getKYRecord(beginTime, endTime)
-        await Promise.all(heraGameRecordModel.batchWriteRound(roundAll))
-        
+        await heraGameRecordModel.getKYRecord(beginTime, endTime)
+
         // 5，成功后配置文件记录当前时间
         queryRet.lastTime = endTime
         await new ConfigModel().putItem(queryRet)
@@ -222,14 +221,14 @@ module.exports = class CronRoundModel extends BaseModel {
                     let gameRecord = gameRecordRes.Items[0].record
                     return { mixAmount: +gameRecord.validAmount, data: JSON.stringify(gameRecord) }
                 } else {
-                    new LogModel().add('4', null, betItem)
+                    new LogModel().add('4', 'anotherGameDataError', betItem, null)
                     return null
                 }
             }
         } catch (error) {
             console.error('第三方游戏数据获取发生服务响应异常')
             console.error(error)
-            new LogModel().add('4', error, betItem)
+            new LogModel().add('4', 'anotherGameDataError', betItem, error)
         }
     }
 
@@ -270,7 +269,7 @@ module.exports = class CronRoundModel extends BaseModel {
                     userAnotherGameData[userId][betItem.businessKey] = { mixAmount, data: JSON.stringify(anotherGameBetArr) }
                     // 如果没有查找到，记录LOG报警
                     if (anotherGameBetArr.length == 0) {
-                        new LogModel().add('4', null, betItem)
+                        new LogModel().add('4', 'anotherGameDataError', betItem, null)
                     }
                 }
 
@@ -279,7 +278,7 @@ module.exports = class CronRoundModel extends BaseModel {
         } catch (error) {
             console.error('第三方游戏数据获取发生服务响应异常')
             console.error(error)
-            new LogModel().add('4', error, betItem)
+            new LogModel().add('4', 'anotherGameDataError', betItem, error)
         }
     }
 
