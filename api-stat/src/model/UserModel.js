@@ -97,7 +97,7 @@ class UserModel extends BaseModel {
         let agents = []     // 所有代理
         let axiosArr = []   // 需要停用的请求数组
         // 查询平台所有用户
-        console.log(`【点数告警列表】开始更新全平台所有用户点数告警列表，统计时间范围【${createdAt[0]} - ${createdAt[1]}】`)
+        console.log(`【点数告警列表】，统计时间范围【${createdAt[0]} - ${createdAt[1]}】`)
         const [queryErr, queryRet] = await self.scan({
             ProjectionExpression: '#role,levelIndex,userId,betAmountMap,winloseAmountMap,mixAmountMap,selfBetAmountMap,selfWinloseAmountMap,selfMixAmountMap,companyList,gameList,username',
             ExpressionAttributeNames: {
@@ -324,7 +324,7 @@ class UserModel extends BaseModel {
         const [configErr, configRet] = await new ConfigModel().queryLastTime({ code: 'roundLast' })
         let startTime = configRet.lastTransferTime ? configRet.lastTransferTime + 1 : 1538323200000 // 上次统计时间
         let endTime = Date.now()
-        console.log(`开始统计【接入方告警列表】开始时间${startTime}-${endTime}`)
+        console.log(`【接入方点数累计】统计时间范围【${startTime}-${endTime}】`)
         //2.查询需要统计的用户
         let [userErr, userRes] = await this.query({
             KeyConditionExpression: '#role = :role',
