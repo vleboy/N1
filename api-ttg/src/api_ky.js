@@ -105,6 +105,19 @@ router.get('/ky/logout', async (ctx, next) => {
     let res = await axios.get(getURL(1, `s=1&account=${account}`))
     const money = parseFloat(res.data.d.money)
     if (!money) {
+        log.info(`玩家${account}无需下分`)
+        // 请求N1退出
+        axios.post(config.na.exiturl, {
+            exit: 1,
+            userId: account,
+            gameType: config.ky.gameType,
+            gameId: config.ky.gameId,
+            timestamp: Date.now()
+        }).then(res => {
+            res.data.code != 0 ? log.error(res.data) : null
+        }).catch(err => {
+            log.error(err)
+        })
         return ctx.body = { s: 101, m: "/channelHandle", d: { code: 0 } }
     }
     // 全部下分
