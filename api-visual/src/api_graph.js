@@ -83,25 +83,25 @@ router.get('/graph/:queryType', async (ctx, next) => {
             GraphMap[key] = GraphMap[key].map((item) => {
                 switch (item.x) {
                     case 0:
-                        item.x = '星期日'
+                        item.x = '周日'
                         break;
                     case 1:
-                        item.x = '星期一'
+                        item.x = '周一'
                         break;
                     case 2:
-                        item.x = '星期二'
+                        item.x = '周二'
                         break;
                     case 3:
-                        item.x = '星期三'
+                        item.x = '周三'
                         break;
                     case 4:
-                        item.x = '星期四'
+                        item.x = '周四'
                         break;
                     case 5:
-                        item.x = '星期五'
+                        item.x = '周五'
                         break;
                     case 6:
-                        item.x = '星期六'
+                        item.x = '周六'
                         break;
                 }
                 return item
