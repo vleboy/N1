@@ -21,16 +21,10 @@ module.exports = {
                 betId: record.betId,
                 betTime: record.betTime,
             }
-            let otherObj = getOtherObj(record)
-            let obj = { ...baseObj, ...otherObj }
-            return obj
+            return { ...baseObj, ...getOtherObj(record) }
         })
         page.list = page.list.filter((record) => {
-            if (record.gameType != '1070000' || record.settleTime) {
-                return true
-            } else {
-                return false
-            }
+            return record.gameType != '1070000' || record.settleTime
         })
         page.pageSize = page.list.length
     },
@@ -44,9 +38,7 @@ module.exports = {
             betId: record.betId,
             betTime: record.betTime,
         }
-        let otherObj = getOtherObj(record)
-        let obj = { ...baseObj, ...otherObj }
-        return obj
+        return { ...baseObj, ...getOtherObj(record) }
     }
 }
 // 获取统一战绩对象
@@ -145,7 +137,7 @@ function getOtherObj(record) {
             return {}
         }
         otherObj = {
-            gameName: "开元棋牌",
+            gameName: "开元棋牌游戏",
             preBalance: 0,
             betAmount: +betObj.AllBet,
             winAmount: parseFloat((+betObj.AllBet + +betObj.Profit).toFixed(2)),

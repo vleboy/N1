@@ -21,10 +21,12 @@ module.exports = {
                 betId: record.betId,
                 betTime: record.betTime,
             }
-            let otherObj = getOtherObj(record)
-            let obj = { ...baseObj, ...otherObj }
-            return obj
+            return { ...baseObj, ...getOtherObj(record) }
         })
+        page.list = page.list.filter((record) => {
+            return record.gameType != '1070000' || record.settleTime
+        })
+        page.pageSize = page.list.length
     },
     // 对内查询单条
     buildOnePageRows: function (record) {
@@ -36,9 +38,7 @@ module.exports = {
             betId: record.betId,
             betTime: record.betTime,
         }
-        let otherObj = getOtherObj(record)
-        let obj = { ...baseObj, ...otherObj }
-        return obj
+        return { ...baseObj, ...getOtherObj(record) }
     }
 }
 // 获取统一战绩对象
@@ -131,6 +131,27 @@ function getOtherObj(record) {
             settleTime: retObj.settleTime,
             oddsStyle: item.ODDFORMAT
         }
+    } else if (gameType == "1070000") { //开元棋牌
+        let betObj = record.anotherGameData
+        if (betObj == 'NULL!') {
+            return {}
+        }
+        otherObj = {
+            gameName: "开元棋牌游戏",
+            preBalance: 0,
+            betAmount: +betObj.AllBet,
+            winAmount: parseFloat((+betObj.AllBet + +betObj.Profit).toFixed(2)),
+            refundAmount: 0,
+            retAmount: parseFloat(+(+betObj.AllBet + +betObj.Profit).toFixed(2)),
+            winloseAmount: +betObj.Profit,
+            mixAmount: +betObj.CellScore,
+            betCount: 1
+        }
+        delete betObj.Accounts
+        delete betObj.AllBet
+        delete betObj.CellScore
+        delete betObj.Profit
+        otherObj.roundResult = betObj
     } else {                            //其他第三方游戏
         let betObj = getContentBetObj(record)
         let retObj = getContentRetObj(record)
