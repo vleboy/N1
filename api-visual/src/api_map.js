@@ -81,6 +81,20 @@ function getSplitList(map, splitCount) {
     }
     return splitList
 }
+// 输赢金额数值分组
+function getSplitListForWinlose(map, splitCount) {
+    let arr = []
+    for (let key in map) {
+        arr.push(map[key].value)
+    }
+    let max = _.max(arr)
+    let min = _.min(arr)
+
+    let splitList = [{ start: min, end: 0 }]
+    splitList.push({ start: 0, end: 0 })
+    splitList.push({ start: 0, end: max })
+    return splitList
+}
 
 // sql查询
 async function queryGetSql(sqlName, method, inparam, type) {
@@ -315,7 +329,7 @@ async function queryGetSql(sqlName, method, inparam, type) {
         }
     }
     // 分5组数据
-    let splitList = getSplitList(data, 5)
+    let splitList = method == 'winloseAmount' ? getSplitListForWinlose(data, 5) : getSplitList(data, 5)
     return [data, splitList]
 }
 
