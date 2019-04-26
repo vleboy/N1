@@ -19,9 +19,14 @@ const GameTypeEnum = require('./lib/Consts').GameTypeEnum
 router.post('/mysteryList', async function (ctx, next) {
     let inparam = ctx.request.body
     let token = ctx.tokenVerify
-    // 权限校验
-    if (!Model.isPlatformAdmin(token)) {
-        throw { "code": -1, "msg": "权限不足" }
+    // 商户只能看自己的
+    if (Model.isMerchant(token)) {
+        if (inparam.query) {
+            inparam.query.sn = token.sn
+        } else {
+            inparam.query = {}
+            inparam.query.sn = token.sn
+        }
     }
     // 参数处理
     if (!inparam.betTime) {
