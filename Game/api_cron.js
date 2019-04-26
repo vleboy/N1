@@ -9,6 +9,7 @@ module.exports.cronRound = async (e, c, cb) => {
     try {
         //1,获取入参
         const inparam = e.body || {}
+        console.log(inparam)
         // 业务操作
         if (inparam.startTime) {
             if (inparam.startTime + 1 * 60 * 60 * 1000 <= inparam.endTime) {
