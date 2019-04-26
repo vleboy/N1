@@ -43,6 +43,12 @@ functions:
     handler: api_cron.cronRound
     events:
       - schedule: rate(3 minutes)
+      -
+        http:
+          path: /cronRound
+          method: post
+          cors: true
+          authorizer: tokenAuth
   cronRoundDay: #定时统计局天表
     handler: api_cron.cronRoundDay
     events:
