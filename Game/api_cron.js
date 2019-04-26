@@ -8,7 +8,7 @@ const HeraGameRecordModel = require('./model/HeraGameRecordModel')
 module.exports.cronRound = async (e, c, cb) => {
     try {
         //1,获取入参
-        const inparam = JOSN.parse(e.body || "{}")
+        const inparam = JSON.parse(e.body || "{}")
         // 业务操作
         if (inparam.startTime) {
             if (inparam.startTime + 1 * 60 * 60 * 1000 <= inparam.endTime) {
