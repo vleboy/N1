@@ -71,13 +71,13 @@ function getSplitList(map, splitCount) {
     if (avg > 1) {
         for (let i = 0; i < splitCount; i++) {
             if (i < splitCount - 1) {
-                splitList.push({ start: avg * i + 1, end: avg * (i + 1) })
+                splitList.push({ gte: avg * i + 1, lte: avg * (i + 1) })
             } else {
-                splitList.push({ start: avg * i, end: max })
+                splitList.push({ gte: avg * i, lte: max })
             }
         }
     } else {
-        splitList.push({ start: 1, end: max })
+        splitList.push({ gte: 1, lte: max })
     }
     return splitList
 }
