@@ -63,6 +63,7 @@ router.get('/map/world', async (ctx, next) => {
 function getSplitList(map, splitCount) {
     let arr = []
     for (let key in map) {
+        map[key].value = parseFloat((map[key].value / 10000).toFixed(2))
         arr.push(map[key].value)
     }
     let splitList = [{ gte: 0, lte: 0 }]
@@ -85,6 +86,7 @@ function getSplitList(map, splitCount) {
 function getSplitListForWinlose(map, splitCount) {
     let arr = []
     for (let key in map) {
+        map[key].value = parseFloat((map[key].value / 10000).toFixed(2))
         arr.push(map[key].value)
     }
     let max = _.max(arr)
