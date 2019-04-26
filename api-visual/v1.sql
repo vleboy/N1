@@ -36,7 +36,7 @@ CREATE TABLE `bill` (
   `createdAt` bigint(20) NOT NULL,
   PRIMARY KEY (`sn`),
   KEY `createdAt` (`createdAt` DESC),
-  KEY `country` (`country`),
+  KEY `country_createdAt` (`country`,`createdAt` DESC),
   KEY `parent_createdAt` (`parent`,`createdAt` DESC),
   KEY `type_createdAt` (`type`,`createdAt` DESC),
   KEY `gameType_createdAt` (`gameType`,`createdAt` DESC),
