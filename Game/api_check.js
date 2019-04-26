@@ -24,6 +24,7 @@ module.exports.checkRound = async (e, c, cb) => {
         // 查出所有role=2且ret=N的日志
         const  RoleRet3 = await new LogModel().roleQuery({ role: '2' })
         console.log(`一共查出role=2需要检验的日志条数${RoleRet3.length}`)
+        // 修正超时返奖，检查局表和流水数量是否一致，不一致则需要修正
         for (let item of RoleRet1) {
             let p = new Promise(async function (resolve, reject) {
                 let bk = item.inparams.businessKey
@@ -41,6 +42,7 @@ module.exports.checkRound = async (e, c, cb) => {
             })
             promiseAll.push(p)
         }
+        // 修正SA战绩查询失败，检查局表中是否存在anotherGameData，不存在则需要修正
         for (let item of RoleRet2) {
             let p = new Promise(async function (resolve, reject) {
                 let bk = item.inparams.businessKey
@@ -64,7 +66,9 @@ module.exports.checkRound = async (e, c, cb) => {
             })
             promiseAll.push(p)
         }
+        // 其他异常日志处理
         for (let item of RoleRet3) {
+            // 修正返奖时查询不到的下注，如果确认下注不存在，则清除该日志
             if (item.type == 'findBetError') {
                 let p = new Promise(async function (resolve, reject) {
                     let bk = item.inparams.businessKey
@@ -77,6 +81,8 @@ module.exports.checkRound = async (e, c, cb) => {
                 })
                 promiseAll.push(p)
             }
+            // KY棋牌游戏记录查询失败，重新查询
+            
         }
         // 并发执行
         await Promise.all(promiseAll)
