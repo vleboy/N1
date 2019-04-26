@@ -2,6 +2,7 @@ const { ResOK, ResErr } = require('./lib/Response')
 const LogModel = require('./model/LogModel')
 const StatRoundModel = require('./model/StatRoundModel')
 const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
+const HeraGameRecordModel = require('./model/HeraGameRecordModel')
 const _ = require('lodash')
 const moment = require('moment')
 const axios = require('axios')
@@ -19,10 +20,10 @@ module.exports.checkRound = async (e, c, cb) => {
         const RoleRet1 = await new LogModel().roleQuery({ role: '3' })
         console.log(`一共查出role=3需要检验的日志条数${RoleRet1.length}`)
         // 查出所有role=4且ret=N的日志
-        const  RoleRet2= await new LogModel().roleQuery({ role: '4' })
+        const RoleRet2 = await new LogModel().roleQuery({ role: '4' })
         console.log(`一共查出role=4需要检验的日志条数${RoleRet2.length}`)
         // 查出所有role=2且ret=N的日志
-        const  RoleRet3 = await new LogModel().roleQuery({ role: '2' })
+        const RoleRet3 = await new LogModel().roleQuery({ role: '2' })
         console.log(`一共查出role=2需要检验的日志条数${RoleRet3.length}`)
         // 修正超时返奖，检查局表和流水数量是否一致，不一致则需要修正
         for (let item of RoleRet1) {
@@ -67,6 +68,7 @@ module.exports.checkRound = async (e, c, cb) => {
             promiseAll.push(p)
         }
         // 其他异常日志处理
+        let startTime = 9999999999999, endTime = 0, kyArr = []
         for (let item of RoleRet3) {
             // 修正返奖时查询不到的下注，如果确认下注不存在，则清除该日志
             if (item.type == 'findBetError') {
@@ -81,8 +83,19 @@ module.exports.checkRound = async (e, c, cb) => {
                 })
                 promiseAll.push(p)
             }
-            // KY棋牌游戏记录查询失败，重新查询
-            
+            // KY棋牌游戏记录查询失败，记录起始和结束查询时间
+            else if (item.type == 'KYRecordError') {
+                startTime = item.inparams.startTime < startTime ? item.inparams.startTime : startTime
+                endTime = item.inparams.endTime > endTime ? item.inparams.endTime : endTime
+                kyArr.push(item)
+            }
+        }
+        // KY重新查询，写入游戏记录，并更新日志
+        if (endTime) {
+            console.log(`自检请求KY${startTime}-${endTime}`)
+            if (await new HeraGameRecordModel().getKYRecord(startTime, endTime)) {
+                kyArr.map(async (o) => { await new LogModel().updateLog({ sn: o.sn, userId: o.userId }) })
+            }
         }
         // 并发执行
         await Promise.all(promiseAll)

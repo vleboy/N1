@@ -140,10 +140,12 @@ module.exports = class HeraGameRecordModel extends BaseModel {
                 }
                 // 写入KY游戏记录
                 await Promise.all(this.batchWriteRound(listArr))
+                return true
             }
         } catch (error) {
-            new LogModel().add('2', 'KYRecordError', { beginTime, endTime }, `KY获取游戏注单请求异常&startTime=${beginTime}&endTime=${endTime}`)
+            new LogModel().add('2', 'KYRecordError', { startTime: beginTime, endTime }, `KY获取游戏注单请求异常&startTime=${beginTime}&endTime=${endTime}`)
             console.error(error)
+            return false
         }
     }
 
