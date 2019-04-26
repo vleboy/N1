@@ -11,7 +11,7 @@ module.exports.cronRound = async (e, c, cb) => {
         const inparam = JSON.parse(e.body || "{}")
         // 业务操作
         if (inparam.startTime) {
-            if (inparam.startTime + 1 * 60 * 60 * 1000 <= inparam.endTime) {
+            if (inparam.startTime + 1 * 60 * 60 * 1000 < inparam.endTime) {
                 return ResErr(cb, { code: -1, msg: "修正时间范围不能超过一个小时" })
             }
             console.log(`修复开元棋牌时间为${inparam.startTime}-${inparam.endTime}`)
