@@ -60,10 +60,12 @@ router.get('/map/world', async (ctx, next) => {
 })
 
 // 统计数值分组
-function getSplitList(map, splitCount) {
+function getSplitList(method, map, splitCount) {
     let arr = []
     for (let key in map) {
-        map[key].value = parseFloat((map[key].value / 10000).toFixed(2))
+        if (method != 'playerCount') {
+            map[key].value = parseFloat((map[key].value / 10000).toFixed(2))
+        }
         arr.push(map[key].value)
     }
     let splitList = [{ gte: 0, lte: 0 }]
@@ -87,6 +89,7 @@ function getSplitListForWinlose(map, splitCount) {
     let arr = []
     for (let key in map) {
         map[key].value = parseFloat((map[key].value / 10000).toFixed(2))
+
         arr.push(map[key].value)
     }
     let max = _.max(arr)
@@ -331,7 +334,7 @@ async function queryGetSql(sqlName, method, inparam, type) {
         }
     }
     // 分5组数据
-    let splitList = method == 'winloseAmount' ? getSplitListForWinlose(data, 5) : getSplitList(data, 5)
+    let splitList = method == 'winloseAmount' ? getSplitListForWinlose(data, 5) : getSplitList(method, data, 5)
     return [data, splitList]
 }
 
