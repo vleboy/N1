@@ -68,19 +68,19 @@ function getSplitList(method, map, splitCount) {
         }
         arr.push(map[key].value)
     }
-    let splitList = [{ gte: 0, lte: 0 }]
+    let splitList = [{ start: 0, end: 0 }]
     let max = _.max(arr)
     let avg = parseInt(max / splitCount)
     if (avg > 1) {
         for (let i = 0; i < splitCount; i++) {
             if (i < splitCount - 1) {
-                splitList.push({ gte: avg * i + 1, lte: avg * (i + 1) })
+                splitList.push({ start: avg * i + 1, end: avg * (i + 1) })
             } else {
-                splitList.push({ gte: avg * i, lte: max })
+                splitList.push({ start: avg * i, end: max })
             }
         }
     } else {
-        splitList.push({ gte: 1, lte: max })
+        splitList.push({ start: 1, end: max })
     }
     return splitList
 }
