@@ -65,7 +65,7 @@ function getSplitList(map, splitCount) {
     for (let key in map) {
         arr.push(map[key].value)
     }
-    let splitList = [{ start: 0, end: 0 }]
+    let splitList = [{ gte: 0, lte: 0 }]
     let max = _.max(arr)
     let avg = parseInt(max / splitCount)
     if (avg > 1) {
@@ -90,9 +90,9 @@ function getSplitListForWinlose(map, splitCount) {
     let max = _.max(arr)
     let min = _.min(arr)
 
-    let splitList = [{ start: min, end: 0 }]
-    splitList.push({ start: 0, end: 0 })
-    splitList.push({ start: 0, end: max })
+    let splitList = [{ gte: min, lt: 0 }]
+    splitList.push({ gte: 0, lte: 0 })
+    splitList.push({ gt: 0, lte: max })
     return splitList
 }
 
