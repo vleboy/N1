@@ -8,14 +8,14 @@ const HeraGameRecordModel = require('./model/HeraGameRecordModel')
 module.exports.cronRound = async (e, c, cb) => {
     try {
         //1,获取入参
-        const inparam = JSONParser(e.body)
+        const inparam = JSON.parse(e.body)
         // 业务操作
-        if (inparam.beginTime) {
-            if (inparam.beginTime + 1 * 60 * 60 * 1000 <= inparam.endTime) {
+        if (inparam.startTime) {
+            if (inparam.startTime + 1 * 60 * 60 * 1000 <= inparam.endTime) {
                 return ResErr(cb, { code: -1, msg: "修正时间范围不能超过一个小时" })
             }
-            console.log(`修复开元棋牌时间为${inparam.beginTime}-${inparam.endTime}`)
-            await new HeraGameRecordModel().getKYRecord(inparam.beginTime, inparam.endTime)
+            console.log(`修复开元棋牌时间为${inparam.startTime}-${inparam.endTime}`)
+            await new HeraGameRecordModel().getKYRecord(inparam.startTime, inparam.endTime)
         } else {
             await new CronRoundModel().cronLast()
         }
@@ -66,17 +66,3 @@ module.exports.cronRoundDay = async (e, c, cb) => {
 
 //     // cronRoundLong,                  // 定时汇总长延迟游戏局表
 // }
-
-const JSONParser = (data) => {
-    const ret = (typeof data == 'object') ? data : JSON.parse(data)
-    // 统一输入数据trim处理
-    for (let i in ret) {
-        if (typeof (ret[i]) == 'string') {
-            ret[i] = ret[i].trim()
-            if (ret[i] == 'NULL!' || ret[i] == '') {
-                ret[i] = null
-            }
-        }
-    }
-    return ret
-}
