@@ -90,7 +90,7 @@ function getSplitListForWinlose(map, splitCount) {
     let max = _.max(arr)
     let min = _.min(arr)
 
-    let splitList = [{ start: min, end: -0.001 }]
+    let splitList = [{ start: min, end: -1 }]
     splitList.push({ start: 0, end: 0 })
     splitList.push({ start: 0, end: max })
     return splitList
