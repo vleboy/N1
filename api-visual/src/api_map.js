@@ -310,7 +310,7 @@ async function queryGetSql(sqlName, method, inparam, type) {
                 return item.province.indexOf(o.name) != -1
             })
             if (index != -1) {
-                data[index].value += Math.abs(item.total)
+                method == 'betAmount' ? data[index].value += Math.abs(item.total) : data[index].value += item.total
             }
         }
     }
