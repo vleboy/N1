@@ -349,7 +349,7 @@ class UserModel extends BaseModel {
             return true
         }
     }
-    
+
     /**
      * 查询用户
      * @param {*} userId 
@@ -524,8 +524,7 @@ class UserModel extends BaseModel {
                 ':companyList': companyList
             }
         }
-        const ret = await this.updateItem(updateItem)
-        return ret
+        return await this.updateItem(updateItem)
     }
 
     /**
