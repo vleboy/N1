@@ -74,7 +74,7 @@ function getSplitList(method, map, splitCount) {
     // if (avg > 1) {
     for (let i = 0; i < splitCount; i++) {
         if (i < splitCount - 1) {
-            splitList.push({ gt: avg * i, lte: avg * (i + 1) })
+            splitList.push({ gt: parseFloat((avg * i).toFixed(2)), lte: parseFloat(avg * (i + 1).toFixed(2)) })
         } else {
             splitList.push({ gt: avg * i, lte: max })
         }
