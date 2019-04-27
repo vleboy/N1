@@ -43,7 +43,8 @@ CREATE TABLE `bill` (
   KEY `gameId_createdAt` (`gameId`,`createdAt` DESC),
   KEY `parentDisplayId_createdAt` (`parentDisplayId`,`createdAt` DESC),
   KEY `parentSn_createdAt` (`parentSn`,`createdAt`),
-  KEY `parentRole_createdAt` (`parentRole`,`createdAt`)
+  KEY `parentRole_createdAt` (`parentRole`,`createdAt`),
+  KEY `gameType_type_createdAt` (`gameType`,`type`,`createdAt` DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 DROP TABLE IF EXISTS `player`;

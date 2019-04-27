@@ -12,6 +12,10 @@ batchInsert:
 chinaPlayerCount: # 中国地图-玩家人数
     - select count(a.userId) as total,a.province from
     - (select distinct(userId),province from bill where createdAt between :startTime and :endTime and country = '中国'
+    # 判断是否使用type
+    - if:
+        test: :type != null
+        sql: and type = :type
     - if:
         test: :gameType != null
         sql: and gameType = :gameType
@@ -47,6 +51,10 @@ chinaHandleAmount: # 中国地图-金额汇总
 worldPlayerCount: # 世界地图-玩家人数
     - select count(a.userId) as total,a.province from 
     - (select distinct(userId),country as province from bill where createdAt between :startTime and :endTime and country != '其他'
+    # 判断是否使用type
+    - if:
+        test: :type != null
+        sql: and type = :type
     - if:
         test: :gameType != null
         sql: and gameType = :gameType
