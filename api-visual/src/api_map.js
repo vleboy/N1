@@ -68,20 +68,20 @@ function getSplitList(method, map, splitCount) {
         }
         arr.push(map[key].value)
     }
-    let splitList = [{ start: 0, end: 0 }]
+    let splitList = [{ gte: 0, lte: 0 }]
     let max = _.max(arr)
     let avg = parseInt(max / splitCount)
-    if (avg > 1) {
-        for (let i = 0; i < splitCount; i++) {
-            if (i < splitCount - 1) {
-                splitList.push({ start: avg * i + 1, end: avg * (i + 1) })
-            } else {
-                splitList.push({ start: avg * i, end: max })
-            }
+    // if (avg > 1) {
+    for (let i = 0; i < splitCount; i++) {
+        if (i < splitCount - 1) {
+            splitList.push({ gt: avg * i, lte: avg * (i + 1) })
+        } else {
+            splitList.push({ gt: avg * i, lte: max })
         }
-    } else {
-        splitList.push({ start: 1, end: max })
     }
+    // } else {
+    //     splitList.push({ gt: 0, lte: max })
+    // }
     return splitList
 }
 // 输赢金额数值分组
