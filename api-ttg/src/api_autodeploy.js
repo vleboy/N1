@@ -22,10 +22,10 @@ router.post('/deploy/n1web', async function (ctx, next) {
         log.info('接受到请求，准备持续构建 ...')
         await gitPull('/usr/dev/N1_WEB')
         await deployWebAdmin()
+        await deployWebMerchant()
+        deployWebManager()
         deployWebAgent()
         // deployWebGame()
-        deployWebMerchant()
-        deployWebManager()
         ctx.body = 'Y'
     } catch (error) {
         log.error('自动构建发生错误异常：')
