@@ -18,7 +18,7 @@
         "debug": true
     },
     "auth": {
-        "secret": "na-api-stat",
+        "secret": "gsy0913",
         "tokenname": "authorization",
         "cors": true,
         "errMsg": "未认证",
