@@ -8,7 +8,7 @@ const axios = require('axios')
 const _ = require('lodash')
 const NP = require('number-precision')
 
-class CronRoundModel extends BaseModel {
+module.exports = class CronRoundModel extends BaseModel {
     constructor() {
         super()
         // 设置表名
@@ -277,5 +277,3 @@ class CronRoundModel extends BaseModel {
         })
     }
 }
-
-module.exports = CronRoundModel

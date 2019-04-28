@@ -163,7 +163,8 @@ class BaseModel {
                 return result
             }
         }).catch((err) => {
-            return false
+            console.error(err)
+            return err
         })
     }
 
@@ -193,7 +194,8 @@ class BaseModel {
                 return result
             }
         }).catch((err) => {
-            return false
+            console.error(err)
+            return err
         })
     }
 }
