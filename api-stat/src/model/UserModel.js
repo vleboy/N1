@@ -598,7 +598,7 @@ class UserModel extends BaseModel {
                 query.ExpressionAttributeValues[':longTimeGameType2'] = 1130000
             }
             self.query(query).then((resArr) => {
-                resolve(resArr[1])
+                resolve(resArr)
             }).catch((err) => {
                 reject(err)
             })
