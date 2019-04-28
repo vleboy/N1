@@ -15,6 +15,10 @@ const log = require('tracer').colorConsole({ level: config.log.level })
 router.get('/rank/merchant', async (ctx, next) => {
     console.time('商户排行榜统计耗时')
     let inparam = ctx.request.query
+    // 权限商户只能看自己的
+    if (token.role == '100') {
+        inparam.parent = token.userId
+    }
     //初始map
     let rankMap = {
         playerCount: [],
@@ -46,6 +50,10 @@ router.get('/rank/merchant', async (ctx, next) => {
 router.get('/rank/player', async (ctx, next) => {
     console.time('商户排行榜统计耗时')
     let inparam = ctx.request.query
+    // 权限商户只能看自己的
+    if (token.role == '100') {
+        inparam.parent = token.userId
+    }
     //初始map
     let rankMap = {
         betCount: [],

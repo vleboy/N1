@@ -14,6 +14,11 @@ router.get('/graph/:queryType', async (ctx, next) => {
     console.time(`柱状图${ctx.params.queryType}统计耗时`)
     let inparam = ctx.request.query
     let formatType = ctx.params.queryType
+    let token = ctx.tokenVerify
+    // 权限商户只能看自己的
+    if (token.role == '100') {
+        inparam.parent = token.userId
+    }
     let promiseArr = []
     // 时间柱状图map
     let GraphMap = {

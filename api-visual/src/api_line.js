@@ -15,6 +15,10 @@ const log = require('tracer').colorConsole({ level: config.log.level })
 router.get('/line/day', async (ctx, next) => {
     console.time('日报表折线图统计耗时')
     let inparam = ctx.request.query
+    // 权限商户只能看自己的
+    if (token.role == '100') {
+        inparam.parent = token.userId
+    }
     //当天全局折线图map
     let lineMap = {
         playerCount: [],
@@ -47,6 +51,10 @@ router.get('/line/day', async (ctx, next) => {
 router.get('/line/player', async (ctx, next) => {
     console.time('玩家折线图统计耗时')
     let inparam = ctx.request.query
+    // 权限商户只能看自己的
+    if (token.role == '100') {
+        inparam.parent = token.userId
+    }
     //查询时间段的每天注册人数
     let p1 = nodebatis.query('player.queryRegisterDay', inparam)
     //查询该时间段之前的所有注册人数

@@ -16,6 +16,10 @@ router.get('/map/china', async (ctx, next) => {
     console.time('中国地图查询用时')
     let inparam = ctx.request.query
     inparam.queryFlag = 'province'
+    // 权限商户只能看自己的
+    if (token.role == '100') {
+        inparam.parent = token.userId
+    }
     let promiseArr = []
     // 获取区域玩家总人数
     promiseArr.push(queryGetSql('bill.chinaPlayerCount', 'playerCount', inparam))
@@ -41,6 +45,10 @@ router.get('/map/world', async (ctx, next) => {
     console.time('世界地图查询用时')
     let inparam = ctx.request.query
     inparam.queryFlag = 'country'
+    // 权限商户只能看自己的
+    if (token.role == '100') {
+        inparam.parent = token.userId
+    }
     let promiseArr = []
     // 获取区域玩家总人数
     promiseArr.push(queryGetSql('bill.worldPlayerCount', 'playerCount', inparam))

@@ -41,6 +41,10 @@ const GameTypeEnum = {
 router.get('/pie/game', async (ctx, next) => {
     console.time('饼状图统计耗时')
     let inparam = ctx.request.query
+    // 权限商户只能看自己的
+    if (token.role == '100') {
+        inparam.parent = token.userId
+    }
     let promiseArr = []
     let pieMap = {
         playerCount: [],
