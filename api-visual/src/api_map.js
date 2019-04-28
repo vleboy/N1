@@ -17,6 +17,7 @@ router.get('/map/china', async (ctx, next) => {
     let inparam = ctx.request.query
     inparam.queryFlag = 'province'
     // 权限商户只能看自己的
+    let token = ctx.tokenVerify
     if (token.role == '100') {
         inparam.parent = token.userId
     }
@@ -46,6 +47,7 @@ router.get('/map/world', async (ctx, next) => {
     let inparam = ctx.request.query
     inparam.queryFlag = 'country'
     // 权限商户只能看自己的
+    let token = ctx.tokenVerify
     if (token.role == '100') {
         inparam.parent = token.userId
     }

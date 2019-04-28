@@ -52,6 +52,7 @@ router.get('/line/day', async (ctx, next) => {
 router.get('/line/player', async (ctx, next) => {
     console.time('玩家折线图统计耗时')
     let inparam = ctx.request.query
+    let token = ctx.tokenVerify
     // 权限商户只能看自己的
     if (token.role == '100') {
         inparam.parent = token.userId
