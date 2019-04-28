@@ -1,8 +1,8 @@
 {
   "name": "up-n1",
   "environment": {
-    "NODE_ENV": "develop",
-    "NODE_ENV1": "production"
+    "NODE_ENV1": "develop",
+    "NODE_ENV": "production"
   },
   "regions": ["ap-southeast-1"],
   "proxy": {
