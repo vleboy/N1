@@ -28,12 +28,12 @@ class StatRoundDayModel extends BaseModel {
      */
     async cronRoundDay(inparam = {}) {
         // 1，从配置文件中获取起始日期
-        const [queryErr, queryRet] = await new ConfigModel().queryLastTime({ code: 'roundLast' })
+        const queryRet = await new ConfigModel().queryLastTime({ code: 'roundLast' })
         let lastDayTime = queryRet.lastDayTime ? queryRet.lastDayTime : 20180201
         // 2，先删除该日期的数据
         await this.deleteRoundDay({ createdDate: lastDayTime })
         // 3，取出局表中该日期的所有数据
-        const [roundErr, roundRet] = await new StatRoundModel().queryDate({ lastDayTime, isInit: inparam.isInit })
+        const roundRet = await new StatRoundModel().queryDate({ lastDayTime, isInit: inparam.isInit })
         // 4，获取组装好的局天表数据
         let roundAll = getPromiseArr(roundRet, lastDayTime)
         // 5，组装，批量写入局天表
@@ -44,14 +44,14 @@ class StatRoundDayModel extends BaseModel {
         queryRet.lastAllAmountTime = 0          //默认每天map全部重跑
         await new ConfigModel().putItem(queryRet)
         console.log('更新配置成功')
-        return [false, queryRet.lastDayTime]
+        return queryRet.lastDayTime
     }
 
     // 批量删除局天表
     async deleteRoundDay(inparam) {
         let promiseArr = []
         // 查询指定日期所有数据
-        const [err, ret] = await this.query({
+        const ret = await this.query({
             IndexName: 'CreatedDateIndex',
             ProjectionExpression: 'userName,createdDate',
             KeyConditionExpression: 'createdDate = :createdDate',
@@ -87,7 +87,7 @@ class StatRoundDayModel extends BaseModel {
         // 1.删除，玩家这一天的局天表数据
         await this.deletePlayerRound(inparam)
         // 2.查询局表，获取玩家这一天的所有局记录
-        const [roundErr, roundRet] = await new StatRoundModel().queryPlayerDate(inparam)
+        const roundRet = await new StatRoundModel().queryPlayerDate(inparam)
         // 3.获取组装好的局天表数据
         let roundAll = getPromiseArr(roundRet, inparam.createdDate)
         // 4.写入局天表
@@ -157,7 +157,7 @@ class StatRoundDayModel extends BaseModel {
 
     // 获取玩家时间段的局天表游戏数据
     async getPlayerDay(inparam) {
-        const [err, ret] = await this.query({
+        const ret = await this.query({
             KeyConditionExpression: 'userName = :userName AND createdDate between :createdDate0 AND :createdDate1',
             ExpressionAttributeValues: {
                 ':userName': inparam.userName,

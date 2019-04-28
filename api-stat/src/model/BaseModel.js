@@ -160,10 +160,10 @@ class BaseModel {
                 params.ExclusiveStartKey = res.LastEvaluatedKey
                 return this.queryInc(params, result)
             } else {
-                return [false, result]
+                return result
             }
         }).catch((err) => {
-            return [err, false]
+            return false
         })
     }
 
@@ -190,10 +190,10 @@ class BaseModel {
                 params.ExclusiveStartKey = res.LastEvaluatedKey
                 return this.scanInc(params, result)
             } else {
-                return [false, result]
+                return result
             }
         }).catch((err) => {
-            return [err, false]
+            return false
         })
     }
 }

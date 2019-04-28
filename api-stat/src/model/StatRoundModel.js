@@ -66,7 +66,7 @@ class StatRoundModel extends BaseModel {
      * 查询某个玩家某天的数据
      */
     async queryPlayerDate(inparam) {
-        let [err, ret] = await this.query({
+        let ret = await this.query({
             IndexName: 'CreatedDateIndex',
             KeyConditionExpression: 'createdDate = :createdDate',
             ProjectionExpression: 'betAmount,retAmount,winAmount,refundAmount,winloseAmount,mixAmount,userId,userName,createdDate,gameType,betCount,parent',
@@ -76,14 +76,14 @@ class StatRoundModel extends BaseModel {
                 ':userName': inparam.userName
             }
         })
-        return [0, ret]
+        return ret
     }
 
     /**
      * 获取局表指定时间的数据
      */
     async getPlayerRound(inparam) {
-        let [err, ret] = await this.query({
+        let ret = await this.query({
             IndexName: 'UserNameIndex',
             KeyConditionExpression: 'userName = :userName AND createdAt between :createdAt0 AND :createdAt1',
             ExpressionAttributeValues: {
@@ -92,9 +92,6 @@ class StatRoundModel extends BaseModel {
                 ':createdAt1': +inparam.createdAt[1]
             }
         })
-        if (err) {
-            console.log(`局表查询报错${JSON.stringify(err)}`)
-        }
         let roundRes = { betAmount: 0, betCount: 0, winAmount: 0 }
         if (ret && ret.Items.length != 0) {
             for (let item of ret.Items) {
@@ -123,7 +120,7 @@ class StatRoundModel extends BaseModel {
 
     //查询bk对应的AnotherGameDate是否存在
     async isAnotherGameDate(inparam) {
-        const [bkErr, bkRet] = await this.query({
+        const bkRet = await this.query({
             KeyConditionExpression: 'businessKey = :businessKey',
             ExpressionAttributeValues: {
                 ':businessKey': inparam.bk
@@ -175,7 +172,7 @@ class StatRoundModel extends BaseModel {
                 }
             }
         }
-        const [bkErr, bkRet] = await this.query(queryData)
+        const bkRet = await this.query(queryData)
         return bkRet.Items
     }
 }

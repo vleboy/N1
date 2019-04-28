@@ -41,12 +41,9 @@ router.post('/stat/clearRedis', async function (ctx, next) {
 router.post('/stat/clearBalanceCache', async function (ctx, next) {
     // const inparam = ctx.request.body
     // 业务操作
-    let [err, res] = await new BaseModel().scan({
+    let res = await new BaseModel().scan({
         TableName: 'SYSCacheBalance'
     })
-    if (err) {
-        console.log(err)
-    }
     console.log(`一共查出需要删除的条数${res.Items.length}`)
     // 批量删除
     for (let item of res.Items) {

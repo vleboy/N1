@@ -44,8 +44,8 @@ class UserModel extends BaseModel {
             query.ProjectionExpression = options.ProjectionExpression
             query.ExpressionAttributeNames = options.ExpressionAttributeNames
         }
-        const [queryErr, querySet] = await this.query(query)
-        return [queryErr, querySet.Items[0]]
+        const querySet = await this.query(query)
+        return querySet.Items[0]
     }
 
     /**
@@ -55,7 +55,7 @@ class UserModel extends BaseModel {
         let parentInfo = []
         let flag = true
         while (flag) {
-            let [queryOneErr, queryRet] = await this.query({
+            let queryRet = await this.query({
                 IndexName: 'UserIdIndex',
                 ProjectionExpression: 'userId,#role,parent,betAmountMap,mixAmountMap,winloseAmountMap,companyList',
                 KeyConditionExpression: 'userId = :userId',
@@ -86,7 +86,7 @@ class UserModel extends BaseModel {
      */
     async calcAllAmount() {
         // 从配置文件中获取最后一条记录时间
-        const [configErr, configRet] = await new ConfigModel().queryLastTime({ code: 'roundLast' })
+        const configRet = await new ConfigModel().queryLastTime({ code: 'roundLast' })
         let startTime = configRet.lastAllAmountTime ? configRet.lastAllAmountTime + 1 : 1517760000000 // 上次全平台用户的统计时间
         let isInit = startTime == 1517760000000 ? true : false // 是否全部重置所有数据
         let createdAt = [startTime, configRet.lastTime]
@@ -98,7 +98,7 @@ class UserModel extends BaseModel {
         let axiosArr = []   // 需要停用的请求数组
         // 查询平台所有用户
         console.log(`【点数告警列表】，统计时间范围【${createdAt[0]} - ${createdAt[1]}】`)
-        const [queryErr, queryRet] = await self.scan({
+        const queryRet = await self.scan({
             ProjectionExpression: '#role,levelIndex,userId,betAmountMap,winloseAmountMap,mixAmountMap,selfBetAmountMap,selfWinloseAmountMap,selfMixAmountMap,companyList,gameList,username',
             ExpressionAttributeNames: {
                 '#role': 'role'
@@ -321,12 +321,12 @@ class UserModel extends BaseModel {
      */
     async calcTransferAmount() {
         //1.查询配置表取出lastTransferTime时间
-        const [configErr, configRet] = await new ConfigModel().queryLastTime({ code: 'roundLast' })
+        const configRet = await new ConfigModel().queryLastTime({ code: 'roundLast' })
         let startTime = configRet.lastTransferTime ? configRet.lastTransferTime + 1 : 1538323200000 // 上次统计时间
         let endTime = Date.now()
         console.log(`【接入方点数累计】统计时间范围【${startTime} - ${endTime}】`)
         //2.查询需要统计的用户
-        let [userErr, userRes] = await this.query({
+        let userRes = await this.query({
             KeyConditionExpression: '#role = :role',
             ProjectionExpression: 'userId,sn,transferURL,transferMap',
             ExpressionAttributeNames: {

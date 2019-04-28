@@ -17,7 +17,7 @@ class ConfigModel extends BaseModel {
     }
     //查询最后写入的时间
     async queryLastTime(inparam) {
-        const [err, ret] = await this.query({
+        const ret = await this.query({
             KeyConditionExpression: '#code = :code',
             ExpressionAttributeNames: {
                 '#code': 'code'
@@ -26,7 +26,7 @@ class ConfigModel extends BaseModel {
                 ':code': inparam.code
             }
         })
-        return [0, ret.Items[0]]
+        return ret.Items[0]
     }
 }
 

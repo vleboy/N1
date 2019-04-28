@@ -53,7 +53,7 @@ router.post('/stat/fixRoundDay', async function (ctx, next) {
     //循环更新局天表直到结束时间
     while (updateDay < nowDay) {
         console.log(`开始修正${updateDay}的数据`)
-        let [roundDayErr, roundDayRet] = await new StatRoundDayModel().cronRoundDay(inparam)
+        let roundDayRet = await new StatRoundDayModel().cronRoundDay(inparam)
         updateDay = roundDayRet
         if (updateDay == nowDay) {
             break

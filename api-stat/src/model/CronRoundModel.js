@@ -71,7 +71,7 @@ class CronRoundModel extends BaseModel {
             query.ExpressionAttributeValues[':longTimeGameType2'] = 1110000 // SA捕鱼游戏排除
             query.ExpressionAttributeValues[':longTimeGameType3'] = 1130000 // YSB体育游戏排除
         }
-        const [err, ret] = await this.query(query)
+        const ret = await this.query(query)
         console.log(`【${inparam.beginTime}-${inparam.endTime}】下注总条数：${ret.Items.length}`)
         return ret
     }
@@ -94,7 +94,7 @@ class CronRoundModel extends BaseModel {
                 let winloseAmount = 0                       //纯利润
                 let anotherGameData = { bet: [], ret: [] }  //第三方游戏数据
                 // 查询相同BK的所有流水
-                const [bkErr, bkRet] = await self.queryBk({ bk })
+                const bkRet = await self.queryBk({ bk })
                 // 获取单局最早的下注时间
                 let firstBetItem = _.minBy(bkRet, 'createdAt')
                 let betTimeStart = firstBetItem.createdAt
@@ -175,7 +175,7 @@ class CronRoundModel extends BaseModel {
 
     // 内部方法2：查询bk对应的type的数据
     async queryBk(inparam) {
-        const [err, ret] = await this.query({
+        const ret = await this.query({
             IndexName: 'BusinessKeyIndex',
             KeyConditionExpression: 'businessKey=:businessKey',
             ProjectionExpression: 'amount,businessKey,#type,parent,userName,createdAt,userId,gameType,gameId,roundId,originalAmount,sn,balance,anotherGameData',
@@ -186,7 +186,7 @@ class CronRoundModel extends BaseModel {
                 ':businessKey': inparam.bk
             }
         })
-        return [0, ret.Items]
+        return ret.Items
     }
 
     // 内部方法3：获取第三方游戏数据

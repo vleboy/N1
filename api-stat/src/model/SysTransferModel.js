@@ -30,7 +30,7 @@ class SysTransferModel extends BaseModel {
                 ':createdAt1': endTime
             }
         }
-        let [detailErr, detailRes] = await this.query(query)
+        let detailRes = await this.query(query)
         let gameTypeGroup = _.groupBy(detailRes.Items, 'gameType') //游戏大类分组
         for (let gameType in gameTypeGroup) {
             let initGameType = GameTypeEnum[gameType.toString()]

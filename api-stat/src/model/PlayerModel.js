@@ -42,7 +42,7 @@ class PlayerModel extends BaseModel {
             balance = cacheItem.balance
         }
         //从玩家流水表获取从最后缓存时间开始的所有流水
-        let [billErr, billRes] = await new PlayerBillDetailModel().queryByTime({ userName, startTime: cacheItem.lastTime })
+        let billRes = await new PlayerBillDetailModel().queryByTime({ userName, startTime: cacheItem.lastTime })
         if (billRes && billRes.Items && billRes.Items.length > 0) {
             for (let item of billRes.Items) {
                 balance = NP.plus(balance, item.amount)

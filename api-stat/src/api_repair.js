@@ -22,7 +22,7 @@ const PlayerModel = require('./model/PlayerModel')
 router.post('/stat/fixBillAmount', async function (ctx, next) {
     const inparam = ctx.request.body
     console.log('开始修补流水2位小数')
-    let [err, res] = await new PlayerBillDetailModel().query({
+    let res = await new PlayerBillDetailModel().query({
         IndexName: 'UserNameIndex',
         KeyConditionExpression: '#userName = :userName AND createdAt >= :createdAt',
         ProjectionExpression: 'sn,amount,originalAmount,balance',
@@ -57,7 +57,7 @@ router.post('/stat/fixBillAmount', async function (ctx, next) {
 router.post('/stat/fixBill', async function (ctx, next) {
     const inparam = ctx.request.body
     console.log('开始修补流水')
-    let [err, res] = await new PlayerBillDetailModel().query({
+    let res = await new PlayerBillDetailModel().query({
         IndexName: 'UserNameIndex',
         KeyConditionExpression: '#userName = :userName AND createdAt >= :createdAt',
         ProjectionExpression: 'sn,amount,originalAmount,balance',
@@ -102,7 +102,7 @@ router.post('/stat/fixGameRecord', async function (ctx, next) {
     // 入参转换
     const inparam = ctx.request.body
     for (let item of inparam) {
-        let [err, res] = await new PlayerBillDetailModel().query({
+        let res = await new PlayerBillDetailModel().query({
             IndexName: 'BusinessKeyIndex',
             KeyConditionExpression: 'businessKey = :businessKey',
             ExpressionAttributeValues: {
@@ -136,7 +136,7 @@ router.post('/stat/fixGameRecord', async function (ctx, next) {
 router.post('/stat/fixBillAction', async function (ctx, next) {
     // 入参转换
     const inparam = ctx.request.body
-    let [err, res] = await new PlayerBillDetailModel().query({
+    let res = await new PlayerBillDetailModel().query({
         IndexName: 'TypeIndex',
         KeyConditionExpression: '#type = :type',
         ProjectionExpression: 'sn,amount,#action',
@@ -190,7 +190,7 @@ router.post('/stat/fixBillAction', async function (ctx, next) {
 router.post('/stat/updateTable', async function (ctx, next) {
     //查询所有玩家
     let playerModel = new PlayerModel()
-    let [playerErr, players] = await playerModel.scan({
+    let players = await playerModel.scan({
         ProjectionExpression: 'parent,userName,gameId,sid'
     })
     for (let playerInfo of players.Items) {
@@ -260,7 +260,7 @@ router.post('/stat/fixRecrodBetTime', async function (ctx, next) {
     //获取入参
     const inparam = ctx.request.body
     //查询时间范围流水
-    const [err, ret] = await new PlayerBillDetailModel().query({
+    const ret = await new PlayerBillDetailModel().query({
         IndexName: 'TypeIndex',
         ProjectionExpression: 'userName,businessKey,createdAt',
         KeyConditionExpression: '#type =:type AND createdAt BETWEEN :createdAt0 AND :createdAt1',
@@ -277,9 +277,6 @@ router.post('/stat/fixRecrodBetTime', async function (ctx, next) {
             ':createdAt1': inparam.end
         }
     })
-    if (err) {
-        console.error(err)
-    }
     console.log(`一共查出${ret.Items.length}条数据`)
     //更新战绩
     for (let item of ret.Items) {
@@ -310,7 +307,7 @@ router.post('/stat/fixRecrodRound', async function (ctx, next) {
     let statRound = new StatRoundModel()
     let notFindBk = [], fixTimeBk = [], i = 1
     //获取平台所有商户和代理
-    let [userErr, allUsers] = await new BaseModel().scan({
+    let allUsers = await new BaseModel().scan({
         TableName: Tables.ZeusPlatformUser,
         FilterExpression: "(#role = :role1 OR #role = :role2) AND levelIndex <> :levelIndex AND isTest <> :isTest",
         ProjectionExpression: 'userId,#role',

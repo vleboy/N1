@@ -23,7 +23,7 @@ router.post('/stat/checkPlayerGameState', async function (ctx, next) {
     // 入参转换
     const inparam = ctx.request.body
     // 查询出所有在线的玩家
-    let [playerErr, playerRes] = await new BaseModel().scan({
+    let playerRes = await new BaseModel().scan({
         TableName: Tables.HeraGamePlayer,
         ProjectionExpression: 'userName,userId',
         FilterExpression: `gameState<>:gameState`,
@@ -54,7 +54,7 @@ router.post('/stat/checkAllPlayerBalance', async function (ctx, next) {
     // 入参转换
     const inparam = ctx.request.body
     const playerModel = new PlayerModel()
-    let [playerErr, playerRes] = await new BaseModel().scan({
+    let playerRes = await new BaseModel().scan({
         TableName: Tables.HeraGamePlayer,
         ProjectionExpression: 'parent,userName,userId,createAt,balance,#state',
         ExpressionAttributeNames: {
@@ -88,7 +88,7 @@ router.post('/stat/checkAllPlayerBalance', async function (ctx, next) {
 router.post('/stat/checkSignlePlayerBalance', async function (ctx, next) {
     // 入参转换
     const inparam = ctx.request.body
-    let [playerErr, playerRes] = await new BaseModel().query({
+    let playerRes = await new BaseModel().query({
         TableName: Tables.HeraGamePlayer,
         ProjectionExpression: 'parent,userName,userId,createAt,balance,#state',
         KeyConditionExpression: 'userName =:userName',
@@ -126,7 +126,7 @@ router.post('/stat/checkGameRecord', async function (ctx, next) {
         let roundWinlose = 0            // 交易输赢金额
         let promiseArr = []
         //获取平台所有商户和代理
-        let [userErr, allUsers] = await new BaseModel().scan({
+        let allUsers = await new BaseModel().scan({
             TableName: Tables.ZeusPlatformUser,
             FilterExpression: "(#role = :role1 OR #role = :role2) AND levelIndex <> :levelIndex AND isTest <> :isTest",
             ProjectionExpression: 'userId,#role',
@@ -142,7 +142,7 @@ router.post('/stat/checkGameRecord', async function (ctx, next) {
         for (let user of allUsers.Items) {
             let p = new Promise(async (resolve, reject) => {
                 // 查询战绩
-                const [err, ret] = await new HeraGameRecordModel().query({
+                const ret = await new HeraGameRecordModel().query({
                     IndexName: 'parentIdIndex',
                     KeyConditionExpression: 'parentId = :parentId AND betTime between :createdAt0 and :createdAt1',
                     ProjectionExpression: 'betId,gameType,#record',
@@ -156,7 +156,7 @@ router.post('/stat/checkGameRecord', async function (ctx, next) {
                     }
                 })
                 // 查询交易
-                const [err2, ret2] = await new StatRoundModel().query({
+                const ret2 = await new StatRoundModel().query({
                     IndexName: 'ParentIndex',
                     KeyConditionExpression: 'parent = :parent AND createdAt between :createdAt0 and :createdAt1',
                     ProjectionExpression: 'businessKey,winloseAmount',
@@ -282,7 +282,7 @@ router.post('/stat/checkRoundBill', async function (ctx, next) {
     let bkCount = 0
     let roundBetCount = 0
     // 查询流水
-    let [err, ret] = await new BaseModel().query({
+    let ret = await new BaseModel().query({
         TableName: 'PlayerBillDetail',
         IndexName: 'UserNameIndex',
         KeyConditionExpression: '#userName = :userName AND createdAt between :createdAt0 and :createdAt1',
@@ -300,7 +300,7 @@ router.post('/stat/checkRoundBill', async function (ctx, next) {
         }
     })
     // 查询局表
-    let [err2, ret2] = await new StatRoundModel().query({
+    let ret2 = await new StatRoundModel().query({
         IndexName: 'UserNameIndex',
         KeyConditionExpression: '#userName = :userName AND createdAt between :createdAt0 and :createdAt1',
         ProjectionExpression: '#content,businessKey,winloseAmount',
@@ -366,7 +366,7 @@ router.post('/stat/checkSubuser', async function (ctx, next) {
     // 入参转换
     const inparam = ctx.request.body
     // 所有测试号
-    let [err, res] = await new UserModel().scan({
+    let res = await new UserModel().scan({
         ProjectionExpression: 'userId',
         FilterExpression: 'isTest=:isTest',
         ExpressionAttributeValues: {
@@ -375,7 +375,7 @@ router.post('/stat/checkSubuser', async function (ctx, next) {
     })
     // 遍历每个测试号的所有子孙
     for (let item of res.Items) {
-        let [subUserRes, subUserErr] = await new UserModel().scan({
+        let subUserRes = await new UserModel().scan({
             ProjectionExpression: 'userId',
             FilterExpression: 'contains(levelIndex,:levelIndex) AND isTest <> :isTest',
             ExpressionAttributeValues: {

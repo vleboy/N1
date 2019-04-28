@@ -71,7 +71,7 @@ class HeraGameRecordModel extends BaseModel {
      * 获取指定玩家一段时间的战绩
      */
     async getPlayerRecord(inparam) {
-        let [err, res] = await this.query({
+        let res = await this.query({
             KeyConditionExpression: 'userName =:userName',
             ProjectionExpression: 'userName,betId,betTime,#record',
             FilterExpression: 'betTime BETWEEN :betTime0 AND :betTime1',
@@ -84,9 +84,6 @@ class HeraGameRecordModel extends BaseModel {
                 ':betTime1': +inparam.end
             }
         })
-        if (err) {
-            console.log(err)
-        }
         return res.Items
     }
 
@@ -94,7 +91,7 @@ class HeraGameRecordModel extends BaseModel {
      * 获取时间段的战绩表数据
      */
     async getTimeRecord(userId, inparam) {
-        let [err, res] = await this.query({
+        let res = await this.query({
             IndexName: "parentIdIndex",
             KeyConditionExpression: '#parentId=:parentId AND betTime BETWEEN :betTime0 AND :betTime1',
             ProjectionExpression: 'userName,betId,betTime,#record',
