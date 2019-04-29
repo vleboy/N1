@@ -22,6 +22,7 @@ const StatusEnum = require('./lib/UserConsts').StatusEnum
 const RoleEditProps = require('./lib/UserConsts').RoleEditProps
 const Model = require('./lib/Model').Model
 const BizErr = require('./lib/Codes').BizErr
+const companyEnum = require('./lib/Consts').companyEnum
 
 
 // 代理管理员注册
@@ -101,12 +102,37 @@ router.get('/agentOne/:id', async function (ctx, next) {
     ret.playerCount = ret.level == 0 ? null : await new PlayerModel().count(params.id)
     ret.agentCount = ret.level == 0 ? null : await new UserModel().count(params.id)
     //获取对应的游戏大类
-    let url = config.env.GAME_CENTER
-    if (process.env.NODE_ENV == 'agent-n2') {
-        url = config.env.N2_CENTER
+    // let url = config.env.GAME_CENTER
+    // if (process.env.NODE_ENV == 'agent-n2') {
+    //     url = config.env.N2_CENTER
+    // }
+    // let companyArrRes = await axios.post(`https://${url}/companySelect`, { parent }, { headers: { 'Authorization': ctx.header.authorization } })
+    // ret.companyArr = companyArrRes.data.payload
+
+    let gameTypeArr = []
+    // 管理员或上级是管理员，则获取全部游戏类别
+    if (parent == '01') {
+        for (let item of companyEnum) {
+            gameTypeArr.push({ company: item.companyIden, companyName: item.companyName })
+        }
+    } else {
+        let parentGameList = ret.gameList || []
+        // 刷新最新游戏类型内容
+        let newGameList = []
+        for (let item of parentGameList) {
+            newGameList.push({ company: item.company })
+        }
+        //去重
+        newGameList = _.uniqWith(newGameList, _.isEqual)
+        for (let item of newGameList) {
+            for (let company of companyEnum) {
+                if (item.company == company.companyIden) {
+                    gameTypeArr.push({ company: item.company, companyName: company.companyName })
+                }
+            }
+        }
     }
-    let companyArrRes = await axios.post(`https://${url}/companySelect`, { parent }, { headers: { 'Authorization': ctx.header.authorization } })
-    ret.companyArr = companyArrRes.data.payload
+    ret.companyArr = gameTypeArr
     // 结果返回
     ctx.body = { code: 0, payload: ret }
 })

@@ -78,8 +78,29 @@ const GameListEnum = {
         { company: 'PP', code: '1160000', name: 'PP电子游戏' },
     ]
 }
+/**
+ * 游戏公司枚举
+ */
+const companyEnum = [
+    { companyIden: 'AG', companyName: 'Ag' },
+    { companyIden: 'DT', companyName: 'DT' },
+    { companyIden: 'HABA', companyName: 'HABA' },
+    { companyIden: 'MG', companyName: 'MG' },
+    { companyIden: 'NA', companyName: 'NA' },
+    { companyIden: 'PG', companyName: 'PG' },
+    { companyIden: 'PNG', companyName: 'PNG' },
+    { companyIden: 'PP', companyName: 'PP' },
+    { companyIden: 'RTG', companyName: 'RTG' },
+    { companyIden: 'SA', companyName: 'SA' },
+    { companyIden: 'SB', companyName: 'SB' },
+    { companyIden: 'TTG', companyName: 'TTG' },
+    { companyIden: 'YSB', companyName: 'YSB' }
+]
+
+
 
 module.exports = {
     GameTypeEnum,
-    GameListEnum
+    GameListEnum,
+    companyEnum
 }
