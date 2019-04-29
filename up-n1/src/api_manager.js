@@ -56,7 +56,7 @@ router.post('/managers', async function (ctx, next) {
 })
 
 /**
- * 获取建站商信息
+ * 获取线路商信息
  */
 router.get('/managers/:id', async function (ctx, next) {
   let params = ctx.params
