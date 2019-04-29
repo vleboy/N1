@@ -1,0 +1,221 @@
+service: Javis
+plugins:
+  - serverless-prune-plugin
+provider:
+  name: aws
+  runtime: nodejs8.10
+  region: ap-southeast-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource:
+          Fn::Join:
+          - ''
+          - - 'arn:aws:dynamodb:'
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":table/*"
+resources:
+  Resources:
+    #第一阶段部署
+    ZeusPlatformUser: #用户表
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ZeusPlatformUser
+        AttributeDefinitions:
+          -
+            AttributeName: userId
+            AttributeType: S
+          -
+            AttributeName: role
+            AttributeType: S
+          -
+            AttributeName: username
+            AttributeType: S
+          -
+            AttributeName: parent
+            AttributeType: S
+          -
+            AttributeName: displayId
+            AttributeType: N
+        KeySchema:
+          -
+            AttributeName: role
+            KeyType: HASH
+          -
+            AttributeName: userId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          -
+            IndexName: RoleUsernameIndex
+            KeySchema:
+              -
+                AttributeName: role
+                KeyType: HASH
+              -
+                AttributeName: username
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          -
+            IndexName: RoleParentIndex
+            KeySchema:
+              -
+                AttributeName: role
+                KeyType: HASH
+              -
+                AttributeName: parent
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          -
+            IndexName: UserIdIndex
+            KeySchema:
+              -
+                AttributeName: userId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          -
+            IndexName: merchantIdIndex
+            KeySchema:
+              -
+                AttributeName: displayId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+
+    ZeusPlatformBill: #账单表
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ZeusPlatformBill
+        AttributeDefinitions:
+          -
+            AttributeName: sn
+            AttributeType: S
+          -
+            AttributeName: userId
+            AttributeType: S
+          -
+            AttributeName: createdAt
+            AttributeType: N
+        KeySchema:
+          -
+            AttributeName: sn
+            KeyType: HASH
+          -
+            AttributeName: userId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          -
+            IndexName: UserIdIndex
+            KeySchema:
+              -
+                AttributeName: userId
+                KeyType: HASH
+              -
+                AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+    
+    ZeusPlatformLog: #日志表
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ZeusPlatformLog
+        AttributeDefinitions:
+          -
+            AttributeName: sn
+            AttributeType: S
+          -
+            AttributeName: userId
+            AttributeType: S
+          -
+            AttributeName: role
+            AttributeType: S
+          -
+            AttributeName: createdAt
+            AttributeType: N
+        KeySchema:
+          -
+            AttributeName: sn
+            KeyType: HASH
+          -
+            AttributeName: userId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          -
+            IndexName: LogRoleIndex
+            KeySchema:
+              -
+                AttributeName: role
+                KeyType: HASH
+              -
+                AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+
+    # 第二阶段部署
+    DianaPlatformGame: #游戏表
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: DianaPlatformGame
+        AttributeDefinitions:
+          -
+            AttributeName: gameType
+            AttributeType: S
+          -
+            AttributeName: gameId
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: gameType
+            KeyType: HASH
+          -
+            AttributeName: gameId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+    SYSConfig: #系统配置表
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: SYSConfig
+        AttributeDefinitions:
+          -
+            AttributeName: code
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: code
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    # DianaPlatformCompany: #厂商表
+    #   Type: AWS::DynamoDB::Table
+    #   Properties:
+    #     TableName: DianaPlatformCompany
+    #     AttributeDefinitions:
+    #       -
+    #         AttributeName: companyName
+    #         AttributeType: S
+    #       -
+    #         AttributeName: companyId
+    #         AttributeType: S
+    #     KeySchema:
+    #       -
+    #         AttributeName: companyName
+    #         KeyType: HASH
+    #       -
+    #         AttributeName: companyId
+    #         KeyType: RANGE
+    #     BillingMode: PAY_PER_REQUEST
