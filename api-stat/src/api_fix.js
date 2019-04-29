@@ -20,13 +20,13 @@ const StatRoundDayModel = require('./model/StatRoundDayModel')
  * @param {*} end   结束时间戳
  * @param {*} start 时间戳
  */
-router.post('/stat/fixRound', async function (ctx, next) {
+router.post('/stat/fixRound', async (ctx, next) => {
     const inparam = ctx.request.body
     // 业务操作
     await new CronRoundModel().fixRound(inparam)
     // 请求修正局天表
     let updateDay = parseInt(moment(inparam.start).utcOffset(8).format('YYYYMMDD')) > parseInt(moment().utcOffset(8).format('YYYYMMDD')) ? parseInt(moment().utcOffset(8).format('YYYYMMDD')) : parseInt(moment(inparam.start).utcOffset(8).format('YYYYMMDD'))
-    await axios.post(`http://localhost:3000/stat/fixRoundDay`, { updateDay })
+    await axios.post(`http://localhost:4000/stat/fixRoundDay`, { updateDay })
     ctx.body = { code: 0, msg: 'Y' }
 })
 
@@ -34,7 +34,7 @@ router.post('/stat/fixRound', async function (ctx, next) {
  * 修正局表天数据
  * @param {*} updateDay 起始修正日志
  */
-router.post('/stat/fixRoundDay', async function (ctx, next) {
+router.post('/stat/fixRoundDay', async (ctx, next) => {
     const inparam = ctx.request.body
     let time1 = Date.now()
     let updateDay = +inparam.updateDay || 20180205
@@ -73,7 +73,7 @@ router.post('/stat/fixRoundDay', async function (ctx, next) {
  * @param {*} winloseAmount 输赢金额
  * @param {*} mixAmount 洗码量
  */
-router.post('/stat/fixPlayerRoundDay', async function (ctx, next) {
+router.post('/stat/fixPlayerRoundDay', async (ctx, next) => {
     const inparam = ctx.request.body
     // 业务操作
     await new StatRoundDayModel().cronPlayerRoundDay(inparam)
