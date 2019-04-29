@@ -17,7 +17,7 @@ const RoleCodeEnum = require('./lib/UserConsts').RoleCodeEnum
 const RoleEditProps = require('./lib/UserConsts').RoleEditProps
 const Model = require('./lib/Model').Model
 const BizErr = require('./lib/Codes').BizErr
-const axios = require('axios')
+const companyEnum = require('./lib/Consts').companyEnum
 /**
  * 线路商列表
  */
@@ -75,9 +75,30 @@ router.get('/managers/:id', async function (ctx, next) {
   }
   const manager = await new UserModel().queryUserById(params.id, options)
   manager.balance = await new BillModel().checkUserBalance(manager)
-  //获取对应的游戏大类
-  let companyArrRes = await axios.post(`https://${config.env.GAME_CENTER}/companySelect`, { parent }, { headers: { 'Authorization': ctx.header.authorization } })
-  manager.companyArr = companyArrRes.data.payload
+  let gameTypeArr = []
+  // 管理员或上级是管理员，则获取全部游戏类别
+  if (!inparam.parent || inparam.parent == RoleCodeEnum.PlatformAdmin || inparam.parent == '01') {
+    for (let item of companyEnum) {
+      gameTypeArr.push({ company: item.companyIden, companyName: item.companyName })
+    }
+  } else {
+    let parentGameList = manager.gameList || []
+    // 刷新最新游戏类型内容
+    let newGameList = []
+    for (let item of parentGameList) {
+      newGameList.push({ company: item.company })
+    }
+    //去重
+    newGameList = _.uniqWith(newGameList, _.isEqual)
+    for (let item of newGameList) {
+      for (let company of companyEnum) {
+        if (item.company == company.companyIden) {
+          gameTypeArr.push({ company: item.company, companyName: company.companyName })
+        }
+      }
+    }
+  }
+  manager.companyArr = gameTypeArr
   // 结果返回
   ctx.body = { code: 0, payload: manager }
 })
