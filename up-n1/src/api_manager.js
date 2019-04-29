@@ -80,15 +80,11 @@ router.get('/managers/:id', async function (ctx, next) {
   if (parent == RoleCodeEnum.PlatformAdmin || parent == '01') {
     gameTypeArr = companyEnum
   } else {
-    let parentGameList = manager.gameList || []
-    // 刷新最新游戏类型内容
     let newGameList = []
-    for (let item of parentGameList) {
+    for (let item of manager.gameList || []) {
       newGameList.push({ company: item.company })
     }
-    //去重
-    newGameList = _.uniqWith(newGameList, _.isEqual)
-    for (let item of newGameList) {
+    for (let item of _.uniqWith(newGameList, _.isEqual)) {
       for (let company of companyEnum) {
         if (item.company == company.company) {
           gameTypeArr.push({ company: item.company, companyName: company.companyName })
