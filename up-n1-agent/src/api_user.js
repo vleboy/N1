@@ -5,7 +5,6 @@ const Router = require('koa-router')
 const router = new Router()
 // 工具相关
 const _ = require('lodash')
-const axios = require('axios')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
@@ -102,13 +101,6 @@ router.get('/agentOne/:id', async function (ctx, next) {
     ret.playerCount = ret.level == 0 ? null : await new PlayerModel().count(params.id)
     ret.agentCount = ret.level == 0 ? null : await new UserModel().count(params.id)
     //获取对应的游戏大类
-    // let url = config.env.GAME_CENTER
-    // if (process.env.NODE_ENV == 'agent-n2') {
-    //     url = config.env.N2_CENTER
-    // }
-    // let companyArrRes = await axios.post(`https://${url}/companySelect`, { parent }, { headers: { 'Authorization': ctx.header.authorization } })
-    // ret.companyArr = companyArrRes.data.payload
-
     let gameTypeArr = []
     // 管理员或上级是管理员，则获取全部游戏类别
     if (parent == '01') {
