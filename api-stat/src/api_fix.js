@@ -26,7 +26,7 @@ router.post('/stat/fixRound', async function (ctx, next) {
     await new CronRoundModel().fixRound(inparam)
     // 请求修正局天表
     let updateDay = parseInt(moment(inparam.start).utcOffset(8).format('YYYYMMDD')) > parseInt(moment().utcOffset(8).format('YYYYMMDD')) ? parseInt(moment().utcOffset(8).format('YYYYMMDD')) : parseInt(moment(inparam.start).utcOffset(8).format('YYYYMMDD'))
-    await axios.post(`https://${config.na.apidomain}/stat/fixRoundDay`, { updateDay })
+    await axios.post(`http://localhost:3000/stat/fixRoundDay`, { updateDay })
     ctx.body = { code: 0, msg: 'Y' }
 })
 
