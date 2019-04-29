@@ -77,7 +77,7 @@ router.get('/managers/:id', async function (ctx, next) {
   manager.balance = await new BillModel().checkUserBalance(manager)
   let gameTypeArr = []
   // 管理员或上级是管理员，则获取全部游戏类别
-  if (!inparam.parent || inparam.parent == RoleCodeEnum.PlatformAdmin || inparam.parent == '01') {
+  if (parent || parent == RoleCodeEnum.PlatformAdmin || parent == '01') {
     for (let item of companyEnum) {
       gameTypeArr.push({ company: item.companyIden, companyName: item.companyName })
     }
