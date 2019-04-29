@@ -104,9 +104,7 @@ router.get('/agentOne/:id', async function (ctx, next) {
     let gameTypeArr = []
     // 管理员或上级是管理员，则获取全部游戏类别
     if (parent == '01') {
-        for (let item of companyEnum) {
-            gameTypeArr.push({ company: item.companyIden, companyName: item.companyName })
-        }
+        gameTypeArr = companyEnum
     } else {
         let parentGameList = ret.gameList || []
         // 刷新最新游戏类型内容
@@ -118,7 +116,7 @@ router.get('/agentOne/:id', async function (ctx, next) {
         newGameList = _.uniqWith(newGameList, _.isEqual)
         for (let item of newGameList) {
             for (let company of companyEnum) {
-                if (item.company == company.companyIden) {
+                if (item.company == company.company) {
                     gameTypeArr.push({ company: item.company, companyName: company.companyName })
                 }
             }

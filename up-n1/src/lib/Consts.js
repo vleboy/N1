@@ -125,19 +125,19 @@ const GameNameEnum = {
  * 游戏公司枚举
  */
 const companyEnum = [
-    { companyIden: 'AG', companyName: 'Ag' },
-    { companyIden: 'DT', companyName: 'DT' },
-    { companyIden: 'HABA', companyName: 'HABA' },
-    { companyIden: 'MG', companyName: 'MG' },
-    { companyIden: 'NA', companyName: 'NA' },
-    { companyIden: 'PG', companyName: 'PG' },
-    { companyIden: 'PNG', companyName: 'PNG' },
-    { companyIden: 'PP', companyName: 'PP' },
-    { companyIden: 'RTG', companyName: 'RTG' },
-    { companyIden: 'SA', companyName: 'SA' },
-    { companyIden: 'SB', companyName: 'SB' },
-    { companyIden: 'TTG', companyName: 'TTG' },
-    { companyIden: 'YSB', companyName: 'YSB' }
+    { company: 'AG', companyName: 'Ag' },
+    { company: 'DT', companyName: 'DT' },
+    { company: 'HABA', companyName: 'HABA' },
+    { company: 'MG', companyName: 'MG' },
+    { company: 'NA', companyName: 'NA' },
+    { company: 'PG', companyName: 'PG' },
+    { company: 'PNG', companyName: 'PNG' },
+    { company: 'PP', companyName: 'PP' },
+    { company: 'RTG', companyName: 'RTG' },
+    { company: 'SA', companyName: 'SA' },
+    { company: 'SB', companyName: 'SB' },
+    { company: 'TTG', companyName: 'TTG' },
+    { company: 'YSB', companyName: 'YSB' }
 ]
 
 
