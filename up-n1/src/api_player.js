@@ -424,16 +424,34 @@ router.post('/player/bill/record', async function (ctx, next) {
     //参数校验
     new PlayerBillCheck().checkPlayerRecord(inparam)
     //查询战绩
-    let recordInfo = await new GameRecord().queryRecord(inparam.userName, inparam.betId)
-    if (recordInfo && recordInfo.gameType == '30000') {
-        recordInfo.record.betNum = recordInfo.record.itemName + "($" + recordInfo.record.amount + ")"
-    }
-    let subRecord = recordInfo.record && typeof recordInfo.record == 'object' ? recordInfo.record : {}
-    recordInfo = { ...subRecord, ...recordInfo }
-    delete recordInfo.record
-    recordInfo = gameRecordUtil.buildOnePageRows(recordInfo)
-    if (recordInfo.gameType == '70000' || recordInfo.gameType == '90000') {
-        recordInfo.mode = recordInfo.roundResult.userInfo.mode
+    let recordInfo = {}
+    if (inparam.gameType && inparam.gameType == '1070000') { //ky棋牌战绩查询
+        const player = await new PlayerModel().getPlayer(inparam.userName)
+        inparam.parentId = player.parent
+        let res = await new GameRecord().queryParentIdRecord(inparam)
+        recordInfo = {
+            pageSize: res.length,
+            list: []
+        }
+        for (let record of res) {
+            let subRecord = record.record && typeof record.record == 'object' ? record.record : {}
+            record = { ...subRecord, ...record }
+            delete record.record
+            recordInfo.list.push(record)
+        }
+        gameRecordUtil.buildNewPageRows(recordInfo)
+    } else {
+        recordInfo = await new GameRecord().queryRecord(inparam.userName, inparam.betId)
+        if (recordInfo && recordInfo.gameType == '30000') {
+            recordInfo.record.betNum = recordInfo.record.itemName + "($" + recordInfo.record.amount + ")"
+        }
+        let subRecord = recordInfo.record && typeof recordInfo.record == 'object' ? recordInfo.record : {}
+        recordInfo = { ...subRecord, ...recordInfo }
+        delete recordInfo.record
+        recordInfo = gameRecordUtil.buildOnePageRows(recordInfo)
+        if (recordInfo.gameType == '70000' || recordInfo.gameType == '90000') {
+            recordInfo.mode = recordInfo.roundResult.userInfo.mode
+        }
     }
     ctx.body = { code: 0, msg: '操作成功', data: recordInfo }
 })
