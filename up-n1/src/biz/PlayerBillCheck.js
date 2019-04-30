@@ -95,7 +95,8 @@ class PlayerBillCheck {
     checkPlayerRecord(inparam) {
         let [checkAttError, errorParams] = Util.checkProperties([
             { name: "userName", type: "S" },
-            { name: "betId", type: "NS" }
+            { name: "betId", type: "NS" },
+            { name: "parentId", type: "NS" }
         ], inparam)
         if (checkAttError) {
             Object.assign(checkAttError, { params: errorParams })

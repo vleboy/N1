@@ -426,8 +426,6 @@ router.post('/player/bill/record', async function (ctx, next) {
     //查询战绩
     let recordInfo = {}
     if (inparam.gameType && inparam.gameType == '1070000') { //ky棋牌战绩查询
-        const player = await new PlayerModel().getPlayer(inparam.userName)
-        inparam.parentId = player.parent
         let res = await new GameRecord().queryParentIdRecord(inparam)
         recordInfo = {
             pageSize: res.length,
