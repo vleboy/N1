@@ -161,6 +161,7 @@ router.post('/sa/PlaceBet', async (ctx, next) => {
     inparam.businessKey = `BSA_${inparam.username}_${inparam.gameid}`    // 设置局号
     inparam.txnidTemp = `${inparam.username}_BET_${inparam.txnid}`       // 使用第三方ID作为唯一建成分
     inparam.sourceIP = ipMap[player.userId]                              // 记录IP
+    inparam.anotherGameData = JSON.stringify(inparam)                    // 原始游戏信息
     const amtAfter = await new PlayerModel().updatebalance(player, inparam)
     if (amtAfter == 'err') {
         ctx.body = `<?xml version="1.0" encoding="utf-8"?><RequestResponse><username>${inparam.username}</username><currency>CNY</currency><amount>${player.balance}</amount><error>1004</error></RequestResponse>`
@@ -192,6 +193,7 @@ router.post('/sa/PlaceBetCancel', async (ctx, next) => {
     inparam.txnidTemp = `${inparam.username}_BETCANCEL_${inparam.txnid}`        // 使用第三方ID作为唯一建成分
     inparam.betsn = `ASA_${inparam.username}_BET_${inparam.txn_reverse_id}`     // 对应的下注SN
     inparam.sourceIP = ipMap[player.userId]                                     // 记录IP
+    inparam.anotherGameData = JSON.stringify(inparam)                           // 原始游戏信息
     const amtAfter = await new PlayerModel().updatebalance(player, inparam)
     ctx.body = `<?xml version="1.0" encoding="utf-8"?><RequestResponse><username>${inparam.username}</username><currency>CNY</currency><amount>${amtAfter}</amount><error>0</error></RequestResponse>`
     // 捕鱼游戏新增注单
@@ -221,6 +223,7 @@ router.post('/sa/PlayerWin', async (ctx, next) => {
     inparam.businessKey = `BSA_${inparam.username}_${inparam.gameid}`    // 设置局号
     inparam.txnidTemp = `${inparam.username}_WIN_${inparam.txnid}`       // 使用第三方ID作为唯一建成分
     inparam.sourceIP = ipMap[player.userId]                              // 记录IP
+    inparam.anotherGameData = JSON.stringify(inparam)                    // 原始游戏信息
     const amtAfter = await new PlayerModel().updatebalance(player, inparam)
     ctx.body = `<?xml version="1.0" encoding="utf-8"?><RequestResponse><username>${inparam.username}</username><currency>CNY</currency><amount>${amtAfter}</amount><error>0</error></RequestResponse>`
     // 捕鱼游戏新增注单
@@ -248,6 +251,7 @@ router.post('/sa/PlayerLost', async (ctx, next) => {
     inparam.businessKey = `BSA_${inparam.username}_${inparam.gameid}`    // 设置局号
     inparam.txnidTemp = `${inparam.username}_LOST_${inparam.txnid}`      // 使用第三方ID作为唯一建成分
     inparam.sourceIP = ipMap[player.userId]                              // 记录IP
+    inparam.anotherGameData = JSON.stringify(inparam)                    // 原始游戏信息
     if (inparam.gamecode == 'FishermenGold') {
         inparam.gameType = config.sa.fishGameType
         new PlayerModel().addRound(player, inparam)
