@@ -94,7 +94,7 @@ class PlayerBillCheck {
     //玩家战绩
     checkPlayerRecord(inparam) {
         let [checkAttError, errorParams] = Util.checkProperties([
-            { name: "userName", type: "S" },
+            { name: "userName", type: "NS" },
             { name: "betId", type: "NS" },
             { name: "parentId", type: "NS" }
         ], inparam)
