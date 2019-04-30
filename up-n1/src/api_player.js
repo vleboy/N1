@@ -428,10 +428,10 @@ router.post('/player/bill/record', async function (ctx, next) {
     if (inparam.gameType && inparam.gameType == '1070000') { //ky棋牌战绩查询
         let res = await new GameRecord().queryParentIdRecord(inparam)
         recordInfo = {
-            pageSize: res.length,
+            pageSize: res.Items.length,
             list: []
         }
-        for (let record of res) {
+        for (let record of res.Items) {
             let subRecord = record.record && typeof record.record == 'object' ? record.record : {}
             record = { ...subRecord, ...record }
             delete record.record

@@ -15,7 +15,7 @@ class GameRecord extends BaseModel {
     }
     //主键查询战绩
     async queryRecord(userName, betId) {
-        let res= await this.getItem({
+        let res = await this.getItem({
             Key: {
                 "userName": userName,
                 "betId": betId
@@ -24,7 +24,7 @@ class GameRecord extends BaseModel {
         return res.Item
     }
     //索引查询
-    async queryParentIdRecord(inparam) {
+    queryParentIdRecord(inparam) {
         let query = {
             IndexName: 'parentIdCreatedAtIndex',
             KeyConditionExpression: 'parentId  = :parentId AND createdAt BETWEEN :createdAt0 AND :createdAt1',
@@ -36,8 +36,7 @@ class GameRecord extends BaseModel {
                 ':createdAt1': inparam.createdAt[1]
             }
         }
-        let res = await this.query(query)
-        return res.Items
+        return this.query(query)
     }
 
 }
