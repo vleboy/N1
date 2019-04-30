@@ -185,6 +185,7 @@ router.get('/ky/betdetail', async (ctx, next) => {
         if (res.data.d.code != 0 && res.data.d.code != 16) {
             new LogModel().add('2', 'KYRecordError', { userId: '-1', userName: '-1', ...inparam }, `KY获取游戏注单code:${res.data.d.code}异常&startTime=${inparam.startTime}&endTime=${inparam.endTime}`)
         }
+        console.log(res.data.d)
         ctx.body = res.data.d
     } catch (error) {
         new LogModel().add('2', 'KYRecordError', { userId: '-1', userName: '-1', ...inparam }, `KY获取游戏注单网络异常&startTime=${inparam.startTime}&endTime=${inparam.endTime}`)
