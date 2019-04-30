@@ -19,6 +19,7 @@ const lineapirouter = require('./src/api_line')
 const pieapirouter = require('./src/api_pie')
 const graphapirouter = require('./src/api_graph')
 const rankapirouter = require('./src/api_rank')
+const chainapirouter = require('./src/api_chain')
 
 // 初始化应用服务，加载所有中间件
 const app = new Koa()
@@ -54,6 +55,7 @@ app.use(mount('/visual', lineapirouter.routes()))   // 折线图接口路由
 app.use(mount('/visual', pieapirouter.routes()))    // 饼图接口路由
 app.use(mount('/visual', graphapirouter.routes()))  // 柱状图接口路由
 app.use(mount('/visual', rankapirouter.routes()))  // 排行榜接口路由
+app.use(mount('/visual', chainapirouter.routes()))  // 环比接口路由
 
 // 启动应用服务
 app.listen(PORT)
