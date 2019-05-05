@@ -107,21 +107,6 @@ router.get('/sa/fisher/:token', async (ctx, next) => {
     }
 })
 
-// /**
-//  * 获取SA玩家TOKEN
-//  * @param {*} userId 玩家ID
-//  */
-// router.get('/sa/token/:userId', async function (ctx, next) {
-//     const data = saParams('LoginRequest', { Username: ctx.params.userId, CurrencyType: 'CNY' })
-//     // log.info(`请求SA【POST】${config.sa.apiurl}`)
-//     // log.info('请求SA【参数】' + querystring.stringify(data))
-//     const res = await axios.post(config.sa.apiurl, querystring.stringify(data), {
-//         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-//     })
-//     const finalRes = await xmlParse(res.data)
-//     ctx.body = finalRes.LoginRequestResponse
-// })
-
 /**
  * SA查询余额
  * @param {*} userId 玩家ID
@@ -288,6 +273,21 @@ router.post('/sa/betdetail', async (ctx, next) => {
     }
     ctx.body = resArr
 })
+
+// /**
+//  * 获取SA玩家TOKEN
+//  * @param {*} userId 玩家ID
+//  */
+// router.get('/sa/token/:userId', async function (ctx, next) {
+//     const data = saParams('LoginRequest', { Username: ctx.params.userId, CurrencyType: 'CNY' })
+//     // log.info(`请求SA【POST】${config.sa.apiurl}`)
+//     // log.info('请求SA【参数】' + querystring.stringify(data))
+//     const res = await axios.post(config.sa.apiurl, querystring.stringify(data), {
+//         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+//     })
+//     const finalRes = await xmlParse(res.data)
+//     ctx.body = finalRes.LoginRequestResponse
+// })
 
 // /**
 //  * 网页玩家登出
