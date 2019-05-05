@@ -35,6 +35,7 @@ app.use(xauth(config.auth, (v) => { // TOKEN身份认证中间件，参数1：�
     let words = v.split(" ")
     return words.length > 1 ? words[1] : words[0]
 }, (ctx) => {
+    console.error(ctx.body)
     if (ctx.body.name == 'TokenExpiredError') {
         ctx.body.err = 10
         ctx.body.errdesc = 'TOKEN已过期'
