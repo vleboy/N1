@@ -189,7 +189,7 @@ module.exports = class PlayerModel extends BaseModel {
                     }
                 }
             }
-            naGameId = bkBet.Items[0].gameId    // 返奖/退款使用下注的gameId
+            naGameId = bkBet.Items[0].gameId        // 返奖/退款使用下注的gameId
         }
         // 3，生成流水项
         let billItem = {
@@ -204,23 +204,19 @@ module.exports = class PlayerModel extends BaseModel {
             type: parseInt(billType),
             sourceIP
         }
-        // 局号必须存在，否则直接返回当前玩家余额
         if (data.businessKey) {
-            billItem.businessKey = data.businessKey
+            billItem.businessKey = data.businessKey         // 局号必须存在，否则直接返回当前玩家余额
         } else {
             return player.balance
         }
-        // 如果有大局号，写入大局号
         if (data.roundId) {
-            billItem.roundId = data.roundId
+            billItem.roundId = data.roundId                 // 如果有大局号，写入大局号
         }
-        // 如果有第三方系统唯一流水号，写入第三方系统流水号
         if (data.txnid) {
-            billItem.txnid = data.txnid
+            billItem.txnid = data.txnid                     // 如果有第三方系统唯一流水号，写入第三方系统流水号
         }
-        // 如果有原始游戏数据，写入原始游戏数据
         if (data.anotherGameData) {
-            billItem.anotherGameData = data.anotherGameData
+            billItem.anotherGameData = data.anotherGameData // 如果有原始游戏数据，写入原始游戏数据
         }
         // 4，原子操作更新余额
         let res = await this.updateItem({
