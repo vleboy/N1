@@ -91,11 +91,6 @@ module.exports = class PlayerBillDetailModel extends BaseModel {
         })
         // YSB的返奖需要判断返奖的TRX是否相同
         if (type == 4 && ret && ret.Items && ret.Items.length > 0) {
-            //如果是rtg游戏 直接返回存在
-            if (inparam.gameType == config.rtg.gameType) {
-                return true
-            }
-            //如果是ysb 进一步校验
             let payoutSum = 0
             for (let item of ret.Items) {
                 if (item.roundId == inparam.roundId) {

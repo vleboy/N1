@@ -103,7 +103,7 @@ router.get('/rtg/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
     let rtgToken = await axios.post(`${config.rtg.baseUrl}/players/${pid}/token`, { "token_type": "external_token" }, { headers: { 'Api_key': config.rtg.apikey, 'Content-Type': 'application/json' } })
     let [skinId, login, forReal, token, gameId, width, height, returnurl] = ['2', pid, 'True', rtgToken.data, '18', 'auto', 'auto', `http://${config.na.apidomain}/rtg/logout/${inparam.userId}/${inparam.sid}%3Fhomeurl%3D${Buffer.from(ctx.request.query.homeurl).toString('base64')}`]
     //获取rtg游戏连接
-    let finalUrl = `${config.rtg.launchUrl}?cdkModule=gameLauncher&skinid=${skinId}&user=${login}&forReal=${forReal}&token=${token}&gameId=${gameId}&machId=${machId}&width=${width}&height=${height}}`//&returnurl=${returnurl
+    let finalUrl = `${config.rtg.launchUrl}?cdkModule=gameLauncher&skinid=${skinId}&user=${login}&forReal=${forReal}&token=${token}&gameId=${gameId}&machId=${machId}&width=${width}&height=${height}`//&returnurl=${returnurl}
     log.info(`最终RTG游戏链接：${finalUrl}`)
     ctx.redirect(finalUrl)
 })
