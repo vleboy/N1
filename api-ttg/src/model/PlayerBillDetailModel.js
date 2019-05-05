@@ -91,6 +91,7 @@ module.exports = class PlayerBillDetailModel extends BaseModel {
         })
         // YSB的返奖需要判断返奖的TRX是否相同
         if (type == 4 && ret && ret.Items && ret.Items.length > 0) {
+            // 计算累计派彩，如果遇到有相同ID的派彩，则直接返回退出
             let payoutSum = 0
             for (let item of ret.Items) {
                 if (item.roundId == inparam.roundId) {
@@ -98,10 +99,12 @@ module.exports = class PlayerBillDetailModel extends BaseModel {
                 }
                 payoutSum += item.amount
             }
+            // 如果需要扣除派彩，需要检查不能超额扣款
             if (inparam.amt < 0 && inparam.amt + payoutSum < 0) {
                 new LogModel().add('3', 'ysbpayout', inparam, `YSB扣款超额,对应BK【${inparam.businessKey}】,时间【${Date.now()}】`)
                 return true
             }
+            // 派彩存在的情况下，再次派不同的彩，则日志记录派彩修正
             new LogModel().add('3', 'ysbfix', inparam, `YSB进行返奖修正,对应BK【${inparam.businessKey}】,时间【${Date.now()}】`)
             return false
         }

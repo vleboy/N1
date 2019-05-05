@@ -182,10 +182,6 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
         case 'PAYOUT':
             inparam.billType = 4
             inparam.amt = parseFloat(PAYAMT)
-            // if (inparam.amt < 0) {
-            //     inparam.billType = 3
-            //     log.error('投注有更正，需要记录')                                              // 日志记录YSB投注修正
-            // }
             inparam.roundId = `CYSB_${UN}_${TRX}`                                           // 设置大局号
             inparam.businessKey = `BYSB_${UN}_${REFID}`                                     // 设置局号
             inparam.txnidTemp = `${UN}_${TRX}`                                              // 使用第三方ID作为唯一建成分
