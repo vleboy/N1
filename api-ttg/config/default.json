@@ -46,7 +46,6 @@
         "center": "47.88.192.69",
         "apidomain": "ext.na77.org",
         "joingameurl": "https://xbbw2jfb58.execute-api.ap-southeast-1.amazonaws.com/dev/game/auth",
-        "settlementurl": "https://xbbw2jfb58.execute-api.ap-southeast-1.amazonaws.com/dev/game/settlement",
         "exiturl": "https://xbbw2jfb58.execute-api.ap-southeast-1.amazonaws.com/dev/game/postTransfer",
         "fixPlayerRoundDayUrl": "https://ext.na77.org/stat/fixPlayerRoundDay"
     },
