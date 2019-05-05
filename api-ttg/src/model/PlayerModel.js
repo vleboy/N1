@@ -95,25 +95,21 @@ module.exports = class PlayerModel extends BaseModel {
     async updatebalance(player, data) {
         console.time('单笔流水处理耗时')
         // 1，入参初始化
+        if (!data.businessKey) {
+            return player.balance
+        }
         const sourceIP = data.sourceIP || '0.0.0.0'         // IP地址
         const naGameType = data.gameType                    // NA游戏大类
         let naGameId = data.gameId || player.sid            // NA游戏ID
         const naGameCompany = config.companyMap[naGameType] // 游戏运营商
-        const amt = parseFloat(data.amt)                    // 变化金额
         const prefix = `A${naGameCompany}`                  // 流水前缀
-        let billType = amt <= 0 ? 3 : 4                     // 流水类型(只有正数才是返奖，否则为下注)
+        const amt = parseFloat(data.amt)                    // 变化金额
+        let billType = data.billType || (amt <= 0 ? 3 : 4)  // 流水类型(只有正数才是返奖，否则为下注)
         let bkBet = {}                                      // 返奖对应的下注对象        
         data.userId = player.userId                         // 设置玩家ID
         data.userName = player.userName                     // 设置玩家帐号
-        if (data.billType) {                                // 更新流水类型
-            billType = data.billType
-        }
-        if (data.txnidTemp) {                               // 设置SN流水号
-            data.sntemp = `${prefix}_${data.txnidTemp}`
-        }
-        if (!data.sntemp) {                                 // 如果SN号未赋值，则自动生成
-            data.sntemp = prefix + this.billSerial(player.userId)
-        }
+        data.sntemp = data.txnidTemp ? `${prefix}_${data.txnidTemp}` : `${prefix}${this.billSerial(player.userId)}`
+
         const isCheckRet = naGameType != config.ysb.gameType && naGameType != config.dt.gameType && naGameType != config.ky.gameType && billType != 3 ? true : false
         const isCheckKYBet = naGameType == config.ky.gameType && billType == 3 && amt != 0 ? true : false
         const isCheckKYRet = naGameType == config.ky.gameType && billType == 5 ? true : false
@@ -194,6 +190,7 @@ module.exports = class PlayerModel extends BaseModel {
         // 3，生成流水项
         let billItem = {
             sn: data.sntemp,
+            businessKey: data.businessKey,
             parent: player.parent,
             userId: player.userId,
             userName: player.userName,
@@ -204,26 +201,15 @@ module.exports = class PlayerModel extends BaseModel {
             type: parseInt(billType),
             sourceIP
         }
-        if (data.businessKey) {
-            billItem.businessKey = data.businessKey         // 局号必须存在，否则直接返回当前玩家余额
-        } else {
-            return player.balance
-        }
-        if (data.roundId) {
-            billItem.roundId = data.roundId                 // 如果有大局号，写入大局号
-        }
-        if (data.txnid) {
-            billItem.txnid = data.txnid                     // 如果有第三方系统唯一流水号，写入第三方系统流水号
-        }
-        if (data.anotherGameData) {
-            billItem.anotherGameData = data.anotherGameData // 如果有原始游戏数据，写入原始游戏数据
-        }
+        billItem.roundId = data.roundId || billItem.roundId                         // 如果有大局号，写入大局号
+        billItem.txnid = data.txnid || billItem.txnid                               // 如果有第三方系统唯一流水号，写入第三方系统流水号
+        billItem.anotherGameData = data.anotherGameData || billItem.anotherGameData // 如果有原始游戏数据，写入原始游戏数据
         // 4，原子操作更新余额
         let res = await this.updateItem({
             Key: { "userName": player.userName },
             ReturnValues: ["UPDATED_OLD"],
             UpdateExpression: "SET balance = balance + :amt,lastSn = :lastSn",
-            ConditionExpression: "lastSn <> :lastSn", // 检查本次更新的流水sn和上次是否相同，相同会直接抛出异常由外部捕获
+            ConditionExpression: "lastSn <> :lastSn",       // 检查本次更新的流水sn和上次是否相同，相同会直接抛出异常由外部捕获
             ExpressionAttributeValues: { ":amt": amt, ":lastSn": billItem.sn }
         })
         // 5，原子操作返回值写入流水
