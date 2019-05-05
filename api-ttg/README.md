@@ -22,9 +22,9 @@ https://webgame.na77.org/ag/gameurl/1050000/1050018/990614/eyJhbGciOiJIUzI1NiIsI
 #YSB PC版本链接
 http://mwhitelabel.a1go.org/login.aspx?username=:userName&langcode=zh-cn&sign=:token&v=1203&rad=123456
 
-http://ysbm.btgamehub.com/login.aspx?username=NAPL_990614&langcode=zh-cn&sign=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6IlhZQ0hEX25zMDUwIiwic3VmZml4IjoiWFlDSEQiLCJ1c2VySWQiOjk5MDYxNCwiaWF0IjoxNTE3OTg2NjkzfQ.aDV2_mOgREZKYi1FW76k3zyzmDoL3Sv_bQXDPqBJ4Q8&v=1376
-
 http://mwhitelabel.a1go.org/login.aspx?v=1203&langcode=zh-cn&username=NAPL_268184&sign=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6IlFKU0hfd3dqMDIiLCJzdWZmaXgiOiJRSlNIIiwidXNlcklkIjoyNjgxODQsImV4cGlyZSI6MTUzMDkzNzQzMTE4NiwiaWF0IjoxNTMwODUxMDMxfQ.50tUvo3l_Flkb4aVHrotoFD8yhKunXoBt4z3lfJDcUk&rad=123456
+
+http://ysbm.btgamehub.com/login.aspx?username=NAPL_990614&langcode=zh-cn&sign=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6IlhZQ0hEX25zMDUwIiwic3VmZml4IjoiWFlDSEQiLCJ1c2VySWQiOjk5MDYxNCwiaWF0IjoxNTE3OTg2NjkzfQ.aDV2_mOgREZKYi1FW76k3zyzmDoL3Sv_bQXDPqBJ4Q8&v=1376
 
 #RTG PC版本链接
 http://ext.na77.org/rtg/gameurl/:gameId/:sid/:userId/:token
