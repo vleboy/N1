@@ -36,15 +36,15 @@ app.use(xauth(config.auth, (v) => { // TOKEN身份认证中间件，参数1：�
     return words.length > 1 ? words[1] : words[0]
 }, (ctx) => {
     if (ctx.body.name == 'TokenExpiredError') {
-        ctx.body.err = 10
-        ctx.body.errdesc = 'TOKEN已过期'
+        ctx.body.code = -2
+        ctx.body.msg = 'TOKEN已过期'
     } else if (ctx.body.err) {
         if (ctx.body.res && ctx.body.res.indexOf("未配置访问权限")) {
-            ctx.body.err = 19
-            ctx.body.errdesc = "没有权限"
+            ctx.body.code = 14001
+            ctx.body.msg = "没有权限"
         } else {
-            ctx.body.err = 10
-            ctx.body.errdesc = "TOKEN错误"
+            ctx.body.code = 11000
+            ctx.body.msg = "TOKEN错误"
         }
     }
 }))
