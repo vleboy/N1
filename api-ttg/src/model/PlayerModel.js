@@ -103,8 +103,10 @@ module.exports = class PlayerModel extends BaseModel {
         const prefix = `A${naGameCompany}`                  // 流水前缀
         let billType = amt <= 0 ? 3 : 4                     // 流水类型(只有正数才是返奖，否则为下注)
         const isCheckRet = naGameType != config.ysb.gameType && naGameType != config.dt.gameType && billType != 3 ? true : false
-        const isCheckKYBet = naGameType == config.ky.gameType && amt != 0 ? true : false
-        const isCheckKYRet = naGameType == config.ky.gameType && data.billType != 5 ? true : false
+        // const isCheckKYBet = naGameType == config.ky.gameType && amt != 0 ? true : false
+        // const isCheckKYRet = naGameType == config.ky.gameType && data.billType != 5 ? true : false
+        const isCheckKYBet = true
+        const isCheckKYRet = true
         let bkBet = {}                                      // 返奖对应的下注对象        
         data.userId = player.userId                         // 设置玩家ID
         data.userName = player.userName                     // 设置玩家帐号
