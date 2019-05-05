@@ -34,8 +34,7 @@ router.get('/mg/gameurl/:gameId/:sid/:userName/:userId/:token', async (ctx, next
     })
     // 判断玩家是否在其他游戏中
     if (nares.data.code != 0) {
-        ctx.body = { code: nares.data.code, msg: nares.data.msg }
-        return
+        return ctx.body = { code: nares.data.code, msg: nares.data.msg }
     }
     // 从MG获取游戏链接
     let lpsGameId = parseInt(inparam.sid) - parseInt(inparam.gameId)
