@@ -65,13 +65,12 @@ module.exports = class PlayerBillDetailModel extends BaseModel {
      * 查询对应的BK数据
      * @param {*} inparam 
      */
-    async queryBk(inparam) {
-        const ret = await this.queryOnce({
+    queryBk(inparam) {
+        return this.queryOnce({
             IndexName: 'BusinessKeyIndex',
             KeyConditionExpression: 'businessKey=:businessKey',
             ExpressionAttributeValues: { ':businessKey': inparam.bk }
         })
-        return ret.Items
     }
 
     /**

@@ -8,7 +8,7 @@ const router = new Router()
 const _ = require('lodash')
 const axios = require('axios')
 const CryptoJS = require("crypto-js")
-const legacy = require('legacy-encoding')
+// const legacy = require('legacy-encoding')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
@@ -20,7 +20,7 @@ const LogModel = require('./model/LogModel')
 /**
  * 检查YSB会员登录接口
  */
-router.post('/ysb/login', async function (ctx, next) {
+router.post('/ysb/login', async (ctx, next) => {
     // 获取入参
     let action = ctx.request.body.request.$.action
     let inparam = ctx.request.body.request.element[0]
@@ -32,12 +32,8 @@ router.post('/ysb/login', async function (ctx, next) {
     // log.info(action)
     // log.info(JSON.stringify(inparam))
     for (let prop of inparam.properties) {
-        if (prop.$.name == 'UN') {
-            UN = prop._.split('_')[1]
-        }
-        if (prop.$.name == 'SG') {
-            SG = prop._
-        }
+        UN = prop.$.name == 'UN' ? prop._.split('_')[1] : UN
+        SG = prop.$.name == 'SG' ? prop._ : SG
     }
     // 查询玩家
     const player = await new PlayerModel().getPlayerById(UN)
@@ -45,13 +41,6 @@ router.post('/ysb/login', async function (ctx, next) {
         S = 104
         ED = '玩家不存在'
     } else {
-        // 请求N1服务器是否允许玩家进入游戏
-        // log.info(`请求NA平台【POST】${config.na.joingameurl}`)
-        // log.info('请求NA平台【参数】' + JSON.stringify({
-        //     userId: player.userId,
-        //     gameId: config.ysb.gameType,
-        //     sid: config.ysb.gameId
-        // }))
         const nares = await axios.post(config.na.joingameurl, {
             userId: player.userId,
             gameId: config.ysb.gameType,
@@ -61,7 +50,6 @@ router.post('/ysb/login', async function (ctx, next) {
         // 根据返回结果是否允许玩家进入游戏
         if (nares.data.code != 0) {
             log.error(nares.data)
-            ctx.body = { code: nares.data.code, msg: nares.data.msg }
             S = 104
             ED = nares.data.msg
         }
@@ -72,7 +60,7 @@ router.post('/ysb/login', async function (ctx, next) {
 /**
  * YSB唯一接口
  */
-router.post('/ysb/postTransfer', async function (ctx, next) {
+router.post('/ysb/postTransfer', async (ctx, next) => {
     // 获取入参
     let action = ctx.request.body.request.$.action
     let inparam = ctx.request.body.request.element[0]
@@ -90,24 +78,12 @@ router.post('/ysb/postTransfer', async function (ctx, next) {
     // log.info(action)
     // log.info(JSON.stringify(inparam))
     for (let prop of inparam.properties) {
-        if (prop.$.name == 'UN') {
-            UN = prop._.split('_')[1]
-        }
-        if (prop.$.name == 'AMT') {
-            AMT = +prop._
-        }
-        if (prop.$.name == 'TRX') {
-            TRX = prop._
-        }
-        if (prop.$.name == 'VID') {
-            VID = prop._
-        }
-        if (prop.$.name == 'PAYAMT') {
-            PAYAMT = prop._
-        }
-        if (prop.$.name == 'REFID') {
-            REFID = prop._
-        }
+        UN = prop.$.name == 'UN' ? prop._.split('_')[1] : UN
+        AMT = prop.$.name == 'AMT' ? prop._ : AMT
+        TRX = prop.$.name == 'TRX' ? prop._ : TRX
+        VID = prop.$.name == 'VID' ? prop._ : VID
+        PAYAMT = prop.$.name == 'PAYAMT' ? prop._ : PAYAMT
+        REFID = prop.$.name == 'REFID' ? prop._ : REFID
     }
     // 转换Record的XML对象为JSON对象
     if (inparam.Record && inparam.Record.length > 0) {
@@ -126,53 +102,49 @@ router.post('/ysb/postTransfer', async function (ctx, next) {
         CC = 0
         S = 104
         ED = '玩家不存在'
-        ctx.body = getYSBResponse(action, { UN: `NAPL_${UN}`, UID: UN, CC, S, ED })
-        return
+        return ctx.body = getYSBResponse(action, { UN: `NAPL_${UN}`, UID: UN, CC, S, ED })
     }
     inparam.userName = player.userName
     inparam.userId = player.userId
+    inparam.gameType = config.ysb.gameType
     // 设置玩家余额
     BAL = player.balance
     // 判断交易类型
     switch (action) {
+        case 'ACCOUNTBALANCE':
+            ctx.body = getYSBResponse(action, { UN: `NAPL_${UN}`, CC, BAL, S })
+            break;
         case 'BET':
             // 设置关键数据，冻结用户金额
-            inparam.gameType = config.ysb.gameType                                      // TODO:从配置文件获取游戏类型，未来考虑自动获取
-            inparam.amt = parseFloat(AMT) * -1
-            inparam.roundId = `CYSB_${UN}_${TRX}`                                       // 设置大局号
-            inparam.businessKey = `BYSB_${UN}_${TRX}`                                   // 设置局号
             inparam.billType = 6                                                        // 设置为冻结
+            inparam.amt = parseFloat(AMT) * -1
+            inparam.businessKey = `BYSB_${UN}_${TRX}`
+            inparam.roundId = `CYSB_${UN}_${TRX}`
             // 下注如果已经存在，则拒绝该条下注
             if (await new PlayerBillDetailModel().isExistBkBet(inparam)) {
                 new LogModel().add('3', 'flowerror', inparam, `已存在对应BK【${inparam.businessKey}】的冻结`)
+                S = 1016
+                ED = '重复投注'
             } else {
                 BAL = await new PlayerModel().updatebalance(player, inparam)
+                if (BAL == 'err') {
+                    S = 1016
+                    ED = '余额不足'
+                }
             }
-            if (BAL == 'err') {
-                S = 1016
-                ED = '余额不足'
-                ctx.body = getYSBResponse(action, { TRX, UN: `NAPL_${UN}`, VID, CC, BAL, S, ED })
-            } else {
-                ctx.body = getYSBResponse(action, { TRX, UN: `NAPL_${UN}`, VID, CC, BAL, S, ED })
-            }
+            ctx.body = getYSBResponse(action, { TRX, UN: `NAPL_${UN}`, VID, CC, BAL, S, ED })
             break;
         case 'BETCONFIRM':
-            // 一、设置关键数据，解冻用户金额
-            inparam.gameType = config.ysb.gameType                                      // TODO:从配置文件获取游戏类型，未来考虑自动获取
-            inparam.roundId = `CYSB_${UN}_${TRX}`                                       // 设置大局号
-            inparam.businessKey = `BYSB_${UN}_${TRX}`                                   // 设置局号
-            inparam.billType = 5                                                        // 设置为退款解冻
+            inparam.billType = 5                                                       // 设置为解冻
+            inparam.businessKey = `BYSB_${UN}_${TRX}`
+            inparam.roundId = `CYSB_${UN}_${TRX}`
             // 查询出被冻结的金额
             let freezeRecord = await new PlayerBillDetailModel().queryBk({ bk: inparam.businessKey })
             // 如果已经冻结，则先解冻
-            if (freezeRecord && freezeRecord.length == 1) {
-                inparam.amt = Math.abs(freezeRecord[0].amount)
+            if (freezeRecord.Items && freezeRecord.Items.length == 1) {
+                inparam.amt = Math.abs(freezeRecord.Items[0].amount)
                 BAL = await new PlayerModel().updatebalance(player, inparam)
             }
-            // else {
-            //     new LogModel().add('3', 'flowerror', inparam, `未找到对应BK【${inparam.businessKey}】的冻结`)
-            // }
-            // 二、开始执行下注操作
             inparam.billType = 3
             // 遍历所有下注项，每个下注项对应一条下注
             for (let record of Record) {
@@ -181,10 +153,10 @@ router.post('/ysb/postTransfer', async function (ctx, next) {
                 }
                 // 设置关键数据，保存流水更新余额
                 inparam.amt = parseFloat(record.AMT) * -1
-                inparam.roundId = `CYSB_${UN}_${TRX}`                                       // 设置大局号
-                inparam.businessKey = `BYSB_${UN}_${record.REFID}`                          // 设置局号
-                inparam.anotherGameData = legacy.decode(JSON.stringify(record), 'gb2312')   // 将原始游戏信息JSON格式化存储
-                inparam.txnidTemp = `${UN}_${record.REFID}`                                 // 使用第三方ID作为唯一建成分
+                inparam.roundId = `CYSB_${UN}_${TRX}`
+                inparam.businessKey = `BYSB_${UN}_${record.REFID}`
+                inparam.txnidTemp = `${UN}_${record.REFID}`                           // 使用第三方ID作为唯一建成分
+                inparam.anotherGameData = JSON.stringify(record)                      // 将原始游戏信息JSON格式化存储
                 // 下注如果已经存在，则拒绝该条下注
                 if (await new PlayerBillDetailModel().isExistBkBet(inparam)) {
                     new LogModel().add('3', 'flowerror', inparam, `已存在对应BK【${inparam.businessKey}】的下注`)
@@ -209,8 +181,6 @@ router.post('/ysb/postTransfer', async function (ctx, next) {
             break;
         case 'PAYOUT':
             inparam.billType = 4
-            // 设置关键数据，保存流水更新余额
-            inparam.gameType = config.ysb.gameType                                          // TODO:从配置文件获取游戏类型，未来考虑自动获取
             inparam.amt = parseFloat(PAYAMT)
             // if (inparam.amt < 0) {
             //     inparam.billType = 3
@@ -237,9 +207,6 @@ router.post('/ysb/postTransfer', async function (ctx, next) {
             }
             ctx.body = getYSBResponse(action, { TRX, UN: `NAPL_${UN}`, CC, BAL, S, ED })
             break;
-        case 'ACCOUNTBALANCE':
-            ctx.body = getYSBResponse(action, { UN: `NAPL_${UN}`, CC, BAL, S })
-            break;
         default:
             return
     }
@@ -249,7 +216,7 @@ router.post('/ysb/postTransfer', async function (ctx, next) {
  * 网页玩家登出
  * @param {*} userId 玩家ID
  */
-router.get('/ysb/logout/:userId/:sid', async function (ctx, next) {
+router.get('/ysb/logout/:userId/:sid', async (ctx, next) => {
     // 请求N1退出
     let data = {
         exit: 1,

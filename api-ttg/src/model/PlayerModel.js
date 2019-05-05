@@ -249,10 +249,10 @@ module.exports = class PlayerModel extends BaseModel {
         return new Promise(async (resolve, reject) => {
             // 查询BK对应的流水
             let bills = await new PlayerBillDetailModel().queryBk({ bk: inparam.businessKey })
-            if (bills && bills.length > 0) {
-                let bets = bills.filter(i => i.type == 3)                                           // 所有下注
+            if (bills.Items && bills.Items.length > 0) {
+                let bets = bills.Items.filter(i => i.type == 3)                                     // 所有下注
                 let bet = bets[0]                                                                   // 第一条下注
-                let ret = bills.filter(i => i.type == 4 || i.type == 5)                             // 所有返奖
+                let ret = bills.Items.filter(i => i.type == 4 || i.type == 5)                       // 所有返奖
                 let content = ret ? { bet: bets, ret } : { bet: bets }
                 // 生成注单
                 let betAmount = 0                                                                   // 下注金额
