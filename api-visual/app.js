@@ -31,24 +31,23 @@ app.use(mount('/', cors()))         // 接口跨域请求
 app.use(koaBody())                  // 入参JSON解析中间件
 // 认证日志
 app.use(xlog(config.log, null))     //日志中间件，参数1：日志配置，参数2：额外日志处理
-app.use(xauth(config.auth, (v) => { // TOKEN身份认证中间件，参数1：认证配置，参数2：额外自定义TOKEN解析规则，参数3：自定义错误处理
-    let words = v.split(" ")
-    return words.length > 1 ? words[1] : words[0]
-}, (ctx) => {
-    console.error(ctx.body)
-    if (ctx.body.name == 'TokenExpiredError') {
-        ctx.body.err = 10
-        ctx.body.errdesc = 'TOKEN已过期'
-    } else if (ctx.body.err) {
-        if (ctx.body.res && ctx.body.res.indexOf("未配置访问权限")) {
-            ctx.body.err = 19
-            ctx.body.errdesc = "没有权限"
-        } else {
-            ctx.body.err = 10
-            ctx.body.errdesc = "TOKEN错误"
-        }
-    }
-}))
+// app.use(xauth(config.auth, (v) => { // TOKEN身份认证中间件，参数1：认证配置，参数2：额外自定义TOKEN解析规则，参数3：自定义错误处理
+//     let words = v.split(" ")
+//     return words.length > 1 ? words[1] : words[0]
+// }, (ctx) => {
+//     if (ctx.body.name == 'TokenExpiredError') {
+//         ctx.body.err = 10
+//         ctx.body.errdesc = 'TOKEN已过期'
+//     } else if (ctx.body.err) {
+//         if (ctx.body.res && ctx.body.res.indexOf("未配置访问权限")) {
+//             ctx.body.err = 19
+//             ctx.body.errdesc = "没有权限"
+//         } else {
+//             ctx.body.err = 10
+//             ctx.body.errdesc = "TOKEN错误"
+//         }
+//     }
+// }))
 
 // 业务路由
 app.use(mount('/visual', mapapirouter.routes()))    // 地图接口路由
