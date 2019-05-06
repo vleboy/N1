@@ -120,6 +120,7 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
             } else if (BAL == player.balance) {
                 S = 1016
                 ED = '重复投注'
+                console.error(`重复投注:${inparam.businessKey}`)
             }
             ctx.body = getYSBResponse(action, { TRX, UN: `NAPL_${UN}`, VID, CC, BAL, S, ED })
             break;
@@ -134,6 +135,7 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
                 inparam.txnidTemp = `${UN}_UNBET_${TRX}`
                 inparam.betsn = `AYSB_${UN}_BET_${TRX}`
                 BAL = await new PlayerModel().updatebalance(player, inparam)
+                player.balance = BAL
             }
             // 遍历所有下注项，每个下注项对应一条下注
             for (let record of Record) {
@@ -145,14 +147,7 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
                 inparam.businessKey = `BYSB_${UN}_${record.REFID}`
                 inparam.txnidTemp = `${UN}_BETCONFIRM_${record.REFID}`
                 inparam.anotherGameData = JSON.stringify(record)                      // 将原始游戏信息JSON格式化存储
-                console.log('测试0')
-                console.log(inparam)
-                console.log(player.balance)
                 BAL = await new PlayerModel().updatebalance(player, inparam)
-                console.log('测试1')
-                console.log(BAL)
-                console.log(player.balance)
-                console.log('测试2')
                 if (BAL == player.balance) {
                     new LogModel().add('2', 'flowerror', inparam, `已存在对应BK【${inparam.businessKey}】的下注`)
                 }
@@ -183,6 +178,7 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
             if (!await new PlayerBillDetailModel().ysbPayoutCheck(inparam)) {
                 S = 1013
                 ED = '返奖已存在'
+                console.error(`返奖已存在:${inparam.businessKey}`)
             } else {
                 BAL = await new PlayerModel().updatebalance(player, inparam)
                 if (BAL == player.balance) {
