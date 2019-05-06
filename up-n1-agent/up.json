@@ -1,8 +1,8 @@
 {
   "name": "up-n1-agent",
   "environment": {
-    "NODE_ENV1": "develop",
-    "NODE_ENV": "agent-n1",
+    "NODE_ENV": "develop",
+    "NODE_ENV1": "agent-n1",
     "NODE_ENV2": "agent-n2"
   },
   "regions": ["ap-southeast-1"],
