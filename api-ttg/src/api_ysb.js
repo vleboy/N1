@@ -4,10 +4,10 @@ const config = require('config')
 const Router = require('koa-router')
 const router = new Router()
 // 工具相关
-// const jwt = require('jsonwebtoken')
 const _ = require('lodash')
 const axios = require('axios')
 const CryptoJS = require("crypto-js")
+// const jwt = require('jsonwebtoken')
 // const legacy = require('legacy-encoding')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
@@ -16,6 +16,7 @@ const PlayerModel = require('./model/PlayerModel')
 const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
 const HeraGameRecordModel = require('./model/HeraGameRecordModel')
 const LogModel = require('./model/LogModel')
+const ipMap = {}
 
 /**
  * 检查YSB会员登录接口
