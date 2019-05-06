@@ -36,8 +36,8 @@ module.exports = class LogModel extends BaseModel {
             ret: 'N',
             role,
             type,
-            userId: inparam.userId.toString(),
-            userName: inparam.userName,
+            userId: inparam.userId + '',
+            userName: inparam.userName
         }
         if (role == '3' && options) {
             log.betTime = options

@@ -1,7 +1,6 @@
 const BaseModel = require('./BaseModel')
 const LogModel = require('./LogModel')
 const moment = require('moment')
-const config = require('config')
 
 /**
  * 实际业务子类，继承于BaseModel基类
@@ -74,45 +73,39 @@ module.exports = class PlayerBillDetailModel extends BaseModel {
     }
 
     /**
-     * 是否存在对应的BK下注数据
+     * YSB派彩检查
      * @param {*} inparam 
      */
-    async isExistBkBet(inparam, type = 3) {
+    async ysbPayoutCheck(inparam) {
         const ret = await this.queryOnce({
             IndexName: 'BusinessKeyIndex',
-            ProjectionExpression: 'createdAt',
+            ProjectionExpression: 'sn',
             KeyConditionExpression: 'businessKey = :businessKey',
             FilterExpression: '#type = :type',
             ExpressionAttributeNames: { '#type': 'type' },
             ExpressionAttributeValues: {
                 ':businessKey': inparam.businessKey,
-                ':type': type
+                ':type': 4
             }
         })
         // YSB的返奖需要判断返奖的TRX是否相同
-        if (type == 4 && ret && ret.Items && ret.Items.length > 0) {
+        if (ret && ret.Items && ret.Items.length > 0) {
             // 计算累计派彩，如果遇到有相同ID的派彩，则直接返回退出
             let payoutSum = 0
             for (let item of ret.Items) {
-                if (item.roundId == inparam.roundId) {
-                    return true
+                if (item.sn == `AYSB_${inparam.txnidTemp}`) {
+                    return false
                 }
                 payoutSum += item.amount
             }
             // 如果需要扣除派彩，需要检查不能超额扣款
             if (inparam.amt < 0 && inparam.amt + payoutSum < 0) {
-                new LogModel().add('3', 'ysbpayout', inparam, `YSB扣款超额,对应BK【${inparam.businessKey}】,时间【${Date.now()}】`)
-                return true
+                new LogModel().add('2', 'ysbpayout', inparam, `YSB扣款超额,对应BK【${inparam.businessKey}】,时间【${Date.now()}】`)
+                return false
             }
             // 派彩存在的情况下，再次派不同的彩，则日志记录派彩修正
-            new LogModel().add('3', 'ysbfix', inparam, `YSB进行返奖修正,对应BK【${inparam.businessKey}】,时间【${Date.now()}】`)
-            return false
+            new LogModel().add('2', 'ysbfix', inparam, `YSB进行返奖修正,对应BK【${inparam.businessKey}】,时间【${Date.now()}】`)
         }
-        // 判断下注是否重复直接返回结果
-        if (!ret || !ret.Items || ret.Items.length < 1) {
-            return false
-        } else {
-            return true
-        }
+        return true
     }
 }

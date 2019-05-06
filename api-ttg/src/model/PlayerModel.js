@@ -110,7 +110,7 @@ module.exports = class PlayerModel extends BaseModel {
         data.userName = player.userName                     // 设置玩家帐号
         data.sntemp = data.txnidTemp ? `${prefix}_${data.txnidTemp}` : `${prefix}${this.billSerial(player.userId)}`
 
-        const isCheckRet = naGameType != config.ysb.gameType && naGameType != config.dt.gameType && naGameType != config.ky.gameType && billType != 3 ? true : false
+        const isCheckRet = naGameType != config.ky.gameType && naGameType != config.dt.gameType && billType != 3 && billType != 6 ? true : false
         const isCheckKYBet = naGameType == config.ky.gameType && billType == 3 && amt != 0 ? true : false
         const isCheckKYRet = naGameType == config.ky.gameType && billType == 5 ? true : false
         // 2，输入流水检查
@@ -142,11 +142,9 @@ module.exports = class PlayerModel extends BaseModel {
             }
         }
         // 检查：重复的流水，直接返回当前玩家余额
-        if (naGameType != config.ysb.gameType) {
-            let billRepeat = await new PlayerBillDetailModel().getBill(data.sntemp)
-            if (billRepeat.Item && !_.isEmpty(billRepeat.Item)) {
-                return player.balance
-            }
+        let billRepeat = await new PlayerBillDetailModel().getBill(data.sntemp)
+        if (billRepeat.Item && !_.isEmpty(billRepeat.Item)) {
+            return player.balance
         }
         // 检查：下注不存在，直接返回当前玩家余额
         if (isCheckRet || isCheckKYRet) {
@@ -217,7 +215,7 @@ module.exports = class PlayerModel extends BaseModel {
         billItem.balance = parseFloat((res.Attributes.balance + amt).toFixed(2)) // 玩家余额
         await new PlayerBillDetailModel().putItem(billItem)
         // 6，非延时长的游戏,非下注流水检查是否超时
-        if ((naGameType != config.sa.fishGameType && isCheckRet) || isCheckKYRet) {
+        if ((naGameType != config.sa.fishGameType && naGameType != config.ysb.gameType && isCheckRet) || isCheckKYRet) {
             new PlayerBillDetailModel().checkExpire(bkBet, billItem)
         }
         console.timeEnd('单笔流水处理耗时')

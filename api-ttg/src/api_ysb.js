@@ -111,60 +111,56 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
             inparam.billType = 6                                                        // 设置为冻结
             inparam.amt = parseFloat(AMT) * -1
             inparam.businessKey = `BYSB_${UN}_${TRX}`
-            // 下注如果已经存在，则拒绝该条下注
-            if (await new PlayerBillDetailModel().isExistBkBet(inparam)) {
-                new LogModel().add('3', 'flowerror', inparam, `已存在对应BK【${inparam.businessKey}】的冻结`)
+            inparam.txnidTemp = `${UN}_BET_${TRX}`
+            BAL = await new PlayerModel().updatebalance(player, inparam)
+            if (BAL == 'err') {
+                S = 1016
+                ED = '余额不足'
+            } else if (BAL == player.balance) {
                 S = 1016
                 ED = '重复投注'
-            } else {
-                BAL = await new PlayerModel().updatebalance(player, inparam)
-                if (BAL == 'err') {
-                    S = 1016
-                    ED = '余额不足'
-                }
             }
             ctx.body = getYSBResponse(action, { TRX, UN: `NAPL_${UN}`, VID, CC, BAL, S, ED })
             break;
         case 'BETCONFIRM':
-            inparam.billType = 5                                                        // 设置为解冻
-            inparam.businessKey = `BYSB_${UN}_${TRX}`
             // 查询出被冻结的金额
-            let freezeRecord = await new PlayerBillDetailModel().queryBk({ bk: inparam.businessKey })
+            let freezeRecord = await new PlayerBillDetailModel().getBill(`AYSB_${UN}_BET_${TRX}`)
             // 如果已经冻结，则先解冻
-            if (freezeRecord.Items && freezeRecord.Items.length == 1) {
-                inparam.amt = Math.abs(freezeRecord.Items[0].amount)
+            if (freezeRecord.Item && !_.isEmpty(freezeRecord.Item)) {
+                inparam.billType = 5                                                   // 设置为解冻
+                inparam.amt = Math.abs(freezeRecord.Item.amount)
+                inparam.businessKey = `BYSB_${UN}_${TRX}`
+                inparam.txnidTemp = `${UN}_UNBET_${TRX}`
+                inparam.betsn = `AYSB_${UN}_BET_${TRX}`
                 BAL = await new PlayerModel().updatebalance(player, inparam)
             }
-            inparam.billType = 3
             // 遍历所有下注项，每个下注项对应一条下注
             for (let record of Record) {
                 if (!record.REFID || isNaN(parseInt(record.REFID))) {
                     continue
                 }
-                // 设置关键数据，保存流水更新余额
+                inparam.billType = 3
                 inparam.amt = parseFloat(record.AMT) * -1
                 inparam.businessKey = `BYSB_${UN}_${record.REFID}`
-                inparam.txnidTemp = `${UN}_${record.REFID}`                           // 使用第三方ID作为唯一建成分
+                inparam.txnidTemp = `${UN}_BETCONFIRM_${record.REFID}`
                 inparam.anotherGameData = JSON.stringify(record)                      // 将原始游戏信息JSON格式化存储
-                // 下注如果已经存在，则拒绝该条下注
-                if (await new PlayerBillDetailModel().isExistBkBet(inparam)) {
-                    new LogModel().add('3', 'flowerror', inparam, `已存在对应BK【${inparam.businessKey}】的下注`)
-                } else {
-                    BAL = await new PlayerModel().updatebalance(player, inparam)
-                    // 下注写入YSB战绩
-                    new HeraGameRecordModel().writeRound({
-                        userId: player.userId,
-                        userName: player.userName,
-                        businessKey: inparam.businessKey,
-                        createdAt: Date.now(),
-                        gameId: inparam.gameType.toString(),
-                        gameType: inparam.gameType,
-                        parent: player.parent,
-                        status: 3,
-                        content: { bet: [], ret: [] },
-                        anotherGameData: inparam.anotherGameData
-                    })
+                BAL = await new PlayerModel().updatebalance(player, inparam)
+                if (BAL == player.balance) {
+                    new LogModel().add('2', 'flowerror', inparam, `已存在对应BK【${inparam.businessKey}】的下注`)
                 }
+                // 下注写入YSB战绩，以便提供实时查询，status==3不会提供给商户查询，PAYOUT后会根据主键覆盖
+                new HeraGameRecordModel().writeRound({
+                    userId: player.userId,
+                    userName: player.userName,
+                    businessKey: inparam.businessKey,
+                    createdAt: Date.now(),
+                    gameId: inparam.gameType.toString(),
+                    gameType: inparam.gameType,
+                    parent: player.parent,
+                    status: 3,
+                    content: { bet: [], ret: [] },
+                    anotherGameData: inparam.anotherGameData
+                })
             }
             ctx.body = getYSBResponse(action, { TRX, UN: `NAPL_${UN}`, CC, BAL, S })
             break;
@@ -172,22 +168,22 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
             inparam.billType = 4
             inparam.amt = parseFloat(PAYAMT)
             inparam.businessKey = `BYSB_${UN}_${REFID}`
-            inparam.txnidTemp = `${UN}_${TRX}`                                              // 使用第三方ID作为唯一建成分
-            // 下注不存在，则拒绝该条返奖
-            if (!await new PlayerBillDetailModel().isExistBkBet(inparam)) {
-                new LogModel().add('3', 'flowerror', inparam, `未找到对应BK【${inparam.businessKey}】的下注`)
-                S = 1013
-                ED = '缺少对应下注'
-            }
-            // 返奖已经存在，则拒绝该条返奖
-            else if (await new PlayerBillDetailModel().isExistBkBet(inparam, 4)) {
-                new LogModel().add('3', 'flowerror', inparam, `对应BK【${inparam.businessKey}】的返奖已经存在`)
+            inparam.txnidTemp = `${UN}_PAYOUT_${REFID}`
+            inparam.betsn = `AYSB_${UN}_BETCONFIRM_${REFID}`
+            inparam.txnid = TRX
+            // 检查派彩调整是否正确
+            if (!await new PlayerBillDetailModel().ysbPayoutCheck(inparam)) {
                 S = 1013
                 ED = '返奖已存在'
             } else {
                 BAL = await new PlayerModel().updatebalance(player, inparam)
-                // 生成新注单
-                new PlayerModel().addRound(player, inparam)
+                if (BAL == player.balance) {
+                    S = 1013
+                    ED = '返奖已存在'
+                    new LogModel().add('2', 'flowerror', inparam, `对应BK【${inparam.businessKey}】的返奖已经存在`)
+                } else {
+                    new PlayerModel().addRound(player, inparam)
+                }
             }
             ctx.body = getYSBResponse(action, { TRX, UN: `NAPL_${UN}`, CC, BAL, S, ED })
             break;
