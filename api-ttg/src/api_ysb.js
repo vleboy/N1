@@ -145,6 +145,10 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
                 inparam.txnidTemp = `${UN}_BETCONFIRM_${record.REFID}`
                 inparam.anotherGameData = JSON.stringify(record)                      // 将原始游戏信息JSON格式化存储
                 BAL = await new PlayerModel().updatebalance(player, inparam)
+                console.log('测试1')
+                console.log(BAL)
+                console.log(player.balance)
+                console.log('测试2')
                 if (BAL == player.balance) {
                     new LogModel().add('2', 'flowerror', inparam, `已存在对应BK【${inparam.businessKey}】的下注`)
                 }
