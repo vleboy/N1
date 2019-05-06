@@ -45,7 +45,7 @@ module.exports.checkRound = async (e, c, cb) => {
         }
         // 修正SA战绩查询失败，检查局表中是否存在anotherGameData，不存在则需要修正
         for (let item of RoleRet2) {
-            let p = new Promise(async function (resolve, reject) {
+            let p = new Promise(async (resolve, reject) => {
                 let bk = item.inparams.businessKey
                 let flag = false
                 // 已重复bk，直接更新Y

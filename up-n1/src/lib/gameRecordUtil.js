@@ -89,16 +89,18 @@ function getOtherObj(record) {
     } else if (gameType == "1060000") { //SA真人,anotherGameData{data:[{\"GameResult\":[{\"BaccaratResult\":[]}]}],mixAmount:0}
         let betObj = getContentBetObj(record)
         let retObj = getContentRetObj(record)
+        if (record.anotherGameData.data == '[]' && record.content.ret.length > 0 && record.content.bet.length == record.content.ret.length) {
+            record.anotherGameData = { data: '[{\"GameResult\":[{\"BaccaratResult\":[]}]}]', mixAmount: Math.min(Math.abs(betObj.betAmount), Math.abs(parseFloat((retObj.retAmount - betObj.betAmount).toFixed(2)))) }
+        }
         if (retObj.refundAmount > 0 && retObj.refundAmount == betObj.betAmount) {  // 退款金额和下注金额一致，则设置默认战绩
             record.anotherGameData = { data: '[{\"GameResult\":[{\"BaccaratResult\":[]}]}]', mixAmount: 0 }
         }
         if (!record.anotherGameData || record.anotherGameData == 'NULL!') {        // SA查询没有战绩，则设置默认战绩
             record.anotherGameData = { data: '[{\"GameResult\":[{\"BaccaratResult\":[]}]}]', mixAmount: 0 }
         }
-        let item = JSON.parse((record.anotherGameData || { data: "{}" }).data)
-        item = (item || [])[0]
+        let item = JSON.parse(record.anotherGameData.data)[0]
         otherObj = {
-            gameName: (item.HostName || [])[0],
+            gameName: (item.HostName || ['SA真人游戏'])[0],
             preBalance: betObj.preBalance,
             betAmount: betObj.betAmount,
             winAmount: retObj.winAmount,

@@ -92,7 +92,7 @@ module.exports = class StatRoundModel extends BaseModel {
         // 查询是否有战绩
         if (bkRet && bkRet.Items.length > 0) {
             let anotherGameData = bkRet.Items[0].anotherGameData
-            if (anotherGameData && anotherGameData != 'NULL!') {
+            if (anotherGameData && anotherGameData != 'NULL!' && anotherGameData.data != '[]') {
                 flag = true
             }
         }
