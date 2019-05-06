@@ -145,6 +145,9 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
                 inparam.businessKey = `BYSB_${UN}_${record.REFID}`
                 inparam.txnidTemp = `${UN}_BETCONFIRM_${record.REFID}`
                 inparam.anotherGameData = JSON.stringify(record)                      // 将原始游戏信息JSON格式化存储
+                console.log('测试0')
+                console.log(inparam)
+                console.log(player.balance)
                 BAL = await new PlayerModel().updatebalance(player, inparam)
                 console.log('测试1')
                 console.log(BAL)

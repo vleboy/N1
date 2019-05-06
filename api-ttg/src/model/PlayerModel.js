@@ -219,6 +219,9 @@ module.exports = class PlayerModel extends BaseModel {
             new PlayerBillDetailModel().checkExpire(bkBet, billItem)
         }
         console.timeEnd('单笔流水处理耗时')
+        console.log('asd')
+        console.log(billItem.balance)
+        console.log('qwe')
         return billItem.balance
     }
 
