@@ -18,17 +18,14 @@ class PlayerBillDetailModel extends BaseModel {
      * 根据时间范围获取流水
      * @param {*} inparam 
      */
-    async queryByTime(inparam) {
-        return await this.query({
+    queryByTime(inparam) {
+        return this.query({
             IndexName: 'UserNameIndex',
-            KeyConditionExpression: 'userName=:userName and createdAt > :startTime',
-            ProjectionExpression: 'amount,createdAt,balance,#type',
-            ExpressionAttributeNames: {
-                '#type': 'type',
-            },
+            KeyConditionExpression: 'userName=:userName and createdAt > :createdAt',
+            ProjectionExpression: 'amount,balance,createdAt',
             ExpressionAttributeValues: {
                 ':userName': inparam.userName,
-                ':startTime': inparam.startTime,
+                ':createdAt': inparam.createdAt
             }
         })
     }
