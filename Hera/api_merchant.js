@@ -169,13 +169,8 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 if (playerInfo.state == '0') {
                     return ResFail(cb, { msg: '玩家已冻结' }, 10005)
                 }
-                if (playerInfo.gameState == GameStateEnum.GameIng) { //游戏中
-                    if (+playerInfo.gameId >= 1000000) {
-                        //更新玩家状态（第三方游戏网页中或强制离线后操作）
-                        await playerModel.updateOffline(userName)
-                    } else {
-                        return ResFail(cb, { msg: '玩家在游戏中不能进行充值和提现操作' }, 10007)
-                    }
+                if (playerInfo.gameState != GameStateEnum.OffLine) {
+                    await playerModel.updateOffline(userName)
                 }
                 //6,根据不同的操作类型（充值或提现）有不同的处理
                 let usage = inparam.action == -1 ? 'billout' : 'billin' // 提现需要检查余额绝对正确

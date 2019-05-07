@@ -53,17 +53,13 @@ module.exports.auth = async function (e, c, cb) {
                 return ResFail(cb, { msg: 'token无效' }, 500)
             }
         }
-        //4,获取玩家信息
+        //3,获取玩家信息
         const playerModel = new PlayerModel()
         let player = await playerModel.getPlayerById(inparam.userId)
         if (player.state != 1) {
             return ResFail(cb, { msg: '玩家已停用' }, 10005)
         }
-        //5,如果玩家在app里面玩游戏，则不能进入第三方游戏
-        if (player.gameState == GameStateEnum.GameIng && player.gameId < 1000000 && inparam.gameType > 1000000) {
-            return ResFail(cb, { msg: '玩家正在APP游戏中，不能进入网页游戏' }, 1000)
-        }
-        //6,校验玩家所属商户是否购买此款游戏
+        //4,校验玩家所属商户是否购买此款游戏
         let userInfo = await new UserModel().queryUserById(player.parent)
         if (userInfo.status != 1) {
             return ResFail(cb, { msg: '商户已停用' }, 10006)
@@ -77,10 +73,10 @@ module.exports.auth = async function (e, c, cb) {
                 return ResFail(cb, { msg: '商家游戏已被禁用，请联系运营商' }, 11007)
             }
         }
-        //7,从缓存表获取玩家最新余额
+        //5,从缓存表获取玩家最新余额
         player.usage = 'auth'
         let balance = await playerModel.getNewBalance(player)
-        //8,更新玩家，组装更新参数
+        //6,更新玩家，组装更新参数
         let updateParms = {}
         updateParms.gameState = GameStateEnum.GameIng
         updateParms.gameId = inparam.gameType
@@ -144,7 +140,7 @@ module.exports.postTransfer = async function (e, c, cb) {
                 //就算玩家游戏大类不一致也返回成功
                 return ResOK(cb, { msg: `玩家当前所在游戏【${player.gameId}】已经没有在所请求的游戏大类【${inparam.gameType}】中` }, 0)
             } else {
-                await playerModel.updateOffline(player.userName, { gameState: GameStateEnum.OffLine })
+                await playerModel.updateOffline(player.userName)
                 new LogModel().add('6', 'postTransfer', inparam, `玩家${player.userName}正常退出`)
                 return ResOK(cb, { msg: '退出成功', balance: player.balance }, 0)
             }

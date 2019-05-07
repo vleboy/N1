@@ -403,17 +403,15 @@ module.exports = class PlayerModel extends BaseModel {
     /**
      * 退出游戏
      * @param {*} userName
-     * @param {*} state
      */
-    updateOffline(userName, inparam = {}) {
-        // 更新玩家所属的洗码比和抽成比
+    updateOffline(userName) {
         return this.updateItem({
             Key: { 'userName': userName },
             UpdateExpression: "SET gameState=:gameState,gameId=:gameId,sid=:sid",
             ExpressionAttributeValues: {
-                ':gameState': +inparam.gameState || GameStateEnum.OffLine,
-                ':gameId': +inparam.gameId || 0,
-                ':sid': +inparam.sid || 0
+                ':gameState': GameStateEnum.OffLine,
+                ':gameId': 0,
+                ':sid': 0
             }
         })
     }
