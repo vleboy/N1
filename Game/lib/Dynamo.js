@@ -4,7 +4,6 @@ const Tables = {
   SYSConfig: "SYSConfig",
   PlayerBillDetail: "PlayerBillDetail",
   StatRound: "StatRound",
-  StatRoundDay: "StatRoundDay",
   HeraGameRecord: "HeraGameRecord"
 }
 

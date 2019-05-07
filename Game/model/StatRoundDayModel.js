@@ -1,23 +1,9 @@
-const { Tables, RoleCodeEnum } = require('../lib/Dynamo')
-const BaseModel = require('./BaseModel')
+const { RoleCodeEnum } = require('../lib/Dynamo')
 const moment = require('moment')
 const axios = require('axios')
 const jwt = require('jsonwebtoken')
-const _ = require('lodash')
 
-module.exports = class StatRoundDayModel extends BaseModel {
-    constructor() {
-        super()
-        // 设置表名
-        this.params = {
-            TableName: Tables.StatRoundDay,
-        }
-        // 设置对象属性
-        this.item = {
-            ...this.baseitem
-        }
-    }
-
+module.exports = class StatRoundDayModel {
     /**
      * 统计局表每一天的写入局天表
      * inparam.isInit 是否全部初始
