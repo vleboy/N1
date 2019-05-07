@@ -1,5 +1,5 @@
 const BaseModel = require('./BaseModel')
-const Tables = require('../libs/Dynamo')
+const { Tables } = require('../libs/Dynamo')
 /**
  * 实际业务子类，继承于BaseModel基类
  */
@@ -59,7 +59,7 @@ module.exports = class UserModel extends BaseModel {
             FilterExpression: 'sn = :sn',
             ExpressionAttributeNames: {
                 '#role': 'role',
-                '#status':'status'
+                '#status': 'status'
             },
             ExpressionAttributeValues: {
                 ':role': role,

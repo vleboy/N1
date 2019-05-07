@@ -9,6 +9,7 @@ const crypto = require('crypto')
 const PlayerModel = require('./models/PlayerModel')
 const UserModel = require('./models/UserModel')
 const IPCheck = require('./libs/IPCheck')
+const GameStateEnum = require('./libs/Dynamo').GameStateEnum
 //常量
 const TOKEN_SECRET = process.env.TOKEN_SECRET
 
@@ -94,7 +95,7 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
             sex: 0,
             nickname: inparam.nickname || 'NULL!',
             headPic: 'NULL!',
-            gameState: 1,
+            gameState: GameStateEnum.OffLine,
             parentSn: userInfo.sn
         }
         await new PlayerModel().putItem(putParms)

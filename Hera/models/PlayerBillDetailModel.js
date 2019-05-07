@@ -1,7 +1,7 @@
 const BaseModel = require('./BaseModel')
 const LogModel = require('./LogModel')
 const moment = require('moment')
-const Tables = require('../libs/Dynamo')
+const { Tables } = require('../libs/Dynamo')
 
 /**
  * 实际业务子类，继承于BaseModel基类

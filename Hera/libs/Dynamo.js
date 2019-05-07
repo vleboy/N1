@@ -11,4 +11,15 @@ const Tables = {
     SYSCacheBalance: "SYSCacheBalance"
 }
 
-module.exports = Tables
+//玩家游戏状态枚举
+const GameStateEnum = {
+    OffLine: 1,     //离线
+    OnLine: 2,      //在线
+    GameIng: 3      //游戏中
+}
+
+
+module.exports = {
+    Tables,
+    GameStateEnum
+}

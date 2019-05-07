@@ -1,7 +1,7 @@
 const moment = require('moment')
 const _ = require('lodash')
 const BaseModel = require('./BaseModel')
-const Tables = require('../libs/Dynamo')
+const { Tables } = require('../libs/Dynamo')
 /**
  * 战绩表实体
  */

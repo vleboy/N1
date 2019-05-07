@@ -1,5 +1,5 @@
 const BaseModel = require('./BaseModel')
-const Tables = require('../libs/Dynamo')
+const { Tables } = require('../libs/Dynamo')
 class SYSTransferModel extends BaseModel {
     constructor() {
         super()

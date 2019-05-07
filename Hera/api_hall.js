@@ -7,6 +7,7 @@ const _ = require('lodash')
 //model
 const PlayerModel = require('./models/PlayerModel')
 const UserModel = require('./models/UserModel')
+const GameStateEnum = require('./libs/Dynamo').GameStateEnum
 // const LogModel = require('./models/LogModel')
 //常量
 const TOKEN_SECRET = process.env.TOKEN_SECRET
@@ -64,9 +65,9 @@ module.exports.playerLogin = async function (e, c, cb) {
         //5,从缓存获取玩家余额,更新玩家信息
         playerInfo.usage = 'playerLogin'
         let balance = await playerModel.getNewBalance(playerInfo)
-        let gameState = playerInfo.gameState == 3 ? 3 : 2
+        let gameState = playerInfo.gameState == GameStateEnum.GameIng ? GameStateEnum.GameIng : GameStateEnum.OnLine
         if (playerInfo.gameId >= 1000000) {
-            gameState = 1
+            gameState = GameStateEnum.OffLine
         }
         await playerModel.updateJoinGame(userName, { updateAt: Date.now(), gameState })
         //6,组装返回必要参数

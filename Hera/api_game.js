@@ -12,6 +12,7 @@ const PlayerModel = require('./models/PlayerModel')
 const UserModel = require('./models/UserModel')
 const SYSTransferModel = require('./models/SYSTransferModel')
 const LogModel = require('./models/LogModel')
+const GameStateEnum = require('./libs/Dynamo').GameStateEnum
 //常量
 const TOKEN_SECRET = process.env.TOKEN_SECRET
 const COMPANY_NA_KEY = process.env.COMPANY_NA_KEY
@@ -59,7 +60,7 @@ module.exports.auth = async function (e, c, cb) {
             return ResFail(cb, { msg: '玩家已停用' }, 10005)
         }
         //5,如果玩家在app里面玩游戏，则不能进入第三方游戏
-        if (player.gameState == 3 && player.gameId < 1000000 && inparam.gameType > 1000000) {
+        if (player.gameState == GameStateEnum.GameIng && player.gameId < 1000000 && inparam.gameType > 1000000) {
             return ResFail(cb, { msg: '玩家正在APP游戏中，不能进入网页游戏' }, 1000)
         }
         //6,校验玩家所属商户是否购买此款游戏
@@ -81,7 +82,7 @@ module.exports.auth = async function (e, c, cb) {
         let balance = await playerModel.getNewBalance(player)
         //8,更新玩家，组装更新参数
         let updateParms = {}
-        updateParms.gameState = 3
+        updateParms.gameState = GameStateEnum.GameIng
         updateParms.gameId = inparam.gameType
         updateParms.sid = inparam.gameId
         updateParms.joinTime = Date.now()                        //更新玩家进入游戏时间
@@ -143,7 +144,7 @@ module.exports.postTransfer = async function (e, c, cb) {
                 //就算玩家游戏大类不一致也返回成功
                 return ResOK(cb, { msg: `玩家当前所在游戏【${player.gameId}】已经没有在所请求的游戏大类【${inparam.gameType}】中` }, 0)
             } else {
-                await playerModel.updateOffline(player.userName, { gameState: 1 })
+                await playerModel.updateOffline(player.userName, { gameState: GameStateEnum.OffLine })
                 new LogModel().add('6', 'postTransfer', inparam, `玩家${player.userName}正常退出`)
                 return ResOK(cb, { msg: '退出成功', balance: player.balance }, 0)
             }

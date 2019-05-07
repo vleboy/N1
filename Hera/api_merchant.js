@@ -15,6 +15,7 @@ const gameRecordUtil = require('./libs/gameRecordUtil')
 const MerchantBillModel = require('./models/MerchantBillModel')
 const PlayerModel = require('./models/PlayerModel')
 const IPCheck = require('./libs/IPCheck')
+const GameStateEnum = require('./libs/Dynamo').GameStateEnum
 //常量
 // const TOKEN_SECRET = process.env.TOKEN_SECRET
 
@@ -168,7 +169,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 if (playerInfo.state == '0') {
                     return ResFail(cb, { msg: '玩家已冻结' }, 10005)
                 }
-                if (playerInfo.gameState == 3) { //游戏中
+                if (playerInfo.gameState == GameStateEnum.GameIng) { //游戏中
                     if (+playerInfo.gameId >= 1000000) {
                         //更新玩家状态（第三方游戏网页中或强制离线后操作）
                         await playerModel.updateOffline(userName)
