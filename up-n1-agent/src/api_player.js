@@ -33,13 +33,8 @@ router.post('/agent/player/deposit', async function (ctx, next) {
     //获取玩家信息
     const playerModel = new PlayerModel()
     let playerInfo = await playerModel.getPlayer(inparam.toUser)
-    if (playerInfo.gameState == GameStateEnum.GameIng) {
-        if (+playerInfo.gameId >= 1000000) {
-            //更新玩家状态（这个可以充值提现）
-            await playerModel.updateOffline(userName)
-        } else {
-            throw { code: -1, msg: '玩家在游戏中不能进行存点操作' }
-        }
+    if (playerInfo.gameState != GameStateEnum.OffLine) {
+        await playerModel.updateOffline(userName)
     }
     //获取商户信息
     let userId = inparam.fromUserId || token.userId
@@ -107,13 +102,8 @@ router.post('/agent/player/take', async function (ctx, next) {
     //获取玩家信息
     const playerModel = new PlayerModel()
     let playerInfo = await playerModel.getPlayer(inparam.toUser)
-    if (playerInfo.gameState == 3) {
-        if (+playerInfo.gameId >= 1000000) {
-            //更新玩家状态（这个可以充值提现）
-            await playerModel.updateOffline(userName)
-        } else {
-            throw { code: -1, msg: '玩家在游戏中不能进行提点操作' }
-        }
+    if (playerInfo.gameState != GameStateEnum.OffLine) {
+        await playerModel.updateOffline(userName)
     }
     //获取商户信息
     let userId = inparam.fromUserId || token.userId
