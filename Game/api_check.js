@@ -107,10 +107,7 @@ module.exports.checkRound = async (e, c, cb) => {
         console.log(`有${fixArr.length}条数据修正`)
         let start = 0, end = 0
         if (fixArr.length > 0) {
-            let token = await jwt.sign({
-                exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) * 3,
-                iat: Math.floor(Date.now() / 1000) - 30
-            }, process.env.TOKEN_SECRET)
+            let token = await jwt.sign({ exp: Math.floor(Date.now() / 1000) + 86400 }, process.env.TOKEN_SECRET)
             start = _.minBy(fixArr, 'betTime') ? +(_.minBy(fixArr, 'betTime').betTime) - 1 : new Date(`${_.minBy(fixArr, 'createdAt').createdDate}T00:00:00+08:00`).getTime()
             end = _.maxBy(fixArr, 'betTime') ? +(_.maxBy(fixArr, 'betTime').betTime) + 90000 : new Date(`${_.maxBy(fixArr, 'createdAt').createdDate}T23:59:59+08:00`).getTime()
             console.log(`请求修复时间为：${start}-${end}，${moment(start).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}至${moment(end).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}`)
