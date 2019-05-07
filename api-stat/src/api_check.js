@@ -14,7 +14,7 @@ const HeraGameRecordModel = require('./model/HeraGameRecordModel')
 const PlayerModel = require('./model/PlayerModel')
 const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
 const UserModel = require('./model/UserModel')
-const Tables = require('./lib/Model').Tables
+const { Tables, GameStateEnum } = require('./lib/Model')
 
 /**
  * 强制离线所有玩家
@@ -28,7 +28,7 @@ router.post('/stat/checkPlayerGameState', async function (ctx, next) {
         ProjectionExpression: 'userName,userId',
         FilterExpression: `gameState<>:gameState`,
         ExpressionAttributeValues: {
-            ':gameState': 1
+            ':gameState': GameStateEnum.OffLine
         }
     })
     console.log(playerRes.Items.length)
@@ -38,7 +38,7 @@ router.post('/stat/checkPlayerGameState', async function (ctx, next) {
             Key: { userName: item.userName },
             UpdateExpression: 'SET gameState = :gameState,gameId=:gameId',
             ExpressionAttributeValues: {
-                ':gameState': 1,
+                ':gameState': GameStateEnum.OffLine,
                 ':gameId': 0
             }
         })

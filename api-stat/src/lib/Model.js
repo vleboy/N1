@@ -71,9 +71,17 @@ const GameTypeEnum = {
   '1160000': { type: 2, code: '1160000', name: 'PP电子游戏', company: 'PP' },
 }
 
+//玩家游戏状态枚举
+const GameStateEnum = {
+  OffLine: 1,     //离线
+  OnLine: 2,      //在线
+  GameIng: 3      //游戏中
+}
+
 module.exports = {
   Model,
   Tables,
   RoleCodeEnum,
-  GameTypeEnum
+  GameTypeEnum,
+  GameStateEnum
 }
