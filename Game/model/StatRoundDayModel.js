@@ -43,8 +43,7 @@ module.exports = class StatRoundDayModel extends BaseModel {
         console.log(`全周重置，参数：${JSON.stringify(inparam)}，${moment(inparam.start).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}至${moment(inparam.end).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}`)
         let tokenAdmin = await jwt.sign({
             role: RoleCodeEnum.PlatformAdmin,
-            exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) * 3,
-            iat: Math.floor(Date.now() / 1000) - 30
+            exp: Math.floor(Date.now() / 1000) + 86400
         }, process.env.TOKEN_SECRET)
         axios.post(`https://${process.env.ANOTHER_GAME_CENTER}/stat/fixRound`, inparam, {
             headers: { 'Authorization': `Bearer ${tokenAdmin}` }
@@ -62,8 +61,7 @@ module.exports = class StatRoundDayModel extends BaseModel {
         console.log(`全周更新，起始：${updateDay}`)
         let tokenAdmin = await jwt.sign({
             role: RoleCodeEnum.PlatformAdmin,
-            exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) * 3,
-            iat: Math.floor(Date.now() / 1000) - 30
+            exp: Math.floor(Date.now() / 1000) + 86400
         }, process.env.TOKEN_SECRET)
         axios.post(`https://${process.env.ANOTHER_GAME_CENTER}/stat/fixRoundDay`, { updateDay }, {
             headers: { 'Authorization': `Bearer ${tokenAdmin}` }

@@ -92,8 +92,7 @@ router.post('/sb/wallet/token', async (ctx, next) => {
         access_token: jwt.sign({
             client_id: inparam.client_id,
             client_secret: inparam.client_secret,
-            exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) * 1,
-            iat: Math.floor(Date.now() / 1000)
+            exp: Math.floor(Date.now() / 1000) + 86400
         }, config.auth.secret),
         token_type: "Bearer",
         expires_in: (60 * 60 * 24) * 1,

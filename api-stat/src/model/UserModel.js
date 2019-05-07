@@ -273,14 +273,12 @@ class UserModel extends BaseModel {
             console.log(`【点数告警列表】一共需要请求变更用户状态数量为：【${axiosArr.length}】`)
             let tokenAdmin = await jwt.sign({
                 role: RoleCodeEnum.PlatformAdmin,
-                exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) * 3,
-                iat: Math.floor(Date.now() / 1000) - 30
+                exp: Math.floor(Date.now() / 1000) + 86400
             }, config.na.TOKEN_SECRET)
             let tokenAgent = await jwt.sign({
                 role: RoleCodeEnum.Agent,
                 suffix: 'Agent',
-                exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) * 3,
-                iat: Math.floor(Date.now() / 1000) - 30
+                exp: Math.floor(Date.now() / 1000) + 86400,
             }, config.na.TOKEN_SECRET)
             // 判断推送正式服还是测试服
             let agentChangeStatusUrl = 'https://d3prd6rbitzqm3.cloudfront.net/userChangeStatus'

@@ -45,7 +45,7 @@ router.get('/haba/gameurl/:gameName/:gameId/:sid/:userId/:token', async (ctx, ne
             ctx.body = { code: nares.data.code, msg: nares.data.msg }
             return
         }
-        let habaToken = jwt.sign({ userId: inparam.userId, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 }, config.haba.gameKey)
+        let habaToken = jwt.sign({ userId: inparam.userId, exp: Math.floor(Date.now() / 1000) + 86400 }, config.haba.gameKey)
         finalUrl = `${config.haba.launchUrl}?brandid=${config.haba.brandid}&keyname=${inparam.gameName}&token=${habaToken}&mode=real&locale=zh-CN&ifrm=1`
     }
     log.info(`HABA最终游戏链接：${finalUrl}`)

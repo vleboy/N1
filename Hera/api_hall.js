@@ -71,7 +71,7 @@ module.exports.playerLogin = async function (e, c, cb) {
         }
         await playerModel.updateJoinGame(userName, { updatedAt: Date.now(), gameState })
         //6,组装返回必要参数
-        let loginToken = jwt.sign({ userName, suffix: userInfo.suffix, userId: +playerInfo.userId, exp: Math.floor(Date.now() / 1000) + 1 * 24 * 60 * 60 }, TOKEN_SECRET)
+        let loginToken = jwt.sign({ userName, suffix: userInfo.suffix, userId: +playerInfo.userId, exp: Math.floor(Date.now() / 1000) + 86400 }, TOKEN_SECRET)
         let callObj = {
             token: loginToken,
             balance: balance,

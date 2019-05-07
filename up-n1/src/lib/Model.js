@@ -56,8 +56,7 @@ const Model = {
   token: (userInfo) => {
     return jwt.sign({
       ...userInfo,
-      exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24) * 3,
-      iat: Math.floor(Date.now() / 1000) - 30
+      exp: Math.floor(Date.now() / 1000) + 86400 * 3
     }, TOKEN_SECRET)
   },
   /**

@@ -140,7 +140,7 @@ module.exports.playerLoginToken = async function (e, c, cb) {
             return ResFail(cb, { msg: '玩家密码不正确' }, 10004)
         }
         //5,生成token返回
-        let loginToken = jwt.sign({ userName, suffix: userInfo.suffix, userId: +playerInfo.userId, exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60 }, TOKEN_SECRET)
+        let loginToken = jwt.sign({ userName, suffix: userInfo.suffix, userId: +playerInfo.userId, exp: Math.floor(Date.now() / 1000) + 86400 }, TOKEN_SECRET)
         let data = {
             token: loginToken,
             msn: _.padStart(userInfo.msn, 3, '0'),

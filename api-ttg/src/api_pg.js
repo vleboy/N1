@@ -42,7 +42,7 @@ router.get('/pg/gameurl/:gameName/:gameId/:sid/:userId/:token', async (ctx, next
             return ctx.body = { code: nares.data.code, msg: nares.data.msg }
         }
         //生成玩家token用户pg校验，一天有效期
-        let pgToken = jwt.sign({ userId: inparam.userId, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 }, config.pg.gameKey)
+        let pgToken = jwt.sign({ userId: inparam.userId, exp: Math.floor(Date.now() / 1000) + 86400 }, config.pg.gameKey)
         finalUrl = `${config.pg.launchUrl}/${inparam.gameName}/index.html?&language=zh&bet_type=1&operator_token=${config.pg.operator_token}&operator_player_session=${pgToken}`//&from=${encodeURIComponent(ctx.request.query.homeurl || '')
     }
     log.info(`PG最终游戏链接：${finalUrl}`)
