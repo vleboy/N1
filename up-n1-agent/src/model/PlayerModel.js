@@ -106,7 +106,7 @@ module.exports = class PlayerModel extends BaseModel {
         let query = {
             IndexName: 'parentIdIndex',
             KeyConditionExpression: 'parent = :parent',
-            ProjectionExpression: "userId,userName,msn,buId,merchantName,nickname,#state,gameState,balance,updateAt,gameId,parent,parentName,chip,createAt",
+            ProjectionExpression: "userId,userName,msn,buId,merchantName,nickname,#state,gameState,balance,joinTime,gameId,parent,parentName,chip,createAt",
             ExpressionAttributeNames: {
                 '#state': 'state'
             },
@@ -252,7 +252,7 @@ module.exports = class PlayerModel extends BaseModel {
             ...this.params,
             ScanIndexForward: false,
             Limit: 100,
-            ProjectionExpression: ["userId", "userName", "msn", "buId", "merchantName", "nickname", "#state", "gameState", "balance", "updateAt", "gameId", "parent", "parentName", "chip", "createAt"].join(","),
+            ProjectionExpression: ["userId", "userName", "msn", "buId", "merchantName", "nickname", "#state", "gameState", "balance", "joinTime", "gameId", "parent", "parentName", "chip", "createAt"].join(","),
         })
         opts.ExpressionAttributeNames["#state"] = "state";
         if (inparam.startKey) {

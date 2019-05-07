@@ -84,7 +84,6 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
             buId: inparam.buId,
             role: 10000,
             state: 1,
-            updateAt: Date.now(),
             createAt: Date.now(),
             balance: 0,
             msn: _.padStart(userInfo.msn, 3, '0'),

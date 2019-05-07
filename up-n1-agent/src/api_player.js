@@ -530,7 +530,6 @@ router.post('/agent/player/create', async function (ctx, next) {
         buId: userInfo.displayId,
         role: 10000,
         state: inparam.state || 1,
-        updateAt: Date.now(),
         createAt: Date.now(),
         balance: inparam.points || 0,
         msn: '000',

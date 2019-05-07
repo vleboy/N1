@@ -69,24 +69,22 @@ module.exports.playerLogin = async function (e, c, cb) {
         if (playerInfo.gameId >= 1000000) {
             gameState = GameStateEnum.OffLine
         }
-        await playerModel.updateJoinGame(userName, { updateAt: Date.now(), gameState })
+        await playerModel.updateJoinGame(userName, { updatedAt: Date.now(), gameState })
         //6,组装返回必要参数
         let loginToken = jwt.sign({ userName, suffix: userInfo.suffix, userId: +playerInfo.userId, exp: Math.floor(Date.now() / 1000) + 1 * 24 * 60 * 60 }, TOKEN_SECRET)
         let callObj = {
             token: loginToken,
             balance: balance,
             msn: playerInfo.msn,
-            createAt: playerInfo.createAt,
-            updateAt: playerInfo.updateAt,
             username: userName,
             userId: playerInfo.userId,
             nickname: playerInfo.nickname,
             headPic: playerInfo.headPic,
-            sex: playerInfo.sex || 0,
-            parentId: userId,
+            // sex: playerInfo.sex || 0,
+            // parentId: userId,
             gameList: playerInfo.gameList,
-            liveMix: 0, //无用了
-            vedioMix: 0,//无用了
+            // liveMix: 0, //无用了
+            // vedioMix: 0,//无用了
             gameId: playerInfo.gameId || 0,
             sid: playerInfo.sid || 0,
             isTest: userInfo.isTest
