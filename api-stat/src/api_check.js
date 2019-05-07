@@ -10,7 +10,7 @@ const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const UserModel = require('./model/UserModel')
 const PlayerModel = require('./model/PlayerModel')
-// const Tables = require('./lib/Model').Tables
+const { GameStateEnum } = require('./lib/Model')
 // const BaseModel = require('./model/BaseModel')
 // const StatRoundModel = require('./model/StatRoundModel')
 // const HeraGameRecordModel = require('./model/HeraGameRecordModel')
@@ -25,14 +25,14 @@ router.post('/stat/checkPlayerGameState', async (ctx, next) => {
     const playerRes = await playerModel.scan({
         ProjectionExpression: 'userName',
         FilterExpression: `gameState<>:gameState`,
-        ExpressionAttributeValues: { ':gameState': 1 }
+        ExpressionAttributeValues: { ':gameState': GameStateEnum.OffLine }
     })
     // 将所有在线玩家设置成离线
     for (let item of playerRes.Items) {
         await playerModel.updateItem({
             Key: { userName: item.userName },
             UpdateExpression: 'SET gameState=:gameState,gameId=:gameId,sid=:sid',
-            ExpressionAttributeValues: { ':gameState': 1, ':gameId': 0, ':sid': 0 }
+            ExpressionAttributeValues: { ':gameState': GameStateEnum.OffLine, ':gameId': 0, ':sid': 0 }
         })
     }
     console.log(`已离线${playerRes.Items.length}名玩家`)
