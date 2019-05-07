@@ -16,17 +16,14 @@ module.exports.checkRound = async (e, c, cb) => {
         let fixArr = []
         let promiseAll = []
         let repeatMap = {}
-        // 查出所有role=3且ret=N的日志
-        const RoleRet1 = await new LogModel().roleQuery({ role: '3' })
-        console.log(`一共查出role=3需要检验的日志条数${RoleRet1.length}`)
-        // 查出所有role=4且ret=N的日志
-        const RoleRet2 = await new LogModel().roleQuery({ role: '4' })
-        console.log(`一共查出role=4需要检验的日志条数${RoleRet2.length}`)
-        // 查出所有role=2且ret=N的日志
-        const RoleRet3 = await new LogModel().roleQuery({ role: '2' })
-        console.log(`一共查出role=2需要检验的日志条数${RoleRet3.length}`)
+        const RoleRet2 = await new LogModel().roleQuery({ role: '2' })
+        console.log(`一共查出role=2需要检验的日志条数${RoleRet2.length}`)
+        const RoleRet3 = await new LogModel().roleQuery({ role: '3' })
+        console.log(`一共查出role=3需要检验的日志条数${RoleRet3.length}`)
+        const RoleRet4 = await new LogModel().roleQuery({ role: '4' })
+        console.log(`一共查出role=4需要检验的日志条数${RoleRet4.length}`)
         // 修正超时返奖，检查局表和流水数量是否一致，不一致则需要修正
-        for (let item of RoleRet1) {
+        for (let item of RoleRet3) {
             let p = new Promise(async function (resolve, reject) {
                 let bk = item.inparams.businessKey
                 //查询局表中该bk数量
@@ -44,7 +41,7 @@ module.exports.checkRound = async (e, c, cb) => {
             promiseAll.push(p)
         }
         // 修正SA战绩查询失败，检查局表中是否存在anotherGameData，不存在则需要修正
-        for (let item of RoleRet2) {
+        for (let item of RoleRet4) {
             let p = new Promise(async (resolve, reject) => {
                 let bk = item.inparams.businessKey
                 let flag = false
@@ -69,15 +66,23 @@ module.exports.checkRound = async (e, c, cb) => {
         }
         // 其他异常日志处理
         let startTime = 9999999999999, endTime = 0, kyArr = []
-        for (let item of RoleRet3) {
+        for (let item of RoleRet2) {
             // 修正返奖时查询不到的下注，如果确认下注不存在，则清除该日志
             if (item.type == 'findBetError') {
-                let p = new Promise(async function (resolve, reject) {
-                    let bk = item.inparams.businessKey
-                    //查询流水中该bk数量
-                    let detailNumber = await new PlayerBillDetailModel().bkQuery({ bk })
-                    if (detailNumber == -1) {
-                        await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
+                let p = new Promise(async (resolve, reject) => {
+                    // 根据betsn确认
+                    if (item.inparams.betsn) {
+                        let billRes = await new PlayerBillDetailModel().getItem({ Key: { 'sn': item.inparams.betsn } })
+                        if (!billRes.Item || _.isEmpty(billRes.Item)) {
+                            await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
+                        }
+                    }
+                    // 根据bk确认
+                    else {
+                        let detailNumber = await new PlayerBillDetailModel().bkQuery({ bk: item.inparams.businessKey })
+                        if (detailNumber == -1) {
+                            await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
+                        }
                     }
                     resolve(1)
                 })
