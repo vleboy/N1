@@ -71,19 +71,15 @@ module.exports = class PlayerModel extends BaseModel {
     /**
      * 退出游戏
      * @param {*} userName
-     * @param {*} state
-     * gameState 1离线 2在线 3游戏中
      */
-    async updateOffline(userName, inparam = {}) {
+    updateOffline(userName) {
         return this.updateItem({
-            Key: {
-                'userName': userName
-            },
+            Key: { 'userName': userName },
             UpdateExpression: "SET gameState=:gameState,gameId=:gameId,sid=:sid",
             ExpressionAttributeValues: {
-                ':gameState': +inparam.gameState || GameStateEnum.OffLine,
-                ':gameId': +inparam.gameId || 0,
-                ':sid': +inparam.sid || 0
+                ':gameState': GameStateEnum.OffLine,
+                ':gameId': 0,
+                ':sid': 0
             }
         })
     }
