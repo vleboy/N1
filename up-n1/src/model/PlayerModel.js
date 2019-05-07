@@ -5,6 +5,7 @@ const BaseModel = require('./BaseModel')
 const config = require('config')
 const PlayerBillDetailModel = require('./PlayerBillDetailModel')
 const LogModel = require('./LogModel')
+const GameStateEnum = require('../lib/Consts').GameStateEnum
 
 /**
  * 实际业务子类，继承于BaseModel基类
@@ -80,7 +81,7 @@ module.exports = class PlayerModel extends BaseModel {
             },
             UpdateExpression: "SET gameState=:gameState,gameId=:gameId,sid=:sid",
             ExpressionAttributeValues: {
-                ':gameState': +inparam.gameState || 1,
+                ':gameState': +inparam.gameState || GameStateEnum.OffLine,
                 ':gameId': +inparam.gameId || 0,
                 ':sid': +inparam.sid || 0
             }

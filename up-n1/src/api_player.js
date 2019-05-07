@@ -17,8 +17,7 @@ const LogModel = require('./model/LogModel')
 const GameRecord = require('./model/GameRecord')
 const PlayerBillCheck = require('./biz/PlayerBillCheck')
 const gameRecordUtil = require('./lib/gameRecordUtil')
-const GameListEnum = require('./lib/Consts').GameListEnum
-const GameTypeEnum = require('./lib/Consts').GameTypeEnum
+const { GameListEnum, GameTypeEnum, GameStateEnum } = require('./lib/Consts')
 
 /**
  * 账单流水
@@ -224,11 +223,11 @@ router.post('/player/list', async function (ctx, next) {
         conditions.nickname = { "$like": nickname }//玩家昵称
     }
     if (gameId == '1') {
-        conditions.gameState = 2  //在线
+        conditions.gameState = GameStateEnum.OnLine  //在线
         delete conditions.gameId
     }
     if (gameId == '0') {
-        conditions.gameState = 1 //离线
+        conditions.gameState = GameStateEnum.OffLine //离线
         delete conditions.gameId
     }
     if (buId) {
@@ -261,11 +260,11 @@ router.post('/player/list', async function (ctx, next) {
     }
     //组装返回数据
     for (let player of playerList) {
-        if (player.gameState == 1) {
+        if (player.gameState == GameStateEnum.OffLine) {
             player.gameStateName = '离线'
-        } else if (player.gameState == 2) {
+        } else if (player.gameState == GameStateEnum.OnLine) {
             player.gameStateName = '大厅'
-        } else if (player.gameState == 3 && GameTypeEnum[player.gameId || 0]) {
+        } else if (player.gameState == GameStateEnum.GameIng && GameTypeEnum[player.gameId || 0]) {
             player.gameStateName = (GameTypeEnum[player.gameId || {}]).name
         } else {
             player.gameStateName = '离线'

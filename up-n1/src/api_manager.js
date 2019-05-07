@@ -17,7 +17,7 @@ const RoleCodeEnum = require('./lib/UserConsts').RoleCodeEnum
 const RoleEditProps = require('./lib/UserConsts').RoleEditProps
 const Model = require('./lib/Model').Model
 const BizErr = require('./lib/Codes').BizErr
-const companyEnum = require('./lib/Consts').companyEnum
+const CompanyEnum = require('./lib/Consts').CompanyEnum
 /**
  * 线路商列表
  */
@@ -78,14 +78,14 @@ router.get('/managers/:id', async function (ctx, next) {
   let gameTypeArr = []
   // 管理员或上级是管理员，则获取全部游戏类别
   if (parent == RoleCodeEnum.PlatformAdmin || parent == '01') {
-    gameTypeArr = companyEnum
+    gameTypeArr = CompanyEnum
   } else {
     let newGameList = []
     for (let item of manager.gameList || []) {
       newGameList.push({ company: item.company })
     }
     for (let item of _.uniqWith(newGameList, _.isEqual)) {
-      for (let company of companyEnum) {
+      for (let company of CompanyEnum) {
         if (item.company == company.company) {
           gameTypeArr.push({ company: item.company, companyName: company.companyName })
         }

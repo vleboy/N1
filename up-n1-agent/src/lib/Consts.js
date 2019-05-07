@@ -81,7 +81,7 @@ const GameListEnum = {
 /**
  * 游戏公司枚举
  */
-const companyEnum = [
+const CompanyEnum = [
     { company: 'AG', companyName: 'Ag' },
     { company: 'DT', companyName: 'DT' },
     { company: 'HABA', companyName: 'HABA' },
@@ -102,5 +102,5 @@ const companyEnum = [
 module.exports = {
     GameTypeEnum,
     GameListEnum,
-    companyEnum
+    CompanyEnum
 }

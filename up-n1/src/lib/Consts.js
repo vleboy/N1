@@ -124,7 +124,7 @@ const GameNameEnum = {
 /**
  * 游戏公司枚举
  */
-const companyEnum = [
+const CompanyEnum = [
     { company: 'AG', companyName: 'Ag' },
     { company: 'DT', companyName: 'DT' },
     { company: 'HABA', companyName: 'HABA' },
@@ -140,10 +140,18 @@ const companyEnum = [
     { company: 'YSB', companyName: 'YSB' }
 ]
 
+//玩家游戏状态枚举
+const GameStateEnum = {
+    OffLine: 1,     //离线
+    OnLine: 2,      //在线
+    GameIng: 3      //游戏中
+}
+
 
 
 module.exports = {
     GameTypeEnum,
     GameListEnum,
-    companyEnum
+    CompanyEnum,
+    GameStateEnum
 }
