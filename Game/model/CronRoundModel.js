@@ -47,7 +47,7 @@ module.exports = class CronRoundModel extends BaseModel {
         await Promise.all(p1Arr.concat(p2Arr))
 
         // 查询和写入KY游戏记录
-        await heraGameRecordModel.getKYRecord(beginTime, endTime)
+        // await heraGameRecordModel.getKYRecord(beginTime, endTime)
 
         // 5，成功后配置文件记录当前时间
         queryRet.lastTime = endTime
