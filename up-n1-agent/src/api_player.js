@@ -20,8 +20,7 @@ const GameRecord = require('./model/GameRecord')
 const AgentPlayerCheck = require('./biz/AgentPlayerCheck')
 const PlayerBillCheck = require('./biz/PlayerBillCheck')
 const gameRecordUtil = require('./lib/gameRecordUtil')
-const GameListEnum = require('./lib/Consts').GameListEnum
-const GameTypeEnum = require('./lib/Consts').GameTypeEnum
+const { GameListEnum, GameTypeEnum, GameStateEnum } = require('./lib/Consts')
 /**
  * 给玩家存点
  */
@@ -34,7 +33,7 @@ router.post('/agent/player/deposit', async function (ctx, next) {
     //获取玩家信息
     const playerModel = new PlayerModel()
     let playerInfo = await playerModel.getPlayer(inparam.toUser)
-    if (playerInfo.gameState == 3) {
+    if (playerInfo.gameState == GameStateEnum.GameIng) {
         if (+playerInfo.gameId >= 1000000) {
             //更新玩家状态（这个可以充值提现）
             await playerModel.updateOffline(userName)
@@ -298,11 +297,11 @@ router.post('/player/list', async function (ctx, next) {
         conditions.nickname = { "$like": nickname }//玩家昵称
     }
     if (gameId == '1') {
-        conditions.gameState = 2  //在线
+        conditions.gameState = GameStateEnum.OnLine  //在线
         delete conditions.gameId
     }
     if (gameId == '0') {
-        conditions.gameState = 1 //离线
+        conditions.gameState = GameStateEnum.OffLine //离线
         delete conditions.gameId
     }
     for (let key in conditions) { //排除没有的查询条件
@@ -324,11 +323,11 @@ router.post('/player/list', async function (ctx, next) {
     }
     //组装返回数据
     for (let player of playerList) {
-        if (player.gameState == 1) {
+        if (player.gameState == GameStateEnum.OffLine) {
             player.gameStateName = '离线'
-        } else if (player.gameState == 2) {
+        } else if (player.gameState == GameStateEnum.OnLine) {
             player.gameStateName = '大厅'
-        } else if (player.gameState == 3 && GameTypeEnum[player.gameId || 0]) {
+        } else if (player.gameState == GameStateEnum.GameIng && GameTypeEnum[player.gameId || 0]) {
             player.gameStateName = (GameTypeEnum[player.gameId || {}]).name
         } else {
             player.gameStateName = '离线'

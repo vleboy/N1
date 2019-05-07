@@ -27,7 +27,7 @@ const GameTypeEnum = {
 const GameListEnum = {
     "NA": [
         // { company: 'NA', code: '3', name: 'NA商城' },
-        { company: 'NA', code: '10000', name: 'NA棋牌游戏'},
+        { company: 'NA', code: '10000', name: 'NA棋牌游戏' },
         { company: 'NA', code: '30000', name: 'NA真人视讯' },
         { company: 'NA', code: '40000', name: 'NA电子游戏' },
         { company: 'NA', code: '50000', name: 'NA街机游戏' },
@@ -98,9 +98,16 @@ const CompanyEnum = [
 ]
 
 
+//玩家游戏状态枚举
+const GameStateEnum = {
+    OffLine: 1,     //离线
+    OnLine: 2,      //在线
+    GameIng: 3      //游戏中
+}
 
 module.exports = {
     GameTypeEnum,
     GameListEnum,
-    CompanyEnum
+    CompanyEnum,
+    GameStateEnum
 }
