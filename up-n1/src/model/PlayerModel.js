@@ -118,7 +118,7 @@ module.exports = class PlayerModel extends BaseModel {
     async getPlayerList(conditions, inparam) {
         let oldscan = {
             ...this.params,
-            // ScanIndexForward: false,
+            ScanIndexForward: false,
             Limit: 100,
             ProjectionExpression: ["userId", "userName", "msn", "buId", "merchantName", "nickname", "#state", "gameState", "balance", "joinTime", "gameId", "parent", "parentName", "chip", "createdAt"].join(","),
             ExpressionAttributeNames: { "#state": "state" }
