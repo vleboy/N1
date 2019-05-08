@@ -399,7 +399,7 @@ class UserModel extends BaseModel {
     async queryChildPlayer(inparam) {
         let query = {
             TableName: config.env.TABLE_NAMES.TABLE_USER,
-            ProjectionExpression: 'userName,nickname,#parent,parentName,merchantName,msn,createAt,gameList,balance,#state,joinTime',
+            ProjectionExpression: 'userName,nickname,#parent,parentName,merchantName,msn,createdAt,gameList,balance,#state,joinTime',
             IndexName: 'parentIdIndex',
             KeyConditionExpression: 'parent = :parentId',
             ExpressionAttributeNames: {
@@ -413,7 +413,7 @@ class UserModel extends BaseModel {
         // 条件搜索
         const queryRet = await this.bindFilterQuery(query, inparam.query, true)
         // 排序输出
-        let sortResult = _.sortBy(queryRet.Items, [inparam.sortkey || 'createAt'])
+        let sortResult = _.sortBy(queryRet.Items, [inparam.sortkey || 'createdAt'])
         if (inparam.sort == "desc") { sortResult = sortResult.reverse() }
         return sortResult
     }

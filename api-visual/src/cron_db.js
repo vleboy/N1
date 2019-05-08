@@ -155,11 +155,11 @@ cron.schedule('0 0 1 * * *', async () => {
     let endTime = Date.now()
     let res = await queryInc('scan', {
         TableName: 'HeraGamePlayer',
-        ProjectionExpression: 'userName,userId,nickname,buId,parent,parentName,parentSn,msn,createdAt,createAt',
-        FilterExpression: `createAt between :createAt0 and :createAt1`,
+        ProjectionExpression: 'userName,userId,nickname,buId,parent,parentName,parentSn,msn,createdAt,createdAt',
+        FilterExpression: `createdAt between :createdAt0 and :createdAt1`,
         ExpressionAttributeValues: {
-            ':createAt0': startTime,
-            ':createAt1': endTime
+            ':createdAt0': startTime,
+            ':createdAt1': endTime
         }
     })
     console.time(`写入玩家${res.Items.length} 条`)
@@ -170,7 +170,7 @@ cron.schedule('0 0 1 * * *', async () => {
             // promiseWriteArr.push(
             await nodebatis.execute('player.batchInsert', {
                 data: arr.map((item) => {
-                    item.createdAt = item.createdAt ? item.createdAt : item.createAt
+                    item.createdAt = item.createdAt
                     item.parentSn = item.parentSn || 'NULL!'
                     item.parentName = item.parentName || 'NULL!'
                     return item

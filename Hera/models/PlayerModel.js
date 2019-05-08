@@ -85,7 +85,7 @@ module.exports = class PlayerModel extends BaseModel {
     async getPlayerByUserName(userName) {
         const res = await this.getItem({
             ConsistentRead: true,
-            ProjectionExpression: 'userId,parent,userName,balance,gameId,sid,#state,gameState,password,msn,createAt,joinTime,nickname,headPic,sex,gameList',
+            ProjectionExpression: 'userId,parent,userName,balance,gameId,sid,#state,gameState,password,msn,createdAt,joinTime,nickname,headPic,sex,gameList',
             ExpressionAttributeNames: {
                 '#state': 'state'
             },

@@ -121,7 +121,7 @@ module.exports = class PlayerModel extends BaseModel {
             ...this.params,
             ScanIndexForward: false,
             Limit: 100,
-            ProjectionExpression: ["userId", "userName", "msn", "buId", "merchantName", "nickname", "#state", "gameState", "balance", "joinTime", "gameId", "parent", "parentName", "chip", "createAt"].join(","),
+            ProjectionExpression: ["userId", "userName", "msn", "buId", "merchantName", "nickname", "#state", "gameState", "balance", "joinTime", "gameId", "parent", "parentName", "chip", "createdAt"].join(","),
         })
         opts.ExpressionAttributeNames["#state"] = "state";
         if (inparam.startKey) {
