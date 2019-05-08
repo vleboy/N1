@@ -121,12 +121,15 @@ module.exports = class PlayerModel extends BaseModel {
             ScanIndexForward: false,
             Limit: 100,
             ProjectionExpression: ["userId", "userName", "msn", "buId", "merchantName", "nickname", "#state", "gameState", "balance", "joinTime", "gameId", "parent", "parentName", "chip", "createdAt"].join(","),
-            ExpressionAttributeNames: { "#msn": "msn", "#state": "state" }
+            ExpressionAttributeNames: { "#state": "state" }
         }
         this.buildParms(oldscan, conditions)
         if (inparam.startKey) {
             oldscan.ExclusiveStartKey = inparam.startKey;
         }
+        console.log('测试1')
+        console.log(oldscan)
+        console.log('测试2')
         return await this.forScanRes(oldscan, [], inparam.pageSize)
     }
     forScanRes(opts, array = [], pageSize = 20) {
