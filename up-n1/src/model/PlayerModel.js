@@ -127,9 +127,6 @@ module.exports = class PlayerModel extends BaseModel {
         if (inparam.startKey) {
             oldscan.ExclusiveStartKey = inparam.startKey;
         }
-        console.log('测试1')
-        console.log(oldscan)
-        console.log('测试2')
         return await this.forScanRes(oldscan, [], inparam.pageSize)
     }
     forScanRes(opts, array = [], pageSize = 20) {

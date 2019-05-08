@@ -380,11 +380,11 @@ class BaseModel {
         } else {
             oldquery.FilterExpression = opts.FilterExpression
         }
-        if (oldquery.ExpressionAttributeNames && opts.ExpressionAttributeNames) {
-            oldquery.ExpressionAttributeNames = { ...oldquery.ExpressionAttributeNames, ...opts.ExpressionAttributeNames }
+        if (opts.ExpressionAttributeNames) {
+            oldquery.ExpressionAttributeNames = { ...(oldquery.ExpressionAttributeNames || {}), ...opts.ExpressionAttributeNames }
         }
-        if (oldquery.ExpressionAttributeValues && opts.ExpressionAttributeValues) {
-            oldquery.ExpressionAttributeValues = { ...oldquery.ExpressionAttributeValues, ...opts.ExpressionAttributeValues }
+        if (opts.ExpressionAttributeValues) {
+            oldquery.ExpressionAttributeValues = { ...(oldquery.ExpressionAttributeValues || {}), ...opts.ExpressionAttributeValues }
         }
     }
 }
