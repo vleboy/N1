@@ -405,8 +405,8 @@ class UserModel extends BaseModel {
     /**
      * 通过父级id获取下级displayId
      */
-    async getDisplayIdsByParent(parent) {
-        let res = await this.scan({
+    getDisplayIdsByParent(parent) {
+        return this.scan({
             FilterExpression: 'contains(#levelIndex,:levelIndex) AND #role <> :role',
             ProjectionExpression: 'displayId',
             ExpressionAttributeNames: {
@@ -418,7 +418,6 @@ class UserModel extends BaseModel {
                 ':role': RoleCodeEnum.Manager
             }
         })
-        return res.Items
     }
 
     /**

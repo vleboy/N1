@@ -240,19 +240,16 @@ router.post('/player/list', async function (ctx, next) {
     }
     //根据token角色判断权限
     let playerList = []
-    if (tokenInfo.role == '1') { //管理员 可以查看所有玩家
+    if (tokenInfo.role == '1') {            //管理员 可以查看所有玩家
         playerList = await new PlayerModel().getPlayerList(conditions, inparam)
-    } else if (tokenInfo.role == '10') { //线路商可以查看所有下级用户的玩家
-        let displayIds = await new UserModel().getDisplayIdsByParent(tokenInfo.userId)
-        let buIds = []
-        for (let item of displayIds) {
-            buIds.push(item.displayId)
-        }
-        if (!_.isEmpty(buIds)) {
-            conditions.buId = { "$in": buIds }
+    } else if (tokenInfo.role == '10') {    //线路商可以查看所有下级用户的玩家
+        let displayIdRes = await new UserModel().getDisplayIdsByParent(tokenInfo.userId)
+        let buIdArr = displayIdRes.Items.map(o => o.displayId)
+        if (buIdArr.length > 0) {
+            conditions.buId = { "$in": buIdArr }
             playerList = await new PlayerModel().getPlayerList(conditions, inparam)
         }
-    } else if (tokenInfo.role == '100') { //商户的玩家
+    } else if (tokenInfo.role == '100') {   //商户的玩家
         conditions.buId = +tokenInfo.displayId
         playerList = await new PlayerModel().getPlayerList(conditions, inparam)
     } else {
