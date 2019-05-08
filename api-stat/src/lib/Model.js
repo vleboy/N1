@@ -1,5 +1,3 @@
-const moment = require('moment')
-
 // 所有数据库表
 const Tables = {
   ZeusPlatformUser: "ZeusPlatformUser",
@@ -22,17 +20,7 @@ const Model = {
   DefaultParent: '01', // 平台
   DefaultParentName: 'PlatformAdmin',
   NoParent: '00', // 没有
-  NoParentName: 'SuperAdmin',
-  /**
-   * 所有实体基类
-   */
-  baseModel: function () {
-    return {
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      createdDate: moment().utcOffset(8).format('YYYY-MM-DD')
-    }
-  }
+  NoParentName: 'SuperAdmin'
 }
 
 const RoleCodeEnum = {
