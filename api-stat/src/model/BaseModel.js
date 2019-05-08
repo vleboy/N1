@@ -1,15 +1,35 @@
-const Model = require('../lib/Model').Model
 const AWS = require('aws-sdk')
 AWS.config.update({ region: 'ap-southeast-1' })
-const dbClient = new AWS.DynamoDB.DocumentClient()
 const _ = require('lodash')
+const moment = require('moment')
+const dynamoDb = new AWS.DynamoDB({ httpOptions: { timeout: 5000 } })
+const dbClient = new AWS.DynamoDB.DocumentClient({ service: dynamoDb })
 
+/**
+ * 基础数据库操作类
+ * putItem:插入单项
+ * batchWrite:批量插入
+ * updateItem:更新单项
+ * deleteItem:删除单项
+ * isExist:是否存在
+ * queryOnce:单次查询
+ * query:递归查询
+ * scan:递归扫描
+ * page:分页
+ * bindFilterQuery:绑定筛选参数并查询
+ * bindFilterScan:绑定筛选参数并扫描
+ */
 class BaseModel {
     /**
      * 构造方法，设置基础对象属性
      */
     constructor() {
-        this.baseitem = Model.baseModel()
+        this.baseitem = {
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            createdDate: moment().utcOffset(8).format('YYYY-MM-DD'),
+            createdStr: moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss')
+        }
     }
 
     /**
@@ -23,7 +43,7 @@ class BaseModel {
 
     /**
      * 插入单项
-     * @param {*} item 
+     * @param {*} item
      */
     putItem(item) {
         const params = {
@@ -33,7 +53,14 @@ class BaseModel {
                 ...item
             }
         }
-        return this.db$('put', params)
+        return this.db$('put', params).then((res) => {
+            return res
+        }).catch((err) => {
+            console.error(`表${params.TableName}写入失败，重新写入，以下是详细错误信息`)
+            console.error(params)
+            console.error(err)
+            return this.putItem(item)
+        })
     }
 
     /**
@@ -44,10 +71,10 @@ class BaseModel {
         return this.db$('batchWrite', batch)
             .then((res) => {
                 if (res.UnprocessedItems && !_.isEmpty(res.UnprocessedItems)) {
-                    // console.log('发生批量写入未完成事件')
+                    console.log('发生批量写入未完成事件')
                     // 遍历每个表
                     for (let tablename in res.UnprocessedItems) {
-                        // console.log(`表【${tablename}】未完成写入数据量:${res.UnprocessedItems[tablename].length}`)
+                        console.log(`表【${tablename}】未完成写入数据量:${res.UnprocessedItems[tablename].length}`)
                         // 初始化批量写入对象
                         let batch = {
                             RequestItems: {}
@@ -58,7 +85,7 @@ class BaseModel {
                             batch.RequestItems[tablename].push(item)
                         }
                         // 重新插入
-                        // console.log(`表【${tablename}】重新写入数据量:${batch.RequestItems[tablename].length}`)
+                        console.log(`表【${tablename}】重新写入数据量:${batch.RequestItems[tablename].length}`)
                         return this.batchWrite(batch)
                     }
                 } else {
@@ -163,7 +190,6 @@ class BaseModel {
                 return result
             }
         }).catch((err) => {
-            console.error(err)
             return err
         })
     }
@@ -194,9 +220,22 @@ class BaseModel {
                 return result
             }
         }).catch((err) => {
-            console.error(err)
             return err
         })
+    }
+    
+    // 生成SN
+    billSerial(userId, num = 0) {
+        let date = new Date();
+        function twoNumber(num) {
+            return num > 9 ? num + "" : "0" + num;
+        }
+        let timestramp = (date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds()) * 1000 + date.getMilliseconds() + "";
+        for (let i = timestramp.length; i > 8; i--) {
+            timestramp += "0" + timestramp;
+        }
+        date.setHours(date.getHours() + 8)
+        return date.getFullYear() + twoNumber(date.getMonth() + 1) + twoNumber(date.getDate()) + userId + (timestramp + num)
     }
 }
 

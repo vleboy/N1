@@ -45,23 +45,7 @@ class BaseModel {
      * 插入单项
      * @param {*} item
      */
-    putData(item) {
-        return this.db$('put', item).then((res) => {
-            return res
-        }).catch((err) => {
-            console.error(`表${item.TableName}写入失败，重新写入，以下是详细错误信息`)
-            console.error(item)            
-            console.error(err)
-            return this.putData(item)
-        })
-    }
-
-    /**
-     * 插入单项
-     * @param {*} item
-     */
     putItem(item) {
-        // return new Promise((reslove, reject) => {
         const params = {
             ...this.params,
             Item: {
@@ -77,7 +61,6 @@ class BaseModel {
             console.error(err)
             return this.putItem(item)
         })
-        // })
     }
 
     /**
@@ -118,18 +101,11 @@ class BaseModel {
      * @param {*} conditions 
      */
     updateItem(conditions) {
-        // return new Promise((reslove, reject) => {
         const params = {
             ...this.params,
             ...conditions
         }
         return this.db$('update', params)
-        // .then((res) => {
-        //     return reslove(res)
-        // }).catch((err) => {
-        //     return reject(err)
-        // })
-        // })
     }
 
     /**
@@ -137,19 +113,11 @@ class BaseModel {
      * @param {*} conditions 
      */
     deleteItem(conditions) {
-        // return new Promise((reslove, reject) => {
         const params = {
             ...this.params,
             ...conditions
         }
         return this.db$('delete', params)
-        // .then((res) => {
-        //     return reslove(res)
-        // }).catch((err) => {
-        //     console.error(err)
-        //     return reject(err)
-        // })
-        // })
     }
 
     /**
@@ -164,10 +132,9 @@ class BaseModel {
             }
             return this.db$('query', params)
                 .then((res) => {
-                    const exist = res ? true : false
+                    const exist = res.Items.length > 0 ? true : false
                     return reslove(exist)
                 }).catch((err) => {
-                    console.error(err)
                     return reject(err)
                 })
         })
@@ -178,18 +145,11 @@ class BaseModel {
      * @param {*} conditions 
      */
     getItem(conditions = {}) {
-        // return new Promise((reslove, reject) => {
         const params = {
             ...this.params,
             ...conditions
         }
         return this.db$('get', params)
-        // .then((res) => {
-        //     return reslove(res)
-        // }).catch((err) => {
-        //     return reject(err)
-        // })
-        // })
     }
 
     /**
@@ -197,18 +157,11 @@ class BaseModel {
      * @param {*} conditions 
      */
     queryOnce(conditions = {}) {
-        // return new Promise((reslove, reject) => {
         const params = {
             ...this.params,
             ...conditions
         }
         return this.db$('query', params)
-        // .then((res) => {
-        //     return reslove(res)
-        // }).catch((err) => {
-        //     return reject(err)
-        // })
-        // })
     }
 
     /**
@@ -237,7 +190,6 @@ class BaseModel {
                 return result
             }
         }).catch((err) => {
-            console.error(err)
             return err
         })
     }
@@ -268,233 +220,8 @@ class BaseModel {
                 return result
             }
         }).catch((err) => {
-            console.error(err)
             return err
         })
-    }
-
-    /**
-     * 分页查询
-     * @param {*} query 
-     * @param {*} inparam (limit,startKey)
-     */
-    async page(query, inparam) {
-        // 初始化返回数据
-        let pageData = { Items: [], LastEvaluatedKey: {} }
-        // 查询数量不足且数据库仍有数据，则继续循环查询
-        while (pageData.Items.length < inparam.limit && pageData.LastEvaluatedKey) {
-            let ret = await this.queryOnce({
-                ...query,
-                Limit: inparam.limit,
-                ExclusiveStartKey: inparam.startKey
-            })
-            // 追加数据
-            if (pageData.Items.length > 0) {
-                pageData.Items.push(...ret.Items)
-            } else {
-                pageData = ret
-            }
-            // 更新最后一条键值
-            pageData.LastEvaluatedKey = ret.LastEvaluatedKey
-            // 更新起始KEY
-            inparam.startKey = ret.LastEvaluatedKey
-            // 需要查询的数量减少
-            inparam.limit -= ret.Items.length
-        }
-        // 最后查询键
-        pageData.LastEvaluatedKey = _.pick(pageData.Items[pageData.Items.length - 1], inparam.lastEvaluatedKeyTemplate)
-        // 最后数据超过指定长度，则截取指定长度
-        // if (pageData.Items.length > inparam.limit) {
-        //     pageData.Items = _.slice(pageData.Items, 0, inparam.limit)
-        //     pageData.LastEvaluatedKey = _.pick(pageData.Items[pageData.Items.length - 1], inparam.LastEvaluatedKeyTemplate)
-        // }
-        return pageData
-    }
-
-    /**
-     * 绑定筛选条件后查询
-     * @param {*} oldquery 原始查询对象
-     * @param {*} conditions 查询条件对象
-     * @param {*} isDefault 是否默认全模糊搜索
-     */
-    bindFilterQuery(oldquery = {}, conditions = {}, isDefault) {
-        if (_.isEmpty(oldquery)) {
-            return
-        }
-        if (_.isEmpty(conditions)) {
-            return self.query(oldquery)
-        }
-        // 默认设置搜索条件，所有查询模糊匹配
-        if (isDefault) {
-            for (let key in conditions) {
-                if (!_.isArray(conditions[key])) {
-                    conditions[key] = { '$like': conditions[key] }
-                }
-            }
-        }
-        let keys = Object.keys(conditions), opts = {}
-        if (keys.length > 0) {
-            opts.FilterExpression = ''
-            opts.ExpressionAttributeValues = {}
-            opts.ExpressionAttributeNames = {}
-        }
-        keys.forEach((k, index) => {
-            let item = conditions[k]
-            let value = item, array = false
-            // 属性对应的值是数组，则直接用范围筛选
-            if (_.isArray(item)) {
-                opts.ExpressionAttributeNames[`#${k}`] = k
-                opts.FilterExpression += `#${k} between :${k}0 and :${k}1`
-                opts.ExpressionAttributeValues[`:${k}0`] = item[0]
-                opts.ExpressionAttributeValues[`:${k}1`] = item[1]// + 86399999
-            }
-            else if (Object.is(typeof item, "object")) {
-                for (let key in item) {
-                    value = item[key]
-                    switch (key) {
-                        case "$like": {
-                            opts.FilterExpression += `contains(#${k}, :${k})`
-                            break
-                        }
-                        case "$in": {
-                            array = true
-                            opts.ExpressionAttributeNames[`#${k}`] = k
-                            for (let i = 0; i < value.length; i++) {
-                                if (i == 0) opts.FilterExpression += "("
-                                opts.FilterExpression += `#${k} = :${k}${i}`
-                                if (i != value.length - 1) {
-                                    opts.FilterExpression += " or "
-                                }
-                                if (i == value.length - 1) {
-                                    opts.FilterExpression += ")"
-                                }
-                                opts.ExpressionAttributeValues[`:${k}${i}`] = value[i]
-                            }
-                            break
-                        }
-                        case "$range": {
-                            array = true
-                            opts.ExpressionAttributeNames[`#${k}`] = k
-                            opts.FilterExpression += `#${k} between :${k}0 and :${k}1`
-                            opts.ExpressionAttributeValues[`:${k}0`] = value[0]
-                            opts.ExpressionAttributeValues[`:${k}1`] = value[1]
-                            break
-                        }
-                    }
-                    break
-                }
-            } else {
-                opts.FilterExpression += `#${k} = :${k}`
-            }
-            if (!array && !_.isArray(value)) {
-                opts.ExpressionAttributeValues[`:${k}`] = value
-                opts.ExpressionAttributeNames[`#${k}`] = k
-            }
-            if (index != keys.length - 1) opts.FilterExpression += " and "
-        })
-
-        // 绑定筛选至原来的查询对象
-        if (oldquery.FilterExpression) {
-            oldquery.FilterExpression += (' AND ' + opts.FilterExpression)
-        } else {
-            oldquery.FilterExpression = opts.FilterExpression
-        }
-        oldquery.ExpressionAttributeNames = { ...oldquery.ExpressionAttributeNames, ...opts.ExpressionAttributeNames }
-        oldquery.ExpressionAttributeValues = { ...oldquery.ExpressionAttributeValues, ...opts.ExpressionAttributeValues }
-
-        // 返回绑定筛选参数后的查询
-        return this.query(oldquery)
-    }
-
-    /**
-     * 绑定筛选条件后扫描
-     * @param {*} oldquery 原始查询对象
-     * @param {*} conditions 查询条件对象
-     * @param {*} isDefault 是否默认全模糊搜索
-     */
-    bindFilterScan(oldquery = {}, conditions = {}, isDefault) {
-        if (_.isEmpty(conditions)) {
-            return self.scan(oldquery)
-        }
-        // 默认设置搜索条件，所有查询模糊匹配
-        if (isDefault) {
-            for (let key in conditions) {
-                if (!_.isArray(conditions[key])) {
-                    conditions[key] = { '$like': conditions[key] }
-                }
-            }
-        }
-        let keys = Object.keys(conditions), opts = {}
-        if (keys.length > 0) {
-            opts.FilterExpression = ''
-            opts.ExpressionAttributeValues = {}
-            opts.ExpressionAttributeNames = {}
-        }
-        keys.forEach((k, index) => {
-            let item = conditions[k]
-            let value = item, array = false
-            if (_.isArray(item)) {
-                opts.ExpressionAttributeNames[`#${k}`] = k
-                opts.FilterExpression += `#${k} between :${k}0 and :${k}1`
-                opts.ExpressionAttributeValues[`:${k}0`] = item[0]
-                opts.ExpressionAttributeValues[`:${k}1`] = item[1]// + 86399999
-            }
-            else if (Object.is(typeof item, "object")) {
-                for (let key in item) {
-                    value = item[key]
-                    switch (key) {
-                        case "$like": {
-                            opts.FilterExpression += `contains(#${k}, :${k})`
-                            break
-                        }
-                        case "$in": {
-                            array = true
-                            opts.ExpressionAttributeNames[`#${k}`] = k
-                            for (let i = 0; i < value.length; i++) {
-                                if (i == 0) opts.FilterExpression += "("
-                                opts.FilterExpression += `#${k} = :${k}${i}`
-                                if (i != value.length - 1) {
-                                    opts.FilterExpression += " or "
-                                }
-                                if (i == value.length - 1) {
-                                    opts.FilterExpression += ")"
-                                }
-                                opts.ExpressionAttributeValues[`:${k}${i}`] = value[i]
-                            }
-                            break
-                        }
-                        case "$range": {
-                            array = true
-                            opts.ExpressionAttributeNames[`#${k}`] = k
-                            opts.FilterExpression += `#${k} between :${k}0 and :${k}1`
-                            opts.ExpressionAttributeValues[`:${k}0`] = value[0]
-                            opts.ExpressionAttributeValues[`:${k}1`] = value[1]
-                            break
-                        }
-                    }
-                    break
-                }
-            } else {
-                opts.FilterExpression += `#${k} = :${k}`
-            }
-            if (!array && !_.isArray(value)) {
-                opts.ExpressionAttributeValues[`:${k}`] = value
-                opts.ExpressionAttributeNames[`#${k}`] = k
-            }
-            if (index != keys.length - 1) opts.FilterExpression += " and "
-        })
-
-        // 绑定筛选至原来的查询对象
-        if (oldquery.FilterExpression) {
-            oldquery.FilterExpression += (' AND ' + opts.FilterExpression)
-        } else {
-            oldquery.FilterExpression = opts.FilterExpression
-        }
-        oldquery.ExpressionAttributeNames = { ...oldquery.ExpressionAttributeNames, ...opts.ExpressionAttributeNames }
-        oldquery.ExpressionAttributeValues = { ...oldquery.ExpressionAttributeValues, ...opts.ExpressionAttributeValues }
-
-        // 返回绑定筛选参数后的筛选
-        return this.scan(oldquery)
     }
 
     // 生成SN
