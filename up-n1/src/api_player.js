@@ -456,7 +456,7 @@ router.get('/player/bill/flow/download', async function (ctx, next) {
         ProjectionExpression: "sn,createdAt,#type,originalAmount,amount,balance,businessKey,remark,betId,userName,billId,id,gameType,gameId",
         IndexName: 'UserNameIndex',
         ScanIndexForward: false, //降序返回结果
-        KeyConditionExpression: 'userName=:userName AND createdAt between createdAt0 and createdAt1',
+        KeyConditionExpression: 'userName=:userName AND createdAt between :createdAt0 and :createdAt1',
         ExpressionAttributeNames: { "#type": 'type' },
         ExpressionAttributeValues: { ':userName': inparam.userName, ':createdAt0': inparam.startTime, ':createdAt1': inparam.endTime }
     }
