@@ -371,7 +371,7 @@ router.post('/player/bill/detail', async function (ctx, next) {
     } else {
         oldQuery.IndexName = 'UserNameIndex'
         oldQuery.KeyConditionExpression = 'userName=:userName AND createdAt between :createdAt0 and :createdAt1'
-        oldQuery.ExpressionAttributeValues = { ':userName': inparam.userName, ':createdAt0': inparam.startTime, ':creatdAt1': inparam.endTime }
+        oldQuery.ExpressionAttributeValues = { ':userName': inparam.userName, ':createdAt0': inparam.startTime, ':createdAt1': inparam.endTime }
     }
     // 厂商搜索的情况下，获取游戏大类code数组
     if (inparam.company && inparam.company != '-1') {
