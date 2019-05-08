@@ -173,17 +173,38 @@ router.post('/player/bill/flow', async function (ctx, next) {
     new PlayerBillCheck().checkBill(inparam)
     //参数组装
     let gameTypeList = []      //游戏code数组
-    let indexName = undefined  //查询索引
     let filterParms = {}       //过滤条件
-    let queryParms = {}        //查询条件
+    let oldQuery = {
+        ProjectionExpression: "sn,createdAt,#type,originalAmount,amount,balance,businessKey,remark,betId,userName,billId,id,gameType,gameId",
+        ScanIndexForward: false, //降序返回结果
+        Limit: inparam.pageSize,
+        ExpressionAttributeNames: { "#type": 'type' },
+    }
+    // 如果传了sn或bk
+    if (inparam.sn || inparam.betId) {
+        if (inparam.sn) { //主分区查询
+            oldQuery.KeyConditionExpression = 'sn=:sn'
+            oldQuery.ExpressionAttributeValues = { ':sn': inparam.sn }
+        } else {  //索引bk查询
+            oldQuery.IndexName = 'BusinessKeyIndex'
+            oldQuery.KeyConditionExpression = 'businessKey=:businessKey'
+            oldQuery.ExpressionAttributeValues = { ':businessKey': inparam.betId }
+        }
+    }
+    // 使用userName查询
+    else {
+        oldQuery.IndexName = 'UserNameIndex'
+        oldQuery.KeyConditionExpression = 'userName=:userName AND createdAt between :createdAt0 and :createdAt1'
+        oldQuery.ExpressionAttributeValues = { ':userName': inparam.userName, ':createdAt0': inparam.startTime, ':createdAt1': inparam.endTime }
+    }
     // 厂商搜索的情况下，获取游戏大类code数组
     if (inparam.company && inparam.company != '-1') {
         let commpanyGameList = GameListEnum[inparam.company] || []
         gameTypeList = commpanyGameList.map((item) => {
             return +item.code
         })
-        if (inparam.company == 'NA') { // NA厂商需要查询中心钱包，上级操作，NA棋牌
-            gameTypeList = gameTypeList.concat([1, 2])   //没有棋牌了 数组中删除了10000
+        if (inparam.company == 'NA') { // NA厂商需要查询中心钱包，上级操作
+            gameTypeList = gameTypeList.concat([1, 2])
         }
     }
     // 具体游戏大类搜索的情况下，获取具体游戏大类的code数组
@@ -202,44 +223,21 @@ router.post('/player/bill/flow', async function (ctx, next) {
     if (inparam.action) {
         filterParms.action = +inparam.action
     }
-    // 如果传了sn或bk
-    if (inparam.sn || inparam.betId) {
-        if (inparam.sn) { //主分区查询
-            queryParms.sn = inparam.sn
-            // filterParms.createdAt = { "$range": [inparam.startTime, inparam.endTime] }
-        } else {  //索引bk查询
-            queryParms = {
-                businessKey: inparam.betId,
-                // createdAt: { "$range": [inparam.startTime, inparam.endTime] }
-            }
-            indexName = 'BusinessKeyIndex'
-        }
-    }
-    // 使用userName查询
-    else {
-        queryParms = {
-            userName: inparam.userName,
-            createdAt: { "$range": [inparam.startTime, inparam.endTime] }
-        }
-        indexName = 'UserNameIndex'
-    }
-    // 流水查询
-    let [lists, isStartKey] = await new PlayerBillDetailModel().queryParms(indexName, queryParms, filterParms, inparam)
+    let listsRes = await new PlayerBillDetailModel().bindFilterPage(oldQuery, filterParms, false, inparam)
+    let lists = listsRes.Items
     // 获取最后一条数据的主分区和索引键，作为下一次查询的起始
     let startKey = null
-    // if (isStartKey) {
     let lastRecord = lists[lists.length - 1]
     if (lastRecord) {
         startKey = { createdAt: lastRecord.createdAt, sn: lastRecord.sn }
-        if (indexName == 'UserNameIndex') {
+        if (oldQuery.IndexName == 'UserNameIndex') {
             startKey.userName = lastRecord.userName
-        } else if (indexName == 'BusinessKeyIndex') {
+        } else if (oldQuery.IndexName == 'BusinessKeyIndex') {
             startKey.businessKey = lastRecord.businessKey
         } else {
             startKey.sn = lastRecord.sn
         }
     }
-    // }
     // 重新组装返回结果列表
     for (let i = 0; i < lists.length; i++) {
         let item = lists[i]
@@ -361,9 +359,20 @@ router.post('/player/bill/detail', async function (ctx, next) {
     new PlayerBillCheck().checkPlayerDetail(inparam)
     //参数组装
     let gameTypeList = []      //游戏code数组
-    let indexName = undefined  //查询索引
     let filterParms = {}       //过滤条件
-    let queryParms = {}        //查询条件
+    let oldQuery = {
+        ProjectionExpression: "businessKey,betAmount,gameType,gameId,retAmount,userName,rate,createdAt,originalAmount,content,winloseAmount",
+        ScanIndexForward: false, //降序返回结果
+        Limit: inparam.pageSize || 100
+    }
+    if (inparam.betId) {
+        oldQuery.KeyConditionExpression = 'businessKey=:businessKey'
+        oldQuery.ExpressionAttributeValues = { ':businessKey': inparam.betId }
+    } else {
+        oldQuery.IndexName = 'UserNameIndex'
+        oldQuery.KeyConditionExpression = 'userName=:userName AND createdAt between :createdAt0 and :createdAt1'
+        oldQuery.ExpressionAttributeValues = { ':userName': inparam.userName, ':createdAt0': inparam.startTime, ':creatdAt1': inparam.endTime }
+    }
     // 厂商搜索的情况下，获取游戏大类code数组
     if (inparam.company && inparam.company != '-1') {
         let commpanyGameList = GameListEnum[inparam.company] || []
@@ -382,15 +391,9 @@ router.post('/player/bill/detail', async function (ctx, next) {
     if (gameTypeList.length != 0) {
         filterParms.gameType = { "$in": gameTypeList }
     }
-    if (inparam.betId) {
-        // filterParms.createdAt = { '$range': [inparam.startTime, inparam.endTime] }
-        queryParms = { businessKey: inparam.betId }
-    } else {
-        queryParms = { userName: inparam.userName, createdAt: { "$range": [inparam.startTime, inparam.endTime] } }
-        indexName = "UserNameIndex"
-    }
     //查询局表
-    let list = await new RoundModel().getRoundByName(indexName, queryParms, filterParms, inparam)
+    let list = await new RoundModel().bindFilterPage(oldQuery, filterParms, false, inparam)
+    list = list.Items
     let lastKey = null
     if (list.length != 0) {
         let lastRecord = list[list.length - 1];
@@ -701,11 +704,6 @@ router.get('/player/bill/flow/download', async function (ctx, next) {
     //参数校验
     new PlayerBillCheck().checkBillDown(inparam)
     //获取玩家流水
-    let indexName = 'UserNameIndex'
-    let keyParms = {
-        userName: inparam.userName,
-        createdAt: { "$range": [inparam.startTime, inparam.endTime] }
-    }
     let filterParms = {}
     if (inparam.action) {
         filterParms.action = +inparam.action
@@ -713,7 +711,15 @@ router.get('/player/bill/flow/download', async function (ctx, next) {
     if (inparam.type) {
         filterParms.type = +inparam.type
     }
-    let list = await new PlayerBillDetailModel().queryBillByTime(indexName, keyParms, filterParms)
+    let oldQuery = {
+        ProjectionExpression: "sn,createdAt,#type,originalAmount,amount,balance,businessKey,remark,betId,userName,billId,id,gameType,gameId",
+        IndexName: 'UserNameIndex',
+        ScanIndexForward: false, //降序返回结果
+        KeyConditionExpression: 'userName=:userName AND createdAt between :createdAt0 and :createdAt1',
+        ExpressionAttributeNames: { "#type": 'type' },
+        ExpressionAttributeValues: { ':userName': inparam.userName, ':createdAt0': inparam.startTime, ':createdAt1': inparam.endTime }
+    }
+    let list = await new PlayerBillDetailModel().bindFilterQuery(oldQuery, filterParms)
     list = list.Items
     for (let i = 0; i < list.length; i++) {
         let item = list[i]
@@ -776,7 +782,6 @@ router.get('/player/bill/detail/download', async function (ctx, next) {
     new PlayerBillCheck().checkBillDown(inparam)
     //参数组装
     let gameTypeList = []      //游戏code数组
-    let indexName = "UserNameIndex"  //查询索引
     let filterParms = {}       //过滤条件
     let queryParms = { userName: inparam.userName, createdAt: { "$range": [inparam.startTime, inparam.endTime] } }       //查询条件
     // 厂商搜索的情况下，获取游戏大类code数组
@@ -798,7 +803,15 @@ router.get('/player/bill/detail/download', async function (ctx, next) {
         filterParms.gameType = { "$in": gameTypeList }
     }
     //查询局表
-    let list = await new RoundModel().getAllRoundByName(indexName, queryParms, filterParms)
+    let oldQuery = {
+        IndexName: 'UserNameIndex',
+        ProjectionExpression: "businessKey,betAmount,gameType,gameId,retAmount,userName,rate,createdAt,originalAmount,content,winloseAmount",
+        ScanIndexForward: false, //降序返回结果
+        KeyConditionExpression: 'userName=:userName AND createdAt between :createdAt0 and :createdAt1',
+        ExpressionAttributeValues: { ':userName': inparam.userName, ':createdAt0': inparam.startTime, ':createdAt1': inparam.endTime }
+    }
+    let list = await new RoundModel().bindFilterQuery(oldQuery, filterParms)
+    list = list.Items
     //获取玩家的gameList
     let playerInfo = await new PlayerModel().getPlayer(inparam.userName)
     let userInfo = await new UserModel().getUser(playerInfo.parent, '1000')

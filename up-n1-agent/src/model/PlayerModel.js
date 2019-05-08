@@ -257,7 +257,6 @@ module.exports = class PlayerModel extends BaseModel {
         if (inparam.startKey) {
             oldscan.ExclusiveStartKey = inparam.startKey;
         }
-        console.log(oldscan)
         if (oldscan.FilterExpression == '#msn = :msn') {
             oldscan.FilterExpression += ' AND joinTime > :joinTime'
             oldscan.ExpressionAttributeValues[':joinTime'] = 0
