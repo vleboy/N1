@@ -15,7 +15,6 @@ const log = require('tracer').colorConsole({ level: config.log.level })
 const PlayerModel = require('./model/PlayerModel')
 const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
 const HeraGameRecordModel = require('./model/HeraGameRecordModel')
-const LogModel = require('./model/LogModel')
 const ipMap = {}
 
 /**
@@ -148,9 +147,6 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
                 inparam.txnidTemp = `${UN}_BETCONFIRM_${record.REFID}`
                 inparam.anotherGameData = JSON.stringify(record)                      // 将原始游戏信息JSON格式化存储
                 BAL = await new PlayerModel().updatebalance(player, inparam)
-                if (BAL == player.balance) {
-                    new LogModel().add('2', 'flowerror', inparam, `已存在对应BK【${inparam.businessKey}】的下注`)
-                }
                 // 下注写入YSB战绩，以便提供实时查询，status==3不会提供给商户查询，PAYOUT后会根据主键覆盖
                 new HeraGameRecordModel().writeRound({
                     userId: player.userId,
@@ -178,13 +174,11 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
             if (!await new PlayerBillDetailModel().ysbPayoutCheck(inparam)) {
                 S = 1013
                 ED = '返奖已存在'
-                console.error(`返奖已存在:${inparam.businessKey}`)
             } else {
                 BAL = await new PlayerModel().updatebalance(player, inparam)
                 if (BAL == player.balance) {
                     S = 1013
                     ED = '返奖已存在'
-                    new LogModel().add('2', 'flowerror', inparam, `对应BK【${inparam.businessKey}】的返奖已经存在`)
                 } else {
                     new PlayerModel().addRound(player, inparam)
                 }

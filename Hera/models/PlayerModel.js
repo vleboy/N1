@@ -245,7 +245,7 @@ module.exports = class PlayerModel extends BaseModel {
                 billBetRes = await playerBillDetailModel.getBill(data.betsn)
                 // 确认找不到下注
                 if (!billBetRes || !billBetRes.Item || _.isEmpty(billBetRes.Item)) {
-                    new LogModel().add('2', 'findBetError', data, `返还未找到对应betsn【${data.betsn}】的下注`)
+                    new LogModel().add('2', 'findBetError', data, `未找到对应betsn【${data.betsn}】的下注`)
                     if (isThrowUnBet) {
                         throw { code: -1, params: `未找到对应betsn【${data.betsn}】的下注` }
                     }
