@@ -1,6 +1,7 @@
 const config = require('config')
 const jwt = require('jsonwebtoken')
 const _ = require('lodash')
+const moment = require('moment')
 const bcrypt = require('bcryptjs')
 const uuid = require('uuid/v4')
 const RoleCodeEnum = require('../lib/UserConsts').RoleCodeEnum
@@ -39,9 +40,10 @@ const Model = {
    */
   baseModel: function () {
     return {
-      createdAt: (new Date()).getTime(),
-      updatedAt: (new Date()).getTime(),
-      createdDate: new Date().Format("yyyy-MM-dd")
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      createdDate: moment().utcOffset(8).format('YYYY-MM-DD'),
+      createdStr: moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss')
     }
   },
   /**
@@ -152,22 +154,6 @@ const Model = {
     }, {})
     return values
   }
-}
-// 私有日期格式化方法
-Date.prototype.Format = function (fmt) {
-  var o = {
-    "M+": this.getMonth() + 1, //月份 
-    "d+": this.getDate(), //日 
-    "h+": this.getHours(), //小时 
-    "m+": this.getMinutes(), //分 
-    "s+": this.getSeconds(), //秒 
-    "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
-    "S": this.getMilliseconds() //毫秒 
-  };
-  if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
-  for (var k in o)
-    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-  return fmt;
 }
 
 module.exports = {

@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk')
 AWS.config.update({ region: 'ap-southeast-1' })
 const _ = require('lodash')
+const moment = require('moment')
 const dbClient = new AWS.DynamoDB.DocumentClient()
 
 /**
@@ -25,8 +26,8 @@ class BaseModel {
         this.baseitem = {
             createdAt: Date.now(),
             updatedAt: Date.now(),
-            createdDate: new Date().Format("yyyy-MM-dd"),
-            createdTime: new Date().Format("hh:mm:ss")
+            createdDate: moment().utcOffset(8).format('YYYY-MM-DD'),
+            createdStr: moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss')
         }
     }
 
@@ -532,23 +533,6 @@ class BaseModel {
         // 返回绑定筛选参数后的筛选
         return this.scan(oldquery)
     }
-}
-
-// 私有日期格式化方法
-Date.prototype.Format = function (fmt) {
-    var o = {
-        "M+": this.getMonth() + 1, //月份 
-        "d+": this.getDate(), //日 
-        "h+": this.getHours(), //小时 
-        "m+": this.getMinutes(), //分 
-        "s+": this.getSeconds(), //秒 
-        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
-        "S": this.getMilliseconds() //毫秒 
-    };
-    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
-    for (var k in o)
-        if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-    return fmt;
 }
 
 module.exports = BaseModel
