@@ -277,6 +277,7 @@ router.post('/player/list', async function (ctx, next) {
             userName: lastRecord.userName
         } : null;
     }
+    playerList = _.orderBy(playerList, ['joinTime', 'createdAt'], ['desc', 'desc'])
     ctx.body = { code: 0, msg: '操作成功', list: playerList, startKey: lastKey }
 })
 
@@ -399,19 +400,6 @@ router.post('/player/info', async function (ctx, next) {
         playerInfo.gameList = gameList
     }
     ctx.body = { code: 0, msg: '操作成功', userInfo: playerInfo }
-})
-
-/**
- * 获取商户下的所有玩家
- */
-router.post('/merchant/player/list', async function (ctx, next) {
-    //获取入参
-    let inparam = ctx.request.body
-    //参数校验
-    new PlayerBillCheck().checkMerchantPlayer(inparam)
-    //获取玩家信息
-    let playerList = await new PlayerModel().queryPlayerByParent(inparam.userId)
-    ctx.body = { code: 0, msg: '操作成功', list: playerList }
 })
 
 /**

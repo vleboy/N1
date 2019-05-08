@@ -330,6 +330,7 @@ router.post('/player/list', async function (ctx, next) {
             userName: lastRecord.userName
         } : null;
     }
+    playerList = _.orderBy(playerList, ['joinTime', 'createdAt'], ['desc', 'desc'])
     ctx.body = { code: 0, msg: '操作成功', list: playerList, startKey: lastKey }
 })
 
@@ -592,6 +593,7 @@ router.post('/agent/player/list', async function (ctx, next) {
     new PlayerBillCheck().checkAgentPlayer(inparam)
     //获取玩家信息
     let playerList = await new PlayerModel().queryPlayerByParent(inparam.fromUserId)
+    playerList = _.orderBy(playerList, ['joinTime', 'createdAt'], ['desc', 'desc'])
     ctx.body = { code: 0, msg: '操作成功', list: playerList }
 })
 
