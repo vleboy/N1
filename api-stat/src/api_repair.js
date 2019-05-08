@@ -379,6 +379,38 @@ router.post('/stat/fixRecrodRound', async function (ctx, next) {
     }
 })
 
+// 修正玩家表的createdAt和updatedAt字段并且删除createAt和updateAt
+router.get('/stat/fixPlayerTime', async function (ctx, next) {
+    //查询所有玩家
+    let playerModel = new PlayerModel()
+    let players = await playerModel.scan({
+        ProjectionExpression: 'userName,createAt,updateAt,createdAt,updatedAt'
+    })
+    let promiseArr = []
+    for (let playerInfo of players.Items) {
+        let p = new Promise(async (resolve, reject) => {
+            let createdAt = playerInfo.createdAt ? playerInfo.createdAt : playerInfo.createAt
+            let updatedAt = playerInfo.updatedAt ? playerInfo.updatedAt : playerInfo.updateAt
+            //更新玩家的时间
+            await playerModel.updateItem({
+                Key: { userName: playerInfo.userName },
+                UpdateExpression: 'SET createdAt=:createdAt,updatedAt=:updatedAt',
+                ExpressionAttributeValues: { ":createdAt": createdAt, ":updatedAt": updatedAt }
+            })
+            // 移除玩家表的无用属性
+            await playerModel.updateItem({
+                Key: { userName: playerInfo.userName },
+                UpdateExpression: 'REMOVE createAt,updateAt'
+            })
+            resolve('ok')
+        })
+        promiseArr.push(p)
+    }
+    await Promise.all(promiseArr)
+    ctx.body = { code: 0, msg: 'Y' }
+})
+
+
 /**
  * 测试SSL
  */
