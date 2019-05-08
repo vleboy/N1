@@ -29,7 +29,6 @@ router.post('/player/bill/flow', async function (ctx, next) {
     new PlayerBillCheck().checkBill(inparam)
     //参数组装
     let gameTypeList = []      //游戏code数组
-    let indexName = undefined  //查询索引
     let filterParms = {}       //过滤条件
     let oldQuery = {
         ProjectionExpression: "sn,createdAt,#type,originalAmount,amount,balance,businessKey,remark,betId,userName,billId,id,gameType,gameId",
@@ -87,9 +86,9 @@ router.post('/player/bill/flow', async function (ctx, next) {
     let lastRecord = lists[lists.length - 1]
     if (lastRecord) {
         startKey = { createdAt: lastRecord.createdAt, sn: lastRecord.sn }
-        if (indexName == 'UserNameIndex') {
+        if (oldQuery.IndexName == 'UserNameIndex') {
             startKey.userName = lastRecord.userName
-        } else if (indexName == 'BusinessKeyIndex') {
+        } else if (oldQuery.IndexName == 'BusinessKeyIndex') {
             startKey.businessKey = lastRecord.businessKey
         } else {
             startKey.sn = lastRecord.sn
