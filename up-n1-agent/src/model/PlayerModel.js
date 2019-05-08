@@ -257,6 +257,7 @@ module.exports = class PlayerModel extends BaseModel {
         if (inparam.startKey) {
             oldscan.ExclusiveStartKey = inparam.startKey;
         }
+        console.log(oldscan)
         if (oldscan.FilterExpression == '#msn = :msn') {
             oldscan.FilterExpression += ' AND joinTime > :joinTime'
             oldscan.ExpressionAttributeValues[':joinTime'] = 0
@@ -347,75 +348,5 @@ module.exports = class PlayerModel extends BaseModel {
         })
         return res.Count
     }
-
-    //参数解析和绑定
-    buildParms(conditions) {
-        let keys = Object.keys(conditions), opts = {}
-        if (keys.length > 0) {
-            opts.FilterExpression = ''
-            opts.ExpressionAttributeValues = {}
-            opts.ExpressionAttributeNames = {}
-        }
-        keys.forEach((k, index) => {
-            let item = conditions[k]
-            let value = item, array = false
-            // 属性对应的值是数组，则直接用范围筛选
-            if (_.isArray(item)) {
-                opts.ExpressionAttributeNames[`#${k}`] = k
-                opts.FilterExpression += `#${k} between :${k}0 and :${k}1`
-                opts.ExpressionAttributeValues[`:${k}0`] = item[0]
-                opts.ExpressionAttributeValues[`:${k}1`] = item[1]// + 86399999
-            }
-            else if (Object.is(typeof item, "object")) {
-                for (let key in item) {
-                    value = item[key]
-                    switch (key) {
-                        case "$like": {
-                            opts.FilterExpression += `contains(#${k}, :${k})`
-                            break
-                        }
-                        case "$not": {
-                            opts.FilterExpression += `#${k} <> :${k}`;
-                            break
-                        }
-                        case "$in": {
-                            array = true
-                            opts.ExpressionAttributeNames[`#${k}`] = k
-                            for (let i = 0; i < value.length; i++) {
-                                if (i == 0) opts.FilterExpression += "("
-                                opts.FilterExpression += `#${k} = :${k}${i}`
-                                if (i != value.length - 1) {
-                                    opts.FilterExpression += " or "
-                                }
-                                if (i == value.length - 1) {
-                                    opts.FilterExpression += ")"
-                                }
-                                opts.ExpressionAttributeValues[`:${k}${i}`] = value[i]
-                            }
-                            break
-                        }
-                        case "$range": {
-                            array = true
-                            opts.ExpressionAttributeNames[`#${k}`] = k
-                            opts.FilterExpression += `#${k} between :${k}0 and :${k}1`
-                            opts.ExpressionAttributeValues[`:${k}0`] = value[0]
-                            opts.ExpressionAttributeValues[`:${k}1`] = value[1]
-                            break
-                        }
-                    }
-                    break
-                }
-            } else {
-                opts.FilterExpression += `#${k} = :${k}`
-            }
-            if (!array && !_.isArray(value)) {
-                opts.ExpressionAttributeValues[`:${k}`] = value
-                opts.ExpressionAttributeNames[`#${k}`] = k
-            }
-            if (index != keys.length - 1) opts.FilterExpression += " and "
-        })
-        return opts
-    }
-
 }
 
