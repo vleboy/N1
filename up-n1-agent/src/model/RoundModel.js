@@ -1,6 +1,5 @@
 const BaseModel = require('./BaseModel')
 const config = require('config')
-const _ = require('lodash')
 class RoundModel extends BaseModel {
     constructor() {
         super()
@@ -14,6 +13,4 @@ class RoundModel extends BaseModel {
         }
     }
 }
-
-
 module.exports = RoundModel
