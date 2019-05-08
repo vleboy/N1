@@ -247,26 +247,19 @@ module.exports = class PlayerModel extends BaseModel {
 
     //获取玩家列表
     async getPlayerList(conditions, inparam) {
-        let opts = this.buildParms(conditions)
-        Object.assign(opts, {
+        let oldscan = {
             ...this.params,
-            ScanIndexForward: false,
-            Limit: 100,
-            ProjectionExpression: ["userId", "userName", "msn", "buId", "merchantName", "nickname", "#state", "gameState", "balance", "joinTime", "gameId", "parent", "parentName", "chip", "createdAt"].join(","),
-        })
-        opts.ExpressionAttributeNames["#state"] = "state";
+            Limit: inparam.pageSize,
+            ProjectionExpression: "userId,userName,buId,merchantName,nickname,#state,gameState,balance,joinTime,gameId,parent,createdAt",
+            ExpressionAttributeNames: { "#state": "state" }
+        }
+        this.buildParms(oldscan, conditions)
         if (inparam.startKey) {
-            opts.ExclusiveStartKey = inparam.startKey;
+            oldscan.ExclusiveStartKey = inparam.startKey;
         }
-        let values = opts.ExpressionAttributeValues, valueCount = 0;
-        for (let key in values) {
-            valueCount++;
-        }
-        if (valueCount == 0) {
-            delete opts.ExpressionAttributeValues;
-        }
-        if (!opts.FilterExpression) {
-            delete opts.FilterExpression;
+        if (oldscan.FilterExpression == '#msn == :msn') {
+            oldscan.FilterExpression += ' AND joinTime > :joinTime'
+            oldscan.ExpressionAttributeValues[':joinTime'] = 0
         }
         return await this.forScanRes(opts, [], inparam.pageSize)
     }
