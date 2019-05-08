@@ -246,7 +246,7 @@ module.exports = class PlayerModel extends BaseModel {
     }
 
     //获取玩家列表
-    async getPlayerList(conditions, inparam) {
+    getPlayerList(conditions, inparam) {
         let oldscan = {
             ...this.params,
             Limit: inparam.pageSize,
@@ -261,9 +261,9 @@ module.exports = class PlayerModel extends BaseModel {
             oldscan.FilterExpression += ' AND joinTime > :joinTime'
             oldscan.ExpressionAttributeValues[':joinTime'] = 0
         }
-        return await this.forScanRes(opts, [], inparam.pageSize)
+        return this.forScanRes(oldscan, [], inparam.pageSize)
     }
-    async forScanRes(opts, array = [], pageSize = 20) {
+    forScanRes(opts, array = [], pageSize = 20) {
         return this.db$('scan', opts).then((result) => {
             // 合并上一次的查询结果
             array = array.concat(result.Items)
