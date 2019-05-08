@@ -118,14 +118,16 @@ module.exports = class PlayerModel extends BaseModel {
     async getPlayerList(conditions, inparam) {
         let oldscan = {
             ...this.params,
-            ScanIndexForward: false,
-            Limit: 100,
-            ProjectionExpression: ["userId", "userName", "msn", "buId", "merchantName", "nickname", "#state", "gameState", "balance", "joinTime", "gameId", "parent", "parentName", "chip", "createdAt"].join(","),
+            Limit: inparam.pageSize,
+            ProjectionExpression: "userId,userName,buId,merchantName,nickname,#state,gameState,balance,joinTime,gameId,parent,createdAt",
             ExpressionAttributeNames: { "#state": "state" }
         }
         this.buildParms(oldscan, conditions)
         if (inparam.startKey) {
             oldscan.ExclusiveStartKey = inparam.startKey;
+        }
+        if(oldscan.FilterExpression == '#msn <> :msn'){
+            oldscan.FilterExpression += ' AND joinTime > 0'
         }
         return await this.forScanRes(oldscan, [], inparam.pageSize)
     }
