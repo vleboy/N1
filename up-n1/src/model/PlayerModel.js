@@ -116,30 +116,20 @@ module.exports = class PlayerModel extends BaseModel {
     }
     //获取玩家列表
     async getPlayerList(conditions, inparam) {
-        let opts = this.buildParms(conditions)
-        Object.assign(opts, {
+        let oldscan = {
             ...this.params,
             ScanIndexForward: false,
             Limit: 100,
             ProjectionExpression: ["userId", "userName", "msn", "buId", "merchantName", "nickname", "#state", "gameState", "balance", "joinTime", "gameId", "parent", "parentName", "chip", "createdAt"].join(","),
-        })
-        opts.ExpressionAttributeNames["#state"] = "state";
+            ExpressionAttributeNames: { "#state": "state" }
+        }
+        this.buildParms(oldscan, conditions)
         if (inparam.startKey) {
-            opts.ExclusiveStartKey = inparam.startKey;
+            oldscan.ExclusiveStartKey = inparam.startKey;
         }
-        let values = opts.ExpressionAttributeValues, valueCount = 0;
-        for (let key in values) {
-            valueCount++;
-        }
-        if (valueCount == 0) {
-            delete opts.ExpressionAttributeValues;
-        }
-        if (!opts.FilterExpression) {
-            delete opts.FilterExpression;
-        }
-        return await this.forScanRes(opts, [], inparam.pageSize)
+        return await this.forScanRes(oldscan, [], inparam.pageSize)
     }
-    async forScanRes(opts, array = [], pageSize = 20) {
+    forScanRes(opts, array = [], pageSize = 20) {
         return this.db$('scan', opts).then((result) => {
             // 合并上一次的查询结果
             array = array.concat(result.Items)
@@ -280,75 +270,5 @@ module.exports = class PlayerModel extends BaseModel {
         })
         return res.Count
     }
-
-    //参数解析和绑定
-    buildParms(conditions) {
-        let keys = Object.keys(conditions), opts = {}
-        if (keys.length > 0) {
-            opts.FilterExpression = ''
-            opts.ExpressionAttributeValues = {}
-            opts.ExpressionAttributeNames = {}
-        }
-        keys.forEach((k, index) => {
-            let item = conditions[k]
-            let value = item, array = false
-            // 属性对应的值是数组，则直接用范围筛选
-            if (_.isArray(item)) {
-                opts.ExpressionAttributeNames[`#${k}`] = k
-                opts.FilterExpression += `#${k} between :${k}0 and :${k}1`
-                opts.ExpressionAttributeValues[`:${k}0`] = item[0]
-                opts.ExpressionAttributeValues[`:${k}1`] = item[1]// + 86399999
-            }
-            else if (Object.is(typeof item, "object")) {
-                for (let key in item) {
-                    value = item[key]
-                    switch (key) {
-                        case "$like": {
-                            opts.FilterExpression += `contains(#${k}, :${k})`
-                            break
-                        }
-                        case "$not": {
-                            opts.FilterExpression += `#${k} <> :${k}`;
-                            break
-                        }
-                        case "$in": {
-                            array = true
-                            opts.ExpressionAttributeNames[`#${k}`] = k
-                            for (let i = 0; i < value.length; i++) {
-                                if (i == 0) opts.FilterExpression += "("
-                                opts.FilterExpression += `#${k} = :${k}${i}`
-                                if (i != value.length - 1) {
-                                    opts.FilterExpression += " or "
-                                }
-                                if (i == value.length - 1) {
-                                    opts.FilterExpression += ")"
-                                }
-                                opts.ExpressionAttributeValues[`:${k}${i}`] = value[i]
-                            }
-                            break
-                        }
-                        case "$range": {
-                            array = true
-                            opts.ExpressionAttributeNames[`#${k}`] = k
-                            opts.FilterExpression += `#${k} between :${k}0 and :${k}1`
-                            opts.ExpressionAttributeValues[`:${k}0`] = value[0]
-                            opts.ExpressionAttributeValues[`:${k}1`] = value[1]
-                            break
-                        }
-                    }
-                    break
-                }
-            } else {
-                opts.FilterExpression += `#${k} = :${k}`
-            }
-            if (!array && !_.isArray(value)) {
-                opts.ExpressionAttributeValues[`:${k}`] = value
-                opts.ExpressionAttributeNames[`#${k}`] = k
-            }
-            if (index != keys.length - 1) opts.FilterExpression += " and "
-        })
-        return opts
-    }
-
 }
 
