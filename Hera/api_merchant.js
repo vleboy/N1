@@ -259,7 +259,6 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                     launchImg: userInfo.launchImg,
                     loginWhiteList: userInfo.loginWhiteList,
                     moneyURL: userInfo.moneyURL,
-                    msn: userInfo.msn,
                     registerURL: userInfo.registerURL,
                     sn: userInfo.sn,
                     suffix: userInfo.suffix,
