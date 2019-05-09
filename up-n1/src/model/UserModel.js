@@ -855,6 +855,7 @@ class UserModel extends BaseModel {
         return this.query({
             ProjectionExpression: 'msn',
             KeyConditionExpression: '#role = :role',
+            ExpressionAttributeNames: { '#role': 'role' },
             ExpressionAttributeValues: { ':role': RoleCodeEnum.Merchant }
         })
     }
