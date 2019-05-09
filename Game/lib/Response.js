@@ -38,7 +38,6 @@ const GeneratePolicyDocument = (principalId, effect, resource, userInfo) => {
   authResponse.context.suffix = userInfo.suffix
   authResponse.context.level = userInfo.level
   authResponse.context.displayName = userInfo.displayName
-  authResponse.context.msn = userInfo.msn
   if (effect && resource) {
     var policyDocument = {}
     policyDocument.Version = '2012-10-17' // default version
