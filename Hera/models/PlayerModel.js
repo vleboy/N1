@@ -162,15 +162,13 @@ module.exports = class PlayerModel extends BaseModel {
     /**
      * 更新玩家密码
      */
-    async updatePwd(inparam) {
+    updatePwd(inparam) {
         const sha = crypto.createHash('sha256');
         sha.update(inparam.newPwd);
         let userPwd = sha.digest('hex');
-        await this.updateItem({
-            Key: {
-                'userName': inparam.userName
-            },
-            UpdateExpression: "SET userPwd = :userPwd,password=:password",
+        return this.updateItem({
+            Key: { 'userName': inparam.userName },
+            UpdateExpression: "SET userPwd=:userPwd,password=:password",
             ExpressionAttributeValues: {
                 ':userPwd': userPwd,
                 ':password': inparam.newPwd

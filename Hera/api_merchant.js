@@ -141,7 +141,6 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 })
                 let balanceArr = await new PlayerModel().queryNamesBalance(names)
                 return ResOK(cb, { msg: 'success', data: balanceArr }, 0)
-                break;
             case 'CHANGE_PLAYER_PASSWORD'://改变玩家密码
                 if (!inparam.userName || !inparam.userPwd) {
                     return ResFail(cb, { msg: '请检查入参' }, 500)
@@ -152,7 +151,6 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 //更新玩家
                 await new PlayerModel().updatePwd({ userName, newPwd: inparam.userPwd })
                 return ResOK(cb, { msg: 'success' }, 0)
-                break;
             case 'OPERATE_PLAYER_BALANCE'://玩家存提点操作
                 if (!inparam.userName || !inparam.action || !inparam.amount) {
                     return ResFail(cb, { msg: '请检查入参' }, 500)
@@ -232,7 +230,6 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 }
                 await new MerchantBillModel().playerBillTransfer(userBill, playerBill)
                 return ResOK(cb, { msg: 'success', data: { balance: currentBalanceObj.balance } }, 0)
-                break;
             case 'OPERATE_PLAYER_FORZEN'://冻结|解冻玩家
                 if (typeof inparam.names != 'object' || inparam.names.length == 0) {
                     return ResFail(cb, { msg: '参数names不合法' }, 500)
@@ -246,7 +243,6 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 })
                 await new PlayerModel().updateNameState(names, state)
                 return ResOK(cb, { msg: 'success', state }, 0)
-                break;
             case 'QUERY_MERCHANT_INFO'://获取商户信息
                 let merchantBalance = await new MerchantBillModel().queryUserBalance(userInfo.userId)
                 let data = {
@@ -261,7 +257,8 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                     balance: merchantBalance
                 }
                 return ResOK(cb, { msg: 'success', data }, 0)
-                break;
+            default:
+                return ResOK(cb, { msg: '参数 method 错误' }, 500)
         }
     } catch (err) {
         console.error(err)
