@@ -25,7 +25,7 @@ class ManagerModel extends BaseModel {
         let query = {
             IndexName: 'RoleParentIndex',
             KeyConditionExpression: '#role = :role and parent = :parent',
-            ProjectionExpression: 'userId,sn,displayName,msn,parent,parentName,parentDisplayName,parentRole,balance,gameList,createdAt,loginAt,#status,remark,suffix,uname,username,#role,points,isTest',
+            ProjectionExpression: 'userId,sn,displayName,parent,parentName,parentDisplayName,parentRole,balance,gameList,createdAt,loginAt,#status,remark,suffix,uname,username,#role,points,isTest',
             ExpressionAttributeNames: {
                 '#role': 'role',
                 '#status': 'status'
@@ -54,7 +54,7 @@ class ManagerModel extends BaseModel {
         if (Model.isPlatformAdmin(token)) {
             query = {
                 KeyConditionExpression: '#role = :role',
-                ProjectionExpression: 'userId,sn,displayName,msn,parent,parentName,parentDisplayName,parentRole,balance,gameList,createdAt,loginAt,#status,remark,suffix,uname,username,#role,points,isTest',
+                ProjectionExpression: 'userId,sn,displayName,parent,parentName,parentDisplayName,parentRole,balance,gameList,createdAt,loginAt,#status,remark,suffix,uname,username,#role,points,isTest',
                 ExpressionAttributeNames: {
                     '#role': 'role',
                     '#status': 'status'

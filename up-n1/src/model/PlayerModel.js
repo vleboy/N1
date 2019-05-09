@@ -183,9 +183,7 @@ module.exports = class PlayerModel extends BaseModel {
                 ExpressionAttributeValues: {
                     ':parent': parentRes.Items[0].userId,
                     ':msn': '000',
-                    // ':nickname': 'NULL!',
-                    ':time0': inparam.time0,
-                    // ':time1': inparam.time1
+                    ':time0': inparam.time0
                 }
             })
         }
@@ -195,9 +193,7 @@ module.exports = class PlayerModel extends BaseModel {
                 ProjectionExpression: 'parent,userName,userId',
                 ExpressionAttributeValues: {
                     ':msn': '000',
-                    // ':nickname': 'NULL!',
-                    ':time0': inparam.time0,
-                    // ':time1': inparam.time1
+                    ':time0': inparam.time0
                 }
             })
         }

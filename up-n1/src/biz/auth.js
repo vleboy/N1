@@ -1,7 +1,6 @@
 const _ = require('lodash')
 const SubRoleModel = require('../model/SubRoleModel')
 const BillModel = require('../model/BillModel')
-const MsnModel = require('../model/MsnModel')
 const UserModel = require('../model/UserModel')
 const BaseModel = require('../model/BaseModel')
 const config = require('config')
@@ -82,20 +81,13 @@ const RegisterUser = async (token = {}, userInfo = {}) => {
   }
   // 如果是创建商户，自动生成msn
   if (CheckUser.role === RoleCodeEnum.Merchant) {
-    let msnRet = await new MsnModel().getAllMsn()
-    // 所有线路号都被占用
+    let msnRet = await new UserModel().getAllMsn()
     if (msnRet.Items.length >= 999) {
       throw BizErr.MsnFullError()
     } else {
-      // 所有占用线路号组成数组
-      let msnArr = []
-      for (let item of msnRet.Items) {
-        msnArr.push(parseInt(item.msn))
-      }
-      // 随机生成线路号
+      // 随机生成线路号，判断随机线路号是否已被占用
       let randomMsn = randomNum(1, 999)
-      // 判断随机线路号是否已被占用
-      while (msnArr.indexOf(randomMsn) != -1) {
+      while (msnRet.Items.map(o => parseInt(o.msn)).indexOf(randomMsn) != -1) {
         randomMsn = randomNum(1, 999)
       }
       CheckUser.msn = randomMsn.toString()
@@ -228,7 +220,6 @@ const LoginUser = async (userLoginInfo = {}) => {
     parentRole: saveUserRet.parentRole,
     displayName: saveUserRet.displayName,
     level: saveUserRet.level,
-    msn: saveUserRet.msn,
     displayId: saveUserRet.displayId,
     sn: saveUserRet.sn,
     subRole: saveUserRet.subRole,
@@ -270,8 +261,7 @@ const saveUser = async (userInfo) => {
     }
   }
   // 组装用户信息
-  const baseModel = Model.baseModel()
-  const UserItem = { ...baseModel, ...userInfo, updatedAt: Date.now(), loginAt: Date.now() }
+  const UserItem = { ...Model.baseModel(), ...userInfo, loginAt: Date.now() }
   // 保存用户
   await new BaseModel().db$('put', { TableName: config.env.TABLE_NAMES.ZeusPlatformUser, Item: UserItem })
   return _.pick(UserItem, RoleDisplay[userInfo.role])

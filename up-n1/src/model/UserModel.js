@@ -227,7 +227,7 @@ class UserModel extends BaseModel {
         // 平台管理员
         if (role === RoleCodeEnum.PlatformAdmin) {
             finalRet = await this.query({
-                ProjectionExpression: 'userId,#role,#suffix,#username,uname,#parent,parentName,parentDisplayName,parentRole,displayName,displayId,#level,msn,apiKey,sn,gameList,#rate,password,subRole',
+                ProjectionExpression: 'userId,#role,#suffix,#username,uname,#parent,parentName,parentDisplayName,parentRole,displayName,displayId,#level,apiKey,sn,gameList,#rate,password,subRole',
                 IndexName: 'RoleUsernameIndex',
                 KeyConditionExpression: '#role = :role AND #username = :username',
                 ExpressionAttributeNames: {
@@ -431,7 +431,7 @@ class UserModel extends BaseModel {
         // 商户
         if (sn) {
             return await this.query({
-                ProjectionExpression: 'userId,#role,#suffix,#username,uname,#parent,parentName,parentDisplayName,parentRole,displayName,displayId,#level,msn,apiKey,sn,gameList,#rate,password,subRole',
+                ProjectionExpression: 'userId,#role,#suffix,#username,uname,#parent,parentName,parentDisplayName,parentRole,displayName,displayId,#level,apiKey,sn,gameList,#rate,password,subRole',
                 KeyConditionExpression: '#role = :role',
                 FilterExpression: 'sn = :sn AND uname = :uname',
                 ExpressionAttributeNames: {
@@ -452,7 +452,7 @@ class UserModel extends BaseModel {
         // 管理员，线路商
         else {
             return await this.query({
-                ProjectionExpression: 'userId,#role,#suffix,#username,uname,#parent,parentName,parentDisplayName,parentRole,displayName,displayId,#level,msn,apiKey,sn,gameList,#rate,password,subRole',
+                ProjectionExpression: 'userId,#role,#suffix,#username,uname,#parent,parentName,parentDisplayName,parentRole,displayName,displayId,#level,apiKey,sn,gameList,#rate,password,subRole',
                 IndexName: 'RoleUsernameIndex',
                 KeyConditionExpression: '#role = :role AND #username = :username',
                 ExpressionAttributeNames: {
@@ -625,7 +625,7 @@ class UserModel extends BaseModel {
     async queryChildPlayer(inparam) {
         let query = {
             TableName: config.env.TABLE_NAMES.TABLE_USER,
-            ProjectionExpression: 'userName,nickname,#parent,parentName,merchantName,msn,createdAt,gameList,balance,#state,joinTime',
+            ProjectionExpression: 'userName,nickname,#parent,parentName,merchantName,createdAt,gameList,balance,#state,joinTime',
             IndexName: 'parentIdIndex',
             KeyConditionExpression: 'parent = :parentId',
             ExpressionAttributeNames: {
@@ -846,6 +846,17 @@ class UserModel extends BaseModel {
             }
         })
         return res.Count
+    }
+
+    /**
+     * 获取所有商户的线路号
+     */
+    getAllMsn() {
+        return this.query({
+            ProjectionExpression: 'msn',
+            KeyConditionExpression: '#role = :role',
+            ExpressionAttributeValues: { ':role': RoleCodeEnum.Merchant }
+        })
     }
 }
 

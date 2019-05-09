@@ -149,8 +149,6 @@ class UserCheck {
         }
         // 数据类型处理
         inparam.role = inparam.role.toString()
-        // inparam.captcha = parseInt(inparam.captcha) || 100000
-        // if (inparam.msn) { inparam.msn = parseInt(inparam.msn).toString() }
     }
 
     /**

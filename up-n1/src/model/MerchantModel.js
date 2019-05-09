@@ -25,7 +25,7 @@ class MerchantModel extends BaseModel {
         let query = {
             IndexName: 'RoleParentIndex',
             KeyConditionExpression: '#role = :role and parent = :parent',
-            ProjectionExpression: 'userId,sn,displayId,displayName,msn,parent,parentSuffix,parentName,parentDisplayName,parentRole,balance,gameList,createdAt,loginAt,#status,remark,uname,username,#role,points,isTest',
+            ProjectionExpression: 'userId,sn,displayId,displayName,parent,parentSuffix,parentName,parentDisplayName,parentRole,balance,gameList,createdAt,loginAt,#status,remark,uname,username,#role,points,isTest',
             ExpressionAttributeNames: {
                 '#role': 'role',
                 '#status': 'status'
@@ -54,7 +54,7 @@ class MerchantModel extends BaseModel {
         if (Model.isPlatformAdmin(token)) {
             query = {
                 KeyConditionExpression: '#role = :role',
-                ProjectionExpression: 'userId,sn,displayId,displayName,msn,parent,parentSuffix,parentName,parentDisplayName,parentRole,balance,gameList,createdAt,loginAt,#status,remark,uname,username,#role,points,isTest',
+                ProjectionExpression: 'userId,sn,displayId,displayName,parent,parentSuffix,parentName,parentDisplayName,parentRole,balance,gameList,createdAt,loginAt,#status,remark,uname,username,#role,points,isTest',
                 ExpressionAttributeNames: {
                     '#role': 'role',
                     '#status': 'status'
@@ -80,7 +80,6 @@ class MerchantModel extends BaseModel {
         }
         // 条件搜索
         if (!_.isEmpty(inparam.query)) {
-            if (inparam.query.msn) { inparam.query.msn = parseInt(inparam.query.msn).toString() }
             if (inparam.query.sn) { inparam.query.sn = { $like: inparam.query.sn } }
             if (inparam.query.displayName) { inparam.query.displayName = { $like: inparam.query.displayName } }
             if (inparam.query.displayId) { inparam.query.displayId = parseInt(inparam.query.displayId) }

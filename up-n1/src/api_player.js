@@ -173,7 +173,7 @@ router.get('/player/allParent/:userName', async function (ctx, next) {
     const allParentArr = []
     while (parent) {
         const user = await new UserModel().queryUserById(parent, {
-            ProjectionExpression: 'userId,parent,#role,suffix,username,sn,msn,#rate,displayId,displayName,chip',
+            ProjectionExpression: 'userId,parent,#role,suffix,username,sn,#rate,displayId,displayName,chip',
             ExpressionAttributeNames: {
                 '#role': 'role',
                 '#rate': 'rate'
@@ -208,11 +208,11 @@ router.post('/player/list', async function (ctx, next) {
     let { userName, nickname, gameId, gameState, parentSn, userId, buId } = inparam
     //查询参数组装
     let conditions = {
-        gameId: +gameId,    //游戏状态
-        parentSn,  //商户sn
+        gameId: +gameId,                                      //游戏状态
+        parentSn,                                             //商户sn
         gameState: gameState,
         userId: (!userId || !isNaN(+userId)) ? +userId : -1,  //玩家id
-        msn: { "$not": "000" }  //查非代理玩家
+        msn: { "$not": "000" }                                //查非代理玩家
     }
     if (userName) {
         conditions.userName = { "$like": userName } //玩家账号
