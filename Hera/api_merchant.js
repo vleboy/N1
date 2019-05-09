@@ -258,7 +258,6 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                     suffix: userInfo.suffix,
                     uname: userInfo.uname,
                     username: userInfo.username,
-                    userId: userInfo.userId,
                     balance: merchantBalance
                 }
                 return ResOK(cb, { msg: 'success', data }, 0)
