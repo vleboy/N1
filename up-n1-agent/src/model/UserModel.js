@@ -399,7 +399,7 @@ class UserModel extends BaseModel {
     async queryChildPlayer(inparam) {
         let query = {
             TableName: config.env.TABLE_NAMES.TABLE_USER,
-            ProjectionExpression: 'userName,nickname,#parent,parentName,merchantName,msn,createdAt,gameList,balance,#state,joinTime',
+            ProjectionExpression: 'userName,nickname,#parent,parentName,merchantName,createdAt,gameList,balance,#state,joinTime',
             IndexName: 'parentIdIndex',
             KeyConditionExpression: 'parent = :parentId',
             ExpressionAttributeNames: {

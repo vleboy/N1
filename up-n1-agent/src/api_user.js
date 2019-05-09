@@ -494,39 +494,6 @@ router.post('/agentList', async function (ctx, next) {
     ctx.body = { code: 0, payload: ret }
 })
 
-// 获取sn
-// router.get('/getSnInfo/:sn', async function (ctx, next) {
-//     let inparam = ctx.params
-//     if (!inparam.sn) {
-//         throw BizErr.InparamErr()
-//     }
-//     // 检查参数是否合法
-//     const [checkAttError, errorParams] = new UserCheck().checkSn(inparam.sn)
-//     if (checkAttError) {//数据不合法返回结果
-//         throw { 'state': 1 }
-//     }
-//     // 业务操作
-//     let [err, admins] = await new UserModel().getSnInfo(inparam)
-//     if (admins.role == '1000') {//为代理默认线路号
-//         admins.msn = '000'
-//     }
-
-//     // 结果返回
-//     if (admins.launchImg && admins.launchImg != "NULL!") {
-//         if (admins.launchImg.logo[0].indexOf('NAlogo.png') != -1) {
-//             delete admins.launchImg
-//         }
-//         // admins.launchImg = {
-//         //     logo: ['https://s3-ap-southeast-1.amazonaws.com/image-na-dev/NAlogo.png', 'http://assetdownload.oss-cn-hangzhou.aliyuncs.com/image/NAlogo.png'],
-//         //     name: ['https://s3-ap-southeast-1.amazonaws.com/image-na-dev/dating-nagaming.png', 'http://assetdownload.oss-cn-hangzhou.aliyuncs.com/image/dating-nagaming.png']
-//         // }
-//     } else if (admins.launchImg == "NULL!") {
-//         delete admins.launchImg
-//     }
-//     // 结果返回
-//     ctx.body = { code: 0, 'userName': admins.username, 'moneyURL': admins.moneyURL, 'registerURL': admins.registerURL, 'feedbackURL': admins.feedbackURL, 'msn': admins.msn, 'state': 0, img: admins.launchImg }
-// })
-
 // ==================== 以下为内部方法 ====================
 /**
  * 获取减少的游戏数组

@@ -272,11 +272,11 @@ router.post('/player/list', async function (ctx, next) {
     let { userName, nickname, gameId, gameState, merchantName, userId } = inparam
     //查询参数组装
     let conditions = {
-        gameId: +gameId,    //游戏状态
-        merchantName,  //商户昵称
+        gameId: +gameId,                                        //游戏状态
+        merchantName,                                           //商户昵称
         gameState: gameState,
-        userId: (!userId || !isNaN(+userId)) ? +userId : -1,  //玩家id
-        msn: "000"  //查代理玩家
+        userId: (!userId || !isNaN(+userId)) ? +userId : -1,    //玩家id
+        msn: '000'                                              //查代理玩家
     }
     if (userName) {
         conditions.userName = { "$like": userName } //玩家账号

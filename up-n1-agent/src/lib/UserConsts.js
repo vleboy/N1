@@ -96,7 +96,6 @@ const RoleModels = {
   '100': function () {
     return { // 商户
       ...PlatformBaseBizRole(),
-      msn: Model.StringValue,               // 线路号
       apiKey: uuid(),                       // APIKEY
       loginWhiteList: '0.0.0.0',            // 登录白名单
       sn: Model.StringValue                // 商户邀请码
@@ -162,7 +161,6 @@ const RoleDisplay = {
     'level',
     'gameList',
 
-    'msn',            // 商户线路号
     'apiKey',         // 商户APIKEY
 
     'displayId',

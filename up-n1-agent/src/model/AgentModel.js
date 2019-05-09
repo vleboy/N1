@@ -199,7 +199,7 @@ class AgentModel extends BaseModel {
         let query = {
             IndexName: 'RoleParentIndex',
             KeyConditionExpression: '#role = :role and parent = :parent',
-            ProjectionExpression: 'userId,sn,displayName,msn,parent,parentDisplayName,balance,gameList,createdAt,loginAt,#status,remark,suffix,uname,username,#role,#rate,#level,levelIndex,parentName,parentRole,points,chip,isTest',
+            ProjectionExpression: 'userId,sn,displayName,parent,parentDisplayName,balance,gameList,createdAt,loginAt,#status,remark,suffix,uname,username,#role,#rate,#level,levelIndex,parentName,parentRole,points,chip,isTest',
             ExpressionAttributeNames: {
                 '#role': 'role',
                 '#status': 'status',
