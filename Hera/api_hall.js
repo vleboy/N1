@@ -75,7 +75,7 @@ module.exports.playerLogin = async function (e, c, cb) {
         let callObj = {
             token: loginToken,
             balance: balance,
-            msn: playerInfo.msn,
+            // msn: playerInfo.msn,
             username: userName,
             userId: playerInfo.userId,
             nickname: playerInfo.nickname,

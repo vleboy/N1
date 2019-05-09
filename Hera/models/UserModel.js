@@ -38,7 +38,7 @@ module.exports = class UserModel extends BaseModel {
         const res = await this.query({
             IndexName: 'merchantIdIndex',
             KeyConditionExpression: 'displayId = :displayId',
-            ProjectionExpression: 'userId,apiKey,#status,suffix,loginWhiteList,username,#level,displayName,feedbackURL,frontURL,gameList,isOpenBrowser,launchImg,moneyURL,msn,registerURL,sn,uname,#role,isTest',
+            ProjectionExpression: 'userId,apiKey,#status,suffix,loginWhiteList,username,#level,displayName,gameList,msn,sn,uname,#role,isTest',
             ExpressionAttributeNames: {
                 '#status': 'status',
                 '#level': 'level',

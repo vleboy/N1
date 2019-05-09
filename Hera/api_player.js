@@ -142,7 +142,7 @@ module.exports.playerLoginToken = async function (e, c, cb) {
         let loginToken = jwt.sign({ userName, suffix: userInfo.suffix, userId: +playerInfo.userId, exp: Math.floor(Date.now() / 1000) + 86400 }, TOKEN_SECRET)
         let data = {
             token: loginToken,
-            msn: _.padStart(userInfo.msn, 3, '0'),
+            // msn: _.padStart(userInfo.msn, 3, '0'),
             userName: playerInfo.userName,
             userId: playerInfo.userId
         }
