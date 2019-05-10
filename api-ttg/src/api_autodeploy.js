@@ -177,9 +177,9 @@ function deployWebAgent() {
 function deployWebMerchant() {
     return new Promise((reslove, reject) => {
         const commands = [
-            'cd /usr/dev/N1_WEB/n1-merchant',
-            'npm run test-merchant',
-            'cd merchant',
+            'cd /usr/dev/N1_WEB2/n1-merchant',
+            'npm run test',
+            'cd dist',
             '/usr/local/bin/aws s3 rm s3://dev-merchant.na12345.com/*',
             '/usr/local/bin/aws s3 sync . s3://dev-merchant.na12345.com --acl public-read --delete',
         ].join(' && ')
