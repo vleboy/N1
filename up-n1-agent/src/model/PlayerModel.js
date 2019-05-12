@@ -102,21 +102,14 @@ module.exports = class PlayerModel extends BaseModel {
         return (res && res.Items.length == 0) ? false : true
     }
     //获取指定父级id的玩家
-    async queryPlayerByParent(parent) {
-        let query = {
+    queryPlayerByParent(parent) {
+        return this.query({
             IndexName: 'parentIdIndex',
             KeyConditionExpression: 'parent = :parent',
             ProjectionExpression: "userId,userName,buId,merchantName,nickname,#state,gameState,balance,joinTime,gameId,parent,parentName,chip,createdAt",
-            ExpressionAttributeNames: {
-                '#state': 'state'
-            },
-            ExpressionAttributeValues: {
-                ':parent': parent
-            }
-        }
-        let res = await this.query(query)
-        let playerList = _.orderBy(res.Items, ['balance', 'createdAt'], ['desc', 'desc'])
-        return playerList
+            ExpressionAttributeNames: { '#state': 'state' },
+            ExpressionAttributeValues: { ':parent': parent }
+        })
     }
     /**
     * 更新玩家余额,并推送到大厅

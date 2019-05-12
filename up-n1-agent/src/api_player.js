@@ -587,7 +587,16 @@ router.post('/agent/player/create', async function (ctx, next) {
 })
 
 /**
- * 获取代理下的所有玩家
+ * 获取代理下的所有玩家（新版）
+ */
+router.get('/agent/player/list', async (ctx, next) => {
+    let res = await new PlayerModel().queryPlayerByParent(ctx.tokenVerify.userId)
+    let playerList = _.orderBy(res.Items, ['createdAt'], ['desc'])
+    ctx.body = { code: 0, msg: '操作成功', list: playerList }
+})
+
+/**
+ * 获取代理下的所有玩家（旧版）
  */
 router.post('/agent/player/list', async function (ctx, next) {
     //获取入参
@@ -595,8 +604,8 @@ router.post('/agent/player/list', async function (ctx, next) {
     //参数校验
     new PlayerBillCheck().checkAgentPlayer(inparam)
     //获取玩家信息
-    let playerList = await new PlayerModel().queryPlayerByParent(inparam.fromUserId)
-    playerList = _.orderBy(playerList, ['joinTime', 'createdAt'], ['desc', 'desc'])
+    let res = await new PlayerModel().queryPlayerByParent(inparam.fromUserId)
+    let playerList = _.orderBy(res.Items, ['joinTime', 'balance', 'createdAt'], ['desc', 'desc', 'desc'])
     ctx.body = { code: 0, msg: '操作成功', list: playerList }
 })
 

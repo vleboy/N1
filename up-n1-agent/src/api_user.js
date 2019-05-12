@@ -455,7 +455,35 @@ router.post('/availableAgents', async function (ctx, next) {
     ctx.body = { code: 0, payload: ret }
 })
 
-// 代理列表
+// 代理列表（新版）
+router.get('/agentList', async (ctx, next) => {
+    let inparam = { parent: ctx.tokenVerify.userId, isH5: true }
+    let ret = await new AgentModel().page(ctx.tokenVerify, inparam)
+    //增加h5过滤
+    if (inparam.isH5) {
+        ret = _.filter(ret, (o) => {
+            let index = _.findIndex(o.gameList, function (m) { return (m.code == '70000' || m.code == '80000' || m.code == '90000') })
+            return index != -1 ? true : false
+        })
+    }
+    // 查询每个用户余额
+    let promiseArr = []
+    for (let user of ret) {
+        promiseArr.push(new BillModel().checkUserBalance(user))
+        promiseArr.push(new PlayerModel().count(user.userId))
+        promiseArr.push(new UserModel().count(user.userId))
+    }
+    let resArr = await Promise.all(promiseArr)
+    for (let i = 0; i < ret.length; i++) {
+        ret[i].balance = resArr[i * 3]
+        ret[i].playerCount = resArr[i * 3 + 1]
+        ret[i].agentCount = resArr[i * 3 + 2]
+    }
+    // 结果返回
+    ctx.body = { code: 0, payload: ret }
+})
+
+// 代理列表（旧版）
 router.post('/agentList', async function (ctx, next) {
     let inparam = ctx.request.body
     inparam.token = ctx.tokenVerify
