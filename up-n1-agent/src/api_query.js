@@ -80,7 +80,53 @@ router.post('/queryUserStat', async function (ctx, next) {
     }
 })
 
-// 查询玩家用户统计信息
+// 查询玩家用户统计信息（新版）
+router.get('/queryPlayerStat', async (ctx, next) => {
+    let inparam = { parentId: ctx.tokenVerify.userId, gameType: GameTypeEnum.keys() }
+    // 业务操作
+    let ret = await new UserModel().queryChildPlayer(inparam)
+    // 判断是否需要进一步查询用户的报表
+    // if (inparam.gameType) {
+    let promiseArr = []
+    let finalRes = []
+    inparam.query = { createdAt: [ctx.request.query.startTime, ctx.request.query.endTime] }
+    new CalcCheck().check(inparam)
+    ret = ret.filter((o) => { return o.joinTime && o.joinTime > (inparam.query.createdAt[0] - 24 * 60 * 60 * 1000) && o.joinTime < Date.now() })
+    // 每50个玩家并发查询一次
+    let playerChunk = _.chunk(ret, 50)
+    for (let playerArr of playerChunk) {
+        inparam.gameUserNames = []
+        for (let player of playerArr) {
+            inparam.gameUserNames.push(player.userName)
+        }
+        if (inparam.gameUserNames.length > 0) {
+            let p = new Promise(async (resolve, reject) => {
+                const res = await new PlayerBillModel().calcPlayerStat(inparam)
+                amountFixed(res)
+                resolve(res)
+            })
+            promiseArr.push(p)
+        }
+    }
+    let calcRes = await Promise.all(promiseArr)
+    // 遍历所有结果组
+    for (let arr of calcRes) {
+        // 遍历单个结果组内的所有结果
+        for (let item of arr) {
+            // 遍历所有玩家
+            for (let player of ret) {
+                if (item.userName == player.userName) {
+                    finalRes.push({ ...player, ...item })
+                }
+            }
+        }
+    }
+    // }
+    // 返回结果
+    ctx.body = { code: 0, payload: finalRes }
+})
+
+// 查询玩家用户统计信息（旧版）
 router.post('/queryPlayerStat', async function (ctx, next) {
     let inparam = ctx.request.body
     let calcQuery = inparam.query
