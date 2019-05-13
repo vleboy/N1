@@ -101,7 +101,6 @@ router.get('/queryPlayerStat', async (ctx, next) => {
         }
         if (inparam.gameUserNames.length > 0) {
             let p = new Promise(async (resolve, reject) => {
-                console.log(inparam)
                 const res = await new PlayerBillModel().calcPlayerStat(inparam)
                 amountFixed(res)
                 resolve(res)
