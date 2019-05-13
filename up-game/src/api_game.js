@@ -62,7 +62,7 @@ router.get('/gameOne/:gameType/:gameId', async function (ctx, next) {
 })
 
 /**
- * 游戏列表（第三方网页游戏使用）
+ * 游戏列表（第三方网页游戏使用，旧APP上的列表上使用）
  */
 router.get('/gameList/:gameType', async function (ctx, next) {
   let inparam = ctx.params
