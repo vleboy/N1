@@ -82,7 +82,7 @@ router.post('/queryUserStat', async function (ctx, next) {
 
 // 查询玩家用户统计信息（新版）
 router.get('/queryPlayerStat', async (ctx, next) => {
-    let inparam = { parentId: ctx.tokenVerify.userId, gameType: Object.keys(GameTypeEnum) }
+    let inparam = { parentId: ctx.tokenVerify.userId, gameType: Object.keys(GameTypeEnum).map(o => +o) }
     // 业务操作
     let ret = await new UserModel().queryChildPlayer(inparam)
     // 判断是否需要进一步查询用户的报表
