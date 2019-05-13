@@ -28,6 +28,7 @@ class CalcCheck {
         }
         // 数据类型处理
         if (inparam.query && inparam.query.createdAt) {
+            inparam.query.createdAt[0] = parseInt(inparam.query.createdAt[0])
             inparam.query.createdAt[1] = parseInt(inparam.query.createdAt[1].toString().substring(0, 10) + '999')
         }
     }
