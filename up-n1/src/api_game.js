@@ -118,28 +118,23 @@ router.post('/gameChangeOrder', async (ctx, next) => {
 // 大厅使用，测试服，游戏列表
 /**
  * @param gameType 必须
- * @param isAll
  * @param userId
  */
 router.get('/gameList/:gameType', async (ctx, next) => {
   let inparam = ctx.params
-  const isAll = ctx.query.isAll == 'true' || false
   const userId = ctx.query.userId
   // 优先从缓存读取
-  if (isAll && gameMapTemp['all']) {
-    return ctx.body = { code: 0, payload: gameMapTemp['all'] }
-  }
-  if (!isAll && gameMapTemp[userId]) {
+  if (userId && gameMapTemp[userId]) {
     return ctx.body = { code: 0, payload: gameMapTemp[userId] }
   }
   new GameCheck().checkQuery(inparam)
   let ret = []
   // 查询对应大类所有游戏列表
-  if (isAll || (!isAll && !userId) || userId == '0') {
-    ret = gameMapTemp['all'] = await new GameModel().list(inparam)
+  if (!userId || userId == '0') {
+    ret = gameMapTemp[userId || '0'] = await new GameModel().list(inparam)
   }
   // 需要查询具体玩家的游戏列表
-  if (!isAll && userId) {
+  if (userId) {
     let playerInfo = await new PlayerModel().getPlayerById(userId)
     let userInfo = await new UserModel().queryUserById(playerInfo.parent, { ProjectionExpression: "gameList" })
     for (let game of userInfo.gameList) {
