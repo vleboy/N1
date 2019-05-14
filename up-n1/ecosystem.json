@@ -20,20 +20,20 @@
   ],
   "deploy": {
     "develop": {
-      "key": "../../testserver.pem",
+      "key": "../../gamedev.pem",
       "user": "root",
-      "host": "47.88.170.136",
-      "ref": "origin/larry",
-      "repo": "git@github.com:enzg/AWS_Platform.git",
+      "host": "test.cncshe.com",
+      "ref": "origin/master",
+      "repo": "git@github.com:vleboy/N1.git",
       "path": "/usr/dev/up-n1",
       "post-deploy": "cd up-n1 && git pull && npm install && pm2 startOrRestart ecosystem.json --env develop"
     },
     "production": {
       "key": "../../a1server.pem",
       "user": "root",
-      "host": "47.88.169.252",
+      "host": "game.cncshe.com",
       "ref": "origin/master",
-      "repo": "git@github.com:enzg/AWS_Platform.git",
+      "repo": "git@github.com:vleboy/N1.git",
       "path": "/usr/prod/up-n1",
       "post-deploy": "cd up-n1 && git pull && npm install && pm2 startOrRestart ecosystem.json --env production"
     }
