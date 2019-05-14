@@ -118,7 +118,7 @@ router.post('/gameChangeOrder', async (ctx, next) => {
 
 // 【大厅对外API接口】
 
-// 大厅使用，游戏列表
+// 大厅使用，测试服，游戏列表
 router.get('/gameList/:gameType', async (ctx, next) => {
   let inparam = ctx.params
   const isAll = ctx.query.isAll === true || false
@@ -147,7 +147,7 @@ router.get('/gameList/:gameType', async (ctx, next) => {
   // 结果返回
   ctx.body = { code: 0, payload: ret }
 })
-// 大厅使用，通过玩家id获取商户的游戏列表(70000/80000/90000)
+// 大厅使用，正式服，通过玩家id获取商户的游戏列表(70000/80000/90000)
 router.get('/player/gameList/:userId', async (ctx, next) => {
   //1,获取入参
   const userId = ctx.params.userId
