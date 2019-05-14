@@ -17,6 +17,7 @@ const GameModel = require('./model/GameModel')
 const GameCheck = require('./biz/GameCheck')
 const RoleCodeEnum = require('./lib/Consts').RoleCodeEnum
 const GameTypeEnum = require('./lib/Consts').GameTypeEnum
+const gameMapTemp = {}
 
 // 【系统对外API接口】
 
@@ -121,6 +122,13 @@ router.post('/gameChangeOrder', async (ctx, next) => {
 router.get('/gameList/:gameType', async (ctx, next) => {
   let inparam = ctx.params
   const isAll = ctx.query.isAll === true || false
+  // 优先从缓存读取
+  if (isAll && gameMapTemp['all']) {
+    return ctx.body = { code: 0, payload: gameMapTemp['all'] }
+  }
+  if (gameMapTemp[inparam.gameType]) {
+    return ctx.body = { code: 0, payload: gameMapTemp[inparam.gameType] }
+  }
   //默认查启用状态，isALL代表全查询
   inparam.query = { gameStatus: 1 }
   if (isAll) {
@@ -129,6 +137,13 @@ router.get('/gameList/:gameType', async (ctx, next) => {
   new GameCheck().checkQuery(inparam)
   // 普通游戏列表
   let ret = await new GameModel().list(inparam)
+  // 设置缓存
+  if (isAll) {
+    gameMapTemp['all'] = ret
+  }
+  if (inparam.gameType) {
+    gameMapTemp[inparam.gameType] = ret
+  }
   // 结果返回
   ctx.body = { code: 0, payload: ret }
 })
@@ -136,6 +151,10 @@ router.get('/gameList/:gameType', async (ctx, next) => {
 router.get('/player/gameList/:userId', async (ctx, next) => {
   //1,获取入参
   const userId = ctx.params.userId
+  //2,从缓存读取
+  if (gameMapTemp[userId]) {
+    return ctx.body = gameMapTemp[userId]
+  }
   //3,查询玩家
   let playerInfo = await new PlayerModel().getPlayerById(userId)
   //4,获取商户下的游戏列表
@@ -147,7 +166,7 @@ router.get('/player/gameList/:userId', async (ctx, next) => {
       resArr.push(await new GameModel().list({ gameType: game.code.toString(), query: { gameStatus: 1 } }))
     }
   }
-  ctx.body = _.flatten(resArr)
+  ctx.body = gameMapTemp[userId] = _.flatten(resArr)
 })
 
 
