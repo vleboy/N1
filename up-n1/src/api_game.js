@@ -138,11 +138,11 @@ router.get('/gameList/:gameType', async (ctx, next) => {
   new GameCheck().checkQuery(inparam)
   let ret = []
   // 查询对应大类所有游戏列表
-  if (isAll) {
+  if (isAll || (!isAll && !userId)) {
     ret = gameMapTemp['all'] = await new GameModel().list(inparam)
   }
   // 需要查询具体玩家的游戏列表
-  else {
+  if (!isAll && userId) {
     let playerInfo = await new PlayerModel().getPlayerById(userId)
     let userInfo = await new UserModel().queryUserById(playerInfo.parent, { ProjectionExpression: "gameList" })
     for (let game of userInfo.gameList) {
