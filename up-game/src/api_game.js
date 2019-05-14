@@ -141,7 +141,22 @@ router.post('/gameType', async function (ctx, next) {
   ctx.body = { code: 0, payload: ret.gameList }
 })
 
-// 通过玩家id获取商户的游戏列表(70000/80000/90000)
+//游戏列表，大厅使用
+router.get('/gameList/:gameType', async function (ctx, next) {
+  let inparam = ctx.params
+  const isAll = ctx.query.isAll === true || false
+    //默认查启用状态，isALL代表全查询
+  inparam.query = { gameStatus: 1 }
+  if (isAll) {
+    delete inparam.query
+  }
+  new GameCheck().checkQuery(inparam)
+  // 普通游戏列表
+  let ret = await new GameModel().list(inparam)
+  // 结果返回
+  ctx.body = { code: 0, payload: ret }
+})
+// 大厅使用，通过玩家id获取商户的游戏列表(70000/80000/90000)
 router.get('/player/gameList/:userId', async function (ctx, next) {
   //1,获取入参
   const userId = ctx.params.userId
@@ -240,24 +255,6 @@ router.post('/gameBigType', async function (ctx, next) {
   // 结果返回
   ctx.body = { code: 0, payload: gameTypeArr }
 })
-
-// /**
-//  * 游戏列表（第三方网页游戏使用，旧APP上的列表上使用）
-//  */
-// router.get('/gameList/:gameType', async function (ctx, next) {
-//   let inparam = ctx.params
-//   const isAll = ctx.query.isAll === true || false
-//   //检查参数是否合法
-//   inparam.query = { gameStatus: 1 }  //默认查启用状态
-//   if (isAll) {  //如果有这个标志，表示全查所有游戏
-//     delete inparam.query
-//   }
-//   new GameCheck().checkQuery(inparam)
-//   // 普通游戏列表
-//   let ret = await new GameModel().list(inparam)
-//   // 结果返回
-//   ctx.body = { code: 0, payload: ret }
-// })
 
 // const BizErr = require('./lib/Codes').BizErr
 // const serverKey = "0IiwicGFyZW50IjoiMDAiLCJwYXJlbnROYW1lIjoiU3VwZXJBZG1pbiIsInBhcmVudFJvbGUiOiIwMCIsImRpc3BsYXlOYW1lIjoi5Luj55CG566h55CG5"

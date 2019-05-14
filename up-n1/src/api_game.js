@@ -113,7 +113,22 @@ router.post('/gameChangeOrder', async (ctx, next) => {
   ctx.body = { code: 0, payload: ret }
 })
 
-// 通过玩家id获取商户的游戏列表(70000/80000/90000)
+//游戏列表，大厅使用
+router.get('/gameList/:gameType', async function (ctx, next) {
+  let inparam = ctx.params
+  const isAll = ctx.query.isAll === true || false
+    //默认查启用状态，isALL代表全查询
+  inparam.query = { gameStatus: 1 }
+  if (isAll) {
+    delete inparam.query
+  }
+  new GameCheck().checkQuery(inparam)
+  // 普通游戏列表
+  let ret = await new GameModel().list(inparam)
+  // 结果返回
+  ctx.body = { code: 0, payload: ret }
+})
+// 大厅使用，通过玩家id获取商户的游戏列表(70000/80000/90000)
 router.get('/player/gameList/:userId', async (ctx, next) => {
   //1,获取入参
   const userId = ctx.params.userId
