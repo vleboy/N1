@@ -1,7 +1,6 @@
 #工程结构
 Game            // 游戏相关数据表，定时账单统计
 Hera            // 对外SDK的API
-up-game         // NA游戏接口
 up-n1           // N1后台接口
 up-n1-agent     // N1代理后台接口
 
