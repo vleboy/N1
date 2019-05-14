@@ -46,7 +46,8 @@
             "/configMultList",
             "/statistics/userRank",
             "/game/prop/buy",
-            "/player/gameList/*"
+            "/player/gameList/*",
+            "/gameList"
         ],
         "role": {
             "1": [
