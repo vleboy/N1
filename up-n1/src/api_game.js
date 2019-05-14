@@ -18,6 +18,8 @@ const GameCheck = require('./biz/GameCheck')
 const RoleCodeEnum = require('./lib/Consts').RoleCodeEnum
 const GameTypeEnum = require('./lib/Consts').GameTypeEnum
 
+// 【系统对外API接口】
+
 /**
  * 创建游戏
  */
@@ -113,11 +115,13 @@ router.post('/gameChangeOrder', async (ctx, next) => {
   ctx.body = { code: 0, payload: ret }
 })
 
-//游戏列表，大厅使用
-router.get('/gameList/:gameType', async function (ctx, next) {
+// 【大厅对外API接口】
+
+// 大厅使用，游戏列表
+router.get('/gameList/:gameType', async (ctx, next) => {
   let inparam = ctx.params
   const isAll = ctx.query.isAll === true || false
-    //默认查启用状态，isALL代表全查询
+  //默认查启用状态，isALL代表全查询
   inparam.query = { gameStatus: 1 }
   if (isAll) {
     delete inparam.query
@@ -145,6 +149,9 @@ router.get('/player/gameList/:userId', async (ctx, next) => {
   }
   ctx.body = _.flatten(resArr)
 })
+
+
+// 【包站对外API接口】
 
 /**
  * 游戏类别
