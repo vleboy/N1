@@ -135,7 +135,7 @@ router.get('/gameList/:gameType', async (ctx, next) => {
   new GameCheck().checkQuery(inparam)
   let ret = []
   // 查询对应大类所有游戏列表
-  if (isAll || (!isAll && !userId)) {
+  if (isAll || (!isAll && !userId) || userId == '0') {
     ret = gameMapTemp['all'] = await new GameModel().list(inparam)
   }
   // 需要查询具体玩家的游戏列表
