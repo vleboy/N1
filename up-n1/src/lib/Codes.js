@@ -24,6 +24,8 @@ const Codes = {
   PushMerchantError: "60006",
 
   TokenExpire: '90001',
+  
+  ItemNotExist: '50017'
 }
 
 const BizErr = {
@@ -77,6 +79,9 @@ const BizErr = {
   },
   TokenExpire: (errMsg = 'TOKEN已过期') => {
     return { code: Codes.TokenExpire, msg: errMsg }
+  },
+  ItemNotExistErr: (errMsg = '记录不存在') => {
+    return { code: Codes.ItemNotExist, msg: errMsg }
   }
 }
 

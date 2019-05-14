@@ -62,47 +62,6 @@ router.get('/gameOne/:gameType/:gameId', async function (ctx, next) {
 })
 
 /**
- * 游戏列表（第三方网页游戏使用，旧APP上的列表上使用）
- */
-router.get('/gameList/:gameType', async function (ctx, next) {
-  let inparam = ctx.params
-  const isAll = ctx.query.isAll === true || false
-  //检查参数是否合法
-  inparam.query = { gameStatus: 1 }  //默认查启用状态
-  if (isAll) {  //如果有这个标志，表示全查所有游戏
-    delete inparam.query
-  }
-  new GameCheck().checkQuery(inparam)
-  // 普通游戏列表
-  let ret = await new GameModel().list(inparam)
-  // 结果返回
-  ctx.body = { code: 0, payload: ret }
-})
-
-// 通过玩家id获取商户的游戏列表(70000/80000/90000)
-router.get('/player/gameList/:userId', async function (ctx, next) {
-  //1,获取入参
-  const userId = ctx.params.userId
-  //2.请求
-  try {
-    let res = await axios.get(`https://${config.env.N1_CENTER}/player/gameList/${userId}`)
-    if (res.data.code != -1) {
-      let resArr = []
-      for (let gameType of res.data) {
-        resArr.push(await new GameModel().list({ gameType: gameType.toString(), query: { gameStatus: 1 } }))
-      }
-      //3.返回结果
-      ctx.body = _.flatten(resArr)
-    } else {
-      ctx.body = { code: res.data.code, msg: res.data.msg }
-    }
-  } catch (error) {
-    console.log(error)
-    ctx.body = { code: -1, msg: 'N' }
-  }
-})
-
-/**
  * 游戏编辑
  */
 router.post('/gameUpdate', async function (ctx, next) {
@@ -153,6 +112,29 @@ router.post('/gameChangeOrder', async function (ctx, next) {
   })
   // 结果返回
   ctx.body = { code: 0, payload: ret }
+})
+
+// 通过玩家id获取商户的游戏列表(70000/80000/90000)
+router.get('/player/gameList/:userId', async function (ctx, next) {
+  //1,获取入参
+  const userId = ctx.params.userId
+  //2.请求
+  try {
+    let res = await axios.get(`https://${config.env.N1_CENTER}/player/gameList/${userId}`)
+    if (res.data.code != -1) {
+      let resArr = []
+      for (let gameType of res.data) {
+        resArr.push(await new GameModel().list({ gameType: gameType.toString(), query: { gameStatus: 1 } }))
+      }
+      //3.返回结果
+      ctx.body = _.flatten(resArr)
+    } else {
+      ctx.body = { code: res.data.code, msg: res.data.msg }
+    }
+  } catch (error) {
+    console.log(error)
+    ctx.body = { code: -1, msg: 'N' }
+  }
 })
 
 /**
@@ -229,7 +211,6 @@ router.post('/companySelect', async function (ctx, next) {
   // 结果返回
   ctx.body = { code: 0, payload: gameTypeArr }
 })
-
 // 为包站系统定制使用帐号查询
 router.post('/gameBigType', async function (ctx, next) {
   let inparam = ctx.request.body
@@ -288,7 +269,23 @@ router.post('/gameBigType', async function (ctx, next) {
   ctx.body = { code: 0, payload: gameTypeArr }
 })
 
-
+// /**
+//  * 游戏列表（第三方网页游戏使用，旧APP上的列表上使用）
+//  */
+// router.get('/gameList/:gameType', async function (ctx, next) {
+//   let inparam = ctx.params
+//   const isAll = ctx.query.isAll === true || false
+//   //检查参数是否合法
+//   inparam.query = { gameStatus: 1 }  //默认查启用状态
+//   if (isAll) {  //如果有这个标志，表示全查所有游戏
+//     delete inparam.query
+//   }
+//   new GameCheck().checkQuery(inparam)
+//   // 普通游戏列表
+//   let ret = await new GameModel().list(inparam)
+//   // 结果返回
+//   ctx.body = { code: 0, payload: ret }
+// })
 
 // const BizErr = require('./lib/Codes').BizErr
 // const serverKey = "0IiwicGFyZW50IjoiMDAiLCJwYXJlbnROYW1lIjoiU3VwZXJBZG1pbiIsInBhcmVudFJvbGUiOiIwMCIsImRpc3BsYXlOYW1lIjoi5Luj55CG566h55CG5"

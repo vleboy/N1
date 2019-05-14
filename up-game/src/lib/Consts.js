@@ -6,7 +6,7 @@ const GameTypeEnum = {
     '60000': { type: 6, code: '60000', name: 'NA捕鱼游戏', company: 'NA' },
     '70000': { type: 2, code: '70000', name: 'H5电子游戏', company: 'NA' },
     '80000': { type: 1, code: '80000', name: 'H5真人视讯', company: 'NA' },
-    '90000': { type: 1, code: '90000', name: 'H5电子游戏-无神秘奖', company: 'NA' },
+    '90000': { type: 2, code: '90000', name: 'H5电子游戏-无神秘奖', company: 'NA' },
     '1010000': { type: 2, code: '1010000', name: 'TTG电子游戏', company: 'TTG' },
     '1020000': { type: 2, code: '1020000', name: 'PNG电子游戏', company: 'PNG' },
     '10300000': { type: 2, code: '10300000', name: 'MG电子游戏', company: 'MG' },
