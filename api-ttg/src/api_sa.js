@@ -99,7 +99,7 @@ router.get('/sa/fisher/:token', async (ctx, next) => {
     })
     const finalRes = await xmlParse(res.data)
     if (finalRes && finalRes.LoginRequestResponse && finalRes.LoginRequestResponse.GameURL && finalRes.LoginRequestResponse.GameURL[0]) {
-        // log.info(`SA【捕鱼链接】${finalRes.LoginRequestResponse.GameURL[0]}&returnurl=${config.na.apidomain}/sa/fishers/logout/${decoded.userId}`)
+        log.info(`SA【捕鱼链接】${finalRes.LoginRequestResponse.GameURL[0]}`)
         ctx.redirect(`${finalRes.LoginRequestResponse.GameURL[0]}`)//&returnurl=${config.na.apidomain}/sa/logout/${decoded.userId}/${config.sa.fishGameId}
     } else {
         ctx.body = { code: '-1', msg: '网络繁忙,请重试' }
