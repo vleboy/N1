@@ -134,7 +134,7 @@ router.get('/gameList/:gameType', async (ctx, next) => {
     ret = gameMapTemp[userId || '0'] = await new GameModel().list(inparam)
   }
   // 需要查询具体玩家的游戏列表
-  if (userId) {
+  if (userId && userId != '0') {
     let playerInfo = await new PlayerModel().getPlayerById(userId)
     let userInfo = await new UserModel().queryUserById(playerInfo.parent, { ProjectionExpression: "gameList" })
     for (let game of userInfo.gameList) {
