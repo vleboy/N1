@@ -123,7 +123,7 @@ router.post('/gameChangeOrder', async (ctx, next) => {
  */
 router.get('/gameList/:gameType', async (ctx, next) => {
   let inparam = ctx.params
-  const isAll = ctx.query.isAll === true || false
+  const isAll = ctx.query.isAll == true || false
   const userId = ctx.query.userId
   // 优先从缓存读取
   if (isAll && gameMapTemp['all']) {
