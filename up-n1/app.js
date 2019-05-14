@@ -2,11 +2,12 @@ const config = require('config')
 const { PORT = 3000 } = process.env
 // 应用服务与中间件相关
 const Koa = require('koa')
+// const mount = require('koa-mount')
+const cors = require('@koa/cors')
 const koaBody = require('koa-body')
 const xerror = require('koa-xerror')
 const xauth = require('koa-xauth')
 const xlog = require('koa-xlog')
-// const mount = require('koa-mount')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 
@@ -43,6 +44,7 @@ app.use(xerror(config.error, (ctx, err) => {   // 全局错误捕获中间件，
         ctx.body.msg = '内部系统异常'
     }
 }))
+PORT == 3000 && app.use(cors())                 // 允许跨域请求
 app.use(koaBody())                              // 入参JSON解析中间件
 app.use(xlog(config.log, (ctx) => {             // 日志中间件，参数1：日志配置，参数2：额外日志处理
     // 统一输入数据trim处理
