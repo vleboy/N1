@@ -71,10 +71,6 @@ class AgentModel extends BaseModel {
         }
         // 如果parent未指定,则为管理员. 从当前管理员对点数中扣去点数进行充值. 点数不可以为负数.而且一定是管理员存点到新用户
         const parentUser = await queryParent(token, CheckUser.parent)
-        // 检查下级洗码比
-        // if (parentUser.level != 0 && (userInfo.vedioMix > parentUser.vedioMix || userInfo.liveMix > parentUser.liveMix)) {
-        //     return [BizErr.InparamErr('洗码比不能高于上级'), 0]
-        // }
         // 检查下级成数
         if (parentUser.level != 0 && (userInfo.rate > parentUser.rate)) {
             throw BizErr.InparamErr('成数比不能高于上级')
@@ -274,15 +270,14 @@ class AgentModel extends BaseModel {
 }
 
 // 私有方法：查询用户上级
-const queryParent = async (token, parent) => {
+function queryParent(token, parent) {
     var id = 0
     if (!parent || Model.DefaultParent == parent) {
         id = token.userId
     } else {
         id = parent
     }
-    const user = await new UserModel().queryUserById(id)
-    return user
+    return new UserModel().queryUserById(id)
 }
 
 // 私有方法：保存用户

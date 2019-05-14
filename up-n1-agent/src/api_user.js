@@ -30,7 +30,7 @@ router.post('/agentAdminNew', async function (ctx, next) {
     //检查参数是否合法
     new AgentCheck().checkAdmin(userInfo)
     // TODO 获取用户IP
-    userInfo.lastIP = ctx.request.ip || '-100'
+    userInfo.lastIP = ctx.request.ip || '0.0.0.0'
     const resgisterUserRet = await new AgentModel().registerAdmin(userInfo)
     // 操作日志记录
     userInfo.operateAction = '创建代理管理员'
@@ -45,7 +45,7 @@ router.post('/agentNew', async function (ctx, next) {
     //检查参数是否合法
     new AgentCheck().check(userInfo)
     // 业务操作
-    userInfo.lastIP = ctx.request.ip || '-100'
+    userInfo.lastIP = ctx.request.ip || '0.0.0.0'
     const resgisterUserRet = await new AgentModel().register(ctx.tokenVerify, userInfo)
     // 操作日志记录
     userInfo.operateAction = '创建代理'
@@ -61,10 +61,10 @@ router.post('/agentLogin', async function (ctx, next) {
     //检查参数是否合法
     new AgentCheck().checkLogin(userInfo)
     // 用户登录
-    userInfo.lastIP = ctx.request.ip || '-100'
+    userInfo.lastIP = ctx.request.ip || '0.0.0.0'
     const loginUserRet = await new AgentModel().login(userInfo)
     // 登录日志
-    loginUserRet.lastIP = ctx.request.ip || '-100'
+    loginUserRet.lastIP = ctx.request.ip || '0.0.0.0'
     new LogModel().addLogin(userInfo, null, loginUserRet)
     // 结果返回
     ctx.body = { code: 0, payload: loginUserRet }
@@ -222,7 +222,7 @@ router.post('/userChangeStatus', async function (ctx, next) {
 router.post('/updateSubrole', async function (ctx, next) {
     let userInfo = ctx.request.body
     // 获取用户IP
-    userInfo.lastIP = ctx.request.ip || '-100'
+    userInfo.lastIP = ctx.request.ip || '0.0.0.0'
     let adminUser = await new UserModel().updateItem({
         Key: {
             'role': RoleCodeEnum.Agent,

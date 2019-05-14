@@ -96,7 +96,7 @@ module.exports = class PlayerModel extends BaseModel {
             IndexName: 'userIdIndex',
             KeyConditionExpression: 'userId = :userId',
             ExpressionAttributeValues: {
-                ':userId': +userId
+                ':userId': userId
             }
         })
         return (res && res.Items.length == 0) ? false : true

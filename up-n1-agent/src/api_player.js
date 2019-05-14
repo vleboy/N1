@@ -495,15 +495,8 @@ router.post('/agent/player/create', async function (ctx, next) {
     new PlayerBillCheck().checkCreatePlayer(inparam)
     //获取用户信息
     let userInfo = await new UserModel().getUser(inparam.parentId, '1000')
-    //n1代理不需要加前缀
-    let userName = 'NULL!'
-    if (process.env.NODE_ENV == 'agent-n2') {
-        userName = userInfo.sn + "_" + inparam.userName
-    } else {
-        userName = inparam.userName
-    }
-    //检查userName是否存在
-    let isExist = await new PlayerModel().checkPlayerIsExist(userName)
+    //检查玩家是否存在
+    let isExist = await new PlayerModel().checkPlayerIsExist(inparam.userName)
     if (isExist) {
         throw { code: 10003, msg: '玩家已经存在' }
     }
@@ -517,17 +510,12 @@ router.post('/agent/player/create', async function (ctx, next) {
     sha.update(inparam.userPwd)
     let userPwd = sha.digest('hex')
     //生成玩家的userId
-    let userId = 0
-    let isTrue = true
-    while (isTrue) {
-        userId = getLengthNum(6)
-        let isExist = await new PlayerModel().isUserIdExit(+userId)
-        if (!isExist) {
-            isTrue = false
-        }
+    let userId = _.random(100000, 999999)
+    while (await new PlayerModel().isUserIdExit(userId)) {
+        userId = _.random(100000, 999999)
     }
     let putplayer = {
-        userName: userName,
+        userName: inparam.userName,
         userId: userId,
         userPwd: userPwd,
         password: inparam.userPwd,
@@ -557,7 +545,7 @@ router.post('/agent/player/create', async function (ctx, next) {
         originalAmount: 0,
         type: 12,
         userId: userId,
-        userName: userName,
+        userName: inparam.userName,
         parent: userInfo.userId,
         balance: +inparam.points
     }
@@ -567,7 +555,7 @@ router.post('/agent/player/create', async function (ctx, next) {
         fromRole: '1000',
         toRole: '10000',
         fromUser: userInfo.username,
-        toUser: userName,
+        toUser: inparam.userName,
         amount: Math.abs(inparam.points) * -1,
         operator: tokenInfo.username,
         remark: inparam.remark,
@@ -578,7 +566,7 @@ router.post('/agent/player/create', async function (ctx, next) {
         userId: userInfo.userId,
         username: userInfo.username,
         fromDisplayName: userInfo.displayName,
-        toDisplayName: userName,
+        toDisplayName: inparam.userName,
         fromLevel: userInfo.level,
         toLevel: 10000
     }
@@ -925,16 +913,5 @@ router.post('/agent/mix', async function (ctx, next) {
 //     throw { code: -1, msg: '接口暂停使用' }
 //     ctx.body = { code: 0, msg: '操作成功' }
 // })
-
-//***********内部方法*******//
-function getLengthNum(len) {
-    let number = Number.parseInt(Math.random() * Math.pow(10, len));
-    if (number > Math.pow(10, len - 1) && number < Math.pow(10, len)) {
-        return number;
-    } else {
-        return getLengthNum(len);
-    }
-}
-
 
 module.exports = router
