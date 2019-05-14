@@ -40,9 +40,6 @@ class UserCheck {
      * 检查普通用户
      */
     checkUser(inparam) {
-        if (passwordLevel(inparam.password) < 2) {
-            throw { "code": -1, "msg": "密码强度不足", "params": ["password"] }
-        }
         let [checkAttError, errorParams] = [0, 0]
         if (inparam.role == RoleCodeEnum.Manager) {                                         //线路商注册校验
             [checkAttError, errorParams] = Util.checkProperties([
@@ -101,9 +98,6 @@ class UserCheck {
      * 检查普通用户更新
      */
     checkUserUpdate(inparam) {
-        if (inparam.password && passwordLevel(inparam.password) < 2) {
-            throw { "code": -1, "msg": "密码强度不足", "params": ["password"] }
-        }
         let [checkAttError, errorParams] = Util.checkProperties([
             { name: "password", type: "NS", min: 6, max: 16 },
             { name: "remark", type: "NS", min: 1, max: 200 }]
@@ -182,9 +176,6 @@ class UserCheck {
      * @param {*} inparam 
      */
     checkPassword(inparam) {
-        if (passwordLevel(inparam.password) < 2) {
-            throw { "code": -1, "msg": "密码强度不足", "params": ["password"] }
-        }
         let [checkAttError, errorParams] = Util.checkProperties([
             { name: "userId", type: "S", min: 36, max: 36 },
             { name: "password", type: "S", min: 6, max: 16 }]
