@@ -91,16 +91,16 @@ router.get('/sa/fisher/:token', async (ctx, next) => {
         return ctx.body = { code: nares.data.code, msg: nares.data.msg }
     }
     // 登录请求（因为SA不支持下划线，所以使用用户ID）
-    const data = saParams('AnimatedGameLoginRequest', { Username: decoded.userId, CurrencyType: 'CNY', GameCode: 'Fishermen Gold', Language: 'zh_CN', Mobile: 1 })
+    const data = saParams('LoginRequest', { Username: decoded.userId, CurrencyType: 'CNY', GameCode: 'Fishermen Gold', Language: 'zh_CN', Mobile: 1 })
     // log.info(`请求SA【POST】${config.sa.apiurl}`)
     // log.info('请求SA【参数】' + querystring.stringify(data))
     const res = await axios.post(config.sa.apiurl, querystring.stringify(data), {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     })
     const finalRes = await xmlParse(res.data)
-    if (finalRes && finalRes.AnimatedGameLoginRequestResponse && finalRes.AnimatedGameLoginRequestResponse.GameURL && finalRes.AnimatedGameLoginRequestResponse.GameURL[0]) {
-        // log.info(`SA【捕鱼链接】${finalRes.AnimatedGameLoginRequestResponse.GameURL[0]}&returnurl=${config.na.apidomain}/sa/fishers/logout/${decoded.userId}`)
-        ctx.redirect(`${finalRes.AnimatedGameLoginRequestResponse.GameURL[0]}`)//&returnurl=${config.na.apidomain}/sa/logout/${decoded.userId}/${config.sa.fishGameId}
+    if (finalRes && finalRes.LoginRequestResponse && finalRes.LoginRequestResponse.GameURL && finalRes.LoginRequestResponse.GameURL[0]) {
+        // log.info(`SA【捕鱼链接】${finalRes.LoginRequestResponse.GameURL[0]}&returnurl=${config.na.apidomain}/sa/fishers/logout/${decoded.userId}`)
+        ctx.redirect(`${finalRes.LoginRequestResponse.GameURL[0]}`)//&returnurl=${config.na.apidomain}/sa/logout/${decoded.userId}/${config.sa.fishGameId}
     } else {
         ctx.body = { code: '-1', msg: '网络繁忙,请重试' }
         // ctx.redirect('https://uniwebview.na77.com?key=value&anotherKey=anotherValue')
