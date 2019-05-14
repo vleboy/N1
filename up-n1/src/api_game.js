@@ -119,56 +119,61 @@ router.post('/gameChangeOrder', async (ctx, next) => {
 // 【大厅对外API接口】
 
 // 大厅使用，测试服，游戏列表
+/**
+ * @param gameType 必须
+ * @param isAll
+ * @param userId
+ */
 router.get('/gameList/:gameType', async (ctx, next) => {
   let inparam = ctx.params
   const isAll = ctx.query.isAll === true || false
+  const userId = ctx.query.userId
   // 优先从缓存读取
   if (isAll && gameMapTemp['all']) {
     return ctx.body = { code: 0, payload: gameMapTemp['all'] }
   }
-  if (gameMapTemp[inparam.gameType]) {
-    return ctx.body = { code: 0, payload: gameMapTemp[inparam.gameType] }
-  }
-  //默认查启用状态，isALL代表全查询
-  inparam.query = { gameStatus: 1 }
-  if (isAll) {
-    delete inparam.query
+  if (!isAll && gameMapTemp[userId]) {
+    return ctx.body = { code: 0, payload: gameMapTemp[userId] }
   }
   new GameCheck().checkQuery(inparam)
-  // 普通游戏列表
-  let ret = await new GameModel().list(inparam)
-  // 设置缓存
+  let ret = []
+  // 查询对应大类所有游戏列表
   if (isAll) {
-    gameMapTemp['all'] = ret
+    ret = gameMapTemp['all'] = await new GameModel().list(inparam)
   }
-  if (inparam.gameType) {
-    gameMapTemp[inparam.gameType] = ret
+  // 需要查询具体玩家的游戏列表
+  else {
+    let playerInfo = await new PlayerModel().getPlayerById(userId)
+    let userInfo = await new UserModel().queryUserById(playerInfo.parent, { ProjectionExpression: "gameList" })
+    for (let game of userInfo.gameList) {
+      if (game.code == inparam.gameType) {
+        ret = gameMapTemp[userId] = await new GameModel().list({ gameType: game.code.toString() })
+      }
+    }
   }
-  // 结果返回
   ctx.body = { code: 0, payload: ret }
 })
 // 大厅使用，正式服，通过玩家id获取商户的游戏列表(70000/80000/90000)
-router.get('/player/gameList/:userId', async (ctx, next) => {
-  //1,获取入参
-  const userId = ctx.params.userId
-  //2,从缓存读取
-  if (gameMapTemp[userId]) {
-    return ctx.body = gameMapTemp[userId]
-  }
-  //3,查询玩家
-  let playerInfo = await new PlayerModel().getPlayerById(userId)
-  //4,获取商户下的游戏列表
-  let userInfo = await new UserModel().queryUserById(playerInfo.parent, { ProjectionExpression: "gameList" })
-  //5,查找游戏是否含有70000/80000/90000
-  let resArr = []
-  for (let game of userInfo.gameList) {
-    if (game.code == '70000' || game.code == '80000' || game.code == '90000') {
-      resArr.push(await new GameModel().list({ gameType: game.code.toString(), query: { gameStatus: 1 } }))
-    }
-  }
-  ctx.body = gameMapTemp[userId] = _.flatten(resArr)
-})
-
+// router.get('/player/gameList/:userId', async (ctx, next) => {
+//   //1,获取入参
+//   const userId = ctx.params.userId
+//   //2,从缓存读取
+//   if (gameMapTemp[userId]) {
+//     return ctx.body = gameMapTemp[userId]
+//   }
+//   //3,查询玩家
+//   let playerInfo = await new PlayerModel().getPlayerById(userId)
+//   //4,获取商户下的游戏列表
+//   let userInfo = await new UserModel().queryUserById(playerInfo.parent, { ProjectionExpression: "gameList" })
+//   //5,查找游戏是否含有70000/80000/90000
+//   let resArr = []
+//   for (let game of userInfo.gameList) {
+//     if (game.code == '70000' || game.code == '80000' || game.code == '90000') {
+//       resArr.push(await new GameModel().list({ gameType: game.code.toString(), query: { gameStatus: 1 } }))
+//     }
+//   }
+//   ctx.body = gameMapTemp[userId] = _.flatten(resArr)
+// })
 
 // 【包站对外API接口】
 
