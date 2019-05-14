@@ -114,33 +114,6 @@ router.post('/gameChangeOrder', async function (ctx, next) {
   ctx.body = { code: 0, payload: ret }
 })
 
-/**
- * 游戏类别
- */
-router.post('/gameType', async function (ctx, next) {
-  let token = ctx.tokenVerify
-  let inparam = ctx.request.body
-  // 全部游戏类别
-  if (!inparam.parent || inparam.parent == RoleCodeEnum['PlatformAdmin'] || inparam.parent == '01') {
-    let gameTypeArr = []
-    for (let item in GameTypeEnum) {
-      gameTypeArr.push(GameTypeEnum[item])
-    }
-    return ctx.body = { code: 0, payload: gameTypeArr }
-  }
-  // 上级游戏类别
-  const ret = await new UserModel().queryUserGameInfo(inparam.parent)
-  ret.gameList = ret.gameList || []
-  // 刷新最新游戏类型内容
-  let newGameList = []
-  for (let item of ret.gameList) {
-    newGameList.push(GameTypeEnum[item.code])
-  }
-  ret.gameList = newGameList
-  // 结果返回
-  ctx.body = { code: 0, payload: ret.gameList }
-})
-
 //游戏列表，大厅使用
 router.get('/gameList/:gameType', async function (ctx, next) {
   let inparam = ctx.params
@@ -178,6 +151,34 @@ router.get('/player/gameList/:userId', async function (ctx, next) {
     ctx.body = { code: -1, msg: 'N' }
   }
 })
+
+/**
+ * 游戏类别
+ */
+router.post('/gameType', async function (ctx, next) {
+  let token = ctx.tokenVerify
+  let inparam = ctx.request.body
+  // 全部游戏类别
+  if (!inparam.parent || inparam.parent == RoleCodeEnum['PlatformAdmin'] || inparam.parent == '01') {
+    let gameTypeArr = []
+    for (let item in GameTypeEnum) {
+      gameTypeArr.push(GameTypeEnum[item])
+    }
+    return ctx.body = { code: 0, payload: gameTypeArr }
+  }
+  // 上级游戏类别
+  const ret = await new UserModel().queryUserGameInfo(inparam.parent)
+  ret.gameList = ret.gameList || []
+  // 刷新最新游戏类型内容
+  let newGameList = []
+  for (let item of ret.gameList) {
+    newGameList.push(GameTypeEnum[item.code])
+  }
+  ret.gameList = newGameList
+  // 结果返回
+  ctx.body = { code: 0, payload: ret.gameList }
+})
+
 // 为包站系统定制使用帐号查询
 router.post('/companySelect', async function (ctx, next) {
   let inparam = ctx.request.body
