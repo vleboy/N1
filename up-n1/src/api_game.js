@@ -20,7 +20,6 @@ const GameTypeEnum = require('./lib/Consts').GameTypeEnum
 const gameMapTemp = {}
 
 // 【系统对外API接口】
-
 /**
  * 创建游戏
  */
@@ -116,8 +115,6 @@ router.post('/gameChangeOrder', async (ctx, next) => {
   ctx.body = { code: 0, payload: ret }
 })
 
-// 【大厅对外API接口】
-
 // 大厅使用，测试服，游戏列表
 /**
  * @param gameType 必须
@@ -176,7 +173,6 @@ router.get('/gameList/:gameType', async (ctx, next) => {
 // })
 
 // 【包站对外API接口】
-
 /**
  * 游戏类别
  */
