@@ -19,7 +19,6 @@
             "/captcha",
             "/auth",
             "/agentLogin",
-            "/sysConfig",
             "/player/bill/flow/download",
             "/player/bill/detail/download",
             "/vaptcha/*"
