@@ -81,9 +81,10 @@ router.get('/webapi/scan/:projectname/:plat', async function (ctx, next) {
     }
     if (inparam.plat == 'ios') {
         if (country == '中国') {
+            console.log(`itms-services://?action=download-manifest&url=https://assetdownload.oss-cn-hangzhou.aliyuncs.com/aapoker/${aapokerVersion}.plist`)
             ctx.redirect(`itms-services://?action=download-manifest&url=https://assetdownload.oss-cn-hangzhou.aliyuncs.com/aapoker/${aapokerVersion}.plist`)
-
         } else {
+            console.log(`itms-services://?action=download-manifest&url=https://s3-ap-southeast-1.amazonaws.com/oss.aapoker/${aapokerVersion}.plist`)
             ctx.redirect(`itms-services://?action=download-manifest&url=https://s3-ap-southeast-1.amazonaws.com/oss.aapoker/${aapokerVersion}.plist`)
         }
     } else {
