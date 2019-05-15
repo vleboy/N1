@@ -89,6 +89,7 @@ router.post('/gameChangeStatus', async (ctx, next) => {
   // 业务操作
   const ret = await new GameModel().changeStatus(inparam.gameType, inparam.gameId, inparam.status)
   gameMapTemp = {}      //维护游戏重置map
+  console.log('清缓存', gameMapTemp)
   // 操作日志记录
   inparam.operateAction = '游戏状态变更'
   inparam.operateToken = ctx.tokenVerify
@@ -126,6 +127,7 @@ router.get('/gameList/:gameType', async (ctx, next) => {
   const userId = ctx.query.userId
   // 优先从缓存读取
   if (userId && gameMapTemp[userId]) {
+    console.log('走缓存')
     return ctx.body = { code: 0, payload: gameMapTemp[userId] }
   }
   new GameCheck().checkQuery(inparam)
@@ -133,6 +135,7 @@ router.get('/gameList/:gameType', async (ctx, next) => {
   // 查询对应大类所有游戏列表
   if (!userId || userId == '0') {
     ret = gameMapTemp[userId || '0'] = await new GameModel().list(inparam)
+    console.log('数据库查询', ret)
   }
   // 需要查询具体玩家的游戏列表
   if (userId && userId != '0') {
