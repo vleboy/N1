@@ -17,7 +17,7 @@ const GameModel = require('./model/GameModel')
 const GameCheck = require('./biz/GameCheck')
 const RoleCodeEnum = require('./lib/Consts').RoleCodeEnum
 const GameTypeEnum = require('./lib/Consts').GameTypeEnum
-const gameMapTemp = {}
+let gameMapTemp = {}
 
 // 【系统对外API接口】
 /**
@@ -88,6 +88,7 @@ router.post('/gameChangeStatus', async (ctx, next) => {
   new GameCheck().checkStatus(inparam)
   // 业务操作
   const ret = await new GameModel().changeStatus(inparam.gameType, inparam.gameId, inparam.status)
+  gameMapTemp = {}      //维护游戏重置map
   // 操作日志记录
   inparam.operateAction = '游戏状态变更'
   inparam.operateToken = ctx.tokenVerify
