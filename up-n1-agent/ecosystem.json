@@ -25,8 +25,8 @@
       "host": "test.cncshe.com",
       "ref": "origin/master",
       "repo": "git@github.com:vleboy/N1.git",
-      "path": "/usr/dev/up-n1",
-      "post-deploy": "cd up-n1 && git pull && npm install && pm2 startOrRestart ecosystem.json --env develop"
+      "path": "/usr/dev/up-n1-agent",
+      "post-deploy": "cd up-n1-agent && git pull && npm install && pm2 startOrRestart ecosystem.json --env develop"
     },
     "production": {
       "key": "../../a1server.pem",
@@ -34,8 +34,8 @@
       "host": "game.cncshe.com",
       "ref": "origin/master",
       "repo": "git@github.com:vleboy/N1.git",
-      "path": "/usr/prod/up-n1",
-      "post-deploy": "cd up-n1 && git pull && npm install && pm2 startOrRestart ecosystem.json --env production"
+      "path": "/usr/prod/up-n1-agent",
+      "post-deploy": "cd up-n1-agent && git pull && npm install && pm2 startOrRestart ecosystem.json --env production"
     }
   }
 }
