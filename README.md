@@ -228,3 +228,11 @@ anotherGameData{data:[{\"GameResult\":[{\"BaccaratResult\":[]}]}],mixAmount:0}
 正式服大厅
 【国内】http://webpage.risheng3d.com/h5_lobby.html?userId=268184&token=0
 【国外】http://webpage.na77.org/h5_lobby.html?userId=268184&token=0
+
+n1admin.na12345.com 指向A1
+n1agent.na12345.com 执行A1
+A1上nginx转发n1admin.na12345.com至localhost:3000
+A1上nginx转发n1agent.na12345.com至localhost:4000
+
+A1上原有转发game.cncshe.com至localhost:3000
+A1上原有转发visual.na12345.com至localhost:3000
