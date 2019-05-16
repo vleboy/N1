@@ -34,7 +34,7 @@ router.post('/agent/player/deposit', async function (ctx, next) {
     const playerModel = new PlayerModel()
     let playerInfo = await playerModel.getPlayer(inparam.toUser)
     if (playerInfo.gameState != GameStateEnum.OffLine) {
-        await playerModel.updateOffline(userName)
+        await playerModel.updateOffline(playerInfo.userName)
     }
     //获取商户信息
     let userId = inparam.fromUserId || token.userId
@@ -103,7 +103,7 @@ router.post('/agent/player/take', async function (ctx, next) {
     const playerModel = new PlayerModel()
     let playerInfo = await playerModel.getPlayer(inparam.toUser)
     if (playerInfo.gameState != GameStateEnum.OffLine) {
-        await playerModel.updateOffline(userName)
+        await playerModel.updateOffline(playerInfo.userName)
     }
     //获取商户信息
     let userId = inparam.fromUserId || token.userId
