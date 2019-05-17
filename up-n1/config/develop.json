@@ -61,13 +61,8 @@
     "env": {
         "name": "DEV",
         "IMG_BUCKET": "image-na-dev",
-        "APP_VERSION": "6000",
         "NA_CENTER": "47.88.192.69",
         "ANOTHER_GAME_CENTER": "ext.na77.org",
-        "NALIVE_CENTER": "103.5.4.246:48080",
-        "NA_LIVE_URL": "http://103.5.4.246:48080/gate/player/login",
-        "NA_LIVE_CHIP": "http://103.5.4.246:48080/gate/player/findUserAvailableChip",
-        "GAME_CENTER": "dgjmusja39cm2.cloudfront.net",
         "STAT_URL": "fbvxgmepya.execute-api.ap-southeast-1.amazonaws.com",
         "TABLE_NAMES": {
             "TABLE_USER": "HeraGamePlayer",

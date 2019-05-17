@@ -61,13 +61,8 @@
     "env": {
         "name": "PROD",
         "IMG_BUCKET": "img.na77.com",
-        "APP_VERSION": "6000",
         "NA_CENTER": "47.74.152.121",
         "ANOTHER_GAME_CENTER": "webgame.na77.org",
-        "NALIVE_CENTER": "lgate.na12345.com",
-        "NA_LIVE_URL": "http://lgate.na12345.com/gate/player/login",
-        "NA_LIVE_CHIP": "http://103.5.4.246:48080/gate/player/findUserAvailableChip",
-        "GAME_CENTER": "n1game.na12345.com",
         "STAT_URL": "9d0pmk96m4.execute-api.ap-southeast-1.amazonaws.com",
         "TABLE_NAMES": {
             "TABLE_USER": "HeraGamePlayer",
