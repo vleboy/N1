@@ -58,6 +58,7 @@ router.get('/line/player', async (ctx, next) => {
         inparam.parent = token.userId
     }
     //查询时间段的每天注册人数
+    console.log(inparam)
     let p1 = nodebatis.query('player.queryRegisterDay', inparam)
     //查询该时间段之前的所有注册人数
     let p2 = nodebatis.query('player.querycountDay', { parent: inparam.parent, startTime: 0, endTime: new Date(new Date(+inparam.endTime).setHours(0, 0, 0, 0)).getTime() - 1 })
