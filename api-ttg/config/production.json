@@ -79,7 +79,7 @@
         "fishGameId": "1110001",
         "gameKey": "45fbe040-c4c3-4635-a782-a2fd6851b6b6",
         "appurl": "https://yg.sa-api2.com/app.aspx",
-        "apiurl": "http://api.sa-gaming.net/api/api.aspx",
+        "apiurl": "http://api.sa-apisvr.com/api/api.aspx",
         "secretkey": "13A1B95A0E574591923B6AE06AE14173",
         "md5key": "GgaIMaiNNtg",
         "encryptKey": "g9G16nTs",
