@@ -86,7 +86,7 @@ class LogModel extends BaseModel {
 
     //删除日志
     async delLog(inparam) {
-        inparam.ret = 'Y'
+        inparam.ret = inparam.ret || 'Y'
         let logs = await this.roleQuery(inparam)
         console.log(`一共查出需要删除的日志条数${logs.length}`)
         // 批量删除
