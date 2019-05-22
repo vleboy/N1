@@ -299,7 +299,7 @@ router.get('/sa/setBetLimit', async (ctx, next) => {
     let i = 0
     // for (let player of playerRes.Items) {
         //设置限红
-        const setdata = saParams('SetBetLimit ', { Username: '990614', Currency: 'CNY', Set1: 2251799813685248, Set2: 70368744177664, Set3: 1048576 })
+        const setdata = saParams('SetBetLimit', { Username: '990614', Currency: 'CNY', Set1: 2251799813685248, Set2: 70368744177664, Set3: 1048576 })
         try {
             let chipRes = await axios.post(config.sa.apiurl, querystring.stringify(setdata), {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
