@@ -289,23 +289,23 @@ router.get('/sa/setBetLimit', async (ctx, next) => {
         chipArr.push(item)
     }
     console.log(chipArr)
-    // 所有最近一个月登录过游戏的玩家数量
-    const playerModel = new PlayerModel()
-    const playerRes = await playerModel.scan({
-        ProjectionExpression: 'userId'
-    })
-    console.log(playerRes.Items.length)
-    // 查询所有玩家余额，每100个玩家一组
-    let i = 0
-    for (let player of playerRes.Items) {
-        //设置限红
-        const setdata = saParams('SetBetLimit ', { Username: player.userId, Currency: 'CNY', Set1: chipArr[0].RuleID[0], Set2: "", Set3: "" })
-        let chipRes = await axios.post(config.sa.apiurl, querystring.stringify(setdata), {
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        })
-        i == 0 && console.log(chipRes.data)
-        console.log(i++)
-    }
+    // // 所有最近一个月登录过游戏的玩家数量
+    // const playerModel = new PlayerModel()
+    // const playerRes = await playerModel.scan({
+    //     ProjectionExpression: 'userId'
+    // })
+    // console.log(playerRes.Items.length)
+    // // 查询所有玩家余额，每100个玩家一组
+    // let i = 0
+    // for (let player of playerRes.Items) {
+    //     //设置限红
+    //     const setdata = saParams('SetBetLimit ', { Username: player.userId, Currency: 'CNY', Set1: chipArr[0].RuleID[0], Set2: "", Set3: "" })
+    //     let chipRes = await axios.post(config.sa.apiurl, querystring.stringify(setdata), {
+    //         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    //     })
+    //     i == 0 && console.log(chipRes.data)
+    //     console.log(i++)
+    // }
     ctx.body = { code: 0, msg: 'Y' }
 })
 
