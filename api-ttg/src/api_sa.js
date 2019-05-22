@@ -289,29 +289,31 @@ router.get('/sa/setBetLimit', async (ctx, next) => {
     //     chipArr.push(item)
     // }
     // console.log(chipArr)
-    // // 所有最近一个月登录过游戏的玩家数量
-    // const playerModel = new PlayerModel()
-    // const playerRes = await playerModel.scan({
-    //     ProjectionExpression: 'userId'
-    // })
-    // console.log(playerRes.Items.length)
+    // 所有最近一个月登录过游戏的玩家数量
+    const playerModel = new PlayerModel()
+    const playerRes = await playerModel.scan({
+        ProjectionExpression: 'userId'
+    })
+    console.log(playerRes.Items.length)
     // // 查询所有玩家余额，每100个玩家一组
     let i = 0
-    // for (let player of playerRes.Items) {
+    for (let player of playerRes.Items) {
         //设置限红
-        const setdata = saParams('SetBetLimit', { Username: '990614', Currency: 'CNY', Set1: 2251799813685248, Set2: 70368744177664, Set3: 1048576 })
-        try {
-            let chipRes = await axios.post(config.sa.apiurl, querystring.stringify(setdata), {
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-            })
-            console.log(chipRes)
-            console.log(chipRes.data)
-            console.log(i++)
-        } catch (error) {
-            // console.log(player.userId)
-            console.error(error)
+        const setdata = saParams('SetBetLimit', { Username: player.userId, Currency: 'CNY', Set1: 2251799813685248, Set2: 70368744177664, Set3: 1048576 })
+        // try {
+        axios.post(config.sa.apiurl, querystring.stringify(setdata), {
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        }).catch(err => console.log(err))
+
+        if (i % 8 == 0) {
+            await waitASecond()
         }
-    // }
+        console.log(i++)
+        // } catch (error) {
+        //     console.log(player.userId)
+        //     console.error(error)
+        // }
+    }
     ctx.body = { code: 0, msg: 'Y' }
 })
 
@@ -402,6 +404,15 @@ function saDecrypt(encrypted, secretkey) {
         padding: CryptoJS.pad.Pkcs7
     })
     return CryptoJS.enc.Utf8.stringify(decrypted)// 转换为 utf8 字符串
+}
+
+// 私有方法：等待3秒钟
+function waitASecond() {
+    return new Promise((reslove, reject) => {
+        setTimeout(function () {
+            reslove('Y')
+        }, 100);
+    })
 }
 
 module.exports = router
