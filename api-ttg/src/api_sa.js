@@ -304,7 +304,7 @@ router.get('/sa/setBetLimit', async (ctx, next) => {
             let chipRes = await axios.post(config.sa.apiurl, querystring.stringify(setdata), {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
             })
-            i == 0 && console.log(chipRes.data)
+            console.log(chipRes.data)
             console.log(i++)
         } catch (error) {
             // console.log(player.userId)
