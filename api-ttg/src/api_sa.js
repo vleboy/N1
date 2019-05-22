@@ -406,12 +406,12 @@ function saDecrypt(encrypted, secretkey) {
     return CryptoJS.enc.Utf8.stringify(decrypted)// 转换为 utf8 字符串
 }
 
-// 私有方法：等待3秒钟
+// 私有方法：等待
 function waitASecond() {
     return new Promise((reslove, reject) => {
         setTimeout(function () {
             reslove('Y')
-        }, 100);
+        }, 500);
     })
 }
 
