@@ -275,7 +275,7 @@ router.post('/sa/betdetail', async (ctx, next) => {
 })
 
 /**
- * 设置所有玩家在sa游戏的限红
+ * 设置所有玩家在sa游戏的限红 上次执行到玩家创建时间2019/05/22
  */
 router.get('/sa/setBetLimit', async (ctx, next) => {
     // 查询sa限红的ID编号
