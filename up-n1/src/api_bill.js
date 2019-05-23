@@ -105,15 +105,6 @@ router.get('/waterfall/:userId', async (ctx, next) => {
     let userId = ctx.params.userId
     let params = ctx.request.query
     let balance = +params.balance
-    if (params.sn) {
-        params.startKey = {
-            sn: params.sn,
-            userId,
-            createdAt: +params.createdAt
-        }
-    } else {
-        balance = await new BillModel().checkUserBalance(user)
-    }
     params.pageSize = params.pageSize || 100
     userId.length != 36 ? userId = ctx.userId : null
     let userRet = await new UserModel().queryOnce({
@@ -124,6 +115,15 @@ router.get('/waterfall/:userId', async (ctx, next) => {
         ExpressionAttributeValues: { ':userId': userId }
     })
     let user = userRet.Items[0]
+    if (params.sn) {
+        params.startKey = {
+            sn: params.sn,
+            userId,
+            createdAt: +params.createdAt
+        }
+    } else {
+        balance = await new BillModel().checkUserBalance(user)
+    }
     // 操作权限
     let token = ctx.tokenVerify
     if (!Model.isPlatformAdmin(token) && !Model.isSubChild(token, user) && user.userId != token.userId) {
