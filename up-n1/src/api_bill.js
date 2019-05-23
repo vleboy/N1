@@ -104,8 +104,6 @@ router.get('/waterfall/:userAccount', async function (ctx, next) {
 router.get('/waterfall/:userId', async (ctx, next) => {
     let userId = ctx.params.userId
     let params = ctx.request.query
-    let balance = +params.balance
-    params.pageSize = params.pageSize || 100
     userId.length != 36 ? userId = ctx.userId : null
     let userRet = await new UserModel().queryOnce({
         ProjectionExpression: 'userId,#role,points,levelIndex',
@@ -115,6 +113,13 @@ router.get('/waterfall/:userId', async (ctx, next) => {
         ExpressionAttributeValues: { ':userId': userId }
     })
     let user = userRet.Items[0]
+    // 操作权限
+    let token = ctx.tokenVerify
+    if (!Model.isPlatformAdmin(token) && !Model.isSubChild(token, user) && user.userId != token.userId) {
+        throw BizErr.TokenErr('平台用户只有平台管理员/上级/自己能查看')
+    }
+    // 业务查询
+    let balance = +params.balance
     if (params.sn) {
         params.startKey = {
             sn: params.sn,
@@ -124,11 +129,7 @@ router.get('/waterfall/:userId', async (ctx, next) => {
     } else {
         balance = await new BillModel().checkUserBalance(user)
     }
-    // 操作权限
-    let token = ctx.tokenVerify
-    if (!Model.isPlatformAdmin(token) && !Model.isSubChild(token, user) && user.userId != token.userId) {
-        throw BizErr.TokenErr('平台用户只有平台管理员/上级/自己能查看')
-    }
+    params.pageSize = params.pageSize || 100
     const [bills, startKey] = await new BillModel().computeWaterfall(balance, userId, params)
     ctx.body = { code: 0, payload: bills, startKey }
 })
