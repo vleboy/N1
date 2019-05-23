@@ -31,28 +31,14 @@ class BillModel extends BaseModel {
         let oldQuery = {
             IndexName: 'UserIdIndex',
             KeyConditionExpression: 'userId = :userId',
-            Limit: inparam.pageSize || 100,
-            ExpressionAttributeValues: {
-                ':userId': userId
-            }
+            ExpressionAttributeValues: { ':userId': userId }
         }
         let bills = await this.bindFilterPage(oldQuery, {}, false, inparam)
         bills = bills.Items
-        let lastKey = null
-        if (bills.length != 0) {
-            let lastRecord = bills[bills.length - 1];
-            lastKey = {
-                sn: lastRecord.sn,
-                userId: lastRecord.userId,
-                createdAt: lastRecord.createdAt
-            }
-        }
-        // 直接在内存里面做列表了. 如果需要进行缓存,以后实现
+        // 设定起始计算值
         let balanceSum = initPoint
+        // 逐条流水计算
         const waterfall = _.map(bills, (item, index) => {
-            // let balance = _.reduce(_.slice(bills.Items, 0, index + 1), (sum, item) => {
-            //     return sum + item.amount
-            // }, 0.0) + initPoint
             balanceSum += bills[index].amount
             return {
                 ...bills[index],
@@ -60,7 +46,7 @@ class BillModel extends BaseModel {
                 balance: +balanceSum.toFixed(2)
             }
         })
-        return [waterfall.reverse(), lastKey]
+        return [waterfall.reverse(), inparam.startKey]
     }
 
     /**

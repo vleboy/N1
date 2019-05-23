@@ -101,40 +101,36 @@ router.get('/waterfall/:userAccount', async function (ctx, next) {
     return next()
 })
 // 账单列表
-router.get('/waterfall/:userId', async function (ctx, next) {
-    let inparam = ctx.params
+router.get('/waterfall/:userId', async (ctx, next) => {
+    let userId = ctx.params.userId
     let params = ctx.request.query
-    //如果有createdAt就构造startKey
-    if (params.createdAt) {
+    if (params.sn) {
         params.startKey = {
             sn: params.sn,
-            userId: inparam.userId,
+            userId,
             createdAt: +params.createdAt
         }
     }
-    inparam.userId.length != 36 ? inparam.userId = ctx.userId : null
-    let token = ctx.tokenVerify
+    params.pageSize = params.pageSize || 100
+    userId.length != 36 ? userId = ctx.userId : null
     let userRet = await new UserModel().queryOnce({
-        ProjectionExpression: '#role,points,levelIndex',
+        ProjectionExpression: 'userId,#role,points,levelIndex',
         IndexName: 'UserIdIndex',
         KeyConditionExpression: 'userId = :userId',
-        ExpressionAttributeNames: {
-            '#role': 'role'
-        },
-        ExpressionAttributeValues: {
-            ':userId': inparam.userId
-        }
+        ExpressionAttributeNames: { '#role': 'role' },
+        ExpressionAttributeValues: { ':userId': userId }
     })
     let user = userRet.Items[0]
-    user.userId = inparam.userId
     // 操作权限
+    let token = ctx.tokenVerify
     if (!Model.isPlatformAdmin(token) && !Model.isSubChild(token, user) && user.userId != token.userId) {
         throw BizErr.TokenErr('平台用户只有平台管理员/上级/自己能查看')
     }
     // 业务查询
-    const [bills, lastKey] = await new BillModel().computeWaterfall(user.points, inparam.userId, params)
+    user.points = +params.points || user.points
+    const [bills, startKey] = await new BillModel().computeWaterfall(user.points, userId, params)
     // 返回结果
-    ctx.body = { code: 0, payload: bills, startKey: lastKey }
+    ctx.body = { code: 0, payload: bills, startKey }
 })
 
 // 日志列表
