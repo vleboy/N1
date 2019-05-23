@@ -104,12 +104,15 @@ router.get('/waterfall/:userAccount', async function (ctx, next) {
 router.get('/waterfall/:userId', async (ctx, next) => {
     let userId = ctx.params.userId
     let params = ctx.request.query
+    let balance = +params.balance
     if (params.sn) {
         params.startKey = {
             sn: params.sn,
             userId,
             createdAt: +params.createdAt
         }
+    } else {
+        balance = await new BillModel().checkUserBalance(user)
     }
     params.pageSize = params.pageSize || 100
     userId.length != 36 ? userId = ctx.userId : null
@@ -126,10 +129,7 @@ router.get('/waterfall/:userId', async (ctx, next) => {
     if (!Model.isPlatformAdmin(token) && !Model.isSubChild(token, user) && user.userId != token.userId) {
         throw BizErr.TokenErr('平台用户只有平台管理员/上级/自己能查看')
     }
-    // 业务查询
-    user.points = +params.points || user.points
-    const [bills, startKey] = await new BillModel().computeWaterfall(user.points, userId, params)
-    // 返回结果
+    const [bills, startKey] = await new BillModel().computeWaterfall(balance, userId, params)
     ctx.body = { code: 0, payload: bills, startKey }
 })
 

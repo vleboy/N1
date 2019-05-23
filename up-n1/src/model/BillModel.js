@@ -1,5 +1,6 @@
 
 const _ = require('lodash')
+const NP = require('number-precision')
 const BizErr = require('../lib/Codes').BizErr
 const RoleModels = require('../lib/UserConsts').RoleModels
 const Model = require('../lib/Model').Model
@@ -31,6 +32,7 @@ class BillModel extends BaseModel {
         let oldQuery = {
             IndexName: 'UserIdIndex',
             KeyConditionExpression: 'userId = :userId',
+            ScanIndexForward: false,
             ExpressionAttributeValues: { ':userId': userId }
         }
         let bills = await this.bindFilterPage(oldQuery, {}, false, inparam)
@@ -39,14 +41,14 @@ class BillModel extends BaseModel {
         let balanceSum = initPoint
         // 逐条流水计算
         const waterfall = _.map(bills, (item, index) => {
-            balanceSum += bills[index].amount
+            balanceSum = NP.minus(balanceSum, bills[index].amount)
             return {
                 ...bills[index],
-                oldBalance: +(balanceSum - bills[index].amount).toFixed(2),
-                balance: +balanceSum.toFixed(2)
+                oldBalance: +balanceSum.toFixed(2),
+                balance: +(NP.plus(balanceSum, bills[index].amount)).toFixed(2)
             }
         })
-        return [waterfall.reverse(), inparam.startKey]
+        return [waterfall, inparam.startKey]
     }
 
     /**
