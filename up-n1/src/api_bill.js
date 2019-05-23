@@ -103,6 +103,15 @@ router.get('/waterfall/:userAccount', async function (ctx, next) {
 // 账单列表
 router.get('/waterfall/:userId', async function (ctx, next) {
     let inparam = ctx.params
+    let params = ctx.request.query
+    //如果有createdAt就构造startKey
+    if (params.createdAt) {
+        params.startKey = {
+            sn: params.sn,
+            userId: inparam.userId,
+            createdAt: +params.createdAt
+        }
+    }
     inparam.userId.length != 36 ? inparam.userId = ctx.userId : null
     let token = ctx.tokenVerify
     let userRet = await new UserModel().queryOnce({
@@ -123,9 +132,9 @@ router.get('/waterfall/:userId', async function (ctx, next) {
         throw BizErr.TokenErr('平台用户只有平台管理员/上级/自己能查看')
     }
     // 业务查询
-    const bills = await new BillModel().computeWaterfall(user.points, inparam.userId)
+    const [bills, lastKey] = await new BillModel().computeWaterfall(user.points, inparam.userId, params)
     // 返回结果
-    ctx.body = { code: 0, payload: bills }
+    ctx.body = { code: 0, payload: bills, startKey: lastKey }
 })
 
 // 日志列表

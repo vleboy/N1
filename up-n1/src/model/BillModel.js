@@ -27,28 +27,40 @@ class BillModel extends BaseModel {
      * @param {*} initPoint 初始分
      * @param {*} userId 用户ID
      */
-    async computeWaterfall(initPoint, userId) {
-        const bills = await this.query({
+    async computeWaterfall(initPoint, userId, inparam) {
+        let oldQuery = {
             IndexName: 'UserIdIndex',
             KeyConditionExpression: 'userId = :userId',
+            Limit: inparam.pageSize || 100,
             ExpressionAttributeValues: {
                 ':userId': userId
             }
-        })
+        }
+        let bills = await this.bindFilterPage(oldQuery, {}, false, inparam)
+        bills = bills.Items
+        let lastKey = null
+        if (bills.length != 0) {
+            let lastRecord = bills[bills.length - 1];
+            lastKey = {
+                sn: lastRecord.sn,
+                userId: lastRecord.userId,
+                createdAt: lastRecord.createdAt
+            }
+        }
         // 直接在内存里面做列表了. 如果需要进行缓存,以后实现
         let balanceSum = initPoint
-        const waterfall = _.map(bills.Items, (item, index) => {
+        const waterfall = _.map(bills, (item, index) => {
             // let balance = _.reduce(_.slice(bills.Items, 0, index + 1), (sum, item) => {
             //     return sum + item.amount
             // }, 0.0) + initPoint
-            balanceSum += bills.Items[index].amount
+            balanceSum += bills[index].amount
             return {
-                ...bills.Items[index],
-                oldBalance: +(balanceSum - bills.Items[index].amount).toFixed(2),
+                ...bills[index],
+                oldBalance: +(balanceSum - bills[index].amount).toFixed(2),
                 balance: +balanceSum.toFixed(2)
             }
         })
-        return waterfall.reverse()
+        return [waterfall.reverse(), lastKey]
     }
 
     /**
