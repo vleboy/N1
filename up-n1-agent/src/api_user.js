@@ -132,13 +132,8 @@ router.post('/userChangeStatus', async function (ctx, next) {
     // 查询用户
     let userRet = await new UserModel().getItem({
         ProjectionExpression: 'userId,username,levelIndex,companyList,#status',
-        ExpressionAttributeNames: {
-            '#status': 'status'
-        },
-        Key: {
-            'role': inparam.role,
-            'userId': inparam.userId
-        }
+        ExpressionAttributeNames: { '#status': 'status' },
+        Key: { 'role': inparam.role, 'userId': inparam.userId }
     })
     let user = userRet.Item
     // 代理用户只能代理管理员/父辈操作

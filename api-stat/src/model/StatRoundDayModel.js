@@ -1,13 +1,14 @@
 const Tables = require('../lib/Model').Tables
 const Model = require('../lib/Model').Model
-const GameTypeEnum = require('../lib/Model').GameTypeEnum
 const BaseModel = require('./BaseModel')
 const ConfigModel = require('./ConfigModel')
 const StatRoundModel = require('./StatRoundModel')
-const UserModel = require('./UserModel')
 const moment = require('moment')
 const _ = require('lodash')
 const NP = require('number-precision')
+
+// const GameTypeEnum = require('../lib/Model').GameTypeEnum
+// const UserModel = require('./UserModel')
 
 class StatRoundDayModel extends BaseModel {
     constructor() {
@@ -92,48 +93,48 @@ class StatRoundDayModel extends BaseModel {
         let roundAll = getPromiseArr(roundRet, inparam.createdDate)
         // 4.写入局天表
         this.batchWriteRound(roundAll)
-        // 5.查询玩家所有的父级及信息
-        let parentInfo = await new UserModel().getAllParent(inparam)
-        // 6.只更新YSB体育游戏的相关数据
-        let TYGameType = '1130000'                          //YSB体育的枚举                        
-        let initGameType = GameTypeEnum[TYGameType]
-        for (let item of parentInfo) {
-            if (!item.betAmountMap[TYGameType]) {
-                item.betAmountMap[TYGameType] = { ...initGameType, betAmount: 0.0 }
-            }
-            if (!item.winloseAmountMap[TYGameType]) {
-                item.winloseAmountMap[TYGameType] = { ...initGameType, winloseAmount: 0.0 }
-            }
-            if (!item.mixAmountMap[TYGameType]) {
-                item.mixAmountMap[TYGameType] = { ...initGameType, mixAmount: 0.0 }
-            }
-            item.betAmountMap[TYGameType].betAmount -= inparam.betAmount
-            item.winloseAmountMap[TYGameType].winloseAmount -= inparam.winloseAmount
-            item.mixAmountMap[TYGameType].mixAmount += inparam.mixAmount
-            // 更新companyList
-            let hasYSB = false
-            for (let i of item.companyList) {
-                if (i.company == 'YSB') {
-                    i.winloseAmount = item.winloseAmountMap[TYGameType].winloseAmount
-                    hasYSB = true
-                }
-            }
-            if (!hasYSB) {
-                item.companyList.push({ company: 'YSB', status: 1, topAmount: 0, winloseAmount: item.winloseAmountMap[TYGameType].winloseAmount })
-            }
-            // 更新金额MAP
-            await new UserModel().updateItem({
-                Key: { 'role': item.role, 'userId': item.userId },
-                UpdateExpression: 'SET betAmountMap=:betAmountMap,winloseAmountMap=:winloseAmountMap,mixAmountMap=:mixAmountMap,companyList=:companyList',
-                ExpressionAttributeValues: {
-                    ':betAmountMap': item.betAmountMap,
-                    ':winloseAmountMap': item.winloseAmountMap,
-                    ':mixAmountMap': item.mixAmountMap,
-                    ':companyList': item.companyList
-                }
-            })
-            console.log(`更新role为【${item.role}】,userId为【${item.userId}】map成功`)
-        }
+        // // 5.查询玩家所有的父级及信息
+        // let parentInfo = await new UserModel().getAllParent(inparam)
+        // // 6.只更新YSB体育游戏的相关数据
+        // let TYGameType = '1130000'                          //YSB体育的枚举                        
+        // let initGameType = GameTypeEnum[TYGameType]
+        // for (let item of parentInfo) {
+        //     if (!item.betAmountMap[TYGameType]) {
+        //         item.betAmountMap[TYGameType] = { ...initGameType, betAmount: 0.0 }
+        //     }
+        //     if (!item.winloseAmountMap[TYGameType]) {
+        //         item.winloseAmountMap[TYGameType] = { ...initGameType, winloseAmount: 0.0 }
+        //     }
+        //     if (!item.mixAmountMap[TYGameType]) {
+        //         item.mixAmountMap[TYGameType] = { ...initGameType, mixAmount: 0.0 }
+        //     }
+        //     item.betAmountMap[TYGameType].betAmount -= inparam.betAmount
+        //     item.winloseAmountMap[TYGameType].winloseAmount -= inparam.winloseAmount
+        //     item.mixAmountMap[TYGameType].mixAmount += inparam.mixAmount
+        //     // 更新companyList
+        //     let hasYSB = false
+        //     for (let i of item.companyList) {
+        //         if (i.company == 'YSB') {
+        //             i.winloseAmount = item.winloseAmountMap[TYGameType].winloseAmount
+        //             hasYSB = true
+        //         }
+        //     }
+        //     if (!hasYSB) {
+        //         item.companyList.push({ company: 'YSB', status: 1, topAmount: 0, winloseAmount: item.winloseAmountMap[TYGameType].winloseAmount })
+        //     }
+        //     // 更新金额MAP
+        //     await new UserModel().updateItem({
+        //         Key: { 'role': item.role, 'userId': item.userId },
+        //         UpdateExpression: 'SET betAmountMap=:betAmountMap,winloseAmountMap=:winloseAmountMap,mixAmountMap=:mixAmountMap,companyList=:companyList',
+        //         ExpressionAttributeValues: {
+        //             ':betAmountMap': item.betAmountMap,
+        //             ':winloseAmountMap': item.winloseAmountMap,
+        //             ':mixAmountMap': item.mixAmountMap,
+        //             ':companyList': item.companyList
+        //         }
+        //     })
+        //     console.log(`更新role为【${item.role}】,userId为【${item.userId}】map成功`)
+        // }
     }
 
     // 删除某个玩家某一天的游戏战绩
@@ -155,26 +156,26 @@ class StatRoundDayModel extends BaseModel {
         return true
     }
 
-    // 获取玩家时间段的局天表游戏数据
-    async getPlayerDay(inparam) {
-        const ret = await this.query({
-            KeyConditionExpression: 'userName = :userName AND createdDate between :createdDate0 AND :createdDate1',
-            ExpressionAttributeValues: {
-                ':userName': inparam.userName,
-                ':createdDate0': +inparam.createdDate[0],
-                ':createdDate1': +inparam.createdDate[1]
-            }
-        })
-        let dayRes = { betAmount: 0, betCount: 0, winAmount: 0 }
-        if (ret && ret.Items.length != 0) {
-            for (let item of ret.Items) {
-                dayRes.betAmount += item.betAmount
-                dayRes.betCount += item.betCount
-                dayRes.winAmount += item.winAmount
-            }
-        }
-        return dayRes
-    }
+    // // 获取玩家时间段的局天表游戏数据
+    // async getPlayerDay(inparam) {
+    //     const ret = await this.query({
+    //         KeyConditionExpression: 'userName = :userName AND createdDate between :createdDate0 AND :createdDate1',
+    //         ExpressionAttributeValues: {
+    //             ':userName': inparam.userName,
+    //             ':createdDate0': +inparam.createdDate[0],
+    //             ':createdDate1': +inparam.createdDate[1]
+    //         }
+    //     })
+    //     let dayRes = { betAmount: 0, betCount: 0, winAmount: 0 }
+    //     if (ret && ret.Items.length != 0) {
+    //         for (let item of ret.Items) {
+    //             dayRes.betAmount += item.betAmount
+    //             dayRes.betCount += item.betCount
+    //             dayRes.winAmount += item.winAmount
+    //         }
+    //     }
+    //     return dayRes
+    // }
 }
 
 //内部方法获取promise数组的封装
