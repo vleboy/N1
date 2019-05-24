@@ -431,7 +431,7 @@ class UserModel extends BaseModel {
         // 商户
         if (sn) {
             return await this.query({
-                ProjectionExpression: 'userId,#role,#suffix,#username,uname,#parent,parentName,parentDisplayName,parentRole,displayName,displayId,#level,apiKey,sn,gameList,#rate,password,subRole',
+                ProjectionExpression: 'userId,#role,#suffix,#username,uname,#parent,parentName,parentDisplayName,parentRole,displayName,displayId,#level,apiKey,sn,gameList,#rate,password,subRole,#status',
                 KeyConditionExpression: '#role = :role',
                 FilterExpression: 'sn = :sn AND uname = :uname',
                 ExpressionAttributeNames: {
@@ -440,7 +440,8 @@ class UserModel extends BaseModel {
                     '#username': 'username',
                     '#parent': 'parent',
                     '#rate': 'rate',
-                    '#level': 'level'
+                    '#level': 'level',
+                    '#status': 'status'
                 },
                 ExpressionAttributeValues: {
                     ':role': role,
@@ -452,7 +453,7 @@ class UserModel extends BaseModel {
         // 管理员，线路商
         else {
             return await this.query({
-                ProjectionExpression: 'userId,#role,#suffix,#username,uname,#parent,parentName,parentDisplayName,parentRole,displayName,displayId,#level,apiKey,sn,gameList,#rate,password,subRole',
+                ProjectionExpression: 'userId,#role,#suffix,#username,uname,#parent,parentName,parentDisplayName,parentRole,displayName,displayId,#level,apiKey,sn,gameList,#rate,password,subRole,#status',
                 IndexName: 'RoleUsernameIndex',
                 KeyConditionExpression: '#role = :role AND #username = :username',
                 ExpressionAttributeNames: {
@@ -461,7 +462,8 @@ class UserModel extends BaseModel {
                     '#username': 'username',
                     '#parent': 'parent',
                     '#rate': 'rate',
-                    '#level': 'level'
+                    '#level': 'level',
+                    '#status': 'status'
                 },
                 ExpressionAttributeValues: {
                     ':role': role,
