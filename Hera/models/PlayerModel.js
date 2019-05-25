@@ -219,11 +219,11 @@ module.exports = class PlayerModel extends BaseModel {
                 console.error(`玩家${player.userId}的所属商户没有购买此游戏大类${naGameType}`)
                 return { code: 10004, msg: '商户无此游戏' }
             }
-            const companyIndex = _.findIndex(parentUser.companyList, function (i) { return i.company == naGameCompany })
-            if (companyIndex != -1 && parentUser.companyList[companyIndex].status != 1) {
-                console.error(`玩家${player.userId}的所属商户的游戏供应商${naGameCompany}已被控分警告停用`)
-                return { code: 10006, msg: '商户已停用' }
-            }
+            // const companyIndex = _.findIndex(parentUser.companyList, function (i) { return i.company == naGameCompany })
+            // if (companyIndex != -1 && parentUser.companyList[companyIndex].status != 1) {
+            //     console.error(`玩家${player.userId}的所属商户的游戏供应商${naGameCompany}已被控分警告停用`)
+            //     return { code: 10006, msg: '商户已停用' }
+            // }
             console.log(`单笔流水-执行至下注/冻结检查耗时：${Date.now() - time1}`)
         }
         // 检查2.2：重复的流水，直接返回当前玩家余额
