@@ -135,11 +135,11 @@ module.exports = class PlayerModel extends BaseModel {
                 console.error(`玩家${player.userId}所属商户没有购买此游戏大类${naGameType}`)
                 return 'err'
             }
-            const companyIndex = _.findIndex(parentUser.companyList, (i) => { return i.company == naGameCompany })
-            if (companyIndex != -1 && parentUser.companyList[companyIndex].status != 1) {
-                console.error(`玩家${player.userId}所属商户的游戏供应商${naGameCompany}已被控分警告停用`)
-                return 'err'
-            }
+            // const companyIndex = _.findIndex(parentUser.companyList, (i) => { return i.company == naGameCompany })
+            // if (companyIndex != -1 && parentUser.companyList[companyIndex].status != 1) {
+            //     console.error(`玩家${player.userId}所属商户的游戏供应商${naGameCompany}已被控分警告停用`)
+            //     return 'err'
+            // }
         }
         // 检查：重复的流水，直接返回当前玩家余额
         let billRepeat = await new PlayerBillDetailModel().getBill(data.sntemp)
