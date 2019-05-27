@@ -36,7 +36,7 @@ const CronRoundModel = require('./model/CronRoundModel')
 
 
 // 定时汇总局天表(凌晨两点统计一次)
-cron.schedule('0 8 10 * * *', async () => {
+cron.schedule('0 0 18 * * *', async () => {
     console.time(`局天表汇总耗时`)
     // 非重置情况下，如果今天是周一，则去更新一周的数据
     if (moment().utcOffset(8).weekday() == 1) {
@@ -50,7 +50,7 @@ cron.schedule('0 8 10 * * *', async () => {
 })
 
 // 定时检查日志和修正数据（每5分钟检查一次）
-cron.schedule('0 */1 * * * *', async () => {
+cron.schedule('0 */5 * * * *', async () => {
     try {
         console.time(`定时检查和修正日志及数据耗时`)
         let fixArr = []
