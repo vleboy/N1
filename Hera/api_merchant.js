@@ -13,6 +13,7 @@ const LogModel = require('./models/LogModel')
 const HeraGameRecordModel = require('./models/HeraGameRecordModel')
 const gameRecordUtil = require('./libs/gameRecordUtil')
 const MerchantBillModel = require('./models/MerchantBillModel')
+const PlayerBillDetailModel = require('./models/PlayerBillDetailModel')
 const PlayerModel = require('./models/PlayerModel')
 const IPCheck = require('./libs/IPCheck')
 const GameStateEnum = require('./libs/Dynamo').GameStateEnum
@@ -229,7 +230,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                     balance: currentBalanceObj.balance
                 }
                 await new MerchantBillModel().playerBillTransfer(userBill, playerBill)
-                return ResOK(cb, { msg: 'success', data: { balance: currentBalanceObj.balance } }, 0)
+                return ResOK(cb, { msg: 'success', data: { balance: currentBalanceObj.balance, sn: playerBill.sn } }, 0)
             case 'OPERATE_PLAYER_FORZEN'://冻结|解冻玩家
                 if (typeof inparam.names != 'object' || inparam.names.length == 0) {
                     return ResFail(cb, { msg: '参数names不合法' }, 500)
@@ -243,6 +244,16 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 })
                 await new PlayerModel().updateNameState(names, state)
                 return ResOK(cb, { msg: 'success', state }, 0)
+            case 'QUERY_PLAYER_SN': //根据sn查询流水
+                if (!inparam.sn) {
+                    return ResFail(cb, { msg: '请检查入参' }, 500)
+                }
+                let isExist = false
+                let snRes = await new PlayerBillDetailModel().getBill(inparam.sn)
+                if (snRes) {
+                    isExist = true
+                }
+                return ResOK(cb, { msg: 'success', isExist }, 0)
             case 'QUERY_MERCHANT_INFO'://获取商户信息
                 let merchantBalance = await new MerchantBillModel().queryUserBalance(userInfo.userId)
                 let data = {
