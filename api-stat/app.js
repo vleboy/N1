@@ -9,6 +9,7 @@ const koaBody = require('koa-body')
 const xerror = require('koa-xerror')
 const xauth = require('koa-xauth')
 const xlog = require('koa-xlog')
+const cronRound = require('./src/cron_round')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 业务控制器

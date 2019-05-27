@@ -1,7 +1,11 @@
-const Tables = require('../lib/Model').Tables
+const { Tables, RoleCodeEnum } = require('../lib/Model')
 const BaseModel = require('./BaseModel')
 const _ = require('lodash')
 const moment = require('moment')
+const LogModel = require('./LogModel')
+const config = require('config')
+const jwt = require('jsonwebtoken')
+const axios = require('axios')
 
 /**
  * 战绩表实体
@@ -31,7 +35,7 @@ class HeraGameRecordModel extends BaseModel {
         let chunkRound = _.chunk(roundAll, 25)
         for (let chunk of chunkRound) {
             let batch = { RequestItems: {} }
-            batch.RequestItems['HeraGameRecord'] = []
+            batch.RequestItems[Tables.HeraGameRecord] = []
             for (let item of chunk) {
                 // 只处理第三方游戏
                 if (parseInt(item.gameType) > 100000) {
@@ -51,7 +55,7 @@ class HeraGameRecordModel extends BaseModel {
                             // gameDetail: JSON.stringify(initObj)
                         }
                     }
-                    batch.RequestItems['HeraGameRecord'].push({
+                    batch.RequestItems[Tables.HeraGameRecord].push({
                         PutRequest: {
                             Item: gameRecord
                         }
@@ -59,7 +63,7 @@ class HeraGameRecordModel extends BaseModel {
                 }
             }
             // 数据存在时，写入数据库
-            if (batch.RequestItems['HeraGameRecord'].length > 0) {
+            if (batch.RequestItems[Tables.HeraGameRecord].length > 0) {
                 let p = this.batchWrite(batch)
                 promiseArr.push(p)
             }
@@ -129,6 +133,78 @@ class HeraGameRecordModel extends BaseModel {
             console.error(err)
         })
     }
+    /**
+   * 查询KY战绩
+   * @param {*} beginTime 
+   * @param {*} endTime 
+   */
+    async getKYRecord(beginTime, endTime) {
+        let tokenAdmin = jwt.sign({
+            role: RoleCodeEnum.PlatformAdmin,
+            exp: Math.floor(Date.now() / 1000) + 86400
+        }, config.na.TOKEN_SECRET)
+        try {
+            // 向KY查询
+            let res = await axios.get(`http://${config.na.ANOTHER_GAME_CENTER}/ky/betdetail?startTime=${beginTime}&endTime=${endTime}`, { headers: { 'Authorization': `Bearer ${tokenAdmin}` } })
+            let listArr = []
+            if (res.data.code == 0) {
+                let listMap = res.data.list
+                //玩家分组查询对应的商户id
+                let groupByMap = _.groupBy(listMap.Accounts)
+                let parentIdArr = []
+                for (let kyUserId in groupByMap) {
+                    let playerRes = await this.query({
+                        IndexName: 'userIdIndex',
+                        KeyConditionExpression: 'userId = :userId',
+                        ProjectionExpression: 'parent,userId,userName',
+                        ExpressionAttributeValues: {
+                            ':userId': +kyUserId.split('_')[1]
+                        }
+                    })
+                    parentIdArr.push({ kyUserId, parent: playerRes.Items[0].parent, userId: playerRes.Items[0].userId, userName: playerRes.Items[0].userName })
+                }
+                for (let i = 0; i < res.data.count; i++) {
+                    let anotherGameData = {
+                        GameID: listMap.GameID[i],
+                        Accounts: listMap.Accounts[i],
+                        ServerID: listMap.ServerID[i],
+                        KindID: listMap.KindID[i],
+                        TableID: listMap.TableID[i],
+                        ChairID: listMap.ChairID[i],
+                        UserCount: listMap.UserCount[i],
+                        CellScore: listMap.CellScore[i],
+                        AllBet: listMap.AllBet[i],
+                        Profit: listMap.Profit[i],
+                        Revenue: listMap.Revenue[i],
+                        GameStartTime: listMap.GameStartTime[i],
+                        GameEndTime: listMap.GameEndTime[i],
+                        CardValue: listMap.CardValue[i]
+                    }
+                    let gameRecord = {
+                        betTime: new Date(`${anotherGameData.GameStartTime}+08:00`).getTime(),
+                        createdAt: new Date(`${anotherGameData.GameEndTime}+08:00`).getTime(),
+                        gameId: '1070001',
+                        gameType: 1070000,
+                        anotherGameData
+                    }
+                    let item = _.find(parentIdArr, (o) => { return o.kyUserId == anotherGameData.Accounts })
+                    gameRecord.parent = item.parent
+                    gameRecord.userId = item.userId
+                    gameRecord.userName = item.userName
+                    gameRecord.businessKey = `BKY_${item.userId}_${listMap.GameID[i]}`
+                    listArr.push(gameRecord)
+                }
+                // 写入KY游戏记录
+                await Promise.all(this.batchWriteRound(listArr))
+            }
+            return true
+        } catch (error) {
+            new LogModel().add('2', 'KYRecordError', { startTime: beginTime, endTime }, `KY获取游戏注单请求异常&startTime=${beginTime}&endTime=${endTime}`)
+            console.error(error)
+            return false
+        }
+    }
+
 }
 
 module.exports = HeraGameRecordModel

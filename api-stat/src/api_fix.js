@@ -13,6 +13,7 @@ const log = require('tracer').colorConsole({ level: config.log.level })
 const CronRoundModel = require('./model/CronRoundModel')
 const ConfigModel = require('./model/ConfigModel')
 const StatRoundDayModel = require('./model/StatRoundDayModel')
+const HeraGameRecordModel = require('./model/HeraGameRecordModel')
 
 /**
  * 修正局表数据
@@ -22,6 +23,7 @@ const StatRoundDayModel = require('./model/StatRoundDayModel')
  */
 router.post('/stat/fixRound', async (ctx, next) => {
     const inparam = ctx.request.body
+    inparam.isFix = true
     // 业务操作
     await new CronRoundModel().fixRound(inparam)
     // 请求修正局天表
@@ -49,7 +51,7 @@ router.post('/stat/fixRoundDay', async (ctx, next) => {
     })
     // 业务操作
     let nowDay = parseInt(moment().utcOffset(8).format('YYYYMMDD'))
-    inparam.isInit = true
+    inparam.isFix = true
     //循环更新局天表直到结束时间
     while (updateDay < nowDay) {
         console.log(`开始修正${updateDay}的数据`)
@@ -79,5 +81,17 @@ router.post('/stat/fixPlayerRoundDay', async (ctx, next) => {
     await new StatRoundDayModel().cronPlayerRoundDay(inparam)
     ctx.body = { code: 0, msg: 'Y' }
 })
+
+//修正ky一小时内数据
+router.post('/stat/fixKY', async (ctx, next) => {
+    const inparam = ctx.request.body
+    if (inparam.startTime + 1 * 60 * 60 * 1000 < inparam.endTime) {
+        return ctx.body = { code: -1, msg: '修正时间范围不能超过一个小时' }
+    }
+    console.log(`修复开元棋牌时间为${inparam.startTime}-${inparam.endTime}`)
+    await new HeraGameRecordModel().getKYRecord(inparam.startTime, inparam.endTime)
+    ctx.body = { code: 0, msg: 'Y' }
+})
+
 
 module.exports = router

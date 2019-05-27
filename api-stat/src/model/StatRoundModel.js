@@ -56,7 +56,7 @@ class StatRoundModel extends BaseModel {
             }
         }
         // 只有重置初始局天表才统计YSB体育游戏
-        if (!inparam.isInit) {
+        if (!inparam.isFix) {
             query.FilterExpression += ' AND gameType <> :longTimeGameType2'
             query.ExpressionAttributeValues[':longTimeGameType2'] = 1130000
         }
@@ -174,6 +174,22 @@ class StatRoundModel extends BaseModel {
         }
         const bkRet = await this.query(queryData)
         return bkRet.Items
+    }
+
+    //查询bk对应的数量
+    async bkQuery(inparam) {
+        const bkRet = await this.query({
+            KeyConditionExpression: 'businessKey = :businessKey',
+            ExpressionAttributeValues: {
+                ':businessKey': inparam.bk
+            }
+        })
+        let betNum = 0, retNum = 0
+        if (bkRet && bkRet.Items.length > 0 && bkRet.Items[0].content) {
+            betNum = bkRet.Items[0].content.bet.length
+            retNum = bkRet.Items[0].content.ret.length
+        }
+        return betNum + retNum
     }
 }
 

@@ -29,6 +29,21 @@ class PlayerBillDetailModel extends BaseModel {
             }
         })
     }
+     //查询bk对应的数量
+     async bkQuery(inparam) {
+        const bkRet = await this.query({
+            IndexName: 'BusinessKeyIndex',
+            KeyConditionExpression: 'businessKey = :businessKey',
+            ExpressionAttributeValues: {
+                ':businessKey': inparam.bk
+            }
+        })
+        if (bkRet && bkRet.Items.length) {
+            return bkRet.Items.length
+        } else {
+            return -1
+        }
+    }
 }
 
 module.exports = PlayerBillDetailModel

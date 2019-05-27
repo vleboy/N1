@@ -24,8 +24,9 @@
     "na": {
         "center": "47.74.152.121",
         "apidomain": "webgame.na77.org",
-        "TOKEN_SECRET":"gsy0913",
-        "domain":"api.na12345.com"
+        "TOKEN_SECRET": "gsy0913",
+        "domain": "api.na12345.com",
+        "ANOTHER_GAME_CENTER": "localhost:3000"
     },
     "server": {
         "port": 4000

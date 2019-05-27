@@ -34,7 +34,7 @@ module.exports = class CronRoundModel extends BaseModel {
         console.log(`查询时间范围：${beginTime}-${endTime}，${moment(beginTime).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}至${moment(endTime).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}`)
         let time2 = Date.now()
         // 2，查询时间范围内所有下注数据
-        const billRet = await self.queryType({ type: 3, beginTime, endTime, isFix: true })
+        const billRet = await self.queryType({ type: 3, beginTime, endTime, isFix: inparam.isFix })
         let userAnotherGameData = await self.getSAAnotherGamedata(billRet)
         // 3，按照bk分组，遍历分组结果，根据回合时间查询其返回，组装每一局，最后并发执行
         let promiseArr = await self.getRoundAll(_.uniqBy(billRet.Items, 'businessKey'), userAnotherGameData)

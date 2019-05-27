@@ -24,8 +24,9 @@
     "na": {
         "center": "47.88.192.69",
         "apidomain": "ext.na77.org",
-        "TOKEN_SECRET":"gsy0913",
-        "domain":"xbbw2jfb58.execute-api.ap-southeast-1.amazonaws.com"
+        "TOKEN_SECRET": "gsy0913",
+        "domain": "xbbw2jfb58.execute-api.ap-southeast-1.amazonaws.com",
+        "ANOTHER_GAME_CENTER": "localhost:3000"
     },
     "server": {
         "port": 4000

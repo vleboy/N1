@@ -27,6 +27,21 @@ class LogModel extends BaseModel {
      */
     add(role, type, inparam, detail) {
         switch (role) {
+            case '2':
+                this.putItem({
+                    ...this.item,
+                    createdStr: moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
+                    detail,
+                    inparams: inparam,
+                    ret: 'N',
+                    role,
+                    type,
+                    betTime: inparam.beginTime
+                }).then((res) => {
+                }).catch((err) => {
+                    console.error(err)
+                })
+                break;
             case '4':
                 this.putItem({
                     ...this.item,
@@ -104,6 +119,23 @@ class LogModel extends BaseModel {
             })
         }
         console.info(`数据删除成功`)
+    }
+    /**
+   * 更新日志的ret为Y
+   * @param {*} sn
+   * @param {*} userId
+   */
+    async updateLog(inparam) {
+        this.updateItem({
+            Key: { 'sn': inparam.sn, userId: inparam.userId },
+            UpdateExpression: 'SET ret = :ret ',
+            ExpressionAttributeValues: {
+                ':ret': 'Y'
+            }
+        }).then((res) => {
+        }).catch((err) => {
+            console.error(err)
+        })
     }
 }
 

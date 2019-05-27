@@ -25,7 +25,7 @@ class StatRoundDayModel extends BaseModel {
 
     /**
      * 统计局表每一天的写入局天表
-     * inparam.isInit 是否全部初始
+     * inparam.isFix 是否全部初始
      */
     async cronRoundDay(inparam = {}) {
         // 1，从配置文件中获取起始日期
@@ -34,7 +34,7 @@ class StatRoundDayModel extends BaseModel {
         // 2，先删除该日期的数据
         await this.deleteRoundDay({ createdDate: lastDayTime })
         // 3，取出局表中该日期的所有数据
-        const roundRet = await new StatRoundModel().queryDate({ lastDayTime, isInit: inparam.isInit })
+        const roundRet = await new StatRoundModel().queryDate({ lastDayTime, isFix: inparam.isFix })
         // 4，获取组装好的局天表数据
         let roundAll = getPromiseArr(roundRet, lastDayTime)
         // 5，组装，批量写入局天表

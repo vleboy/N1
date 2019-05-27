@@ -28,21 +28,21 @@ module.exports.cronRound = async (e, c, cb) => {
     }
 }
 
-/**
- * 定时汇总一天的局表
- */
-module.exports.cronRoundDay = async (e, c, cb) => {
-    try {
-        // 业务操作
-        await new StatRoundDayModel().cronRoundDay()
-        // 返回结果
-        return ResOK(cb, { payload: 'success' })
-    } catch (error) {
-        console.error(`定时汇总局天表出现异常`)
-        console.error(error)
-        return ResErr(cb, error)
-    }
-}
+// /**
+//  * 定时汇总一天的局表
+//  */
+// module.exports.cronRoundDay = async (e, c, cb) => {
+//     try {
+//         // 业务操作
+//         await new StatRoundDayModel().cronRoundDay()
+//         // 返回结果
+//         return ResOK(cb, { payload: 'success' })
+//     } catch (error) {
+//         console.error(`定时汇总局天表出现异常`)
+//         console.error(error)
+//         return ResErr(cb, error)
+//     }
+// }
 
 // /**
 //  * 定时汇总长延时游戏局表
