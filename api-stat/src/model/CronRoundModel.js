@@ -232,7 +232,7 @@ module.exports = class CronRoundModel extends BaseModel {
                 // await this.waitASecond()
                 userAnotherGameData[userId] = {}
                 axios.defaults.timeout = 60000
-                const res = await axios.post(`http://localhost:3000/sa/betdetail`, {
+                const res = await axios.post(`http://${config.na.ANOTHER_GAME_CENTER}/sa/betdetail`, {
                     userId: userId.toString(),
                     fromTime: moment(_.minBy(saGroupRet[userId], 'createdAt').createdAt).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
                     toTime: moment(_.maxBy(saGroupRet[userId], 'createdAt').createdAt + 600000).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')
