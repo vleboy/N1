@@ -24,31 +24,28 @@ module.exports = class CronRoundModel extends BaseModel {
      * 修正时间范围内的局表
      */
     async fixRound(inparam) {
-        let time1 = Date.now()
+        console.time('所有局表修正用时')
         const statRoundModel = new StatRoundModel()
         const heraGameRecordModel = new HeraGameRecordModel()
-        // 1，需要修正的时间范围
+        // 1，查询时间范围内所有下注数据
         let beginTime = inparam.start                           // 入参起始时间
         let endTime = inparam.end                               // 入参结束时间
-        let self = this                                         // 自身对象
         console.log(`查询时间范围：${beginTime}-${endTime}，${moment(beginTime).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}至${moment(endTime).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}`)
-        let time2 = Date.now()
-        // 2，查询时间范围内所有下注数据
-        const billRet = await self.queryType({ type: 3, beginTime, endTime, isFix: inparam.isFix })
-        let userAnotherGameData = await self.getSAAnotherGamedata(billRet)
-        // 3，按照bk分组，遍历分组结果，根据回合时间查询其返回，组装每一局，最后并发执行
-        let promiseArr = await self.getRoundAll(_.uniqBy(billRet.Items, 'businessKey'), userAnotherGameData)
+        const billRet = await this.queryType({ type: 3, beginTime, endTime, isFix: inparam.isFix })
+        console.log(`【${beginTime}-${endTime}】下注总条数：${billRet.Items.length}`)
+        let userAnotherGameData = await this.getSAAnotherGamedata(billRet)
+        // 2，按照bk分组，遍历分组结果，根据回合时间查询其返回，组装每一局，最后并发执行
+        let promiseArr = await this.getRoundAll(_.uniqBy(billRet.Items, 'businessKey'), userAnotherGameData)
         let roundAll = await Promise.all(promiseArr)
-        console.log(`并发所有查询组装耗时：${Date.now() - time2}`)
-        // 4，组装，批量写入局表和战绩表
+        // 3，组装，批量写入局表和战绩表
         let p1Arr = statRoundModel.batchWriteRound(roundAll)
         let p2Arr = heraGameRecordModel.batchWriteRound(roundAll)
         await Promise.all(p1Arr.concat(p2Arr))
-        console.log(`完成所有局表修复耗时：${Date.now() - time1}`)
+        console.timeEnd('所有局表修正用时')
     }
 
     // 内部方法0：查询一段时间的type的数据
-    async queryType(inparam) {
+    queryType(inparam) {
         let query = {
             IndexName: 'TypeIndex',
             KeyConditionExpression: '#type = :type AND createdAt between :createdAt0  and :createdAt1',
@@ -71,9 +68,7 @@ module.exports = class CronRoundModel extends BaseModel {
             query.ExpressionAttributeValues[':longTimeGameType2'] = 1110000 // SA捕鱼游戏排除
             query.ExpressionAttributeValues[':longTimeGameType3'] = 1130000 // YSB体育游戏排除
         }
-        const ret = await this.query(query)
-        console.log(`【${inparam.beginTime}-${inparam.endTime}】下注总条数：${ret.Items.length}`)
-        return ret
+        return this.query(query)
     }
 
     // 内部方法1：组装局列表

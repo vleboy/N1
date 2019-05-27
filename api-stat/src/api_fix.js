@@ -37,8 +37,8 @@ router.post('/stat/fixRound', async (ctx, next) => {
  * @param {*} updateDay 起始修正日志
  */
 router.post('/stat/fixRoundDay', async (ctx, next) => {
+    console.time('所有局天表修正用时')
     const inparam = ctx.request.body
-    let time1 = Date.now()
     let updateDay = +inparam.updateDay || 20180205
     // 更新配置
     await new ConfigModel().updateItem({
@@ -61,7 +61,7 @@ router.post('/stat/fixRoundDay', async (ctx, next) => {
             break
         }
     }
-    console.log(`完成所有局天表修复耗时：${Date.now() - time1}`)
+    console.timeEnd('所有局天表修正用时')
     // 返回结果
     ctx.body = { code: 0, msg: 'Y', payload: updateDay }
 })

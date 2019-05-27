@@ -34,21 +34,6 @@ const CronRoundModel = require('./model/CronRoundModel')
 //     console.timeEnd(`局表统计耗时`)
 // })
 
-
-// 定时汇总局天表(凌晨两点统计一次)
-cron.schedule('0 0 18 * * *', async () => {
-    console.time(`局天表汇总耗时`)
-    // 非重置情况下，如果今天是周一，则去更新一周的数据
-    if (moment().utcOffset(8).weekday() == 1) {
-        mondayProcess()
-    }
-    // 非重置情况下，如果今天非周一，则去更新至今的数据
-    if (moment().utcOffset(8).weekday() != 1) {
-        roundDayProcess()
-    }
-    console.timeEnd(`局天表汇总耗时`)
-})
-
 // 定时检查日志和修正数据（每5分钟检查一次）
 cron.schedule('0 */5 * * * *', async () => {
     try {
@@ -159,6 +144,18 @@ cron.schedule('0 */5 * * * *', async () => {
     }
 })
 
+
+// 定时汇总局天表(凌晨两点统计一次)
+cron.schedule('0 0 18 * * *', async () => {
+    // 非重置情况下，如果今天是周一，则去更新一周的数据
+    if (moment().utcOffset(8).weekday() == 1) {
+        mondayProcess()
+    }
+    // 非重置情况下，如果今天非周一，则去更新至今的数据
+    else {
+        roundDayProcess()
+    }
+})
 
 // 周一特殊处理
 function mondayProcess(inparam = {}) {
