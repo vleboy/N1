@@ -192,7 +192,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 // 如果使用自定义SN，需要检查是否重复
                 let playerBillSn = uuid()
                 if (inparam.sn) {
-                    if (!_.startsWith(`${inparam.buId}_${inparam.userName}_`)) {
+                    if (!_.startsWith(inparam.sn, `${inparam.buId}_${inparam.userName}_`)) {
                         return ResFail(cb, { msg: '流水号SN格式不正确' }, 10014)
                     }
                     let snRes = await new PlayerBillDetailModel().getBill(inparam.sn)
