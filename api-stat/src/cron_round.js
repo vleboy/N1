@@ -50,7 +50,7 @@ cron.schedule('0 8 10 * * *', async () => {
 })
 
 // 定时检查日志和修正数据（每5分钟检查一次）
-cron.schedule('0 */5 * * * *', async () => {
+cron.schedule('0 */1 * * * *', async () => {
     try {
         console.time(`定时检查和修正日志及数据耗时`)
         let fixArr = []
