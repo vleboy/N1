@@ -72,6 +72,13 @@ functions:
           path: /game/player/record/page
           method: post
           cors: true
+  # managerGameRecordPage: #线路商获取玩家游戏记录
+  #   handler: api_merchant.managerGameRecordPage
+  #   events:
+  #     - http:
+  #         path: /game/manager/record/page
+  #         method: post
+  #         cors: true
   merchantPlayer: #商户对玩家操作（商户唯一操作接口）
     handler: api_merchant.merchantPlayer
     events:
@@ -105,20 +112,20 @@ functions:
           method: post
           cors: true
   ##即将废弃接口
-  gameReportByMerchant: #提供查询商户的NA报表
-    handler: api_merchant.gameReportByMerchant
-    events:
-      - http:
-          path: /game/report/merchant
-          method: post
-          cors: true
-  gameReportByPlayer: #提供查询玩家的NA报表
-    handler: api_merchant.gameReportByPlayer
-    events:
-      - http:
-          path: /game/report/player
-          method: post
-          cors: true
+  # gameReportByMerchant: #提供查询商户的NA报表
+  #   handler: api_merchant.gameReportByMerchant
+  #   events:
+  #     - http:
+  #         path: /game/report/merchant
+  #         method: post
+  #         cors: true
+  # gameReportByPlayer: #提供查询玩家的NA报表
+  #   handler: api_merchant.gameReportByPlayer
+  #   events:
+  #     - http:
+  #         path: /game/report/player
+  #         method: post
+  #         cors: true
   # ##APP
   # validateToken: #检查玩家token是否正确，用于充值页面打开免帐号登录
   #   handler: api_merchant.validateToken

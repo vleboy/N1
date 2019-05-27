@@ -196,7 +196,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                     if (snRes && snRes.Item && !_.isEmpty(snRes.Item)) {
                         return ResFail(cb, { msg: '流水号SN已存在' }, 10014)
                     } else {
-                        playerBillSn = inparam.sn
+                        playerBillSn = `${inparam.buId}${inparam.sn}`
                     }
                 }
                 //更新玩家余额，并推送大厅
