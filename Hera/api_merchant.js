@@ -162,7 +162,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 //玩家操作的金额小数点两位处理
                 inparam.amount = NP.round(inparam.amount, 2)
                 userName = `${userInfo.suffix}_${inparam.userName}`
-                //5,获取玩家信息，并验证
+                //获取玩家信息，并验证
                 const playerModel = new PlayerModel()
                 let playerInfo = await playerModel.getPlayer(userName)
                 if (playerInfo.state == '0') {
@@ -171,7 +171,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 if (playerInfo.gameState != GameStateEnum.OffLine) {
                     await playerModel.updateOffline(userName)
                 }
-                //6,根据不同的操作类型（充值或提现）有不同的处理
+                //根据不同的操作类型（充值或提现）有不同的处理
                 let usage = inparam.action == -1 ? 'billout' : 'billin' // 提现需要检查余额绝对正确
                 let palyerBalance = await playerModel.getNewBalance({ userName: playerInfo.userName, userId: playerInfo.userId, balance: playerInfo.balance, usage })
                 if (palyerBalance == 'err') {
@@ -189,14 +189,24 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                         return ResFail(cb, { msg: '玩家提现金额大于账户余额' }, 10009)
                     }
                 }
-                //7,更新玩家余额，并推送大厅
+                // 如果使用自定义SN，需要检查是否重复
+                let playerBillSn = uuid()
+                if (inparam.sn) {
+                    let snRes = await new PlayerBillDetailModel().getBill(inparam.sn)
+                    if (snRes && snRes.Item && !_.isEmpty(snRes.Item)) {
+                        return ResFail(cb, { msg: '流水号SN已存在' }, 10014)
+                    } else {
+                        playerBillSn = inparam.sn
+                    }
+                }
+                //更新玩家余额，并推送大厅
                 let updateBalance = {
                     userName: playerInfo.userName,
                     userId: playerInfo.userId,
                     amt: action == 1 ? Math.abs(+inparam.amount) : Math.abs(+inparam.amount) * -1
                 }
                 let currentBalanceObj = await playerModel.updatePlayerBalance(updateBalance)
-                //8,写入用户流水表
+                //写入用户流水表
                 let userBill = {
                     sn: uuid(),
                     fromRole: action == 1 ? '100' : '10000',  //如果是充值则
@@ -218,7 +228,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 }
                 //9,写入玩家流水表
                 let playerBill = {
-                    sn: uuid(),
+                    sn: playerBillSn,
                     action: action,
                     type: 11,  //中心钱包
                     gameType: 1,
@@ -230,7 +240,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                     balance: currentBalanceObj.balance
                 }
                 await new MerchantBillModel().playerBillTransfer(userBill, playerBill)
-                return ResOK(cb, { msg: 'success', data: { balance: currentBalanceObj.balance, sn: playerBill.sn } }, 0)
+                return ResOK(cb, { msg: 'success', data: { balance: currentBalanceObj.balance } }, 0)
             case 'OPERATE_PLAYER_FORZEN'://冻结|解冻玩家
                 if (typeof inparam.names != 'object' || inparam.names.length == 0) {
                     return ResFail(cb, { msg: '参数names不合法' }, 500)
@@ -250,7 +260,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 }
                 let isExist = false
                 let snRes = await new PlayerBillDetailModel().getBill(inparam.sn)
-                if (snRes) {
+                if (snRes && snRes.Item && !_.isEmpty(snRes.Item)) {
                     isExist = true
                 }
                 return ResOK(cb, { msg: 'success', isExist }, 0)
