@@ -192,11 +192,14 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 // 如果使用自定义SN，需要检查是否重复
                 let playerBillSn = uuid()
                 if (inparam.sn) {
-                    let snRes = await new PlayerBillDetailModel().getBill(`${inparam.buId}${inparam.sn}`)
+                    if (!_.startsWith(`${inparam.buId}_${inparam.userName}_`)) {
+                        return ResFail(cb, { msg: '流水号SN格式不正确' }, 10014)
+                    }
+                    let snRes = await new PlayerBillDetailModel().getBill(inparam.sn)
                     if (snRes && snRes.Item && !_.isEmpty(snRes.Item)) {
-                        return ResFail(cb, { msg: '流水号SN已存在' }, 10014)
+                        return ResFail(cb, { msg: '流水号SN已存在' }, 10015)
                     } else {
-                        playerBillSn = `${inparam.buId}${inparam.sn}`
+                        playerBillSn = inparam.sn
                     }
                 }
                 //更新玩家余额，并推送大厅
