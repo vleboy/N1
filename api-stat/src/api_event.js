@@ -12,12 +12,12 @@ const UserModel = require('./model/UserModel')
 /**
  * 触发统计金额map
  */
-// router.post('/stat/cronAmountMap', async function (ctx, next) {
-//     const inparam = ctx.request.body
-//     // 业务操作
-//     new Promise((resolve, reject) => { new UserModel().calcAllAmount() })
-//     ctx.body = { code: 0, msg: 'Y' }
-// })
+router.post('/stat/cronAmountMap', async function (ctx, next) {
+    const inparam = ctx.request.body
+    // 业务操作
+    new Promise((resolve, reject) => { new UserModel().calcAllAmount() })
+    ctx.body = { code: 0, msg: 'Y' }
+})
 
 /**
  * 触发免转钱包金额map

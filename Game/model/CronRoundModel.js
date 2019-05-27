@@ -54,7 +54,7 @@ module.exports = class CronRoundModel extends BaseModel {
         await new ConfigModel().putItem(queryRet)
         console.log(`更新配置成功`)
         // 请求执行金额Map统计
-        // this.axiosCron({ methodName: 'cronAmountMap' })
+        this.axiosCron({ methodName: 'cronAmountMap' })
         // 6，请求执行接入方金额Map统计
         this.axiosCron({ methodName: 'cronTransferMap' })
     }
