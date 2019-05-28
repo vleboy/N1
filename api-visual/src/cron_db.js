@@ -154,13 +154,15 @@ cron.schedule('*/30 * * * * *', async () => {
         let roundArr = []
         for (let bk of bkArr) {
             let billArr = await nodebatis.query('bill.queryByBk', { bk })
-            roundArr.push({
-                businessKey: billArr[0].businessKey,
-                parent: billArr[0].parent,
-                company: billArr[0].company,
-                winloseAmount: +(_.sumBy(billArr, 'amount').toFixed(2)),
-                createdAt: billArr[0].createdAt
-            })
+            if (_.countBy(billArr, o => o.type == 3) > 0) {
+                roundArr.push({
+                    businessKey: billArr[0].businessKey,
+                    parent: billArr[0].parent,
+                    company: billArr[0].company,
+                    winloseAmount: +(_.sumBy(billArr, 'amount').toFixed(2)),
+                    createdAt: billArr[0].createdAt
+                })
+            }
         }
         let chunkArr = _.chunk(roundArr, 200)
         for (let data of chunkArr) {
