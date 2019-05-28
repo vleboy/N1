@@ -204,7 +204,7 @@ function axiosCron(inparam) {
     let tokenAdmin = jwt.sign({
         role: RoleCodeEnum.PlatformAdmin,
         exp: Math.floor(Date.now() / 1000) + 86400
-    }, process.env.TOKEN_SECRET)
+    }, config.na.TOKEN_SECRET)
     axios.post(cronUrl, {}, {
         headers: { 'Authorization': `Bearer ${tokenAdmin}` }
     }).then(res => {
