@@ -103,7 +103,8 @@ CREATE TABLE `config` (
   `createdAt` bigint(20) NOT NULL,
   `flag` tinyint(4) NOT NULL,
   `rangeHour` smallint(6) NOT NULL,
-  `playerCreatedAt` bigint(20) NOT NULL
+  `playerCreatedAt` bigint(20) NOT NULL,
+  `lastMapTime` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `config` (`type`, `createdAt`, `flag`, `rangeHour`, `playerCreatedAt`) VALUES
