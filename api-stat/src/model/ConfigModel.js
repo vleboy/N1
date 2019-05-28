@@ -19,12 +19,8 @@ class ConfigModel extends BaseModel {
     async queryLastTime(inparam) {
         const ret = await this.query({
             KeyConditionExpression: '#code = :code',
-            ExpressionAttributeNames: {
-                '#code': 'code'
-            },
-            ExpressionAttributeValues: {
-                ':code': inparam.code
-            }
+            ExpressionAttributeNames: { '#code': 'code' },
+            ExpressionAttributeValues: { ':code': inparam.code }
         })
         return ret.Items[0]
     }

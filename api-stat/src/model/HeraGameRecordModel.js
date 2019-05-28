@@ -51,8 +51,7 @@ class HeraGameRecordModel extends BaseModel {
                         parentId: item.parent,
                         record: {
                             content: item.content,
-                            anotherGameData: item.anotherGameData,
-                            // gameDetail: JSON.stringify(initObj)
+                            anotherGameData: item.anotherGameData
                         }
                     }
                     batch.RequestItems[Tables.HeraGameRecord].push({

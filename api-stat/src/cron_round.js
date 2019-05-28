@@ -15,24 +15,24 @@ const ConfigModel = require('./model/ConfigModel')
 const CronRoundModel = require('./model/CronRoundModel')
 
 // 定时汇总局表(每3分钟统计一次)
-// cron.schedule('* */3 * * * *', async () => {
-//     console.time(`局表统计耗时`)
-//     let inparam = {}
-//     const queryRet = await new ConfigModel().queryLastTime({ code: 'roundLast' })
-//     let maxRoundTime = queryRet.maxRoundTime ? queryRet.maxRoundTime : 120000       // 获取游戏回合最大时间，默认2分钟
-//     inparam.start = queryRet.lastTime ? queryRet.lastTime + 1 : 0                   // 开始统计时间，加1毫秒保证不重复统计
-//     inparam.end = Date.now() - maxRoundTime
-//     inparam.isFix=false
-//     await new CronRoundModel().fixRound(inparam)
-//     // 查询和写入KY游戏记录
-//     await new HeraGameRecordModel().getKYRecord(inparam.start, inparam.end)
-//     // 成功后配置文件记录当前时间
-//     queryRet.lastTime = inparam.end
-//     await new ConfigModel().putItem(queryRet)
-//     // 这里需要触发金额map统计？？？？
-//     //
-//     console.timeEnd(`局表统计耗时`)
-// })
+cron.schedule('0 */3 * * * *', async () => {
+    console.time(`局表统计用时`)
+    let inparam = {}
+    // 从配置文件中获取最后一条记录时间
+    const queryRet = await new ConfigModel().queryLastTime({ code: 'roundLast' })
+    let maxRoundTime = queryRet.maxRoundTime || 120000              // 获取游戏回合最大时间，默认2分钟
+    inparam.start = queryRet.lastTime ? queryRet.lastTime + 1 : 0   // 开始统计时间，加1毫秒保证不重复统计
+    inparam.end = Date.now() - maxRoundTime                         // 结束统计时间，减去需要延迟的回合最大时间
+    inparam.isFix = false                                           // 非修正
+    await new CronRoundModel().fixRound(inparam)
+    // 查询和写入KY游戏记录
+    await new HeraGameRecordModel().getKYRecord(inparam.start, inparam.end)
+    // 更新配置时间
+    queryRet.lastTime = inparam.end
+    await new ConfigModel().putItem(queryRet)
+    // 触发金额map统计
+    console.timeEnd(`局表统计用时`)
+})
 
 // 定时检查日志和修正数据（每5分钟检查一次）
 cron.schedule('0 */5 * * * *', async () => {
@@ -145,7 +145,7 @@ cron.schedule('0 */5 * * * *', async () => {
 })
 
 
-// 定时汇总局天表(凌晨两点统计一次)
+// 定时汇总局天表(每天凌晨2点统计一次)
 cron.schedule('0 0 18 * * *', async () => {
     // 非重置情况下，如果今天是周一，则去更新一周的数据
     if (moment().utcOffset(8).weekday() == 1) {

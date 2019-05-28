@@ -24,7 +24,6 @@ module.exports = class CronRoundModel extends BaseModel {
      * 修正时间范围内的局表
      */
     async fixRound(inparam) {
-        console.time('所有局表修正用时')
         const statRoundModel = new StatRoundModel()
         const heraGameRecordModel = new HeraGameRecordModel()
         // 1，查询时间范围内所有下注数据
@@ -32,16 +31,15 @@ module.exports = class CronRoundModel extends BaseModel {
         let endTime = inparam.end                               // 入参结束时间
         console.log(`查询时间范围：${beginTime}-${endTime}，${moment(beginTime).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}至${moment(endTime).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}`)
         const billRet = await this.queryType({ type: 3, beginTime, endTime, isFix: inparam.isFix })
-        console.log(`【${beginTime}-${endTime}】下注总条数：${billRet.Items.length}`)
+        console.log(`查询时间范围：${beginTime}-${endTime}，下注条目：${billRet.Items.length}`)
         let userAnotherGameData = await this.getSAAnotherGamedata(billRet)
         // 2，按照bk分组，遍历分组结果，根据回合时间查询其返回，组装每一局，最后并发执行
-        let promiseArr = await this.getRoundAll(_.uniqBy(billRet.Items, 'businessKey'), userAnotherGameData)
+        let promiseArr = this.getRoundAll(_.uniqBy(billRet.Items, 'businessKey'), userAnotherGameData)
         let roundAll = await Promise.all(promiseArr)
         // 3，组装，批量写入局表和战绩表
         let p1Arr = statRoundModel.batchWriteRound(roundAll)
         let p2Arr = heraGameRecordModel.batchWriteRound(roundAll)
         await Promise.all(p1Arr.concat(p2Arr))
-        console.timeEnd('所有局表修正用时')
     }
 
     // 内部方法0：查询一段时间的type的数据
@@ -50,10 +48,7 @@ module.exports = class CronRoundModel extends BaseModel {
             IndexName: 'TypeIndex',
             KeyConditionExpression: '#type = :type AND createdAt between :createdAt0  and :createdAt1',
             ProjectionExpression: 'gameType,userId,businessKey,createdAt',
-            // ProjectionExpression: 'amount,businessKey,#type,parent,userName,createdAt,userId,gameType,gameId,roundId,originalAmount,sn,balance,anotherGameData',
-            ExpressionAttributeNames: {
-                '#type': 'type'
-            },
+            ExpressionAttributeNames: { '#type': 'type' },
             ExpressionAttributeValues: {
                 ':type': inparam.type,
                 ':createdAt0': inparam.beginTime,
@@ -62,22 +57,19 @@ module.exports = class CronRoundModel extends BaseModel {
         }
         // 非修正情况下排除【触发成局】的游戏
         if (!inparam.isFix) {
-            query.FilterExpression = 'gameType <> :longTimeGameType1 AND gameType <> :longTimeGameType2 AND gameType <> :longTimeGameType3'
-            // query.ExpressionAttributeValues[':longTimeGameType1'] = 1100000 // UG体育游戏排除
-            query.ExpressionAttributeValues[':longTimeGameType1'] = 60000   // NA捕鱼游戏排除
-            query.ExpressionAttributeValues[':longTimeGameType2'] = 1110000 // SA捕鱼游戏排除
-            query.ExpressionAttributeValues[':longTimeGameType3'] = 1130000 // YSB体育游戏排除
+            query.FilterExpression = 'gameType <> :longTimeGameType1 AND gameType <> :longTimeGameType2'
+            query.ExpressionAttributeValues[':longTimeGameType1'] = 1110000 // SA捕鱼游戏排除
+            query.ExpressionAttributeValues[':longTimeGameType2'] = 1130000 // YSB体育游戏排除
         }
         return this.query(query)
     }
 
     // 内部方法1：组装局列表
-    async getRoundAll(bkObjArr, userAnotherGameData) {
-        let self = this
+    getRoundAll(bkObjArr, userAnotherGameData) {
         let promiseArr = []                                 // 所有需要执行的Promise
         for (let bkObj of bkObjArr) {
             let bk = bkObj.businessKey
-            let p = new Promise(async function (resolve, reject) {
+            let p = new Promise(async (resolve, reject) => {
                 let betArr = []                             //下注流水数组
                 let retArr = []                             //返回流水数组
                 let betCount = 0                            //下注次数
@@ -89,15 +81,15 @@ module.exports = class CronRoundModel extends BaseModel {
                 let winloseAmount = 0                       //纯利润
                 let anotherGameData = { bet: [], ret: [] }  //第三方游戏数据
                 // 查询相同BK的所有流水
-                const bkRet = await self.queryBk({ bk })
+                const bkRet = await this.queryBk({ bk })
                 // 获取单局最早的下注时间
-                let firstBetItem = _.minBy(bkRet, 'createdAt')
+                let firstBetItem = _.minBy(bkRet.Items, 'createdAt')
                 let betTimeStart = firstBetItem.createdAt
                 let originalAmount = firstBetItem.originalAmount
                 let createdStr = moment(betTimeStart).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')
                 let createdDate = parseInt(moment(betTimeStart).utcOffset(8).format('YYYYMMDD'))
                 // 统计相同BK的各种金额
-                for (let billItem of bkRet) {
+                for (let billItem of bkRet.Items) {
                     // 下注
                     if (billItem.type == 3) {
                         betAmount = NP.plus(betAmount, billItem.amount)
@@ -126,9 +118,9 @@ module.exports = class CronRoundModel extends BaseModel {
                 retAmount = NP.plus(winAmount, refundAmount)
                 winloseAmount = NP.plus(betAmount, retAmount)
                 mixAmount = Math.min(Math.abs(betAmount), Math.abs(winloseAmount))
-                // 第三方游戏详细数据获取，每条下注都需要请求获取（NA真人游戏处理,YSB体育游戏处理）
-                if (firstBetItem.gameType == 30000 || firstBetItem.gameType == 1130000) {
-                    anotherGameData = await self.getAnotherGamedata(firstBetItem)
+                // 第三方游戏详细数据获取，每条下注都需要请求获取（YSB体育游戏处理）
+                if (firstBetItem.gameType == 1130000) {
+                    anotherGameData = firstBetItem.anotherGameData
                     mixAmount = firstBetItem.gameType != 1130000 && anotherGameData ? anotherGameData.mixAmount : mixAmount
                 }
                 // SA真人游戏
@@ -169,53 +161,17 @@ module.exports = class CronRoundModel extends BaseModel {
     }
 
     // 内部方法2：查询bk对应的type的数据
-    async queryBk(inparam) {
-        const ret = await this.query({
+    queryBk(inparam) {
+        return this.query({
             IndexName: 'BusinessKeyIndex',
             KeyConditionExpression: 'businessKey=:businessKey',
             ProjectionExpression: 'amount,businessKey,#type,parent,userName,createdAt,userId,gameType,gameId,roundId,originalAmount,sn,balance,anotherGameData',
-            ExpressionAttributeNames: {
-                '#type': 'type'
-            },
-            ExpressionAttributeValues: {
-                ':businessKey': inparam.bk
-            }
+            ExpressionAttributeNames: { '#type': 'type' },
+            ExpressionAttributeValues: { ':businessKey': inparam.bk }
         })
-        return ret.Items
     }
 
-    // 内部方法3：获取第三方游戏数据
-    async getAnotherGamedata(betItem) {
-        try {
-            // YSB体育游戏
-            if (betItem.gameType == 1130000) {
-                return betItem.anotherGameData
-            }
-            // NA真人
-            if (betItem.gameType == 30000) {
-                let gameRecordRes = await new HeraGameRecordModel().queryOnce({
-                    KeyConditionExpression: 'userName=:userName AND betId=:betId',
-                    ExpressionAttributeValues: {
-                        ':userName': betItem.userName,
-                        ':betId': betItem.businessKey
-                    }
-                })
-                if (gameRecordRes && gameRecordRes.Items && gameRecordRes.Items.length > 0 && gameRecordRes.Items[0].record) {
-                    let gameRecord = gameRecordRes.Items[0].record
-                    return { mixAmount: +gameRecord.validAmount, data: JSON.stringify(gameRecord) }
-                } else {
-                    new LogModel().add('4', 'anotherGameDataError', betItem, null)
-                    return null
-                }
-            }
-        } catch (error) {
-            console.error('第三方游戏数据获取发生服务响应异常')
-            console.error(error)
-            new LogModel().add('4', 'anotherGameDataError', betItem, error)
-        }
-    }
-
-    // 内部方法4：获取SA游戏数据
+    // 内部方法3：获取SA游戏数据
     async getSAAnotherGamedata(billRet) {
         try {
             let userAnotherGameData = {}
@@ -265,10 +221,10 @@ module.exports = class CronRoundModel extends BaseModel {
         }
     }
 
-    // 内部方法5：随机等待再查询
-    waitASecond() {
-        return new Promise((reslove, reject) => {
-            setTimeout(function () { reslove('Y') }, _.random(100, 10000))
-        })
-    }
+    // 内部方法4：随机等待再查询
+    // waitASecond() {
+    //     return new Promise((reslove, reject) => {
+    //         setTimeout(function () { reslove('Y') }, _.random(100, 10000))
+    //     })
+    // }
 }
