@@ -117,8 +117,6 @@ CREATE TABLE `round` (
   `businessKey` varchar(128) NOT NULL,
   `parent` varchar(36) NOT NULL,
   `company` varchar(10) NOT NULL,
-  `gameType` int(11) NOT NULL,
-  `gameId` int(11) NOT NULL,
   `winloseAmount` double NOT NULL,
   `createdAt` bigint(20) NOT NULL,
   PRIMARY KEY (`businessKey`),
