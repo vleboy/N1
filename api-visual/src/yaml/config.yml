@@ -3,7 +3,7 @@ namespace: 'config'
 attrs:  type,createdAt,flag,rangeHour
 
 findOne:
-    - select createdAt,flag,rangeHour,playerCreatedAt from config where type = :type
+    - select createdAt,flag,rangeHour,playerCreatedAt,lastMapTime from config where type = :type
 
 updateFlag:
     - update config set flag = :flag where type = :type
@@ -13,3 +13,6 @@ updateOne:
 
 updatePlayerCreatedAt:
     - update config set playerCreatedAt=:playerCreatedAt where type=:type
+
+updateLastMap:
+    - update config set lastMapTime=:lastMapTime where type=:type

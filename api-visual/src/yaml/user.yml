@@ -1,10 +1,14 @@
 namespace: 'user'
 
-attrs: role,userId,displayId,displayName,username,sn,suffix,uname,level,levelIndex,msn,parent,parentName,parentDisplayName,parentSuffix,parentRole,createdAt
+attrs: role,userId,displayId,displayName,username,sn,suffix,uname,level,levelIndex,msn,parent,parentName,parentDisplayName,parentSuffix,parentRole,createdAt,companyList
     
 batchInsert:
     - replace into user({{ user.attrs }}) values
     - for:
         array: data
-        sql: (:role,:userId,:displayId,:displayName,:username,:sn,:suffix,:uname,:level,:levelIndex,:msn,:parent,:parentName,:parentDisplayName,:parentSuffix,:parentRole,:createdAt)
+        sql: (:role,:userId,:displayId,:displayName,:username,:sn,:suffix,:uname,:level,:levelIndex,:msn,:parent,:parentName,:parentDisplayName,:parentSuffix,:parentRole,:createdAt,:companyList)
         seperator: ','
+
+#查询时间段所有商户对应的流水
+queryAllMerchantBill:
+    - select * from bill where parent in (:userIds) AND createdAt > :startTime order by createdAt

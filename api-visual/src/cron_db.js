@@ -4,7 +4,9 @@ const _ = require('lodash')
 const IP2Region = require('ip2region')
 const ipquery = new IP2Region()
 const axios = require('axios')
+const NP = require('number-precision')
 const nodebatis = global.nodebatis
+const GameTypeEnum = require('./lib/Enum')
 const AWS = require('aws-sdk')
 AWS.config.update({ region: 'ap-southeast-1' })
 const dbClient = new AWS.DynamoDB.DocumentClient()
@@ -220,3 +222,69 @@ cron.schedule('0 0 1 * * *', async () => {
     await nodebatis.execute('config.updatePlayerCreatedAt', { type: 'queryTime', playerCreatedAt: endTime + 1 })
 })
 
+// 风控定时服务
+cron.schedule('0 */3 * * * *', async () => {
+    console.time('风控统计')
+    // 获取所有商户和线路商
+    let usreRes = await queryInc('scan', {
+        TableName: 'ZeusPlatformUser',
+        ProjectionExpression: '#role,userId,#level,levelIndex,gameList,companyList',
+        ExpressionAttributeNames: { '#role': 'role', '#level': 'level' },
+        FilterExpression: `#role = :role10 OR #role = :role100`,
+        ExpressionAttributeValues: {
+            ':role10': '10',
+            ':role100': '100'
+        }
+    })
+    // 查询配置文件获取查询时间
+    let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
+    let startTime = configArr[0].lastMapTime || new Date('2019-1-1').getTime()
+    // 查询商户的流水
+    let allParentBill = await nodebatis.query('user.queryAllMerchantBill', { startTime, userIds: usreRes.Items.map((o) => { if (o.role == '100') return o.userId }).join(',') })
+    if (allParentBill && allParentBill.length > 0) {
+        let parentGroupBy = _.groupBy(allParentBill, 'parent')
+        for (let parentId in parentGroupBy) {
+            //查询商户信息
+            let userInfo = _.find(usreRes.Items, o => o.userId == parentId)
+            //处理数据
+            let gameTypeGroup = _.groupBy(parentGroupBy[parentId], 'gameType')
+            let gameTypeArr = []
+            for (let gameType in gameTypeGroup) {
+                gameTypeArr.push({ gameType, company: GameTypeEnum[gameType].company, amount: +(_.sumBy(gameTypeGroup[gameType], (o) => { return o.amount })).toFixed(2) })
+            }
+            //根据gameList 生成新的companyList
+            let companyMap = _.groupBy(userInfo.gameList, 'company')
+            for (let company in companyMap) {
+                if (!_.find(userInfo.companyList, o => o.company == company)) {
+                    userInfo.companyList.push({ company, topAmount: 0, winloseAmount: 0, status: 1 })
+                }
+            }
+            //累加相同company的输赢金额
+            for (let compayItem of userInfo.companyList) {
+                for (let gameTypeItme of gameTypeArr) {
+                    if (gameTypeItme.company == compayItem.company) {
+                        compayItem.winloseAmount = NP.plus(compayItem.winloseAmount, gameTypeItme.amount)       //更新金额map
+                        if (compayItem.winloseAmount * -1 >= topAmount) {                                       //校验map是否超过预设值
+                            compayItem.status = 0
+                        }
+                    }
+                }
+            }
+            //更新商户map
+            await dbClient['update']({
+                TableName: 'ZeusPlatformUser',
+                Key: { role: userInfo.role, userId: userInfo.userId },
+                UpdateExpression: 'SET companyList=:companyList',
+                ExpressionAttributeValues: { ':companyList': userInfo.companyList }
+            }).promise()
+
+        }
+        //处理线路商
+
+
+        //更新配置文件
+        await nodebatis.execute('config.updateLastMap', { type: 'queryTime', lastMapTime: allParentBill[allParentBill.length - 1].createdAt })
+    }
+
+    console.timeEnd('风控统计')
+})
