@@ -249,13 +249,13 @@ cron.schedule('0 */3 * * * *', async () => {
         //逐个商户更新
         for (let userInfo in usreRes.Items) {
             //根据gameList 生成新的companyList
-            if (startTime == 1546272000000) {
-                userInfo.companyList = []
-            }
             let companyMap = _.groupBy(userInfo.gameList, 'company')
             for (let company in companyMap) {
-                if (!_.find(userInfo.companyList, o => o.company == company)) {
+                let userCompany = _.find(userInfo.companyList, o => o.company == company)
+                if (!userCompany) {
                     userInfo.companyList.push({ company, topAmount: 0, winloseAmount: 0, status: 1 })
+                } else if (startTime == 1546272000000) {
+                    userCompany.winloseAmount = 0
                 }
             }
             //累加相同company的输赢金额
