@@ -26,17 +26,17 @@ module.exports = class CronRoundModel extends BaseModel {
     async fixRound(inparam) {
         const statRoundModel = new StatRoundModel()
         const heraGameRecordModel = new HeraGameRecordModel()
-        // 1，查询时间范围内所有下注数据
+        // 查询时间范围内所有下注数据
         let beginTime = inparam.start                           // 入参起始时间
         let endTime = inparam.end                               // 入参结束时间
         console.log(`查询时间范围：${beginTime}-${endTime}，${moment(beginTime).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}至${moment(endTime).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}`)
         const billRet = await this.queryType({ type: 3, beginTime, endTime, isFix: inparam.isFix })
         console.log(`查询时间范围：${beginTime}-${endTime}，下注条目：${billRet.Items.length}`)
+        // 额外获取SA游戏记录
         let userAnotherGameData = await this.getSAAnotherGamedata(billRet)
-        // 2，按照bk分组，遍历分组结果，根据回合时间查询其返回，组装每一局，最后并发执行
-        let promiseArr = this.getRoundAll(_.uniqBy(billRet.Items, 'businessKey'), userAnotherGameData)
-        let roundAll = await Promise.all(promiseArr)
-        // 3，组装，批量写入局表和战绩表
+        // 按照bk分组，遍历分组结果，根据回合时间查询其返回，组装每一局，最后并发执行
+        let roundAll = await Promise.all(this.getRoundAll(_.uniqBy(billRet.Items, 'businessKey'), userAnotherGameData))
+        // 批量写入局表和战绩表
         let p1Arr = statRoundModel.batchWriteRound(roundAll)
         let p2Arr = heraGameRecordModel.batchWriteRound(roundAll)
         await Promise.all(p1Arr.concat(p2Arr))
