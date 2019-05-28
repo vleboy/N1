@@ -225,7 +225,7 @@ cron.schedule('0 0 1 * * *', async () => {
 })
 
 // 风控定时服务
-cron.schedule('0 */3 * * * *', async () => {
+cron.schedule('0 */1 * * * *', async () => {
     console.time('风控统计')
     // 获取所有商户和线路商
     let usreRes = await queryInc('scan', {
