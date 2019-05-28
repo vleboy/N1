@@ -243,7 +243,7 @@ cron.schedule('0 */3 * * * *', async () => {
     let startTime = configArr[0].lastMapTime || new Date('2019-1-1').getTime()
     let endTime = Date.now() - 5 * 60 * 1000
     // 查询商户的流水
-    let allParentBill = await nodebatis.query('user.queryAmountMapBill', { startTime, userIds: usreRes.Items.map((o) => { if (o.role == '100') return o.userId }).join(',') })
+    let allParentBill = await nodebatis.query('user.queryAmountMapBill', { startTime, endTime, userIds: usreRes.Items.map((o) => { if (o.role == '100') return o.userId }).join(',') })
     // 存在新流水则处理
     if (allParentBill && allParentBill.length > 0) {
         //逐个商户更新
@@ -280,7 +280,7 @@ cron.schedule('0 */3 * * * *', async () => {
         }
         //处理线路商
         //更新配置文件
-        await nodebatis.execute('config.updateLastMap', { type: 'queryTime', lastMapTime: endTime })
+        await nodebatis.execute('config.updateLastMap', { type: 'queryTime', lastMapTime: endTime + 1 })
     }
     console.timeEnd('风控统计')
 })
