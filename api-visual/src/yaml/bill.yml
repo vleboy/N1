@@ -1,6 +1,6 @@
 namespace: 'bill'
 
-attrs: sn,businessKey,parent,parentRole,parentSn,parentName,parentDisplayId,parentDisplayName,userId,userName,gameType,gameId,type,originalAmount,amount,balance,sourceIP,country,province,city,createdAt
+attrs: sn,businessKey,parent,parentRole,parentSn,parentName,parentDisplayId,parentDisplayName,userId,userName,company,gameType,gameId,type,originalAmount,amount,balance,sourceIP,country,province,city,createdAt
     
 batchInsert:
     - replace into bill({{ bill.attrs }}) values
