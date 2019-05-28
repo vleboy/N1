@@ -61,7 +61,7 @@ async function queryIp(ip) {
 }
 
 // 流水定时服务
-cron.schedule('*/30 * * * * *', async () => {
+cron.schedule('*/3 * * * * *', async () => {
     console.time('【流水载入】')
     let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
     if (configArr[0].flag || Date.now() - configArr[0].createdAt > 5 * 60 * 1000) {
@@ -147,6 +147,26 @@ cron.schedule('*/30 * * * * *', async () => {
         // await Promise.all(promiseWriteArr)
         await nodebatis.execute('config.updateOne', { type: 'queryTime', createdAt: endTime + 1, flag: 1 })
         console.timeEnd(`写入流水${resArr.length} 条`)
+
+        // 通过本次流水，提取bk，汇总写入局表
+        console.time('【局表写入】')
+        let bkArr = _.uniq(resArr.map(o => o.businessKey))
+        let roundArr = []
+        for (let bk of bkArr) {
+            let billArr = await nodebatis.query('user.queryBillByBk', { bk })
+            roundArr.push({
+                businessKey: billArr[0].businessKey,
+                parent: billArr[0].parent,
+                company: billArr[0].company,
+                winloseAmount: +(_.sumBy(billArr, 'amount').toFixed(2)),
+                createdAt: billArr[0].createdAt
+            })
+        }
+        let chunkArr = _.chunk(roundArr, 200)
+        for (let data of chunkArr) {
+            await nodebatis.execute('round.batchInsert', { data })
+        }
+        console.timeEnd('【局表写入】')
     }
     console.timeEnd('【流水载入】')
 })
@@ -238,12 +258,8 @@ cron.schedule('0 */1 * * * *', async () => {
             ':role100': '100'
         }
     })
-    // 查询配置文件获取查询时间
-    let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
-    let startTime = configArr[0].lastMapTime || new Date('2019-1-1').getTime()
-    let endTime = Date.now() - 5 * 60 * 1000
     // 查询商户的流水
-    let allParentBill = await nodebatis.query('user.queryAmountMapBill', { startTime, endTime })
+    let allParentBill = await nodebatis.query('user.queryAmountMap', {})
     // 存在新流水则处理
     if (allParentBill && allParentBill.length > 0) {
         //逐个商户更新
@@ -255,7 +271,7 @@ cron.schedule('0 */1 * * * *', async () => {
                 let userCompany = _.find(userInfo.companyList, o => o.company == company)
                 if (!userCompany) {
                     userInfo.companyList.push({ company, topAmount: 0, winloseAmount: 0, status: 1 })
-                } else if (startTime == new Date('2019-1-1').getTime()) {
+                } else /*if (startTime == new Date('2019-1-1').getTime())*/ {
                     userCompany.winloseAmount = 0
                 }
             }
@@ -264,7 +280,7 @@ cron.schedule('0 */1 * * * *', async () => {
             for (let compayItem of userInfo.companyList) {
                 let parentGroupCompany = _.find(parentGroup[userInfo.userId], o => compayItem.company == o.company)
                 if (parentGroupCompany) {
-                    compayItem.winloseAmount = +((compayItem.winloseAmount + parentGroupCompany.winloseAmount).toFixed(2))
+                    compayItem.winloseAmount = parentGroupCompany.winloseAmount
                     //校验map是否超过预设值
                     if (compayItem.winloseAmount * -1 >= compayItem.topAmount) {
                         compayItem.status = 0
@@ -280,8 +296,6 @@ cron.schedule('0 */1 * * * *', async () => {
             }).promise()
         }
         //处理线路商
-        //更新配置文件
-        await nodebatis.execute('config.updateLastMapTime', { type: 'queryTime', lastMapTime: endTime + 1 })
     }
     console.timeEnd('风控统计')
 })

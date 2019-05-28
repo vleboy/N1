@@ -9,6 +9,6 @@ batchInsert:
         sql: (:role,:userId,:displayId,:displayName,:username,:sn,:suffix,:uname,:level,:levelIndex,:msn,:parent,:parentName,:parentDisplayName,:parentSuffix,:parentRole,:createdAt,:companyList)
         seperator: ','
 
-#查询时间段所有商户对应的流水
-queryAmountMapBill:
-    - select parent,company,ROUND(sum(amount),2) as winloseAmount from bill where createdAt between :startTime and :endTime group by parent,company
+#通过bk查询对应流水
+queryBillByBk:
+    - select businessKey,parent,company,amount,createdAt from bill where businessKey = :bk order by createdAt
