@@ -258,4 +258,4 @@ handleAmountPlayerRank: # 玩家排行榜-金额汇总
     
 #通过bk查询对应流水
 queryByBk:
-    - select businessKey,parent,company,amount,createdAt from bill where businessKey = :bk order by createdAt
+    - select businessKey,parent,company,amount,createdAt,type from bill where businessKey = :bk order by createdAt
