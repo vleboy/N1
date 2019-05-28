@@ -24,7 +24,7 @@ router.post('/deploy/n1web', async function (ctx, next) {
         await gitPull('/usr/dev/N1_WEB2')
         await deployWebAdmin()
         await deployWebMerchant()
-        deployWebManager()
+        await deployWebManager()
         deployWebAgent()
         // deployWebGame()
         ctx.body = 'Y'
@@ -203,8 +203,8 @@ function deployWebMerchant() {
 function deployWebManager() {
     return new Promise((reslove, reject) => {
         const commands = [
-            'cd /usr/dev/N1_WEB/n1-manager',
-            'npm run test-manager',
+            'cd /usr/dev/N1_WEB2/n1-manager',
+            'npm run test',
             'cd manager',
             '/usr/local/bin/aws s3 rm s3://dev-manager.na12345.com/*',
             '/usr/local/bin/aws s3 sync . s3://dev-manager.na12345.com --acl public-read --delete',
