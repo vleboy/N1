@@ -31,8 +31,8 @@ cron.schedule('0 */3 * * * *', async () => {
     queryRet.lastTime = inparam.end
     await new ConfigModel().putItem(queryRet)
     // 触发金额map统计
-    this.axiosCron({ methodName: 'cronAmountMap' })                 // 请求执行金额Map统计
-    this.axiosCron({ methodName: 'cronTransferMap' })               // 请求执行接入方金额Map统计
+    axiosCron({ methodName: 'cronAmountMap' })                 // 请求执行金额Map统计
+    axiosCron({ methodName: 'cronTransferMap' })               // 请求执行接入方金额Map统计
     console.timeEnd(`局表统计用时`)
 })
 
