@@ -255,7 +255,7 @@ cron.schedule('0 */1 * * * *', async () => {
                 let userCompany = _.find(userInfo.companyList, o => o.company == company)
                 if (!userCompany) {
                     userInfo.companyList.push({ company, topAmount: 0, winloseAmount: 0, status: 1 })
-                } else if (startTime == 1546272000000) {
+                } else if (startTime == new Date('2019-1-1').getTime()) {
                     userCompany.winloseAmount = 0
                 }
             }
