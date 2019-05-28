@@ -4,7 +4,7 @@ const _ = require('lodash')
 const IP2Region = require('ip2region')
 const ipquery = new IP2Region()
 const axios = require('axios')
-const NP = require('number-precision')
+// const NP = require('number-precision')
 const nodebatis = global.nodebatis
 const GameTypeEnum = require('./lib/Enum')
 const AWS = require('aws-sdk')
@@ -136,6 +136,8 @@ cron.schedule('*/30 * * * * *', async () => {
                         item.parentName = userMap[item.parent].username
                         item.parentDisplayId = userMap[item.parent].displayId || 0
                         item.parentDisplayName = userMap[item.parent].displayName
+                        // 补充comapny
+                        item.company = GameTypeEnum[item.gameType.toString()].company
                         return item
                     })
                 })
@@ -239,20 +241,17 @@ cron.schedule('0 */3 * * * *', async () => {
     // 查询配置文件获取查询时间
     let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
     let startTime = configArr[0].lastMapTime || new Date('2019-1-1').getTime()
+    let endTime = Date.now() - 5 * 60 * 1000
     // 查询商户的流水
-    let allParentBill = await nodebatis.query('user.queryAllMerchantBill', { startTime, userIds: usreRes.Items.map((o) => { if (o.role == '100') return o.userId }).join(',') })
+    let allParentBill = await nodebatis.query('user.queryAmountMapBill', { startTime, userIds: usreRes.Items.map((o) => { if (o.role == '100') return o.userId }).join(',') })
+    // 存在新流水则处理
     if (allParentBill && allParentBill.length > 0) {
-        let parentGroupBy = _.groupBy(allParentBill, 'parent')
-        for (let parentId in parentGroupBy) {
-            //查询商户信息
-            let userInfo = _.find(usreRes.Items, o => o.userId == parentId)
-            //处理数据
-            let gameTypeGroup = _.groupBy(parentGroupBy[parentId], 'gameType')
-            let gameTypeArr = []
-            for (let gameType in gameTypeGroup) {
-                gameTypeArr.push({ gameType, company: GameTypeEnum[gameType].company, amount: +(_.sumBy(gameTypeGroup[gameType], (o) => { return o.amount })).toFixed(2) })
-            }
+        //逐个商户更新
+        for (let userInfo in usreRes.Items) {
             //根据gameList 生成新的companyList
+            if (startTime == 1546272000000) {
+                userInfo.companyList = []
+            }
             let companyMap = _.groupBy(userInfo.gameList, 'company')
             for (let company in companyMap) {
                 if (!_.find(userInfo.companyList, o => o.company == company)) {
@@ -260,13 +259,14 @@ cron.schedule('0 */3 * * * *', async () => {
                 }
             }
             //累加相同company的输赢金额
+            let parentGroup = _.groupBy(allParentBill, 'parent')
             for (let compayItem of userInfo.companyList) {
-                for (let gameTypeItme of gameTypeArr) {
-                    if (gameTypeItme.company == compayItem.company) {
-                        compayItem.winloseAmount = NP.plus(compayItem.winloseAmount, gameTypeItme.amount)       //更新金额map
-                        if (compayItem.winloseAmount * -1 >= topAmount) {                                       //校验map是否超过预设值
-                            compayItem.status = 0
-                        }
+                let parentGroupCompany = _.find(parentGroup[userInfo.userId], o => compayItem.company == o.company)
+                if (parentGroupCompany) {
+                    compayItem.winloseAmount = +((compayItem.winloseAmount + parentGroupCompany.winloseAmount).toFixed(2))
+                    //校验map是否超过预设值
+                    if (compayItem.winloseAmount * -1 >= topAmount) {
+                        compayItem.status = 0
                     }
                 }
             }
@@ -277,14 +277,10 @@ cron.schedule('0 */3 * * * *', async () => {
                 UpdateExpression: 'SET companyList=:companyList',
                 ExpressionAttributeValues: { ':companyList': userInfo.companyList }
             }).promise()
-
         }
         //处理线路商
-
-
         //更新配置文件
-        await nodebatis.execute('config.updateLastMap', { type: 'queryTime', lastMapTime: allParentBill[allParentBill.length - 1].createdAt })
+        await nodebatis.execute('config.updateLastMap', { type: 'queryTime', lastMapTime: endTime })
     }
-
     console.timeEnd('风控统计')
 })

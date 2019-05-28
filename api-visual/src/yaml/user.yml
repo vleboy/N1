@@ -10,5 +10,5 @@ batchInsert:
         seperator: ','
 
 #查询时间段所有商户对应的流水
-queryAllMerchantBill:
-    - select * from bill where parent in (:userIds) AND createdAt > :startTime order by createdAt
+queryAmountMapBill:
+    - select parent,company,sum(amount) as winloseAmount from bill where parent in (:userIds) AND createdAt > :startTime group by parent,company
