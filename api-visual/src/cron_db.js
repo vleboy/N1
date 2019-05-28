@@ -6,7 +6,7 @@ const ipquery = new IP2Region()
 const axios = require('axios')
 // const NP = require('number-precision')
 const nodebatis = global.nodebatis
-const GameTypeEnum = require('./lib/Enum')
+const { GameTypeEnum } = require('./lib/Enum')
 const AWS = require('aws-sdk')
 AWS.config.update({ region: 'ap-southeast-1' })
 const dbClient = new AWS.DynamoDB.DocumentClient()

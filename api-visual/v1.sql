@@ -23,6 +23,7 @@ CREATE TABLE `bill` (
   `parentDisplayName` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `userId` int(11) NOT NULL,
   `userName` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `company` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `gameType` int(11) NOT NULL,
   `gameId` int(11) NOT NULL,
   `type` tinyint(4) NOT NULL,
