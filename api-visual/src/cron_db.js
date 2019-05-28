@@ -238,6 +238,7 @@ cron.schedule('0 */1 * * * *', async () => {
             ':role100': '100'
         }
     })
+    console.log(usreRes.Items)
     // 查询配置文件获取查询时间
     let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
     let startTime = configArr[0].lastMapTime || new Date('2019-1-1').getTime()
