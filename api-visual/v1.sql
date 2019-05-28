@@ -111,4 +111,20 @@ CREATE TABLE `config` (
 INSERT INTO `config` (`type`, `createdAt`, `flag`, `rangeHour`, `playerCreatedAt`) VALUES
 ('queryTime',	1554048000000,	0,	24,	0, 1546272000000);
 
+-- 专用于风控计算的局表
+DROP TABLE IF EXISTS `round`;
+CREATE TABLE `round` (
+  `businessKey` varchar(128) NOT NULL,
+  `parent` varchar(36) NOT NULL,
+  `company` varchar(10) NOT NULL,
+  `gameType` int(11) NOT NULL,
+  `gameId` int(11) NOT NULL,
+  `winloseAmount` double NOT NULL,
+  `createdAt` bigint(20) NOT NULL,
+  PRIMARY KEY (`businessKey`),
+  KEY `parent` (`parent`),
+  KEY `parent_createdAt` (`parent`,`createdAt`),
+  KEY `parent_company_createdAt` (`parent`,`company`,`createdAt`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 -- 2019-04-10 06:46:25
