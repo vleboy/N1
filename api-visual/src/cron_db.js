@@ -280,7 +280,7 @@ cron.schedule('0 */3 * * * *', async () => {
         }
         //处理线路商
         //更新配置文件
-        await nodebatis.execute('config.updateLastMap', { type: 'queryTime', lastMapTime: endTime + 1 })
+        await nodebatis.execute('config.updateLastMapTime', { type: 'queryTime', lastMapTime: endTime + 1 })
     }
     console.timeEnd('风控统计')
 })

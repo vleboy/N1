@@ -14,5 +14,5 @@ updateOne:
 updatePlayerCreatedAt:
     - update config set playerCreatedAt=:playerCreatedAt where type=:type
 
-updateLastMap:
+updateLastMapTime:
     - update config set lastMapTime=:lastMapTime where type=:type
