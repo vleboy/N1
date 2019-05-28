@@ -123,6 +123,28 @@ module.exports = class BillCheck {
             inparam.pageSize = 1000
         }
     }
+    //获取线路商游戏记录参数校验
+    checkManagerGameRecord(inparam) {
+        let [checkAttError, errorParams] = athena.Util.checkProperties([
+            { name: "apiKey", type: "S", min: 1 },
+            { name: "startTime", type: "N" },
+            { name: "endTime", type: "N" },
+            { name: "managerId", type: "N" }
+        ], inparam)
+        if (checkAttError) {
+            Object.assign(checkAttError, { params: errorParams })
+            throw checkAttError
+        }
+        if (inparam.startTime >= inparam.endTime) {
+            throw { params: [inparam.startTime, inparam.endTime] }
+        }
+        if (inparam.endTime - inparam.startTime > 10 * 60 * 1000) {
+            throw { params: '查询的时间范围不能超过10分钟' }
+        }
+        inparam.startTime = +inparam.startTime
+        inparam.endTime = +inparam.endTime
+        inparam.managerId = +inparam.managerId
+    }
     //检查商户对玩家操作的参数校验
     checkMerchantPlayer(inparam) {
         let [checkAttError, errorParams] = athena.Util.checkProperties([

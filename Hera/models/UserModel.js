@@ -69,4 +69,14 @@ module.exports = class UserModel extends BaseModel {
         return res.Items[0]
     }
 
+    // 查询线路商下的所有商户
+    queryAllChild(userId) {
+        return this.query({
+            ProjectionExpression: 'userId,displayId',
+            KeyConditionExpression: '#role = :role',
+            FilterExpression: 'contains(levelIndex,:levelIndex) ',
+            ExpressionAttributeNames: { '#role': 'role' },
+            ExpressionAttributeValues: { ':role': '100', ':levelIndex': userId }
+        })
+    }
 }

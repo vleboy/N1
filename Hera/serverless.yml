@@ -16,18 +16,6 @@ provider:
     - Effect: Allow
       Action:
         - dynamodb:*
-        # - dynamodb:DescribeTable
-        # - dynamodb:Query
-        # - dynamodb:Scan
-        # - dynamodb:GetItem
-        # - dynamodb:PutItem
-        # - dynamodb:UpdateItem
-        # - dynamodb:DeleteItem
-        # - dynamodb:BatchWriteItem
-        # - dynamodb:DescribeStream
-        # - dynamodb:GetRecords
-        # - dynamodb:GetShardIterator
-        # - dynamodb:ListStreams
       Resource:
           Fn::Join:
           - ''
@@ -40,7 +28,7 @@ functions:
   # tokenVerify:
   #   handler: api.jwtverify
   #   integration: lambda
-  ##商户SDK
+  ##商户API
   gamePlayerRegister: #玩家自行注册
     handler: api_player.gamePlayerRegister
     memorySize: 128
@@ -72,18 +60,19 @@ functions:
           path: /game/player/record/page
           method: post
           cors: true
-  # managerGameRecordPage: #线路商获取玩家游戏记录
-  #   handler: api_merchant.managerGameRecordPage
-  #   events:
-  #     - http:
-  #         path: /game/manager/record/page
-  #         method: post
-  #         cors: true
   merchantPlayer: #商户对玩家操作（商户唯一操作接口）
     handler: api_merchant.merchantPlayer
     events:
       - http:
           path: /merchant/player
+          method: post
+          cors: true
+  ##线路商API
+  managerGameRecord: #线路商获取玩家游戏记录
+    handler: api_manager.managerGameRecord
+    events:
+      - http:
+          path: /game/manager/record
           method: post
           cors: true
   ##大厅API

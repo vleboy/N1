@@ -20,6 +20,7 @@ module.exports = {
                 gameId: record.gameId,
                 betId: record.betId,
                 betTime: record.betTime,
+                buId: record.buId
             }
             return { ...baseObj, ...getOtherObj(record) }
         })

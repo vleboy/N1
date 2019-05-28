@@ -41,10 +41,10 @@ class HeraGameRecordModel extends BaseModel {
     }
 
     /**
-     * 商户战绩分页查询
+     * 线路商游戏记录查询
      */
-    async queryParms(indexName, keys, queryParms, inparam = {}) {
-        //排除status=3的数据(具体这个东西需要问一下，数据库目前没有这个字段)
+    queryByManager(indexName, keys, queryParms) {
+        //排除status=3的数据(这表示YSB未返奖的战绩，所以排除)
         queryParms.status = { "$not": 3 }
         let keyObj = this.buildParms(keys)
         let queryObj = this.buildParms(queryParms)
@@ -55,7 +55,29 @@ class HeraGameRecordModel extends BaseModel {
             ScanIndexForward: false, //降序返回结果
             KeyConditionExpression: keyObj.FilterExpression,
             FilterExpression: queryObj.FilterExpression,
-            Limit: 200,//inparam.pageSize,
+            ExpressionAttributeNames: Object.assign(keyObj.ExpressionAttributeNames, queryObj.ExpressionAttributeNames, { '#record': 'record' }),
+            ExpressionAttributeValues: Object.assign(keyObj.ExpressionAttributeValues, queryObj.ExpressionAttributeValues)
+        }
+        console.log(query)
+        return this.query(query)
+    }
+
+    /**
+     * 商户战绩分页查询
+     */
+    async queryParms(indexName, keys, queryParms, inparam = {}) {
+        //排除status=3的数据(这表示YSB未返奖的战绩，所以排除)
+        queryParms.status = { "$not": 3 }
+        let keyObj = this.buildParms(keys)
+        let queryObj = this.buildParms(queryParms)
+        let query = {
+            TableName: this.params.TableName,
+            ProjectionExpression: 'userName,betId,parentId,createdAt,betTime,#record,gameType,gameId,sourceIP',
+            IndexName: indexName,
+            ScanIndexForward: false, //降序返回结果
+            KeyConditionExpression: keyObj.FilterExpression,
+            FilterExpression: queryObj.FilterExpression,
+            Limit: 1000,//inparam.pageSize,
             ExpressionAttributeNames: Object.assign(keyObj.ExpressionAttributeNames, queryObj.ExpressionAttributeNames, { '#record': 'record' }),
             ExpressionAttributeValues: Object.assign(keyObj.ExpressionAttributeValues, queryObj.ExpressionAttributeValues)
         }
