@@ -260,17 +260,17 @@ cron.schedule('0 */1 * * * *', async () => {
                 }
             }
             //累加相同company的输赢金额
-            // let parentGroup = _.groupBy(allParentBill, 'parent')
-            // for (let compayItem of userInfo.companyList) {
-            //     let parentGroupCompany = _.find(parentGroup[userInfo.userId], o => compayItem.company == o.company)
-            //     if (parentGroupCompany) {
-            //         compayItem.winloseAmount = +((compayItem.winloseAmount + parentGroupCompany.winloseAmount).toFixed(2))
-            //         //校验map是否超过预设值
-            //         if (compayItem.winloseAmount * -1 >= compayItem.topAmount) {
-            //             compayItem.status = 0
-            //         }
-            //     }
-            // }
+            let parentGroup = _.groupBy(allParentBill, 'parent')
+            for (let compayItem of userInfo.companyList) {
+                let parentGroupCompany = _.find(parentGroup[userInfo.userId], o => compayItem.company == o.company)
+                if (parentGroupCompany) {
+                    compayItem.winloseAmount = +((compayItem.winloseAmount + parentGroupCompany.winloseAmount).toFixed(2))
+                    //校验map是否超过预设值
+                    if (compayItem.winloseAmount * -1 >= compayItem.topAmount) {
+                        compayItem.status = 0
+                    }
+                }
+            }
             //更新商户map
             await dbClient['update']({
                 TableName: 'ZeusPlatformUser',
