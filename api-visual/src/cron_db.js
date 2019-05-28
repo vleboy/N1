@@ -249,6 +249,7 @@ cron.schedule('0 */1 * * * *', async () => {
         //逐个商户更新
         for (let userInfo of usreRes.Items) {
             //根据gameList 生成新的companyList
+            userInfo.companyList = userInfo.companyList || []
             let companyMap = _.groupBy(userInfo.gameList, 'company')
             for (let company in companyMap) {
                 let userCompany = _.find(userInfo.companyList, o => o.company == company)
