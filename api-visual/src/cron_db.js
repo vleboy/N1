@@ -61,7 +61,7 @@ async function queryIp(ip) {
 }
 
 // 流水定时服务
-cron.schedule('*/3 * * * * *', async () => {
+cron.schedule('*/30 * * * * *', async () => {
     console.time('【流水载入】')
     let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
     if (configArr[0].flag || Date.now() - configArr[0].createdAt > 5 * 60 * 1000) {
