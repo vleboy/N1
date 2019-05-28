@@ -11,4 +11,4 @@ batchInsert:
 
 #查询时间段所有商户对应的流水
 queryAmountMapBill:
-    - select parent,company,sum(amount) as winloseAmount from bill where parent in (:userIds) AND createdAt between :startTime and :endTime group by parent,company
+    - select parent,company,ROUND(sum(amount),2) as winloseAmount from bill where createdAt between :startTime and :endTime group by parent,company
