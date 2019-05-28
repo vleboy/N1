@@ -31,6 +31,8 @@ cron.schedule('0 */3 * * * *', async () => {
     queryRet.lastTime = inparam.end
     await new ConfigModel().putItem(queryRet)
     // 触发金额map统计
+    this.axiosCron({ methodName: 'cronAmountMap' })                 // 请求执行金额Map统计
+    this.axiosCron({ methodName: 'cronTransferMap' })               // 请求执行接入方金额Map统计
     console.timeEnd(`局表统计用时`)
 })
 
@@ -191,6 +193,24 @@ function roundDayProcess() {
     }).then(res => {
         console.log(res.data)
     }).catch(err => {
+        console.error(err)
+    })
+}
+
+// 请求执行金额map统计
+function axiosCron(inparam) {
+    let cronUrl = `http://localhost:4000/stat/${inparam.methodName}`
+    console.log(`请求${inparam.methodName}接口【${cronUrl}】`)
+    let tokenAdmin = jwt.sign({
+        role: RoleCodeEnum.PlatformAdmin,
+        exp: Math.floor(Date.now() / 1000) + 86400
+    }, process.env.TOKEN_SECRET)
+    axios.post(cronUrl, {}, {
+        headers: { 'Authorization': `Bearer ${tokenAdmin}` }
+    }).then(res => {
+        console.log(res.data)
+    }).catch(err => {
+        console.error(`${inparam.methodName}接口返回异常`)
         console.error(err)
     })
 }
