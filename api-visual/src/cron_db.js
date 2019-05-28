@@ -266,7 +266,7 @@ cron.schedule('0 */1 * * * *', async () => {
                 if (parentGroupCompany) {
                     compayItem.winloseAmount = +((compayItem.winloseAmount + parentGroupCompany.winloseAmount).toFixed(2))
                     //校验map是否超过预设值
-                    if (compayItem.winloseAmount * -1 >= topAmount) {
+                    if (compayItem.winloseAmount * -1 >= compayItem.topAmount) {
                         compayItem.status = 0
                     }
                 }
