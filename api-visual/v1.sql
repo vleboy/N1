@@ -125,5 +125,7 @@ CREATE TABLE `round` (
   KEY `parent_company_createdAt` (`parent`,`company`,`createdAt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-create view v_round as select parent,company,round(sum(winloseAmount),2) as winloseAmount from round group by parent,company;
+drop view if exists `v_round`;
+create view v_round as select parent,company,round(sum(winloseAmount),2) as winloseAmount from round where createdAt > 1554048000000 group by parent,company;
+
 -- 2019-04-10 06:46:25
