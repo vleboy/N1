@@ -238,7 +238,6 @@ cron.schedule('0 */1 * * * *', async () => {
             ':role100': '100'
         }
     })
-    console.log(usreRes.Items)
     // 查询配置文件获取查询时间
     let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
     let startTime = configArr[0].lastMapTime || new Date('2019-1-1').getTime()
@@ -248,7 +247,7 @@ cron.schedule('0 */1 * * * *', async () => {
     // 存在新流水则处理
     if (allParentBill && allParentBill.length > 0) {
         //逐个商户更新
-        for (let userInfo in usreRes.Items) {
+        for (let userInfo of usreRes.Items) {
             //根据gameList 生成新的companyList
             let companyMap = _.groupBy(userInfo.gameList, 'company')
             for (let company in companyMap) {
