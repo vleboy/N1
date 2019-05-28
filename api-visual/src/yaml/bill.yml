@@ -256,3 +256,6 @@ handleAmountPlayerRank: # 玩家排行榜-金额汇总
         test: :method == 'winloseAmount'
         sql: ORDER BY num asc
     
+#通过bk查询对应流水
+queryByBk:
+    - select businessKey,parent,company,amount,createdAt from bill where businessKey = :bk order by createdAt

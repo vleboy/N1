@@ -9,6 +9,3 @@ batchInsert:
         sql: (:role,:userId,:displayId,:displayName,:username,:sn,:suffix,:uname,:level,:levelIndex,:msn,:parent,:parentName,:parentDisplayName,:parentSuffix,:parentRole,:createdAt,:companyList)
         seperator: ','
 
-#通过bk查询对应流水
-queryBillByBk:
-    - select businessKey,parent,company,amount,createdAt from bill where businessKey = :bk order by createdAt

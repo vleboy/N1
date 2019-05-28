@@ -153,7 +153,7 @@ cron.schedule('*/3 * * * * *', async () => {
         let bkArr = _.uniq(resArr.map(o => o.businessKey))
         let roundArr = []
         for (let bk of bkArr) {
-            let billArr = await nodebatis.query('user.queryBillByBk', { bk })
+            let billArr = await nodebatis.query('bill.queryByBk', { bk })
             roundArr.push({
                 businessKey: billArr[0].businessKey,
                 parent: billArr[0].parent,
@@ -259,7 +259,7 @@ cron.schedule('0 */1 * * * *', async () => {
         }
     })
     // 查询商户的流水
-    let allParentBill = await nodebatis.query('user.queryAmountMap', {})
+    let allParentBill = await nodebatis.query('round.queryAmountMap', {})
     // 存在新流水则处理
     if (allParentBill && allParentBill.length > 0) {
         //逐个商户更新
