@@ -11,7 +11,6 @@ const xauth = require('koa-xauth')
 const xlog = require('koa-xlog')
 global.nodebatis = require('./src/nodebatis/nodebatis.js')
 require('./src/cron_db')
-require('./src/cron_map')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 业务控制器
