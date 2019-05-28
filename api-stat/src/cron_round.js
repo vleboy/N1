@@ -51,7 +51,7 @@ cron.schedule('0 */5 * * * *', async () => {
         console.log(`一共查出role=4需要检验的日志条数${RoleRet4.length}`)
         // 修正超时返奖，检查局表和流水数量是否一致，不一致则需要修正
         for (let item of RoleRet3) {
-            let p = new Promise(async function (resolve, reject) {
+            let p = new Promise(async (resolve, reject) => {
                 let bk = item.inparams.businessKey
                 //查询局表中该bk数量
                 let roundNumber = await new StatRoundModel().bkQuery({ bk })
