@@ -61,7 +61,7 @@ async function queryIp(ip) {
 }
 
 // 流水定时服务
-cron.schedule('*/3 * * * * *', async () => {
+cron.schedule('*/30 * * * * *', async () => {
     console.time('【流水载入】')
     let configArr = await nodebatis.query('config.findOne', { type: 'queryTime' })
     if (configArr[0].flag || Date.now() - configArr[0].createdAt > 5 * 60 * 1000) {
@@ -225,7 +225,7 @@ cron.schedule('0 0 1 * * *', async () => {
 })
 
 // 风控定时服务
-cron.schedule('0 */10 * * * *', async () => {
+cron.schedule('0 */1 * * * *', async () => {
     console.time('风控统计')
     // 获取所有商户和线路商
     let usreRes = await queryInc('scan', {
