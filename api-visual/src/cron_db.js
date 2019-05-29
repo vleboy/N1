@@ -4,7 +4,7 @@ const _ = require('lodash')
 const IP2Region = require('ip2region')
 const ipquery = new IP2Region()
 const axios = require('axios')
-// const NP = require('number-precision')
+const NP = require('number-precision')
 const nodebatis = global.nodebatis
 const { GameTypeEnum } = require('./lib/Enum')
 const AWS = require('aws-sdk')
@@ -171,6 +171,9 @@ cron.schedule('*/30 * * * * *', async () => {
         console.timeEnd('【局表写入】')
     }
     console.timeEnd('【流水载入】')
+
+    // 金额map统计
+    await sumAmountMap()
 })
 
 // 玩家/用户定时服务
@@ -247,7 +250,7 @@ cron.schedule('0 0 1 * * *', async () => {
 })
 
 // 风控定时服务
-cron.schedule('0 */1 * * * *', async () => {
+async function sumAmountMap() {
     console.time('风控统计')
     // 获取所有商户和线路商
     let usreRes = await queryInc('scan', {
@@ -264,9 +267,10 @@ cron.schedule('0 */1 * * * *', async () => {
     let allParentBill = await nodebatis.query('round.queryAmountMap', {})
     // 存在新流水则处理
     if (allParentBill && allParentBill.length > 0) {
-        //逐个商户更新
+        let managerArr = [], merchantArr = []
+        // 用户数据处理
         for (let userInfo of usreRes.Items) {
-            //根据gameList 生成新的companyList
+            // 初始化金额map(规则：根据gameList 生成新的companyList)
             userInfo.companyList = userInfo.companyList || []
             let companyMap = _.groupBy(userInfo.gameList, 'company')
             for (let company in companyMap) {
@@ -289,7 +293,36 @@ cron.schedule('0 */1 * * * *', async () => {
                     }
                 }
             }
-            //更新商户map
+            // 线路商和商户分类
+            if (userInfo.role == '10') {
+                managerArr.push(userInfo)
+            } else {
+                merchantArr.push(userInfo)
+            }
+        }
+        //遍历线路商
+        for (let manager of managerArr) {
+            //每个线路商遍历旗下所有商户
+            for (let merchant of merchantArr) {
+                if (merchant.levelIndex.indexOf(manager.userId) != -1) {
+                    // 取出线路商的运营商列表，和商户的运营商列表匹配
+                    for (let item of manager.companyList) {
+                        let findRes = _.find(merchant.companyList, o => item.company == o.company)
+                        if (findRes) {
+                            item.winloseAmount = NP.plus(item.winloseAmount, findRes.winloseAmount)
+                        }
+                    }
+                }
+            }
+            //检验winloseAmount是否超过设置值
+            for (let item of manager.companyList) {
+                if (item.winloseAmount * -1 >= item.topAmount) {
+                    item.status = 0
+                }
+            }
+        }
+        //更新用户map
+        for (let userInfo of usreRes.Items) {
             await dbClient['update']({
                 TableName: 'ZeusPlatformUser',
                 Key: { role: userInfo.role, userId: userInfo.userId },
@@ -297,7 +330,6 @@ cron.schedule('0 */1 * * * *', async () => {
                 ExpressionAttributeValues: { ':companyList': userInfo.companyList }
             }).promise()
         }
-        //处理线路商
     }
     console.timeEnd('风控统计')
-})
+}
