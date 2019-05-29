@@ -5,8 +5,8 @@ const _ = require('lodash')
 const moment = require('moment')
 const axios = require('axios')
 const jwt = require('jsonwebtoken')
-const { RoleCodeEnum } = require('./lib/Model')
-
+const { RoleCodeEnum, GameStateEnum } = require('./lib/Model')
+const PlayerModel = require('./model/PlayerModel')
 const LogModel = require('./model/LogModel')
 const StatRoundModel = require('./model/StatRoundModel')
 const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
@@ -158,6 +158,31 @@ cron.schedule('0 0 18 * * *', async () => {
         roundDayProcess()
     }
 })
+
+// 定时修正玩家状态在游戏中但12小时内无流水
+cron.schedule('0 */5 * * * *', async () => {
+    // 查询出所有在线的玩家
+    const playerModel = new PlayerModel()
+    const playerRes = await playerModel.scan({
+        ProjectionExpression: 'userName',
+        FilterExpression: `gameState<>:gameState`,
+        ExpressionAttributeValues: { ':gameState': GameStateEnum.OffLine }
+    })
+    // 将所有在线玩家超过12小时没有流水的设置成离线
+    let startTime = Date.now() - 12 * 60 * 60 * 1000
+    for (let item of playerRes.Items) {
+        item.createdAt = startTime
+        let res = await new PlayerBillDetailModel().queryByTime(item)
+        if (res && res.Items && res.Items.length == 0) {
+            await playerModel.updateItem({
+                Key: { userName: item.userName },
+                UpdateExpression: 'SET gameState=:gameState,gameId=:gameId,sid=:sid',
+                ExpressionAttributeValues: { ':gameState': GameStateEnum.OffLine, ':gameId': 0, ':sid': 0 }
+            })
+        }
+    }
+})
+
 
 // 周一特殊处理
 function mondayProcess(inparam = {}) {
