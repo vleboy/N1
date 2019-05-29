@@ -67,13 +67,13 @@ module.exports.auth = async function (e, c, cb) {
         let index = _.findIndex(userInfo.gameList, function (o) { return o.code == inparam.gameType })
         if (index == -1) {
             return ResFail(cb, { msg: '商家暂无此款游戏' }, 11006)
-        } 
-        // else {
-            // let company = userInfo.gameList[index].company
-            // if (_.find(userInfo.companyList, function (o) { return o.company == company }).status == 0) {
-            //     return ResFail(cb, { msg: '商家游戏已被禁用，请联系运营商' }, 11007)
-            // }
-        // }
+        }
+        else {
+            let company = userInfo.gameList[index].company
+            if (_.find(userInfo.companyList, function (o) { return o.company == company }).status == 0) {
+                return ResFail(cb, { msg: '商家游戏已被禁用，请联系运营商' }, 11007)
+            }
+        }
         //5,从缓存表获取玩家最新余额
         player.usage = 'auth'
         let balance = await playerModel.getNewBalance(player)
