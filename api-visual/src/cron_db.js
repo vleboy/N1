@@ -291,6 +291,9 @@ async function sumAmountMap() {
                     if (compayItem.winloseAmount * -1 >= compayItem.topAmount) {
                         compayItem.status = 0
                     }
+                    if (!compayItem.topAmount) {
+                        compayItem.status = 1
+                    }
                 }
             }
             // 线路商和商户分类
@@ -318,6 +321,9 @@ async function sumAmountMap() {
             for (let item of manager.companyList) {
                 if (item.winloseAmount * -1 >= item.topAmount) {
                     item.status = 0
+                }
+                if (!item.topAmount) {
+                    item.status = 1
                 }
             }
         }
