@@ -39,7 +39,7 @@ cron.schedule('0 */3 * * * *', async () => {
 // 定时检查日志和修正数据（每5分钟检查一次）
 cron.schedule('0 */5 * * * *', async () => {
     try {
-        console.time(`定时检查和修正用时`)
+        console.time(`定时检查修正用时`)
         let fixArr = []
         let promiseAll = []
         let repeatMap = {}
@@ -140,7 +140,7 @@ cron.schedule('0 */5 * * * *', async () => {
             console.log(`请求修复时间为：${start}-${end}，${moment(start).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}至${moment(end).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}`)
             axios.post(`http://localhost:4000/stat/fixRound`, { start, end }, { headers: { 'Authorization': `Bearer ${token}` } })
         }
-        console.timeEnd(`定时检查和修正用时`)
+        console.timeEnd(`定时检查修正用时`)
     } catch (error) {
         console.error(error)
     }
