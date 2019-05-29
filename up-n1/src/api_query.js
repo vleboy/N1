@@ -75,6 +75,12 @@ router.post('/queryUserStat', async function (ctx, next) {
                 }
             }
         } else {
+            if (inparam.isH5) {
+                ret = _.filter(ret, (o) => {
+                    let index = _.findIndex(o.gameList, (m) => { return (m.code == '70000' || m.code == '80000' || m.code == '90000') })
+                    return index != -1 ? true : false
+                })
+            }
             finalRes = _.orderBy(ret, ['role', (o) => { return o.companyList ? o.companyList.length : 0 }], ['asc', 'asc'])
         }
         ctx.body = { code: 0, payload: finalRes }
