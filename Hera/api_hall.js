@@ -32,7 +32,7 @@ module.exports.playerLogin = async function (e, c, cb) {
             //查询玩家的信息,获取代理的id
             playerInfo = await playerModel.getPlayerByUserName(userName)
             if (_.isEmpty(playerInfo)) {
-                return ResFail(cb, { msg: '玩家不存在' }, 10004)
+                return ResFail(cb, { msg: '玩家不存在' }, 10012)
             }
             userId = playerInfo.parent
         }
@@ -52,15 +52,15 @@ module.exports.playerLogin = async function (e, c, cb) {
             userName = `${userInfo.suffix}_${userName}`
             playerInfo = await playerModel.getPlayerByUserName(userName)
             if (_.isEmpty(playerInfo)) {
-                return ResFail(cb, { msg: '玩家不存在' }, 10004)
+                return ResFail(cb, { msg: '玩家不存在' }, 10012)
             }
         }
         //4,检验密码是否正确，检验商户和玩家是否禁用
         if (playerInfo.password != inparam.userPwd) {
-            return ResFail(cb, { msg: '密码不正确' }, 10005)
+            return ResFail(cb, { msg: '密码不正确' }, 10004)
         }
         if (userInfo.status == 0 || playerInfo.state == 0) {
-            return ResFail(cb, { msg: '商户或玩家已被禁用' }, 10006)
+            return ResFail(cb, { msg: '商户或玩家已被禁用' }, 10005)
         }
         //5,从缓存获取玩家余额,更新玩家信息
         playerInfo.usage = 'playerLogin'
@@ -170,7 +170,7 @@ module.exports.playerLogin = async function (e, c, cb) {
 //         //3,获取玩家信息
 //         let playerInfo = await new PlayerModel().getPlayerByUserName(tokenInfo.userName)
 //         if (_.isEmpty(playerInfo)) {
-//             return ResFail(cb, { msg: '玩家不存在' }, 10004)
+//             return ResFail(cb, { msg: '玩家不存在' }, 10012)
 //         }
 //         //4,检查nickname是否重复
 //         if (inparam.nickname) {
