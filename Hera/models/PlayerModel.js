@@ -110,12 +110,13 @@ module.exports = class PlayerModel extends BaseModel {
             let p = new Promise(async (resolve, reject) => {
                 let balance = 0
                 let playerInfo = await self.getPlayerByUserName(userName)
+                let gameState = 0
                 if (playerInfo && !_.isEmpty(playerInfo)) {
                     balance = playerInfo.balance
+                    gameState = playerInfo.gameState == 1 ? 0 : 1
                 }
                 // let balance = await self.getNewBalance({ userName, balance: playerBalance })
-                let name = userName.slice(userName.indexOf('_') + 1)
-                resolve({ userName: name, balance, gameState: playerInfo.gameState == 1 ? 0 : 1 })
+                resolve({ userName: userName.slice(userName.indexOf('_') + 1), balance, gameState })
             })
             promiseAll.push(p)
         }
