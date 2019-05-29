@@ -161,6 +161,7 @@ cron.schedule('0 0 18 * * *', async () => {
 
 // 定时修正玩家状态在游戏中但12小时内无流水
 cron.schedule('0 */5 * * * *', async () => {
+    console.time(`离线玩家用时`)
     // 查询出所有在线的玩家
     const playerModel = new PlayerModel()
     const playerRes = await playerModel.scan({
@@ -181,6 +182,7 @@ cron.schedule('0 */5 * * * *', async () => {
             })
         }
     }
+    console.timeEnd(`离线玩家用时`)
 })
 
 
