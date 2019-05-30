@@ -286,9 +286,9 @@ async function sumAmountMap() {
             for (let compayItem of userInfo.companyList) {
                 let parentGroupCompany = _.find(parentGroup[userInfo.userId], o => compayItem.company == o.company)
                 if (parentGroupCompany) {
-                    compayItem.winloseAmount = parentGroupCompany.winloseAmount
+                    compayItem.winloseAmount = parentGroupCompany.winloseAmount * -1
                     //校验map是否超过预设值
-                    if (compayItem.winloseAmount * -1 >= compayItem.topAmount) {
+                    if (compayItem.winloseAmount >= compayItem.topAmount) {
                         compayItem.status = 0
                     }
                     if (!compayItem.topAmount) {
