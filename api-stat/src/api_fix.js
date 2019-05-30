@@ -131,6 +131,7 @@ router.post('/stat/checkRound', async (ctx, next) => {
     } catch (error) {
         console.error(error)
     }
+    ctx.body = { code: 0, msg: 'Y' }
 })
 
 /**
