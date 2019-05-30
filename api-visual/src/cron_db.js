@@ -288,11 +288,8 @@ async function sumAmountMap() {
                 if (parentGroupCompany) {
                     compayItem.winloseAmount = parentGroupCompany.winloseAmount * -1
                     //校验map是否超过预设值
-                    if (compayItem.winloseAmount >= compayItem.topAmount) {
+                    if (compayItem.topAmount > 0 && compayItem.winloseAmount > compayItem.topAmount) {
                         compayItem.status = 0
-                    }
-                    if (!compayItem.topAmount) {
-                        compayItem.status = 1
                     }
                 }
             }
@@ -319,11 +316,8 @@ async function sumAmountMap() {
             }
             //检验winloseAmount是否超过设置值
             for (let item of manager.companyList) {
-                if (item.winloseAmount >= item.topAmount) {
+                if (item.topAmount > 0 && item.winloseAmount > item.topAmount) {
                     item.status = 0
-                }
-                if (!item.topAmount) {
-                    item.status = 1
                 }
             }
         }
