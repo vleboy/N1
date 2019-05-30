@@ -319,7 +319,7 @@ async function sumAmountMap() {
             }
             //检验winloseAmount是否超过设置值
             for (let item of manager.companyList) {
-                if (item.winloseAmount * -1 >= item.topAmount) {
+                if (item.winloseAmount >= item.topAmount) {
                     item.status = 0
                 }
                 if (!item.topAmount) {
