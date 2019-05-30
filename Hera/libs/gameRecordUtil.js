@@ -99,7 +99,7 @@ function getOtherObj(record) {
         if (!record.anotherGameData || record.anotherGameData == 'NULL!') {        // SA查询没有战绩，则设置默认战绩
             record.anotherGameData = { data: '[{\"GameResult\":[{\"BaccaratResult\":[]}]}]', mixAmount: 0 }
         }
-        let item = JSON.parse(record.anotherGameData.data)[0]
+        let item = JSON.parse(record.anotherGameData.data)[0] || {}
         otherObj = {
             gameName: (item.HostName || ['SA真人游戏'])[0],
             preBalance: betObj.preBalance,
@@ -312,7 +312,7 @@ function setAGResult(gameResult) {
 
 // 获取SA真人战绩
 function setSAResult(gameResult) {
-    gameResult = (gameResult || [])[0].BaccaratResult;
+    gameResult = (gameResult || [{}])[0].BaccaratResult;
     gameResult = gameResult || [];
     let obj = {
         "p": [],
