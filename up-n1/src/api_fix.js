@@ -23,7 +23,7 @@ router.post('/checkRound', async function (ctx, next) {
         throw BizErr.TokenErr('只有平台管理员可以操作')
     }
     // 业务操作
-    await axios.post(`https://${config.env.STAT_URL}/dev/checkRound`, {}, {
+    await axios.post(`https://${config.env.STAT_URL}/stat/checkRound`, {}, {
         headers: { 'Authorization': `Bearer ${ctx.header.authorization}` }
     })
     // 返回结果
