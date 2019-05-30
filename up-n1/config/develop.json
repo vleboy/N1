@@ -63,7 +63,7 @@
         "IMG_BUCKET": "image-na-dev",
         "NA_CENTER": "47.88.192.69",
         "ANOTHER_GAME_CENTER": "ext.na77.org",
-        "STAT_URL": "fbvxgmepya.execute-api.ap-southeast-1.amazonaws.com",
+        "STAT_URL": "ext.na77.org",
         "TABLE_NAMES": {
             "TABLE_USER": "HeraGamePlayer",
             "SYSConfig": "SYSConfig",

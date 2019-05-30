@@ -63,7 +63,7 @@
         "IMG_BUCKET": "img.na77.com",
         "NA_CENTER": "47.74.152.121",
         "ANOTHER_GAME_CENTER": "webgame.na77.org",
-        "STAT_URL": "9d0pmk96m4.execute-api.ap-southeast-1.amazonaws.com",
+        "STAT_URL": "webgame.na77.org",
         "TABLE_NAMES": {
             "TABLE_USER": "HeraGamePlayer",
             "SYSConfig": "SYSConfig",
