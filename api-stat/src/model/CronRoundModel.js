@@ -7,6 +7,7 @@ const moment = require('moment')
 const axios = require('axios')
 const _ = require('lodash')
 const NP = require('number-precision')
+const config = require('config')
 
 module.exports = class CronRoundModel extends BaseModel {
     constructor() {
