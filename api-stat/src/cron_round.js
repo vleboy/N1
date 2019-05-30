@@ -26,12 +26,11 @@ cron.schedule('0 */3 * * * *', async () => {
     inparam.isFix = false                                           // 非修正
     await new CronRoundModel().fixRound(inparam)
     // 查询和写入KY游戏记录
-    await new HeraGameRecordModel().getKYRecord(inparam.start, inparam.end)
+    // await new HeraGameRecordModel().getKYRecord(inparam.start, inparam.end)
     // 更新配置时间
     queryRet.lastTime = inparam.end
     await new ConfigModel().putItem(queryRet)
     // 触发金额map统计
-    // axiosCron({ methodName: 'cronAmountMap' })                      // 请求执行金额Map统计
     axiosCron({ methodName: 'cronTransferMap' })                    // 请求执行接入方金额Map统计
     console.timeEnd(`局表统计用时`)
 })
