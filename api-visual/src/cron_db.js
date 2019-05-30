@@ -1,5 +1,5 @@
 const cron = require('node-cron')
-const dayjs = require('dayjs')
+const moment = require('moment')
 const _ = require('lodash')
 const IP2Region = require('ip2region')
 const ipquery = new IP2Region()
