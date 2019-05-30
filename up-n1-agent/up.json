@@ -1,5 +1,5 @@
 {
-  "name": "up-n1-agent",
+  "name": "up-n2-agent",
   "environment": {
     "NODE_ENV": "develop",
     "NODE_ENV1": "production"
