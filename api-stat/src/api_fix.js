@@ -5,6 +5,7 @@ const Router = require('koa-router')
 const router = new Router()
 // 工具相关
 const _ = require('lodash')
+const jwt = require('jsonwebtoken')
 const axios = require('axios')
 const moment = require('moment')
 // 日志相关
