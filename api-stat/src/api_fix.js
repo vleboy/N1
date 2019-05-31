@@ -213,22 +213,4 @@ router.post('/stat/fixKY', async (ctx, next) => {
     ctx.body = { code: 0, msg: 'Y' }
 })
 
-// 请求执行金额map统计
-function axiosCron(inparam) {
-    let cronUrl = `http://localhost:4000/stat/${inparam.methodName}`
-    console.log(`请求${inparam.methodName}接口【${cronUrl}】`)
-    let tokenAdmin = jwt.sign({
-        role: RoleCodeEnum.PlatformAdmin,
-        exp: Math.floor(Date.now() / 1000) + 86400
-    }, config.na.TOKEN_SECRET)
-    axios.post(cronUrl, {}, {
-        headers: { 'Authorization': `Bearer ${tokenAdmin}` }
-    }).then(res => {
-        console.log(res.data)
-    }).catch(err => {
-        console.error(`${inparam.methodName}接口返回异常`)
-        console.error(err)
-    })
-}
-
 module.exports = router
