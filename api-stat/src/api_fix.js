@@ -119,7 +119,7 @@ router.post('/stat/checkRound', async (ctx, next) => {
         }
         // 并发执行
         await Promise.all(promiseAll)
-        console.log(`有${fixArr.length}条数据修正`)
+        console.log(`一共有${fixArr.length}条数据修正`)
         let start = 0, end = 0
         if (fixArr.length > 0) {
             let token = jwt.sign({ exp: Math.floor(Date.now() / 1000) + 86400 }, config.na.TOKEN_SECRET)

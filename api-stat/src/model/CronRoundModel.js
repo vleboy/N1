@@ -30,9 +30,8 @@ module.exports = class CronRoundModel extends BaseModel {
         // 查询时间范围内所有下注数据
         let beginTime = inparam.start                           // 入参起始时间
         let endTime = inparam.end                               // 入参结束时间
-        console.log(`查询时间范围：${beginTime}-${endTime}，${moment(beginTime).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}至${moment(endTime).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}`)
         const billRet = await this.queryType({ type: 3, beginTime, endTime, isFix: inparam.isFix })
-        console.log(`查询时间范围：${beginTime}-${endTime}，下注条目：${billRet.Items.length}`)
+        console.log(`查询时间范围：${beginTime}-${endTime}，${moment(beginTime).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}至${moment(endTime).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}，下注条目：${billRet.Items.length}`)
         // 额外获取SA游戏记录
         let userAnotherGameData = await this.getSAAnotherGamedata(billRet)
         // 按照bk分组，遍历分组结果，根据回合时间查询其返回，组装每一局，最后并发执行
