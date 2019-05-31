@@ -26,7 +26,7 @@ router.get('/chain/:queryType', async (ctx, next) => {
         playerCount: [],
         betCount: [],
         betAmount: [],
-        // retAmount: [],
+        retAmount: [],
         refundAmount: [],
         winloseAmount: []
     }
