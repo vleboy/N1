@@ -22,10 +22,10 @@ router.post('/deploy/n1web', async (ctx, next) => {
         log.info('接受到请求，准备持续构建 ...')
         await gitPull('/usr/dev/N1_WEB2')
         await deployWebAdmin()
-        await deployWebMerchant()
-        await deployWebManager()
-        await gitPull('/usr/dev/N1_WEB')
-        deployWebAgent()
+        deployWebMerchant()
+        deployWebManager()
+        // await gitPull('/usr/dev/N1_WEB')
+        // deployWebAgent()
         // deployWebGame()
         ctx.body = 'Y'
     } catch (error) {
