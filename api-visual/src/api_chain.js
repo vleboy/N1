@@ -106,7 +106,6 @@ router.get('/chain/:queryType', async (ctx, next) => {
         } else {
             sumrate = +((sum0 - sum1) / sum1 * 100).toFixed(2)
         }
-        let allGameTypeSum = [sum0, sum1, sumrate]
         // 获取每类游戏的环比
         chainMap[key] = _.groupBy(chainMap[key], 'name')
         let gameTypeList = []
@@ -126,11 +125,11 @@ router.get('/chain/:queryType', async (ctx, next) => {
             }
             gameTypeList.push({ name, td, yd, rate })
         }
+        gameTypeList.push({ name: '全部游戏', td: sum0, yd: sum1, rate: sumrate })
         // 删除不需要的key值
         for (let name in chainMap[key]) {
             delete chainMap[key][name]
         }
-        chainMap[key].allGameTypeSum = allGameTypeSum
         chainMap[key].gameTypeList = gameTypeList
     }
     ctx.body = { code: 0, data: chainMap }
