@@ -18,10 +18,10 @@ router.get('/chain/:queryType', async (ctx, next) => {
     let inparam = ctx.request.query
     let queryType = ctx.params.queryType
     // 权限商户只能看自己的
-    let token = ctx.tokenVerify
-    if (token.role == '100') {
-        inparam.parent = token.userId
-    }
+    // let token = ctx.tokenVerify
+    // if (token.role == '100') {
+    //     inparam.parent = token.userId
+    // }
     let chainMap = {
         playerCount: [],
         betCount: [],
@@ -97,7 +97,10 @@ router.get('/chain/:queryType', async (ctx, next) => {
     await Promise.all(promiseArr)
     //数据结构处理
     for (let key in chainMap) {
+        //注意： 顺序不能改！！！
+        let allGameTypeSum = [_.sumBy(chainMap[key], (o) => { if (o.i == 0) { return o.value } }) || 0, _.sumBy(chainMap[key], (o) => { if (o.i == 1) { return o.value } }) || 0]
         chainMap[key] = _.groupBy(chainMap[key], 'name')
+        chainMap[key].allGameTypeSum = allGameTypeSum
     }
     ctx.body = { code: 0, data: chainMap }
     console.timeEnd('环比统计耗时')
