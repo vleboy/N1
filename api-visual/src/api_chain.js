@@ -125,7 +125,8 @@ router.get('/chain/:queryType', async (ctx, next) => {
             }
             gameTypeList.push({ name, td, yd, rate })
         }
-        gameTypeList.push({ name: '全部游戏', td: sum0, yd: sum1, rate: sumrate })
+        gameTypeList = _.orderBy(gameTypeList, ['rate'], ['desc'])
+        gameTypeList.unshift({ name: '全部游戏', td: sum0, yd: sum1, rate: sumrate })
         // 删除不需要的key值
         for (let name in chainMap[key]) {
             delete chainMap[key][name]
