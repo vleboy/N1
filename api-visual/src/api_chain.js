@@ -18,15 +18,15 @@ router.get('/chain/:queryType', async (ctx, next) => {
     let inparam = ctx.request.query
     let queryType = ctx.params.queryType
     // 权限商户只能看自己的
-    // let token = ctx.tokenVerify
-    // if (token.role == '100') {
-    //     inparam.parent = token.userId
-    // }
+    let token = ctx.tokenVerify
+    if (token.role == '100') {
+        inparam.parent = token.userId
+    }
     let chainMap = {
         playerCount: [],
         betCount: [],
         betAmount: [],
-        retAmount: [],
+        // retAmount: [],
         refundAmount: [],
         winloseAmount: []
     }
@@ -69,7 +69,7 @@ router.get('/chain/:queryType', async (ctx, next) => {
     // 获取区域玩家总下注金额
     promiseArr.push(queryGetChain('bill.handleAmountPie', 'betAmount', inparam, chainMap, 3))
     // 获取区域玩家总返奖
-    promiseArr.push(queryGetChain('bill.handleAmountPie', 'retAmount', inparam, chainMap, 4))
+    // promiseArr.push(queryGetChain('bill.handleAmountPie', 'retAmount', inparam, chainMap, 4))
     // 获取区域玩家总退款
     promiseArr.push(queryGetChain('bill.handleAmountPie', 'refundAmount', inparam, chainMap, 5))
     // 获取区域玩家总输赢
@@ -88,7 +88,7 @@ router.get('/chain/:queryType', async (ctx, next) => {
     // 获取区域玩家总下注金额
     promiseArr.push(queryGetChain('bill.handleAmountPie', 'betAmount', inparam, chainMap, 3))
     // 获取区域玩家总返奖
-    promiseArr.push(queryGetChain('bill.handleAmountPie', 'retAmount', inparam, chainMap, 4))
+    // promiseArr.push(queryGetChain('bill.handleAmountPie', 'retAmount', inparam, chainMap, 4))
     // 获取区域玩家总退款
     promiseArr.push(queryGetChain('bill.handleAmountPie', 'refundAmount', inparam, chainMap, 5))
     // 获取区域玩家总输赢
@@ -100,7 +100,12 @@ router.get('/chain/:queryType', async (ctx, next) => {
         //注意： 顺序不能改！！！(对象引用导致)  获取总的环比
         let sum0 = _.sumBy(chainMap[key], (o) => { if (o.i == 0) { return o.value } }) || 0
         let sum1 = _.sumBy(chainMap[key], (o) => { if (o.i == 1) { return o.value } }) || 0
-        let sumrate = +((sum0 - sum1) / sum1 * 100).toFixed(2)
+        let sumrate = 0
+        if (sum1 == 0) {
+            sumrate = '-'
+        } else {
+            sumrate = +((sum0 - sum1) / sum1 * 100).toFixed(2)
+        }
         let allGameTypeSum = [sum0, sum1, sumrate]
         // 获取每类游戏的环比
         chainMap[key] = _.groupBy(chainMap[key], 'name')
@@ -114,7 +119,11 @@ router.get('/chain/:queryType', async (ctx, next) => {
                     yd = item.value
                 }
             }
-            rate = + ((td - yd) / yd * 100).toFixed(2)
+            if (yd == 0) {
+                rate = '-'
+            } else {
+                rate = + ((td - yd) / yd * 100).toFixed(2)
+            }
             gameTypeList.push({ name, td, yd, rate })
         }
         // 删除不需要的key值

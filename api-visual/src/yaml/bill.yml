@@ -163,6 +163,9 @@ playerCountPie: # 饼图-玩家人数
     - if:
         test: :parent != null
         sql: and parent = :parent
+    - if:
+        test: :gameType != null
+        sql: and gameType = :gameType
     - GROUP BY gameType,userId) as c 
     - GROUP BY c.gameType
 
@@ -183,6 +186,9 @@ handleAmountPie: # 饼图-金额汇总
     - if:
         test: :parent != null
         sql: and parent = :parent
+    - if:
+        test: :gameType != null
+        sql: and gameType = :gameType
     - GROUP BY gameType
 
 playerCountRank: # 商户排行-玩家人数
