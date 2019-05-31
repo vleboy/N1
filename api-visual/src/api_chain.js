@@ -69,7 +69,7 @@ router.get('/chain/:queryType', async (ctx, next) => {
     // 获取区域玩家总下注金额
     promiseArr.push(queryGetChain('bill.handleAmountPie', 'betAmount', inparam, chainMap, 3))
     // 获取区域玩家总返奖
-    // promiseArr.push(queryGetChain('bill.handleAmountPie', 'retAmount', inparam, chainMap, 4))
+    promiseArr.push(queryGetChain('bill.handleAmountPie', 'retAmount', inparam, chainMap, 4))
     // 获取区域玩家总退款
     promiseArr.push(queryGetChain('bill.handleAmountPie', 'refundAmount', inparam, chainMap, 5))
     // 获取区域玩家总输赢
@@ -88,7 +88,7 @@ router.get('/chain/:queryType', async (ctx, next) => {
     // 获取区域玩家总下注金额
     promiseArr.push(queryGetChain('bill.handleAmountPie', 'betAmount', inparam, chainMap, 3))
     // 获取区域玩家总返奖
-    // promiseArr.push(queryGetChain('bill.handleAmountPie', 'retAmount', inparam, chainMap, 4))
+    promiseArr.push(queryGetChain('bill.handleAmountPie', 'retAmount', inparam, chainMap, 4))
     // 获取区域玩家总退款
     promiseArr.push(queryGetChain('bill.handleAmountPie', 'refundAmount', inparam, chainMap, 5))
     // 获取区域玩家总输赢
