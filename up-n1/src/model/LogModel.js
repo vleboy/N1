@@ -250,7 +250,7 @@ module.exports = class LogModel extends BaseModel {
                 this.putItem({
                     ...this.item,
                     createdStr: moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
-                    detail: inparam.detail + "的账户：" + inparam.changeUser,
+                    detail:`用户【${inparam.changeUser}】在【${moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}】时间点的运营商标识【${inparam.company}】被【${inparam.detail}】`,
                     inparams: error,
                     ret: 'N',
                     role: role,

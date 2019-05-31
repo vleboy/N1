@@ -150,6 +150,10 @@ router.post('/userChangeStatus', async function (ctx, next) {
     }
     // 如果是停用用户游戏
     if (inparam.switch == StatusEnum.Disable) {
+        token.detail = '手动停用'
+        token.userId = user.userId
+        token.userName = user.username
+        token.changeUser = user.username
         const merchantUids = [user.userId]  // 需要推送状态变更的用户
         // 线路商需要把自己的商户对应游戏也停用
         if (inparam.role == RoleCodeEnum.Manager) {
@@ -160,6 +164,9 @@ router.post('/userChangeStatus', async function (ctx, next) {
                         for (let parentCompanyItem of user.companyList) {
                             if (companyItem.company == parentCompanyItem.company && parentCompanyItem.status == 0) {
                                 companyItem.status = 0
+                                //这里是手动停用金额map的日志
+                                inparam.company=companyItem.company
+                                new LogModel().add('7', inparam, token)
                             }
                         }
                     }
@@ -168,11 +175,6 @@ router.post('/userChangeStatus', async function (ctx, next) {
                 }
             }
         }
-        token.detail = '手动停用'
-        token.userId = user.userId
-        token.userName = user.username
-        token.changeUser = user.username
-        new LogModel().add('7', inparam, token)
     } else if (inparam.switch == StatusEnum.Enable) {
         if (inparam.companyList) {
             token.detail = '手动启用'
