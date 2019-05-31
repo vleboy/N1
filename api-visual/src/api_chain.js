@@ -97,10 +97,32 @@ router.get('/chain/:queryType', async (ctx, next) => {
     await Promise.all(promiseArr)
     //数据结构处理
     for (let key in chainMap) {
-        //注意： 顺序不能改！！！
-        let allGameTypeSum = [_.sumBy(chainMap[key], (o) => { if (o.i == 0) { return o.value } }) || 0, _.sumBy(chainMap[key], (o) => { if (o.i == 1) { return o.value } }) || 0]
+        //注意： 顺序不能改！！！(对象引用导致)  获取总的环比
+        let sum0 = _.sumBy(chainMap[key], (o) => { if (o.i == 0) { return o.value } }) || 0
+        let sum1 = _.sumBy(chainMap[key], (o) => { if (o.i == 1) { return o.value } }) || 0
+        let sumrate = +((sum0 - sum1) / sum1 * 100).toFixed(2)
+        let allGameTypeSum = [sum0, sum1, sumrate]
+        // 获取每类游戏的环比
         chainMap[key] = _.groupBy(chainMap[key], 'name')
+        let gameTypeList = []
+        for (let name in chainMap[key]) {
+            let td = 0, yd = 0, rate = 0
+            for (let item of chainMap[key][name]) {
+                if (item.i == 0) {
+                    td = item.value
+                } else if (item.i == 1) {
+                    yd = item.value
+                }
+            }
+            rate = + ((td - yd) / yd * 100).toFixed(2)
+            gameTypeList.push({ name, td, yd, rate })
+        }
+        // 删除不需要的key值
+        for (let name in chainMap[key]) {
+            delete chainMap[key][name]
+        }
         chainMap[key].allGameTypeSum = allGameTypeSum
+        chainMap[key].gameTypeList = gameTypeList
     }
     ctx.body = { code: 0, data: chainMap }
     console.timeEnd('环比统计耗时')
