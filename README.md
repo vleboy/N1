@@ -236,3 +236,8 @@ anotherGameData{data:[{\"GameResult\":[{\"BaccaratResult\":[]}]}],mixAmount:0}
 【国内】http://webpage.risheng3d.com/h5_lobby.html?userId=268184&token=0
 【国外】http://webpage.na77.org/h5_lobby.html?userId=268184&token=0
 
+
+yum clean all后，需要往下面文件添加地址
+rhui-load-balancers.conf
+rhui2-cds01.ap-southeast-1.aws.ce.redhat.com
+rhui2-cds02.ap-southeast-1.aws.ce.redhat.com
