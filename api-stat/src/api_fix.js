@@ -85,11 +85,13 @@ router.post('/stat/checkRound', async (ctx, next) => {
             // 修正返奖时查询不到的下注，如果确认下注不存在，则清除该日志
             if (item.type == 'findBetError') {
                 let p = new Promise(async (resolve, reject) => {
+                    let flag = true
                     // 根据betsn确认
                     if (item.inparams.betsn) {
                         let billRes = await new PlayerBillDetailModel().getItem({ Key: { 'sn': item.inparams.betsn } })
                         if (!billRes.Item || _.isEmpty(billRes.Item)) {
                             await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
+                            flag = false
                         }
                     }
                     // 根据bk确认
@@ -97,6 +99,27 @@ router.post('/stat/checkRound', async (ctx, next) => {
                         let detailNumber = await new PlayerBillDetailModel().bkQuery({ bk: item.inparams.businessKey })
                         if (detailNumber == -1) {
                             await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
+                            flag = false
+                        }
+                    }
+                    // 投注与退款相同
+                    if (flag) {
+                        const bkRet = await new StatRoundModel().query({
+                            KeyConditionExpression: 'businessKey = :businessKey',
+                            ExpressionAttributeValues: { ':businessKey': item.inparams.businessKey }
+                        })
+                        if (bkRet && bkRet.Items.length > 0) {
+                            let betCount = bkRet.Items[0].content.bet.length
+                            let refundCount = 0
+                            let retArr = bkRet.Items[0].content.ret
+                            for (let ret of retArr) {
+                                if (ret.type == 5) {
+                                    refundCount++
+                                }
+                            }
+                            if (betCount == refundCount) {
+                                await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
+                            }
                         }
                     }
                     resolve(1)
