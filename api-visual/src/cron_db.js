@@ -41,7 +41,7 @@ function putLog(inparam) {
             updatedAt: Date.now(),
             createdDate: moment().utcOffset(8).format('YYYY-MM-DD'),
             createdStr: moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
-            detail: `用户【${inparam.userName}】【${inparam.userId}】在【${moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}】时间点的运营商标识【${inparam.company}】点数总值为:【${inparam.winloseAmount}】超过了预设值【${inparam.topAmount}】而被停用！`,
+            detail: `用户【${inparam.username}】【${inparam.userId}】在【${moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}】时间点的运营商标识【${inparam.company}】点数总值为:【${inparam.winloseAmount}】超过了预设值【${inparam.topAmount}】而被停用！`,
             inparams: '超过预警值',
             ret: 'N',
             role: '7',
@@ -275,7 +275,7 @@ async function sumAmountMap() {
     // 获取所有商户和线路商
     let usreRes = await queryInc('scan', {
         TableName: 'ZeusPlatformUser',
-        ProjectionExpression: '#role,userId,#level,levelIndex,gameList,companyList,userName',
+        ProjectionExpression: '#role,userId,#level,levelIndex,gameList,companyList,username',
         ExpressionAttributeNames: { '#role': 'role', '#level': 'level' },
         FilterExpression: `#role = :role10 OR #role = :role100`,
         ExpressionAttributeValues: {
@@ -310,7 +310,7 @@ async function sumAmountMap() {
                     //校验map是否超过预设值
                     if (compayItem.topAmount > 0 && compayItem.winloseAmount > compayItem.topAmount && compayItem.status == 1) {
                         compayItem.status = 0
-                        putLog({ userId: userInfo.userId, userName: userInfo.userName, topAmount: compayItem.topAmount, winloseAmount: compayItem.winloseAmount, company: compayItem.company })
+                        putLog({ userId: userInfo.userId, username: userInfo.username, topAmount: compayItem.topAmount, winloseAmount: compayItem.winloseAmount, company: compayItem.company })
                     }
                 }
             }
@@ -339,7 +339,7 @@ async function sumAmountMap() {
             for (let item of manager.companyList) {
                 if (item.topAmount > 0 && item.winloseAmount > item.topAmount && item.status == 1) {
                     item.status = 0
-                    putLog({ userId: manager.userId, userName: manager.userName, topAmount: item.topAmount, winloseAmount: item.winloseAmount, company: item.company })
+                    putLog({ userId: manager.userId, username: manager.username, topAmount: item.topAmount, winloseAmount: item.winloseAmount, company: item.company })
                 }
             }
         }
