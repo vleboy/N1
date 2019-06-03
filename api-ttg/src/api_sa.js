@@ -61,7 +61,7 @@ router.get('/sa/gameurl/:userId/:token', async (ctx, next) => {
             page += `<input type="hidden" id="mobilepremium" name="mobilepremium" value="true">`
             // page += `<input type="hidden" id="returnurl" name="returnurl" value="${config.na.apidomain}/sa/logout/${ctx.params.userId}/${config.sa.gameId}">`
         } else {
-            page += `<input type="hidden" id="h5web" name="h5web" value="true">`
+            // page += `<input type="hidden" id="h5web" name="h5web" value="true">`
         }
         page += `</form>`
         // log.info(page)
