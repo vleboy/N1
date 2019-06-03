@@ -204,7 +204,7 @@ router.post('/setUserMap', async (ctx, next) => {
     }
     for (let item of user.companyList) {
         if (item.company == inparam.updateItem.company) {
-            if (inparam.updateItem.topAmount) {  //设置金额上限
+            if (inparam.updateItem.topAmount == 0 || inparam.updateItem.topAmount) {  //设置金额上限
                 token.detail = `修改金额上限值为【inparam.updateItem.topAmount】`
                 item.topAmount = inparam.updateItem.topAmount
             } else { //禁用 或启用
