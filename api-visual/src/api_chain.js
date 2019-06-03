@@ -34,7 +34,7 @@ router.get('/chain/:queryType', async (ctx, next) => {
     switch (queryType) {
         case 'days':
             //获取今天的开始和结束时间戳
-            startTime0 = new Date(new Date().setHours(0, 0, 0, 0)).getTime()
+            startTime0 = moment().utcOffset(8).startOf('day').valueOf()
             endTime0 = Date.now()
             //获取昨天的开始和结束时间戳
             startTime1 = startTime0 - 24 * 60 * 60 * 1000
@@ -42,18 +42,18 @@ router.get('/chain/:queryType', async (ctx, next) => {
             break;
         case 'weeks':
             //获取这周的开始和结束时间戳
-            startTime0 = dayjs().startOf('week').valueOf() + 24 * 60 * 60 * 1000
-            endTime0 = dayjs().endOf('second').valueOf()
+            startTime0 = moment().utcOffset(8).startOf('isoWeek').valueOf()
+            endTime0 = Date.now()
             //获取上周的开始和结束时间戳
-            startTime1 = dayjs().add(-1, 'week').startOf('week').valueOf() + 24 * 60 * 60 * 1000
+            startTime1 = startTime0 - 7 * 24 * 60 * 60 * 1000
             endTime1 = startTime0 - 1
             break;
         case 'months':
             //获取本月的开始和结束时间戳
-            startTime0 = dayjs().startOf('month').valueOf()
-            endTime0 = dayjs().endOf('second').valueOf()
+            startTime0 = moment().utcOffset(8).startOf('month').valueOf()
+            endTime0 = Date.now()
             //获取上月的开始和结束时间戳
-            startTime1 = dayjs().add(-1, 'month').startOf('month').valueOf()
+            startTime1 = moment().utcOffset(8).month(moment().utcOffset(8).month() - 1).startOf('month').valueOf()
             endTime1 = startTime0 - 1
             break;
     }
