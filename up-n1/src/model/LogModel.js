@@ -251,7 +251,7 @@ module.exports = class LogModel extends BaseModel {
                     ...this.item,
                     createdStr: moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
                     detail:`用户【${inparam.changeUser}】在【${moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}】时间点的运营商标识【${inparam.company}】被【${inparam.detail}】`,
-                    inparams: error,
+                    inparams: '人工修复',
                     ret: 'N',
                     role: role,
                     type: 'manualControl',

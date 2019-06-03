@@ -165,7 +165,7 @@ router.post('/userChangeStatus', async function (ctx, next) {
                             if (companyItem.company == parentCompanyItem.company && parentCompanyItem.status == 0) {
                                 companyItem.status = 0
                                 //这里是手动停用金额map的日志
-                                inparam.company=companyItem.company
+                                inparam.company = companyItem.company
                                 new LogModel().add('7', inparam, token)
                             }
                         }
@@ -186,6 +186,78 @@ router.post('/userChangeStatus', async function (ctx, next) {
     }
     // 结果返回
     ctx.body = { code: 0, payload: ret }
+})
+//控分接口
+router.post('/setUserMap', async (ctx, next) => {
+    let inparam = ctx.request.body
+    let token = ctx.tokenVerify
+    new UserCheck().checkMapStatus(inparam)
+    let userRet = await new UserModel().getItem({
+        ProjectionExpression: 'userId,levelIndex,companyList,#status,username',
+        ExpressionAttributeNames: { '#status': 'status' },
+        Key: { 'role': inparam.role, 'userId': inparam.userId }
+    })
+    let user = userRet.Item
+    // 平台用户只能平台管理员/父辈操作
+    if (!Model.isPlatformAdmin(token) && !Model.isSubChild(token, user)) {
+        throw BizErr.TokenErr('平台用户只能平台管理员/上级操作')
+    }
+    if (inparam.role == RoleCodeEnum.Manager) {  //线路商
+        //找出游戏列表中对应项
+        for (let item of user.companyList) {
+            if (item.company == inparam.updateItem.company) {
+                if (inparam.updateItem.topAmount) {   //设置金额上限
+                    item.topAmount = inparam.updateItem.topAmount
+                } else if (inparam.updateItem.status == 0 || inparam.updateItem.status == 1) { //禁用或启用
+                    if (inparam.updateItem.status == 0) { //禁用还需要停用下级商户
+                        const allChildRet = await new UserModel().listChildUsers({ userId: user.userId, role: RoleCodeEnum.Merchant })
+                        for (let child of allChildRet) {
+                            if (!_.isEmpty(child.companyList)) {
+                                for (let companyItem of child.companyList) {    //匹配出需要停用的下级用户的对应游戏
+                                    if (companyItem.company == inparam.updateItem.company) {
+                                        companyItem.status = 0
+                                    }
+                                }
+                                // 更新商户游戏状态
+                                new UserModel().changeStatus(child.role, child.userId, child.status, child.companyList)
+                            }
+                        }
+                    }
+                    item.status = inparam.updateItem.status
+                    // 更新线路商游戏状态
+                    await new UserModel().changeStatus(inparam.role, inparam.userId, user.status, user.companyList)
+                    // 写日志
+                    token.detail = inparam.updateItem.status == 0 ? '手动停用' : '手动启用'
+                    token.userId = user.userId
+                    token.userName = user.username
+                    token.changeUser = user.username
+                    token.company = inparam.updateItem.company
+                    new LogModel().add('7', inparam, token)
+                }
+            }
+        }
+    } else { //商户
+        for (let item of user.companyList) {
+            if (item.company == inparam.updateItem.company) {
+                if (inparam.updateItem.topAmount) {   //设置金额上限
+                    item.topAmount = inparam.updateItem.topAmount
+                } else if (inparam.updateItem.status == 0 || inparam.updateItem.status == 1) { //禁用或启用
+                    item.status = inparam.updateItem.status
+                    // 更新商户游戏状态
+                    await new UserModel().changeStatus(inparam.role, inparam.userId, user.status, user.companyList)
+                    // 写日志
+                    token.detail = inparam.updateItem.status == 0 ? '手动停用' : '手动启用'
+                    token.userId = user.userId
+                    token.userName = user.username
+                    token.changeUser = user.username
+                    token.company = inparam.updateItem.company
+                    new LogModel().add('7', inparam, token)
+                }
+            }
+        }
+    }
+    // 结果返回
+    ctx.body = { code: 0, payload: {} }
 })
 
 // 检查参数是否被占用

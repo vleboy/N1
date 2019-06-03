@@ -127,6 +127,23 @@ class UserCheck {
     }
 
     /**
+     * 检查map更新字段
+     */
+    checkMapStatus(inparam){
+        let [checkAttError, errorParams] = Util.checkProperties([
+            { name: "userId", type: "S", min: 36, max: 36 },
+            { name: "role", type: "N", min: 1, max: 100 },
+            { name: "updateItem", type: "J" }]
+            , inparam)
+
+        if (checkAttError) {
+            Object.assign(checkAttError, { params: errorParams })
+            throw checkAttError
+        }
+    }
+
+
+    /**
      * 检查登录
      * @param {*} inparam 
      */
