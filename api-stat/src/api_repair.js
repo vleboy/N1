@@ -35,7 +35,8 @@ router.post('/stat/manualRefund', async (ctx, next) => {
     // 停用玩家
     await new PlayerModel().updateItem({
         Key: { userName },
-        UpdateExpression: 'SET state=:state',
+        UpdateExpression: 'SET #state=:state',
+        ExpressionAttributeNames: { '#state': 'state' },
         ExpressionAttributeValues: { ':state': 0 }
     })
     // 插入退款
@@ -65,7 +66,8 @@ router.post('/stat/manualRefund', async (ctx, next) => {
     // 变更余额
     await new PlayerModel().updateItem({
         Key: { userName },
-        UpdateExpression: 'SET balance=:balance,state=:state',
+        UpdateExpression: 'SET balance=:balance,#state=:state',
+        ExpressionAttributeNames: { '#state': 'state' },
         ExpressionAttributeValues: { ':balance': balance, ':state': 1 }
     })
     console.timeEnd('手动退款')
