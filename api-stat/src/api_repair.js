@@ -48,7 +48,7 @@ router.post('/stat/manualRefund', async (ctx, next) => {
         createdAt: now,
         createdDate: moment(now).utcOffset(8).format('YYYY-MM-DD'),
         createdStr: moment(now).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
-        gameId: bill.gameType,
+        gameId: +bill.gameType + 1,
         gameType: bill.gameType,
         originalAmount,
         parent,
@@ -60,14 +60,14 @@ router.post('/stat/manualRefund', async (ctx, next) => {
         userId: bill.userId,
         userName: bill.userName
     })
+    // 删除缓存
+    await await new BaseModel().deleteItem({ TableName: 'SYSCacheBalance', Key: { userId: userName, 'type': 'ALL' } })
     // 变更余额
     await new PlayerModel().updateItem({
         Key: { userName },
-        UpdateExpression: 'SET balance=:balance',
-        ExpressionAttributeValues: { ':balance': balance }
+        UpdateExpression: 'SET balance=:balance,state=:state',
+        ExpressionAttributeValues: { ':balance': balance, ':state': 1 }
     })
-    // 删除缓存
-    await await new BaseModel().deleteItem({ TableName: 'SYSCacheBalance', Key: { userId: userName, 'type': 'ALL' } })
     console.timeEnd('手动退款')
     ctx.body = { code: 0, msg: 'Y' }
 })
