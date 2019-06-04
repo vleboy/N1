@@ -153,17 +153,22 @@ router.post('/merchants/:id', async function (ctx, next) {
   let isChangeGameList = gameListDifference.length == 0 ? false : true
   // 判断是否更新所有子用户的游戏或者抽成比
   if (isChangeGameList) {
-    let inparam = {
-      gameListAfter: merchant.gameList,
-      gameListBefore: merchantInfo.gameList,
-      userId: merchant.userId,
-      userName: merchant.username,
-      operateName: token.username
+    let detail = '更新商户的'
+    for (let item of merchantInfo.gameList) {
+      detail += `${item.name}的抽成比为${item.rate}`
     }
-    new LogModel().add('8', { gameList: merchantInfo.gameList, userId: merchant.userId }, inparam)
+    params.operateAction = detail
+    // let inparam = {
+    //   gameListAfter: merchant.gameList,
+    //   gameListBefore: merchantInfo.gameList,
+    //   userId: merchant.userId,
+    //   userName: merchant.username,
+    //   operateName: token.username
+    // }
+    // new LogModel().add('8', { gameList: merchantInfo.gameList, userId: merchant.userId }, inparam)
+  } else {
+    params.operateAction = '更新商户基本信息'
   }
-  // 操作日志记录
-  params.operateAction = '更新商户信息'
   params.operateToken = ctx.tokenVerify
   new LogModel().addOperate(params, null, updateRet)
   // 结果返回

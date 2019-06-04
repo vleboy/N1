@@ -162,20 +162,24 @@ router.post('/managers/:id', async function (ctx, next) {
   let isChangeGameList = gameListDifference.length != 0 || rateBool ? true : false
   // 判断是否更新所有子用户的游戏或者抽成比
   if (isChangeGameList) {
-    let inparam = {
-      gameListAfter: manager.gameList,
-      gameListBefore: managerInfo.gameList,
-      userId: manager.userId,
-      userName: manager.username,
-      operateName: token.username
+    let detail = '更新线路商的'
+    for (let item of managerInfo.gameList) {
+      detail += `${item.name}的抽成比为${item.rate}`
     }
-    new LogModel().add('8', { gameList: managerInfo.gameList, userId: manager.userId }, inparam)
+    params.operateAction = detail
+    // let inparam = {
+    //   gameListAfter: manager.gameList,
+    //   gameListBefore: managerInfo.gameList,
+    //   userId: manager.userId,
+    //   userName: manager.username,
+    //   operateName: token.username
+    // }
+    // new LogModel().add('8', { gameList: managerInfo.gameList, userId: manager.userId }, inparam)
+  } else {
+    params.operateAction = '更新线路商基本信息'
   }
-
   await relatedChange(isChangeGameList, gameListDifference, Manager)
-
   // 操作日志记录
-  params.operateAction = '更新线路商信息'
   params.operateToken = token
   new LogModel().addOperate(params, null, updateRet)
   // 结果返回
