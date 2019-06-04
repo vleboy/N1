@@ -23,7 +23,7 @@ router.post('/stat/manualRefund', async (ctx, next) => {
     const inparam = ctx.request.body
     console.time('手动退款')
     // 查询指定sn的日志
-    let logRes = await new BaseModel().getItem({ TableName: 'ZeusPlatformLog', Key: { 'sn': inparam.sn } })
+    let logRes = await new BaseModel().getItem({ TableName: 'ZeusPlatformLog', Key: { 'sn': inparam.sn, 'userId': inparam.userId } })
     let userName = logRes.Item.userName
     let bill = logRes.Item.inparams
     let now = Date.now()
