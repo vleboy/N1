@@ -16,7 +16,7 @@ const BillModel = require('./model/BillModel')
 const UserCheck = require('./biz/UserCheck')
 const RoleCodeEnum = require('./lib/UserConsts').RoleCodeEnum
 const RoleEditProps = require('./lib/UserConsts').RoleEditProps
-const GameTypeEnum = require('./lib/Consts').GameTypeEnum
+const { GameTypeEnum, GameTypeEnum } = require('./lib/Consts')
 const Model = require('./lib/Model').Model
 
 /**
@@ -158,10 +158,10 @@ router.post('/merchants/:id', async function (ctx, next) {
       detail += `更新【${item.name}抽成比为${item.rate}】 `
     }
     for (let item of gameListDifference) {
-      detail += `删除【${item.name}】`
+      detail += `删除【${GameTypeEnum[item].name}】`
     }
     for (let item of addArr) {
-      detail += `添加【${item.name}】`
+      detail += `添加【${GameTypeEnum[item].name}】`
     }
     params.operateAction = detail
     // let inparam = {

@@ -17,7 +17,7 @@ const RoleCodeEnum = require('./lib/UserConsts').RoleCodeEnum
 const RoleEditProps = require('./lib/UserConsts').RoleEditProps
 const Model = require('./lib/Model').Model
 const BizErr = require('./lib/Codes').BizErr
-const CompanyEnum = require('./lib/Consts').CompanyEnum
+const { CompanyEnum, GameTypeEnum } = require('./lib/Consts')
 /**
  * 线路商列表
  */
@@ -167,10 +167,10 @@ router.post('/managers/:id', async function (ctx, next) {
       detail += `更新【${item.name}抽成比为${item.rate}】 `
     }
     for (let item of gameListDifference) {
-      detail += `删除【${item.name}】`
+      detail += `删除【${GameTypeEnum[item].name}】`
     }
     for (let item of addArr) {
-      detail += `添加【${item.name}】`
+      detail += `添加【${GameTypeEnum[item].name}】`
     }
     params.operateAction = detail
     // let inparam = {
