@@ -111,79 +111,20 @@ router.post('/userChangeStatus', async function (ctx, next) {
         throw BizErr.TokenErr('平台用户只能平台管理员/上级操作')
     }
     // 更新用户状态
-    if (!inparam.companyList && (inparam.status == StatusEnum.Enable || inparam.status == StatusEnum.Disable)) {
+    if (inparam.status == StatusEnum.Disable && inparam.role == RoleCodeEnum.Manager) { //线路商禁用需要更新下级商户
+        const allChildRet = await new UserModel().listAllChildUsers(user)
+        for (let child of allChildRet) {
+            new UserModel().changeStatus(child.role, child.userId, inparam.status)
+        }
+    } else {
         user.status = inparam.status
     }
-    // 更新用户拥有的游戏状态
-    if (inparam.companyList) {
-        inparam.companyList = companyDifference(user.companyList, inparam.companyList)
-        for (let item of inparam.companyList) {
-            if (!isNotANumber(item.topAmount) || !(item.status != 0 || item.status != 1)) {
-                throw { "code": -1, "msg": "设置公司游戏数据不正确,请检查topAmount或者status", "params": ["companyList"] }
-            }
-        }
-        let newCompanyList = []
-        for (let item of inparam.companyList) {
-            for (olditem of user.companyList) {
-                if (item.company == olditem.company) {
-                    newCompanyList.push({ ...item, winloseAmount: olditem.winloseAmount })
-                }
-            }
-        }
-        user.companyList = newCompanyList
-    }
     // 开始更新用户
-    const ret = await new UserModel().changeStatus(inparam.role, inparam.userId, user.status, user.companyList)
+    const ret = await new UserModel().changeStatus(inparam.role, inparam.userId, user.status)
     // 操作日志记录
     inparam.operateAction = '变更用户状态'
     inparam.operateToken = token
     new LogModel().addOperate(inparam, null, ret)
-
-    // 如果是更新用户状态，还要进一步更新所有子用户状态
-    if (!inparam.companyList && (inparam.status == StatusEnum.Enable || inparam.status == StatusEnum.Disable)) {
-        const merchantUids = [user.userId]  // 需要推送状态变更的用户
-        const allChildRet = await new UserModel().listAllChildUsers(user)
-        for (let child of allChildRet) {
-            new UserModel().changeStatus(child.role, child.userId, inparam.status)
-            merchantUids.push(child.userId) // 需要推送状态变更的用户
-        }
-    }
-    // 如果是停用用户游戏
-    if (inparam.switch == StatusEnum.Disable) {
-        token.detail = '手动停用'
-        token.userId = user.userId
-        token.userName = user.username
-        token.changeUser = user.username
-        const merchantUids = [user.userId]  // 需要推送状态变更的用户
-        // 线路商需要把自己的商户对应游戏也停用
-        if (inparam.role == RoleCodeEnum.Manager) {
-            const allChildRet = await new UserModel().listChildUsers({ userId: user.userId, role: RoleCodeEnum.Merchant })
-            for (let child of allChildRet) {
-                if (!_.isEmpty(child.companyList)) {
-                    for (let companyItem of child.companyList) {    //匹配出需要停用的下级用户的对应游戏
-                        for (let parentCompanyItem of user.companyList) {
-                            if (companyItem.company == parentCompanyItem.company && parentCompanyItem.status == 0) {
-                                companyItem.status = 0
-                                //这里是手动停用金额map的日志
-                                inparam.company = companyItem.company
-                                new LogModel().add('7', inparam, token)
-                            }
-                        }
-                    }
-                    new UserModel().changeStatus(child.role, child.userId, child.status, child.companyList) // 变更商户游戏状态
-                    merchantUids.push(child.userId) // 需要推送状态变更的用户
-                }
-            }
-        }
-    } else if (inparam.switch == StatusEnum.Enable) {
-        if (inparam.companyList) {
-            token.detail = '手动启用'
-            token.userId = user.userId
-            token.userName = user.username
-            token.changeUser = user.username
-            new LogModel().add('7', inparam, token)
-        }
-    }
     // 结果返回
     ctx.body = { code: 0, payload: ret }
 })
