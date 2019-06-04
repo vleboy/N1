@@ -120,7 +120,8 @@ router.post('/userChangeStatus', async function (ctx, next) {
     // 开始更新用户
     const ret = await new UserModel().changeStatus(inparam.role, inparam.userId, inparam.status)
     // 操作日志记录
-    inparam.operateAction = '变更用户状态'
+    let detail = inparam.status == StatusEnum.Disable ? '禁用' : '启用'
+    inparam.operateAction = `变更用户【${user.username}】状态为${detail}`
     inparam.operateToken = token
     new LogModel().addOperate(inparam, null, ret)
     // 结果返回
@@ -168,13 +169,11 @@ router.post('/setUserMap', async (ctx, next) => {
         }
     }
     // 更新用户
-    await new UserModel().changeStatus(inparam.role, inparam.userId, user.status, user.companyList)
-    // 写日志
-    token.userId = user.userId
-    token.userName = user.username
-    token.changeUser = user.username
-    token.company = inparam.updateItem.company
-    new LogModel().add('7', inparam, token)
+    const ret = await new UserModel().changeStatus(inparam.role, inparam.userId, user.status, user.companyList)
+    // 操作日志记录
+    inparam.operateAction = `用户【${user.username}】在【${moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}】时间点的运营商标识【${inparam.updateItem.company}】被【${token.detail}】`
+    inparam.operateToken = token
+    new LogModel().addOperate(inparam, null, ret)
     // 结果返回
     ctx.body = { code: 0, payload: {} }
 })
