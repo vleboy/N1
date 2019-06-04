@@ -5,6 +5,7 @@ const Router = require('koa-router')
 const router = new Router()
 // 工具相关
 const _ = require('lodash')
+const moment = require('moment')
 const NP = require('number-precision')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
