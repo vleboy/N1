@@ -149,13 +149,19 @@ router.post('/merchants/:id', async function (ctx, next) {
   }
   const updateRet = await new UserModel().userUpdate(Merchant)
 
-  let [gameListDifference, differenceList] = getGameListDifference(merchant, merchantInfo)
-  let isChangeGameList = gameListDifference.length == 0 ? false : true
+  let [gameListDifference, differenceList, rateBool, addArr] = getGameListDifference(merchant, merchantInfo)
+  let isChangeGameList = gameListDifference.length != 0 || rateBool ? true : false
   // 判断是否更新所有子用户的游戏或者抽成比
   if (isChangeGameList) {
-    let detail = '更新商户的'
+    let detail = '商户的游戏列表：'
     for (let item of differenceList) {
-      detail += `${item.name}的抽成比为${item.rate}`
+      detail += `更新【${item.name}抽成比为${item.rate}】 `
+    }
+    for (let item of gameListDifference) {
+      detail += `删除【${item.name}】`
+    }
+    for (let item of addArr) {
+      detail += `添加【${item.name}】`
     }
     params.operateAction = detail
     // let inparam = {
@@ -185,10 +191,12 @@ function getGameListDifference(userBefore, userAfter) {
   let gameListBefore = []
   let gameListAfter = []
   let differenceList = []
+  let rateBool = false
   for (let i of userBefore.gameList) {
     gameListBefore.push(i.code)
     for (let j of userAfter.gameList) {
       if (i.code == j.code && i.rate != j.rate) {
+        rateBool = true
         differenceList.push(j)
       }
     }
@@ -196,7 +204,7 @@ function getGameListDifference(userBefore, userAfter) {
   for (let j of userAfter.gameList) {
     gameListAfter.push(j.code)
   }
-  return [_.difference(gameListBefore, gameListAfter), differenceList]
+  return [_.difference(gameListBefore, gameListAfter), differenceList, rateBool, _.difference(gameListAfter, gameListBefore)]
 }
 /**
  * 检查游戏信息是否正确
