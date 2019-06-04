@@ -158,12 +158,12 @@ router.post('/managers/:id', async function (ctx, next) {
   }
   const updateRet = await new UserModel().userUpdate(Manager)
   // 判断是否变更了游戏或者抽成比
-  let [gameListDifference, rateBool] = getGameListDifference(manager, managerInfo)
+  let [gameListDifference, rateBool, differenceList] = getGameListDifference(manager, managerInfo)
   let isChangeGameList = gameListDifference.length != 0 || rateBool ? true : false
   // 判断是否更新所有子用户的游戏或者抽成比
   if (isChangeGameList) {
     let detail = '更新线路商的'
-    for (let item of managerInfo.gameList) {
+    for (let item of differenceList) {
       detail += `【${item.name}的抽成比为${item.rate}】 `
     }
     params.operateAction = detail
@@ -212,12 +212,14 @@ router.get('/avalible_managers', async function (ctx, next) {
 function getGameListDifference(userBefore, userAfter) {
   let gameListBefore = []
   let gameListAfter = []
+  let differenceList = []
   let rateBool = false
   for (let i of userBefore.gameList) {
     gameListBefore.push(i.code)
     for (let k of userAfter.gameList) {
       if (i.code == k.code && i.rate != k.rate) {
         rateBool = true
+        differenceList.push(k)
       }
     }
   }
@@ -225,7 +227,7 @@ function getGameListDifference(userBefore, userAfter) {
     gameListAfter.push(j.code)
   }
   let filterArr = _.difference(gameListBefore, gameListAfter)
-  return [filterArr, rateBool]
+  return [filterArr, rateBool, differenceList]
 }
 /**
  * 变更子用户的游戏等
