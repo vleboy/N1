@@ -17,6 +17,62 @@ const UserModel = require('./model/UserModel')
 const PlayerModel = require('./model/PlayerModel')
 
 /**
+ * 手动退款
+ */
+router.post('/stat/manualRefund', async (ctx, next) => {
+    const inparam = ctx.request.body
+    console.time('手动退款')
+    // 查询指定sn的日志
+    let logRes = await new BaseModel().getItem({ TableName: 'ZeusPlatformLog', Key: { 'sn': inparam.sn } })
+    let userName = logRes.Item.userName
+    let bill = logRes.Item.inparams
+    let now = Date.now()
+    // 查询当前玩家
+    let playerRes = await new PlayerModel().getItem({ Key: { userName } })
+    let parent = playerRes.Item.parent
+    let originalAmount = playerRes.Item.balance
+    let balance = NP.plus(originalAmount, bill.amt)
+    // 停用玩家
+    await new PlayerModel().updateItem({
+        Key: { userName },
+        UpdateExpression: 'SET state=:state',
+        ExpressionAttributeValues: { ':state': 0 }
+    })
+    // 插入退款
+    await new PlayerBillDetailModel().putItem({
+        action: 1,
+        amount: bill.amt,
+        anotherGameData: bill.anotherGameData,
+        balance,
+        businessKey: bill.businessKey,
+        createdAt: now,
+        createdDate: moment(now).utcOffset(8).format('YYYY-MM-DD'),
+        createdStr: moment(now).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
+        gameId: bill.gameType,
+        gameType: bill.gameType,
+        originalAmount,
+        parent,
+        sn: bill.sntemp,
+        sourceIP: bill.sourceIP,
+        txnid: bill.txnid,
+        type: 5,
+        updatedAt: now,
+        userId: bill.userId,
+        userName: bill.userName
+    })
+    // 变更余额
+    await new PlayerModel().updateItem({
+        Key: { userName },
+        UpdateExpression: 'SET balance=:balance',
+        ExpressionAttributeValues: { ':balance': balance }
+    })
+    // 删除缓存
+    await await new BaseModel().deleteItem({ TableName: 'SYSCacheBalance', Key: { userId: userName, 'type': 'ALL' } })
+    console.timeEnd('手动退款')
+    ctx.body = { code: 0, msg: 'Y' }
+})
+
+/**
  * 修正所有流水的amount为2位小数
  */
 router.post('/stat/fixBillAmount', async function (ctx, next) {
