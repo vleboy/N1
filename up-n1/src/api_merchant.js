@@ -16,7 +16,7 @@ const BillModel = require('./model/BillModel')
 const UserCheck = require('./biz/UserCheck')
 const RoleCodeEnum = require('./lib/UserConsts').RoleCodeEnum
 const RoleEditProps = require('./lib/UserConsts').RoleEditProps
-const { GameTypeEnum, GameTypeEnum } = require('./lib/Consts')
+const { GameTypeEnum } = require('./lib/Consts')
 const Model = require('./lib/Model').Model
 
 /**
