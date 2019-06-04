@@ -159,7 +159,7 @@ router.post('/managers/:id', async function (ctx, next) {
   const updateRet = await new UserModel().userUpdate(Manager)
   // 判断是否变更了游戏或者抽成比
   let [gameListDifference, rateBool, differenceList, addArr] = getGameListDifference(manager, managerInfo)
-  let isChangeGameList = gameListDifference.length != 0 || rateBool ? true : false
+  let isChangeGameList = gameListDifference.length != 0 || addArr.length != 0 || rateBool ? true : false
   // 判断是否更新所有子用户的游戏或者抽成比
   if (isChangeGameList) {
     let detail = `线路商${manager.username}的游戏列表：`

@@ -150,7 +150,7 @@ router.post('/merchants/:id', async function (ctx, next) {
   const updateRet = await new UserModel().userUpdate(Merchant)
 
   let [gameListDifference, differenceList, rateBool, addArr] = getGameListDifference(merchant, merchantInfo)
-  let isChangeGameList = gameListDifference.length != 0 || rateBool ? true : false
+  let isChangeGameList = gameListDifference.length != 0 || addArr.length != 0 || rateBool ? true : false
   // 判断是否更新所有子用户的游戏或者抽成比
   if (isChangeGameList) {
     let detail = `商户${merchant.username}的游戏列表：`
