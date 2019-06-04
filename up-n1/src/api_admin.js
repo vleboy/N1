@@ -116,11 +116,9 @@ router.post('/userChangeStatus', async function (ctx, next) {
         for (let child of allChildRet) {
             new UserModel().changeStatus(child.role, child.userId, inparam.status)
         }
-    } else {
-        user.status = inparam.status
     }
     // 开始更新用户
-    const ret = await new UserModel().changeStatus(inparam.role, inparam.userId, user.status)
+    const ret = await new UserModel().changeStatus(inparam.role, inparam.userId, inparam.status)
     // 操作日志记录
     inparam.operateAction = '变更用户状态'
     inparam.operateToken = token
