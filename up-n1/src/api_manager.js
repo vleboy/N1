@@ -164,7 +164,7 @@ router.post('/managers/:id', async function (ctx, next) {
   if (isChangeGameList) {
     let detail = '更新线路商的'
     for (let item of managerInfo.gameList) {
-      detail += `${item.name}的抽成比为${item.rate}`
+      detail += `【${item.name}的抽成比为${item.rate}】 `
     }
     params.operateAction = detail
     // let inparam = {
