@@ -41,12 +41,13 @@ function putLog(inparam) {
             updatedAt: Date.now(),
             createdDate: moment().utcOffset(8).format('YYYY-MM-DD'),
             createdStr: moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
-            detail: `用户【${inparam.username}】【${inparam.userId}】在【${moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}】时间点的运营商标识【${inparam.company}】点数总值为:【${inparam.winloseAmount}】超过了预设值【${inparam.topAmount}】而被停用！`,
+            action: `用户【${inparam.username}】【${inparam.userId}】在【${moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}】时间点的运营商标识【${inparam.company}】点数总值为:【${inparam.winloseAmount}】超过了预设值【${inparam.topAmount}】而被停用！`,
             inparams: '超过预警值',
-            ret: 'N',
+            ret: 'Y',
             role: '7',
             type: 'autoControl',
-            userId: 'NULL!'
+            userId: 'NULL!',
+            username: '系统'
         }
     }).promise()
 }
