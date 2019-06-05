@@ -1,5 +1,6 @@
 
 const _ = require('lodash')
+const NP = require('number-precision')
 const moment = require('moment')
 const BizErr = require('../lib/Codes').BizErr
 const RoleModels = require('../lib/UserConsts').RoleModels
@@ -28,28 +29,27 @@ class BillModel extends BaseModel {
      * @param {*} initPoint 初始分
      * @param {*} userId 用户ID
      */
-    async computeWaterfall(initPoint, userId) {
-        const bills = await this.query({
+    async computeWaterfall(initPoint, userId,inparam) {
+        let oldQuery = {
             IndexName: 'UserIdIndex',
             KeyConditionExpression: 'userId = :userId',
-            ExpressionAttributeValues: {
-                ':userId': userId
-            }
-        })
-        // 直接在内存里面做列表了. 如果需要进行缓存,以后实现
+            ScanIndexForward: false,
+            ExpressionAttributeValues: { ':userId': userId }
+        }
+        let bills = await this.bindFilterPage(oldQuery, {}, false, inparam)
+        bills = bills.Items
+        // 设定起始计算值
         let balanceSum = initPoint
-        const waterfall = _.map(bills.Items, (item, index) => {
-            // let balance = _.reduce(_.slice(bills.Items, 0, index + 1), (sum, item) => {
-            //     return sum + item.amount
-            // }, 0.0) + initPoint
-            balanceSum += bills.Items[index].amount
+        // 逐条流水计算
+        const waterfall = _.map(bills, (item, index) => {
+            balanceSum = NP.minus(balanceSum, bills[index].amount)
             return {
-                ...bills.Items[index],
-                oldBalance: +(balanceSum - bills.Items[index].amount).toFixed(2),
-                balance: +balanceSum.toFixed(2)
+                ...bills[index],
+                oldBalance: +balanceSum.toFixed(2),
+                balance: +(NP.plus(balanceSum, bills[index].amount)).toFixed(2)
             }
         })
-        return waterfall.reverse()
+        return [waterfall, inparam.startKey]
     }
 
     /**

@@ -83,29 +83,36 @@ router.get('/bills/:userId', async function (ctx, next) {
 
 // 账单列表
 router.get('/waterfall/:userId', async function (ctx, next) {
-    let inparam = ctx.params
-    let token = ctx.tokenVerify
-    // 查询用户信息
+    let userId = ctx.params.userId
+    let params = ctx.request.query
+    userId.length != 36 ? userId = ctx.userId : null
     let userRet = await new UserModel().queryOnce({
-        ProjectionExpression: '#role,points,levelIndex,userId',
+        ProjectionExpression: 'userId,#role,points,levelIndex',
         IndexName: 'UserIdIndex',
         KeyConditionExpression: 'userId = :userId',
-        ExpressionAttributeNames: {
-            '#role': 'role'
-        },
-        ExpressionAttributeValues: {
-            ':userId': inparam.userId
-        }
+        ExpressionAttributeNames: { '#role': 'role' },
+        ExpressionAttributeValues: { ':userId': userId }
     })
     let user = userRet.Items[0]
     // 操作权限
+    let token = ctx.tokenVerify
     if (Model.isAgent(user) && !Model.isAgentAdmin(token) && !Model.isSubChild(token, user) && user.userId != token.userId) {
         throw BizErr.TokenErr('代理用户只有代理管理员/上级/自己能查看')
     }
     // 业务查询
-    const bills = await new BillModel().computeWaterfall(user.points, inparam.userId)
-    // 返回结果
-    ctx.body = { code: 0, payload: bills }
+    let balance = +params.balance
+    if (params.sn) {
+        params.startKey = {
+            sn: params.sn,
+            userId,
+            createdAt: +params.createdAt
+        }
+    } else {
+        balance = await new BillModel().checkUserBalance(user)
+    }
+    params.pageSize = params.pageSize || 100
+    const [bills, startKey] = await new BillModel().computeWaterfall(balance, userId, params)
+    ctx.body = { code: 0, payload: bills, startKey }
 })
 
 // 日志列表
