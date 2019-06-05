@@ -1,12 +1,12 @@
 namespace: 'round'
 
-attrs: businessKey,parent,company,winloseAmount,createdAt
+attrs: businessKey,parent,parentRole,parentSn,parentName,parentDisplayId,parentDisplayName,userId,userName,company,gameType,gameId,sourceIP,country,province,city,betCount,betAmount,retAmount,refundAmount,winloseAmount,createdDate,createdAt
     
 batchInsert:
     - replace into round({{ round.attrs }}) values
     - for:
         array: data
-        sql: (:businessKey,:parent,:company,:winloseAmount,:createdAt)
+        sql: (:businessKey,:parent,:parentRole,:parentSn,:parentName,:parentDisplayId,:parentDisplayName,:userId,:userName,:company,:gameType,:gameId,:sourceIP,:country,:province,:city,:betCount,:betAmount,:retAmount,:refundAmount,:winloseAmount,:createdDate,:createdAt)
         seperator: ','
 
 #查询时间段所有商户对应的流水
