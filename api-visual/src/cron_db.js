@@ -176,12 +176,37 @@ cron.schedule('*/30 * * * * *', async () => {
         for (let bk of bkArr) {
             let billArr = await nodebatis.query('bill.queryByBk', { bk })
             if (_.findIndex(billArr, o => o.type == 3) != -1) {
+                let round = _.pick(billArr[0], ['businessKey', 'parent', 'parentRole', 'parentSn', 'parentName', 'parentDisplayId', 'parentDisplayName', 'userId', 'userName', 'company', 'gameType', 'gameId', 'sourceIP', 'country', 'province', 'city', 'createdAt'])
+                let betCount = 0
+                let betAmount = 0
+                let retAmount = 0
+                let refundAmount = 0
+                let winloseAmount = 0
+                for (let bill of billArr) {
+                    switch (bill.type) {
+                        case 3:
+                            betCount++
+                            betAmount = NP.plus(betAmount, bill.amount)
+                            break;
+                        case 4:
+                            retAmount = NP.plus(retAmount, bill.amount)
+                            break;
+                        case 5:
+                            refundAmount = NP.plus(refundAmount, bill.amount)
+                            break;
+                        default:
+                            break;
+                    }
+                    winloseAmount = NP.plus(winloseAmount, bill.amount)
+                }
                 roundArr.push({
-                    businessKey: billArr[0].businessKey,
-                    parent: billArr[0].parent,
-                    company: billArr[0].company,
-                    winloseAmount: +(_.sumBy(billArr, 'amount').toFixed(2)),
-                    createdAt: billArr[0].createdAt
+                    ...round,
+                    betCount,
+                    betAmount,
+                    retAmount,
+                    refundAmount,
+                    winloseAmount,
+                    createdDate: +moment(billArr[0].createdAt).utcOffset(8).format('YYYYMMDD'),
                 })
             }
         }
