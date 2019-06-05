@@ -62,6 +62,7 @@ router.get('/chain/:queryType', async (ctx, next) => {
     inparam.i = 0
     inparam.startTime = startTime0
     inparam.endTime = endTime0
+    console.log(`第一阶段查询类型${queryType}时间范围是${inparam.startTime}-${inparam.endTime}`)
     // 获取区域玩家总人数
     promiseArr.push(queryGetChain('bill.playerCountPie', 'playerCount', inparam, chainMap))
     // 获取区域玩家总下注次数
@@ -81,6 +82,7 @@ router.get('/chain/:queryType', async (ctx, next) => {
     inparam.i = 1
     inparam.startTime = startTime1
     inparam.endTime = endTime1
+    console.log(`第二阶段查询类型${queryType}时间范围是${inparam.startTime}-${inparam.endTime}`)
     // 获取区域玩家总人数
     promiseArr.push(queryGetChain('bill.playerCountPie', 'playerCount', inparam, chainMap))
     // 获取区域玩家总下注次数
