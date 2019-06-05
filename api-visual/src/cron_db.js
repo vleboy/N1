@@ -181,7 +181,6 @@ cron.schedule('*/10 * * * * *', async () => {
                 let betAmount = 0
                 let winAmount = 0
                 let refundAmount = 0
-                let retAmount = 0
                 let winloseAmount = 0
                 for (let bill of billArr) {
                     switch (bill.type) {
