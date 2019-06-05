@@ -6,7 +6,7 @@ const router = new Router()
 // 工具相关
 const nodebatis = global.nodebatis
 const _ = require('lodash')
-const dayjs = require('dayjs')
+const moment = require('moment')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 const { GameTypeEnum } = require('./lib/Enum')
