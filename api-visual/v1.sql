@@ -162,8 +162,30 @@ sum(betCount) as betCount,
 sum(betAmount) as betAmount,
 sum(winAmount) as winAmount,
 sum(refundAmount) as refundAmount,
-sum(retAmount), as retAmount,
+sum(retAmount) as retAmount,
 sum(winloseAmount) as winloseAmount 
 from round group by parent,parentDisplayName,createdDate
+
+drop view if exists `v_round_parent_createdWeek`;
+create view v_round_parent_createdWeek as 
+select parent,parentDisplayName,createdWeek,
+sum(betCount) as betCount,
+sum(betAmount) as betAmount,
+sum(winAmount) as winAmount,
+sum(refundAmount) as refundAmount,
+sum(retAmount) as retAmount,
+sum(winloseAmount) as winloseAmount 
+from round group by parent,parentDisplayName,createdWeek
+
+drop view if exists `v_round_parent_createdMonth`;
+create view v_round_parent_createdMonth as 
+select parent,parentDisplayName,createdMonth,
+sum(betCount) as betCount,
+sum(betAmount) as betAmount,
+sum(winAmount) as winAmount,
+sum(refundAmount) as refundAmount,
+sum(retAmount) as retAmount,
+sum(winloseAmount) as winloseAmount 
+from round group by parent,parentDisplayName,createdMonth
 
 -- 2019-04-10 06:46:25
