@@ -15,8 +15,8 @@ class UserCheck {
             { name: "username", type: "REG", min: null, max: null, equal: RegEnum.USERNAME },
             { name: "password", type: "S", min: 6, max: 16 },
             { name: "adminName", type: "REG", min: null, max: null, equal: RegEnum.HOSTNAME },
-            { name: "adminContact", type: "S", min: 1, max: 40 },
-            { name: "adminEmail", type: "REG", min: null, max: null, equal: RegEnum.EMAIL },
+            // { name: "adminContact", type: "S", min: 1, max: 40 },
+            // { name: "adminEmail", type: "REG", min: null, max: null, equal: RegEnum.EMAIL },
 
             // { name: "displayName", type: "NREG", min: null, max: null, equal: RegEnum.DISPLAYNAME },
             // { name: "hostName", type: "NREG", min: null, max: null, equal: RegEnum.HOSTNAME },
