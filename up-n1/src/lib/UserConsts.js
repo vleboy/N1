@@ -85,7 +85,8 @@ const RoleModels = {
       subRole: 'admin',
       displayName: '平台管理员',
       suffix: 'Platform',
-      points: Model.PlatformAdminDefaultPoints
+      points: Model.PlatformAdminDefaultPoints,
+      adminName: Model.StringValue
     }
   },
   '10': function () {
@@ -122,7 +123,7 @@ const RoleDisplay = {
     'suffix',
     'username',
     'uname',
-
+    'adminName',
     'parent',
     'parentName',
     'parentRole',
