@@ -100,8 +100,8 @@ router.get('/chain/:queryType', async (ctx, next) => {
     //数据结构处理
     for (let key in chainMap) {
         //注意： 顺序不能改！！！(对象引用导致)  获取总的环比
-        let sum0 = _.sumBy(chainMap[key], (o) => { if (o.i == 0) { return o.value } }) || 0
-        let sum1 = _.sumBy(chainMap[key], (o) => { if (o.i == 1) { return o.value } }) || 0
+        let sum0 = +(_.sumBy(chainMap[key], (o) => { if (o.i == 0) { return o.value } }) || 0).toFixed(2)
+        let sum1 = +(_.sumBy(chainMap[key], (o) => { if (o.i == 1) { return o.value } }) || 0).toFixed(2)
         let sumrate = 0
         if (sum1 == 0 || (sum0 * sum1 <= 0 && key == 'winloseAmount')) {
             sumrate = '-'
