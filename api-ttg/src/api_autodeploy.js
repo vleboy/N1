@@ -25,7 +25,7 @@ router.post('/deploy/n1web', async (ctx, next) => {
         deployWebMerchant()
         deployWebManager()
         // await gitPull('/usr/dev/N1_WEB')
-        // deployWebAgent()
+        deployWebAgent()
         // deployWebGame()
         ctx.body = 'Y'
     } catch (error) {
@@ -153,8 +153,8 @@ function deployWebAdmin() {
 function deployWebAgent() {
     return new Promise((reslove, reject) => {
         const commands = [
-            'cd /usr/dev/N1_WEB/n1-agent',
-            'npm run test-agent',
+            'cd /usr/dev/N1_WEB2/n1-agent',
+            'npm run test',
             'cd agent',
             '/usr/local/bin/aws s3 rm s3://dev-agent.na12345.com/*',
             '/usr/local/bin/aws s3 sync . s3://dev-agent.na12345.com --acl public-read --delete',
