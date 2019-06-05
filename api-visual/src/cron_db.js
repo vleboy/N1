@@ -198,7 +198,6 @@ cron.schedule('*/10 * * * * *', async () => {
                         default:
                             break;
                     }
-                    retAmount = NP.plus(winAmount, refundAmount)
                     winloseAmount = NP.plus(winloseAmount, bill.amount)
                 }
                 roundArr.push({
@@ -207,7 +206,7 @@ cron.schedule('*/10 * * * * *', async () => {
                     betAmount,
                     winAmount,
                     refundAmount,
-                    retAmount,
+                    retAmount: NP.plus(winAmount, refundAmount),
                     winloseAmount,
                     createdDate: +moment(billArr[0].createdAt).utcOffset(8).format('YYYYMMDD'),
                     createdWeek: +moment(billArr[0].createdAt).utcOffset(8).format('YYYYWW'),
