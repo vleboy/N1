@@ -106,7 +106,10 @@ router.get('/chain/:queryType', async (ctx, next) => {
         if (sum1 == 0) {
             sumrate = '-'
         } else {
-            sumrate = +(sum0 / sum1 * 100).toFixed(2)
+            sumrate = +((sum0 - sum1) / sum1 * 100).toFixed(2)
+            if (sum1 > 0) {
+                sumrate *= -1
+            }
         }
         // 获取每类游戏的环比
         chainMap[key] = _.groupBy(chainMap[key], 'name')
@@ -123,7 +126,10 @@ router.get('/chain/:queryType', async (ctx, next) => {
             if (yd == 0) {
                 rate = '-'
             } else {
-                rate = + (td / yd * 100).toFixed(2)
+                rate = + ((td - yd) / yd * 100).toFixed(2)
+                if (yd > 0) {
+                    rate *= -1
+                }
             }
             gameTypeList.push({ name, td, yd, rate })
         }
