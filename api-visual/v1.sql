@@ -116,13 +116,35 @@ DROP TABLE IF EXISTS `round`;
 CREATE TABLE `round` (
   `businessKey` varchar(128) NOT NULL,
   `parent` varchar(36) NOT NULL,
+  `parentRole` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `parentSn` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `parentName` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `parentDisplayId` int(11) NOT NULL,
+  `parentDisplayName` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `userId` int(11) NOT NULL,
+  `userName` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `company` varchar(10) NOT NULL,
+  `gameType` int(11) NOT NULL,
+  `gameId` int(11) NOT NULL,
+  `sourceIP` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `country` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `province` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `city` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `betCount` int(11) NOT NULL,
+  `betAmount` double NOT NULL,
+  `retAmount` double NOT NULL,
+  `refundAmount` double NOT NULL,
   `winloseAmount` double NOT NULL,
+  `createdDate` int(11) NOT NULL,
   `createdAt` bigint(20) NOT NULL,
   PRIMARY KEY (`businessKey`),
   KEY `parent` (`parent`),
-  KEY `parent_createdAt` (`parent`,`createdAt`),
-  KEY `parent_company_createdAt` (`parent`,`company`,`createdAt`)
+  KEY `parent_createdAt` (`parent`,`createdAt` DESC),
+  KEY `parent_company_createdAt` (`parent`,`company`,`createdAt` DESC),
+  KEY `country_createdAt` (`country`,`createdAt` DESC),
+  KEY `gameType_createdAt` (`gameType`,`createdAt` DESC),
+  KEY `gameId_createdAt` (`gameId`,`createdAt` DESC),
+  KEY `createdDate` (`createdDate` DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 drop view if exists `v_round`;
