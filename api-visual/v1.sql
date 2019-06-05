@@ -132,6 +132,7 @@ CREATE TABLE `round` (
   `betCount` int(11) NOT NULL,
   `betAmount` double NOT NULL,
   `retAmount` double NOT NULL,
+  `winAmount` double NOT NULL,
   `refundAmount` double NOT NULL,
   `winloseAmount` double NOT NULL,
   `createdAt` bigint(20) NOT NULL,

@@ -179,8 +179,9 @@ cron.schedule('*/10 * * * * *', async () => {
                 let round = _.pick(billArr[0], ['businessKey', 'parent', 'parentRole', 'parentSn', 'parentName', 'parentDisplayId', 'parentDisplayName', 'userId', 'userName', 'company', 'gameType', 'gameId', 'sourceIP', 'country', 'province', 'city', 'createdAt'])
                 let betCount = 0
                 let betAmount = 0
-                let retAmount = 0
+                let winAmount = 0
                 let refundAmount = 0
+                let retAmount = 0
                 let winloseAmount = 0
                 for (let bill of billArr) {
                     switch (bill.type) {
@@ -189,7 +190,7 @@ cron.schedule('*/10 * * * * *', async () => {
                             betAmount = NP.plus(betAmount, bill.amount)
                             break;
                         case 4:
-                            retAmount = NP.plus(retAmount, bill.amount)
+                            winAmount = NP.plus(winAmount, bill.amount)
                             break;
                         case 5:
                             refundAmount = NP.plus(refundAmount, bill.amount)
@@ -197,14 +198,16 @@ cron.schedule('*/10 * * * * *', async () => {
                         default:
                             break;
                     }
+                    retAmount = NP.plus(winAmount, refundAmount)
                     winloseAmount = NP.plus(winloseAmount, bill.amount)
                 }
                 roundArr.push({
                     ...round,
                     betCount,
                     betAmount,
-                    retAmount,
+                    winAmount,
                     refundAmount,
+                    retAmount,
                     winloseAmount,
                     createdDate: +moment(billArr[0].createdAt).utcOffset(8).format('YYYYMMDD'),
                     createdWeek: +moment(billArr[0].createdAt).utcOffset(8).format('YYYYWW'),
