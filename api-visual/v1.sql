@@ -111,7 +111,6 @@ CREATE TABLE `config` (
 INSERT INTO `config` (`type`, `createdAt`, `flag`, `rangeHour`, `playerCreatedAt`) VALUES
 ('queryTime',	1554048000000,	0,	24,	0);
 
--- 专用于风控计算的局表
 DROP TABLE IF EXISTS `round`;
 CREATE TABLE `round` (
   `businessKey` varchar(128) NOT NULL,
@@ -135,8 +134,10 @@ CREATE TABLE `round` (
   `retAmount` double NOT NULL,
   `refundAmount` double NOT NULL,
   `winloseAmount` double NOT NULL,
-  `createdDate` int(11) NOT NULL,
   `createdAt` bigint(20) NOT NULL,
+  `createdDate` int(11) NOT NULL,
+  `createdWeek` int(11) NOT NULL,
+  `createdMonth` int(11) NOT NULL,
   PRIMARY KEY (`businessKey`),
   KEY `parent` (`parent`),
   KEY `parent_createdAt` (`parent`,`createdAt` DESC),
@@ -144,7 +145,10 @@ CREATE TABLE `round` (
   KEY `country_createdAt` (`country`,`createdAt` DESC),
   KEY `gameType_createdAt` (`gameType`,`createdAt` DESC),
   KEY `gameId_createdAt` (`gameId`,`createdAt` DESC),
-  KEY `createdDate` (`createdDate` DESC)
+  KEY `createdDate` (`createdDate` DESC),
+  KEY `createdWeek` (`createdWeek` DESC),
+  KEY `createdMonth` (`createdMonth`),
+  KEY `createdAt` (`createdAt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 drop view if exists `v_round`;

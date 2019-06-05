@@ -207,6 +207,8 @@ cron.schedule('*/10 * * * * *', async () => {
                     refundAmount,
                     winloseAmount,
                     createdDate: +moment(billArr[0].createdAt).utcOffset(8).format('YYYYMMDD'),
+                    createdWeek: +moment(billArr[0].createdAt).utcOffset(8).format('YYYYWW'),
+                    createdMonth: +moment(billArr[0].createdAt).utcOffset(8).format('YYYYMM')
                 })
             }
         }
