@@ -12,3 +12,7 @@ batchInsert:
 #查询时间段所有商户对应的流水
 queryAmountMap:
     - select * from v_round
+
+#查询所有商户的每日数据
+
+#查询所有游戏的每日数据
