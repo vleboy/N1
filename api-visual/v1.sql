@@ -155,4 +155,15 @@ CREATE TABLE `round` (
 drop view if exists `v_round`;
 create view v_round as select parent,company,round(sum(winloseAmount),2) as winloseAmount from round where createdAt > 1554048000000 group by parent,company;
 
+drop view if exists `v_round_parent_createdDate`;
+create view v_round_parent_createdDate as 
+select parent,parentDisplayName,createdDate,
+sum(betCount) as betCount,
+sum(betAmount) as betAmount,
+sum(winAmount) as winAmount,
+sum(refundAmount) as refundAmount,
+sum(retAmount), as retAmount,
+sum(winloseAmount) as winloseAmount 
+from round group by parent,parentDisplayName,createdDate
+
 -- 2019-04-10 06:46:25
