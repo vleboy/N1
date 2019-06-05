@@ -103,11 +103,11 @@ router.get('/chain/:queryType', async (ctx, next) => {
         let sum0 = _.sumBy(chainMap[key], (o) => { if (o.i == 0) { return o.value } }) || 0
         let sum1 = _.sumBy(chainMap[key], (o) => { if (o.i == 1) { return o.value } }) || 0
         let sumrate = 0
-        if (sum1 == 0) {
+        if (sum1 == 0 || sum0 * sum1 < 0) {
             sumrate = '-'
         } else {
             sumrate = +((sum0 - sum1) / sum1 * 100).toFixed(2)
-            if (sum1 > 0) {
+            if (sum1 > 0 && key == 'winloseAmount') {
                 sumrate *= -1
             }
         }
@@ -123,11 +123,11 @@ router.get('/chain/:queryType', async (ctx, next) => {
                     yd = item.value
                 }
             }
-            if (yd == 0) {
+            if (yd == 0 || td * yd < 0) {
                 rate = '-'
             } else {
                 rate = + ((td - yd) / yd * 100).toFixed(2)
-                if (yd > 0) {
+                if (yd > 0 && key == 'winloseAmount') {
                     rate *= -1
                 }
             }
