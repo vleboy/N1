@@ -281,6 +281,12 @@ async function checkOrder(orderid) {
 function getURL(s, param) {
     let timestamp = Date.now()
     let url = s != 6 ? config.ky.apiUrl : config.ky.recordUrl
+    console.log({
+        agent: config.ky.agent,
+        timestamp: timestamp,
+        param: desEncode(config.ky.desKey, param),
+        key: crypto.createHash('md5').update(config.ky.agent + timestamp.toString() + config.ky.md5key).digest('hex'),
+    })
     url = url + "?" + qs.stringify({
         agent: config.ky.agent,
         timestamp: timestamp,
