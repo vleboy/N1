@@ -5,7 +5,7 @@ from round where createdAt > 1554048000000 group by parent,company;
 
 -- 按照商户，游戏大类分组
 drop view if exists `v_round_parent_gametype_createddate`;
-create view v_round_parent_gameType_createddate as 
+create view v_round_parent_gametype_createddate as 
 select parent,parentDisplayName,gameType,createdDate,
 ROUND(sum(betCount),2) as betCount,
 ROUND(sum(betAmount),2) as betAmount,
@@ -17,26 +17,26 @@ from round group by parent,parentDisplayName,gameType,createdDate
 order by createdDate;
 
 drop view if exists `v_round_parent_gametype_createdweek`;
-create view v_round_parent_gameType_createdweek as 
+create view v_round_parent_gametype_createdweek as 
 select parent,parentDisplayName,gameType,createdWeek,
-ROUND(sum(betCount) as betCount,
-ROUND(sum(betAmount) as betAmount,
-ROUND(sum(winAmount) as winAmount,
-ROUND(sum(refundAmount) as refundAmount,
-ROUND(sum(retAmount) as retAmount,
-ROUND(sum(winloseAmount) as winloseAmount 
+ROUND(sum(betCount),2) as betCount,
+ROUND(sum(betAmount),2) as betAmount,
+ROUND(sum(winAmount),2) as winAmount,
+ROUND(sum(refundAmount),2) as refundAmount,
+ROUND(sum(retAmount),2) as retAmount,
+ROUND(sum(winloseAmount),2) as winloseAmount 
 from round group by parent,parentDisplayName,gameType,createdWeek
 order by createdWeek;
 
 drop view if exists `v_round_parent_gametype_createdmonth`;
-create view v_round_parent_gameType_createdmonth as 
+create view v_round_parent_gametype_createdmonth as 
 select parent,parentDisplayName,gameType,createdMonth,
-ROUND(sum(betCount) as betCount,
-ROUND(sum(betAmount) as betAmount,
-ROUND(sum(winAmount) as winAmount,
-ROUND(sum(refundAmount) as refundAmount,
-ROUND(sum(retAmount) as retAmount,
-ROUND(sum(winloseAmount) as winloseAmount 
+ROUND(sum(betCount),2) as betCount,
+ROUND(sum(betAmount),2) as betAmount,
+ROUND(sum(winAmount),2) as winAmount,
+ROUND(sum(refundAmount),2) as refundAmount,
+ROUND(sum(retAmount),2) as retAmount,
+ROUND(sum(winloseAmount),2) as winloseAmount 
 from round group by parent,parentDisplayName,gameType,createdMonth
 order by createdMonth;
 
@@ -79,7 +79,7 @@ order by createdMonth;
 
 -- 按照游戏大类分组
 drop view if exists `v_round_gametype_createddate`;
-create view v_round_gameType_createddate as 
+create view v_round_gametype_createddate as 
 select gameType,createdDate,
 ROUND(sum(betCount),2) as betCount,
 ROUND(sum(betAmount),2) as betAmount,
@@ -91,7 +91,7 @@ from round group by gameType,createdDate
 order by createdDate;
 
 drop view if exists `v_round_gametype_createdweek`;
-create view v_round_gameType_createdweek as 
+create view v_round_gametype_createdweek as 
 select gameType,createdWeek,
 ROUND(sum(betCount),2) as betCount,
 ROUND(sum(betAmount),2) as betAmount,
@@ -103,7 +103,7 @@ from round group by gameType,createdWeek
 order by createdWeek;
 
 drop view if exists `v_round_gametype_createdmonth`;
-create view v_round_gameType_createdmonth as 
+create view v_round_gametype_createdmonth as 
 select gameType,createdMonth,
 ROUND(sum(betCount),2) as betCount,
 ROUND(sum(betAmount),2) as betAmount,
