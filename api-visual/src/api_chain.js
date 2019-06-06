@@ -154,9 +154,8 @@ async function queryGetChain(sqlName, key, inparam, map, type) {
 }
 
 // 商户环比
-router.get('/chain/merchant/:queryType', async (ctx, next) => {
+router.get('/chain/merchant', async (ctx, next) => {
     let inparam = ctx.request.query
-    let queryType = ctx.params.queryType
     // 权限商户只能看自己的
     // let token = ctx.tokenVerify
     // if (token.role == '100') {
@@ -170,7 +169,7 @@ router.get('/chain/merchant/:queryType', async (ctx, next) => {
         winloseAmount: { xNames: [], yNames: [], series: [] }
     }
     let queryData = []
-    switch (queryType) {
+    switch (inparam.queryType) {
         case 'days':
             queryData = await nodebatis.query('round.queryDayData')
             break;
@@ -199,9 +198,8 @@ router.get('/chain/merchant/:queryType', async (ctx, next) => {
 })
 
 // 游戏环比
-router.get('/chain/gameType/:queryType', async (ctx, next) => {
+router.get('/chain/gameType', async (ctx, next) => {
     let inparam = ctx.request.query
-    let queryType = ctx.params.queryType
     // // 权限商户只能看自己的
     // let token = ctx.tokenVerify
     // if (token.role == '100') {
@@ -215,7 +213,7 @@ router.get('/chain/gameType/:queryType', async (ctx, next) => {
         winloseAmount: { xNames: [], yNames: [], series: [] }
     }
     let queryData = []
-    switch (queryType) {
+    switch (inparam.queryType) {
         case 'days':
             queryData = await nodebatis.query('round.queryGameDayData')
             break;
