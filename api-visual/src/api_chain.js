@@ -153,5 +153,12 @@ async function queryGetChain(sqlName, key, inparam, map, type) {
     }
 }
 
+// 商户环比
+router.get('/chain/merchant', async (ctx, next) => {
+})
+
+// 游戏环比
+router.get('/chain/gameType', async (ctx, next) => {
+})
 
 module.exports = router
