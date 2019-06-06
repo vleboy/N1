@@ -154,11 +154,93 @@ async function queryGetChain(sqlName, key, inparam, map, type) {
 }
 
 // 商户环比
-router.get('/chain/merchant', async (ctx, next) => {
+router.get('/chain/merchant/:queryType', async (ctx, next) => {
+    let inparam = ctx.request.query
+    let queryType = ctx.params.queryType
+    // 权限商户只能看自己的
+    // let token = ctx.tokenVerify
+    // if (token.role == '100') {
+    //     inparam.parent = token.userId
+    // }
+    let chainMap = {
+        betCount: { xNames: [], yNames: [], series: [] },
+        betAmount: { xNames: [], yNames: [], series: [] },
+        retAmount: { xNames: [], yNames: [], series: [] },
+        refundAmount: { xNames: [], yNames: [], series: [] },
+        winloseAmount: { xNames: [], yNames: [], series: [] }
+    }
+    let queryData = []
+    switch (queryType) {
+        case 'days':
+            queryData = await nodebatis.query('round.queryDayData')
+            break;
+        case 'weeks':
+            queryData = await nodebatis.query('round.queryWeekData')
+            break;
+        case 'months':
+            queryData = await nodebatis.query('round.queryMonthData')
+            break;
+    }
+    //数据处理
+    let dayNameGroup = _.groupBy(queryData, 'parentDisplayName')
+    for (let key in chainMap) {
+        for (let parentname in dayNameGroup) {
+            let parentMap = { name: parentname, type: 'line', data: [] }
+            chainMap[key].yNames.push(parentname)
+            for (let item of dayNameGroup[parentname]) {
+                chainMap[key].xNames.push(item.created)
+                parentMap.data.push([item.created, item[key]])
+            }
+            chainMap[key].series.push(parentMap)
+            chainMap[key].xNames = _.uniq(chainMap[key].xNames)
+        }
+    }
+    ctx.body = { code: 0, data: chainMap }
 })
 
 // 游戏环比
-router.get('/chain/gameType', async (ctx, next) => {
+router.get('/chain/gameType/:queryType', async (ctx, next) => {
+    let inparam = ctx.request.query
+    let queryType = ctx.params.queryType
+    // // 权限商户只能看自己的
+    // let token = ctx.tokenVerify
+    // if (token.role == '100') {
+    //     inparam.parent = token.userId
+    // }
+    let chainMap = {
+        betCount: { xNames: [], yNames: [], series: [] },
+        betAmount: { xNames: [], yNames: [], series: [] },
+        retAmount: { xNames: [], yNames: [], series: [] },
+        refundAmount: { xNames: [], yNames: [], series: [] },
+        winloseAmount: { xNames: [], yNames: [], series: [] }
+    }
+    let queryData = []
+    switch (queryType) {
+        case 'days':
+            queryData = await nodebatis.query('round.queryGameDayData')
+            break;
+        case 'weeks':
+            queryData = await nodebatis.query('round.queryGameWeekData')
+            break;
+        case 'months':
+            queryData = await nodebatis.query('round.queryGameMonthData')
+            break;
+    }
+    //数据处理
+    let dayNameGroup = _.groupBy(queryData, 'gameType')
+    for (let key in chainMap) {
+        for (let gameType in dayNameGroup) {
+            let parentMap = { name: gameType, type: 'line', data: [] }
+            chainMap[key].yNames.push(gameType)
+            for (let item of dayNameGroup[gameType]) {
+                chainMap[key].xNames.push(item.created)
+                parentMap.data.push([item.created, item[key]])
+            }
+            chainMap[key].series.push(parentMap)
+            chainMap[key].xNames = _.uniq(chainMap[key].xNames)
+        }
+    }
+    ctx.body = { code: 0, data: chainMap }
 })
 
 module.exports = router

@@ -14,5 +14,22 @@ queryAmountMap:
     - select * from v_round
 
 #查询所有商户的每日数据
+queryDayData:
+    - select parent,parentDisplayName,createdDate created,betCount,betAmount,refundAmount,retAmount,winloseAmount from v_round_parent_createddate 
+
+queryWeekData:
+    - select parent,parentDisplayName,createdWeek created,betCount,betAmount,refundAmount,retAmount,winloseAmount from v_round_parent_createdweek
+
+queryMonthData:
+    - select parent,parentDisplayName,createdMonth created,betCount,betAmount,refundAmount,retAmount,winloseAmount from v_round_parent_createdmonth 
+
 
 #查询所有游戏的每日数据
+queryGameDayData:
+    - select gameType,createdDate created,betCount,betAmount,refundAmount,retAmount,winloseAmount from v_round_gametype_createddate 
+
+queryGameWeekData:
+    - select gameType,createdWeek created,betCount,betAmount,refundAmount,retAmount,winloseAmount from v_round_gametype_createdweek
+
+queryGameMonthData:
+    - select gameType,createdMonth created,betCount,betAmount,refundAmount,retAmount,winloseAmount from v_round_gametype_createdmonth 
