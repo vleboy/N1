@@ -48,7 +48,7 @@ playerGameDayData:
     - select gameType,createdDate created,playerCount from v_round_gametype_playercount_createddate
 
 playerGameWeekData:
-    - select gameType,createdDate created,playerCount from v_round_gametype_playercount_createddate
+    - select gameType,createdDate created,playerCount from v_round_gametype_playercount_createdweek
 
 playerGameMonthData:
-    - select gameType,createdDate created,playerCount from v_round_gametype_playercount_createddate
+    - select gameType,createdDate created,playerCount from v_round_gametype_playercount_createdmonth
