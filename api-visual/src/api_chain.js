@@ -20,11 +20,11 @@ router.get('/chain/merchant', async (ctx, next) => {
     //     inparam.parent = token.userId
     // }
     let chainMap = {
-        betCount: { xNames: [], yNames: [], series: [] },
-        betAmount: { xNames: [], yNames: [], series: [] },
-        retAmount: { xNames: [], yNames: [], series: [] },
-        refundAmount: { xNames: [], yNames: [], series: [] },
-        winloseAmount: { xNames: [], yNames: [], series: [] }
+        betCount: { xNames: [], yNames: [], series: [], selected: {} },
+        betAmount: { xNames: [], yNames: [], series: [], selected: {} },
+        retAmount: { xNames: [], yNames: [], series: [], selected: {} },
+        refundAmount: { xNames: [], yNames: [], series: [], selected: {} },
+        winloseAmount: { xNames: [], yNames: [], series: [], selected: {} }
     }
     let queryData = [], playerData = []
     switch (inparam.queryType) {
@@ -63,7 +63,7 @@ router.get('/chain/merchant', async (ctx, next) => {
         handleMap(dayNameGroup, key, chainMap)
     }
     //处理玩家人数
-    chainMap.playerCount = { xNames: [], yNames: [], series: [] }
+    chainMap.playerCount = { xNames: [], yNames: [], series: [], selected: {} }
     handleMap(dayPlayerGroup, 'playerCount', chainMap)
     ctx.body = { code: 0, data: chainMap }
 })
@@ -106,7 +106,7 @@ router.get('/chain/gameType', async (ctx, next) => {
         handleMap(dayNameGroup, key, chainMap)
     }
     //处理玩家人数
-    chainMap.playerCount = { xNames: [], yNames: [], series: [] }
+    chainMap.playerCount = { xNames: [], yNames: [], series: [], selected: {} }
     handleMap(dayPlayerGroup, 'playerCount', chainMap)
     ctx.body = { code: 0, data: chainMap }
 })
