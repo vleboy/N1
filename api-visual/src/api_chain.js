@@ -113,8 +113,8 @@ router.get('/chain/gameType', async (ctx, next) => {
 
 function handleMap(dayNameGroup, key, chainMap) {
     for (let parentname in dayNameGroup) {
-        let parentMap = { name: isNaN(parentname) ? parentname : GameTypeEnum[parentname], type: 'line', data: [] }
-        chainMap[key].yNames.push(isNaN(parentname) ? parentname : GameTypeEnum[parentname])
+        let parentMap = { name: isNaN(parentname) ? parentname : GameTypeEnum[parentname].name, type: 'line', data: [] }
+        chainMap[key].yNames.push(isNaN(parentname) ? parentname : GameTypeEnum[parentname].name)
         for (let item of dayNameGroup[parentname]) {
             chainMap[key].xNames.push(item.created)
             parentMap.data.push([item.created.toString(), item[key]])
