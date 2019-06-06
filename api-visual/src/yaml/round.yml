@@ -33,3 +33,22 @@ queryGameWeekData:
 
 queryGameMonthData:
     - select gameType,createdMonth created,betCount,betAmount,refundAmount,retAmount,winloseAmount from v_round_gametype_createdmonth 
+
+#查询玩家统计数据
+playerDayData:
+    - select parent,parentDisplayName,createdDate created,playerCount from v_round_parent_playercount_createddate
+
+playerWeekData:
+    - select parent,parentDisplayName,createdWeek created,playerCount from v_round_parent_playercount_createdweek
+
+playerMonthData:
+    - select parent,parentDisplayName,createdMonth created,playerCount from v_round_parent_playercount_createdmonth
+
+playerGameDayData:
+    - select gameType,createdDate created,playerCount from v_round_gametype_playercount_createddate
+
+playerGameWeekData:
+    - select gameType,createdDate created,playerCount from v_round_gametype_playercount_createddate
+
+playerGameMonthData:
+    - select gameType,createdDate created,playerCount from v_round_gametype_playercount_createddate

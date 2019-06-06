@@ -26,32 +26,48 @@ router.get('/chain/merchant', async (ctx, next) => {
         refundAmount: { xNames: [], yNames: [], series: [] },
         winloseAmount: { xNames: [], yNames: [], series: [] }
     }
-    let queryData = []
+    let queryData = [], playerData = []
     switch (inparam.queryType) {
         case 'days':
             queryData = await nodebatis.query('round.queryDayData')
+            playerData = await nodebatis.query('round.playerDayData')
             break;
         case 'weeks':
             queryData = await nodebatis.query('round.queryWeekData')
+            playerData = await nodebatis.query('round.playerWeekData')
             break;
         case 'months':
             queryData = await nodebatis.query('round.queryMonthData')
+            playerData = await nodebatis.query('round.playerMonthData')
             break;
     }
     //数据处理
     let dayNameGroup = _.groupBy(queryData, 'parentDisplayName')
+    let dayPlayerGroup = _.groupBy(playerData, 'parentDisplayName')
     for (let key in chainMap) {
         for (let parentname in dayNameGroup) {
             let parentMap = { name: parentname, type: 'line', data: [] }
             chainMap[key].yNames.push(parentname)
             for (let item of dayNameGroup[parentname]) {
                 chainMap[key].xNames.push(item.created)
-                parentMap.data.push([item.created, item[key]])
+                parentMap.data.push([item.created.toString(), item[key]])
             }
             chainMap[key].series.push(parentMap)
-            chainMap[key].xNames = _.uniq(chainMap[key].xNames)
         }
+        chainMap[key].xNames = _.uniq(chainMap[key].xNames.sort())
     }
+    //处理玩家人数
+    chainMap.playerCount = { xNames: [], yNames: [], series: [] }
+    for (let parentname in dayPlayerGroup) {
+        let parentMap = { name: parentname, type: 'line', data: [] }
+        chainMap.playerCount.yNames.push(parentname)
+        for (let item of dayPlayerGroup[parentname]) {
+            chainMap.playerCount.xNames.push(item.created)
+            parentMap.data.push([item.created.toString(), item.playerCount])
+        }
+        chainMap.playerCount.series.push(parentMap)
+    }
+    chainMap.playerCount.xNames = _.uniq(chainMap.playerCount.xNames.sort())
     ctx.body = { code: 0, data: chainMap }
 })
 
@@ -70,35 +86,50 @@ router.get('/chain/gameType', async (ctx, next) => {
         refundAmount: { xNames: [], yNames: [], series: [] },
         winloseAmount: { xNames: [], yNames: [], series: [] }
     }
-    let queryData = []
+    let queryData = [], playerData = []
     switch (inparam.queryType) {
         case 'days':
             queryData = await nodebatis.query('round.queryGameDayData')
+            playerData = await nodebatis.query('round.playerGameDayData')
             break;
         case 'weeks':
             queryData = await nodebatis.query('round.queryGameWeekData')
+            playerData = await nodebatis.query('round.playerGameWeekData')
             break;
         case 'months':
             queryData = await nodebatis.query('round.queryGameMonthData')
+            playerData = await nodebatis.query('round.playerGameMonthData')
             break;
     }
     //数据处理
     let dayNameGroup = _.groupBy(queryData, 'gameType')
+    let dayPlayerGroup = _.groupBy(playerData, 'gameType')
     for (let key in chainMap) {
         for (let gameType in dayNameGroup) {
             let parentMap = { name: gameType, type: 'line', data: [] }
             chainMap[key].yNames.push(gameType)
             for (let item of dayNameGroup[gameType]) {
                 chainMap[key].xNames.push(item.created)
-                parentMap.data.push([item.created, item[key]])
+                parentMap.data.push([item.created.toString(), item[key]])
             }
             chainMap[key].series.push(parentMap)
-            chainMap[key].xNames = _.uniq(chainMap[key].xNames)
         }
+        chainMap[key].xNames = _.uniq(chainMap[key].xNames.sort())
     }
+    //处理玩家人数
+    chainMap.playerCount = { xNames: [], yNames: [], series: [] }
+    for (let gameType in dayPlayerGroup) {
+        let parentMap = { name: gameType, type: 'line', data: [] }
+        chainMap.playerCount.yNames.push(gameType)
+        for (let item of dayPlayerGroup[gameType]) {
+            chainMap.playerCount.xNames.push(item.created)
+            parentMap.data.push([item.created.toString(), item.playerCount])
+        }
+        chainMap.playerCount.series.push(parentMap)
+    }
+    chainMap.playerCount.xNames = _.uniq(chainMap.playerCount.xNames.sort())
     ctx.body = { code: 0, data: chainMap }
 })
-
 // /**
 //  *  今天对比昨天的数据
 //  */
