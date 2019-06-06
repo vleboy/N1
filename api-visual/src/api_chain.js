@@ -9,7 +9,7 @@ const _ = require('lodash')
 // const moment = require('moment')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
-// const { GameTypeEnum } = require('./lib/Enum')
+const { GameTypeEnum } = require('./lib/Enum')
 
 // 商户环比
 router.get('/chain/merchant', async (ctx, next) => {
@@ -29,47 +29,45 @@ router.get('/chain/merchant', async (ctx, next) => {
     let queryData = [], playerData = []
     switch (inparam.queryType) {
         case 'days':
-            queryData = await nodebatis.query('round.queryDayData')
-            playerData = await nodebatis.query('round.playerDayData')
+            if (inparam.gameType) {
+                queryData = await nodebatis.query('round.queryGameParentDayData', { gameType: inparam.gameType })
+                playerData = await nodebatis.query('round.playerGameParentDayData', { gameType: inparam.gameType })
+            } else {
+                queryData = await nodebatis.query('round.queryDayData')
+                playerData = await nodebatis.query('round.playerDayData')
+            }
             break;
         case 'weeks':
-            queryData = await nodebatis.query('round.queryWeekData')
-            playerData = await nodebatis.query('round.playerWeekData')
+            if (inparam.gameType) {
+                queryData = await nodebatis.query('round.queryGameParentWeekData', { gameType: inparam.gameType })
+                playerData = await nodebatis.query('round.playerGameParentWeekData', { gameType: inparam.gameType })
+            } else {
+                queryData = await nodebatis.query('round.queryWeekData')
+                playerData = await nodebatis.query('round.playerWeekData')
+            }
             break;
         case 'months':
-            queryData = await nodebatis.query('round.queryMonthData')
-            playerData = await nodebatis.query('round.playerMonthData')
+            if (inparam.gameType) {
+                queryData = await nodebatis.query('round.queryGameParentMonthData', { gameType: inparam.gameType })
+                playerData = await nodebatis.query('round.playerGameParentMonthData', { gameType: inparam.gameType })
+            } else {
+                queryData = await nodebatis.query('round.queryMonthData')
+                playerData = await nodebatis.query('round.playerMonthData')
+            }
             break;
     }
     //数据处理
     let dayNameGroup = _.groupBy(queryData, 'parentDisplayName')
     let dayPlayerGroup = _.groupBy(playerData, 'parentDisplayName')
     for (let key in chainMap) {
-        for (let parentname in dayNameGroup) {
-            let parentMap = { name: parentname, type: 'line', data: [] }
-            chainMap[key].yNames.push(parentname)
-            for (let item of dayNameGroup[parentname]) {
-                chainMap[key].xNames.push(item.created)
-                parentMap.data.push([item.created.toString(), item[key]])
-            }
-            chainMap[key].series.push(parentMap)
-        }
-        chainMap[key].xNames = _.uniq(chainMap[key].xNames.sort())
+        handleMap(dayNameGroup, key, chainMap)
     }
     //处理玩家人数
     chainMap.playerCount = { xNames: [], yNames: [], series: [] }
-    for (let parentname in dayPlayerGroup) {
-        let parentMap = { name: parentname, type: 'line', data: [] }
-        chainMap.playerCount.yNames.push(parentname)
-        for (let item of dayPlayerGroup[parentname]) {
-            chainMap.playerCount.xNames.push(item.created)
-            parentMap.data.push([item.created.toString(), item.playerCount])
-        }
-        chainMap.playerCount.series.push(parentMap)
-    }
-    chainMap.playerCount.xNames = _.uniq(chainMap.playerCount.xNames.sort())
+    handleMap(dayPlayerGroup, 'playerCount', chainMap)
     ctx.body = { code: 0, data: chainMap }
 })
+
 
 // 游戏环比
 router.get('/chain/gameType', async (ctx, next) => {
@@ -105,31 +103,27 @@ router.get('/chain/gameType', async (ctx, next) => {
     let dayNameGroup = _.groupBy(queryData, 'gameType')
     let dayPlayerGroup = _.groupBy(playerData, 'gameType')
     for (let key in chainMap) {
-        for (let gameType in dayNameGroup) {
-            let parentMap = { name: gameType, type: 'line', data: [] }
-            chainMap[key].yNames.push(gameType)
-            for (let item of dayNameGroup[gameType]) {
-                chainMap[key].xNames.push(item.created)
-                parentMap.data.push([item.created.toString(), item[key]])
-            }
-            chainMap[key].series.push(parentMap)
-        }
-        chainMap[key].xNames = _.uniq(chainMap[key].xNames.sort())
+        handleMap(dayNameGroup, key, chainMap)
     }
     //处理玩家人数
     chainMap.playerCount = { xNames: [], yNames: [], series: [] }
-    for (let gameType in dayPlayerGroup) {
-        let parentMap = { name: gameType, type: 'line', data: [] }
-        chainMap.playerCount.yNames.push(gameType)
-        for (let item of dayPlayerGroup[gameType]) {
-            chainMap.playerCount.xNames.push(item.created)
-            parentMap.data.push([item.created.toString(), item.playerCount])
-        }
-        chainMap.playerCount.series.push(parentMap)
-    }
-    chainMap.playerCount.xNames = _.uniq(chainMap.playerCount.xNames.sort())
+    handleMap(dayPlayerGroup, 'playerCount', chainMap)
     ctx.body = { code: 0, data: chainMap }
 })
+
+function handleMap(dayNameGroup, key, chainMap) {
+    for (let parentname in dayNameGroup) {
+        let parentMap = { name: isNaN(parentname) ? parentname : GameTypeEnum[parentname], type: 'line', data: [] }
+        chainMap[key].yNames.push(isNaN(parentname) ? parentname : GameTypeEnum[parentname])
+        for (let item of dayNameGroup[parentname]) {
+            chainMap[key].xNames.push(item.created)
+            parentMap.data.push([item.created.toString(), item[key]])
+        }
+        chainMap[key].series.push(parentMap)
+    }
+    chainMap[key].xNames = _.uniq(chainMap[key].xNames.sort())
+}
+
 // /**
 //  *  今天对比昨天的数据
 //  */
