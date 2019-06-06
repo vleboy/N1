@@ -138,7 +138,7 @@ order by t.createdMonth;
 
 -- 游戏分组玩家人数
 drop view if exists `v_round_gametype_playercount_createddate`;
-create view v_round_parent_playercount_createddate as 
+create view v_round_gametype_playercount_createddate as 
 select t.gameType,t.createdDate,count(t.userId) as playerCount from
 (select distinct(userId),gameType,createdDate from round) as t
 group by t.gameType,t.createdDate
