@@ -78,11 +78,11 @@ router.get('/chain/gameType', async (ctx, next) => {
     //     inparam.parent = token.userId
     // }
     let chainMap = {
-        betCount: { xNames: [], yNames: [], series: [] },
-        betAmount: { xNames: [], yNames: [], series: [] },
-        retAmount: { xNames: [], yNames: [], series: [] },
-        refundAmount: { xNames: [], yNames: [], series: [] },
-        winloseAmount: { xNames: [], yNames: [], series: [] }
+        betCount: { xNames: [], yNames: [], series: [], selected: {} },
+        betAmount: { xNames: [], yNames: [], series: [], selected: {} },
+        retAmount: { xNames: [], yNames: [], series: [], selected: {} },
+        refundAmount: { xNames: [], yNames: [], series: [], selected: {} },
+        winloseAmount: { xNames: [], yNames: [], series: [], selected: {} }
     }
     let queryData = [], playerData = []
     switch (inparam.queryType) {
@@ -113,13 +113,15 @@ router.get('/chain/gameType', async (ctx, next) => {
 
 function handleMap(dayNameGroup, key, chainMap) {
     for (let parentname in dayNameGroup) {
-        let parentMap = { name: isNaN(parentname) ? parentname : GameTypeEnum[parentname].name, type: 'line', data: [] }
-        chainMap[key].yNames.push(isNaN(parentname) ? parentname : GameTypeEnum[parentname].name)
+        let yname = isNaN(parentname) ? parentname : GameTypeEnum[parentname].name
+        let parentMap = { name: yname, type: 'line', data: [] }
+        chainMap[key].yNames.push(yname)
         for (let item of dayNameGroup[parentname]) {
             chainMap[key].xNames.push(item.created)
             parentMap.data.push([item.created.toString(), item[key]])
         }
         chainMap[key].series.push(parentMap)
+        chainMap[key].selected[yname] = false
     }
     chainMap[key].xNames = _.uniq(chainMap[key].xNames.sort())
 }
