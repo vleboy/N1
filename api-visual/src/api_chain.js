@@ -46,7 +46,7 @@ router.get('/chain/merchant', async (ctx, next) => {
     let dayPlayerGroup = _.groupBy(playerData, 'parentDisplayName')
     for (let key in chainMap) {
         for (let parentname in dayNameGroup) {
-            let parentMap = { smooth: true, name: parentname, type: 'line', data: [] }
+            let parentMap = { name: parentname, type: 'line', data: [] }
             chainMap[key].yNames.push(parentname)
             for (let item of dayNameGroup[parentname]) {
                 chainMap[key].xNames.push(item.created)
@@ -59,7 +59,7 @@ router.get('/chain/merchant', async (ctx, next) => {
     //处理玩家人数
     chainMap.playerCount = { xNames: [], yNames: [], series: [] }
     for (let parentname in dayPlayerGroup) {
-        let parentMap = { smooth: true, name: parentname, type: 'line', data: [] }
+        let parentMap = { name: parentname, type: 'line', data: [] }
         chainMap.playerCount.yNames.push(parentname)
         for (let item of dayPlayerGroup[parentname]) {
             chainMap.playerCount.xNames.push(item.created)
@@ -106,7 +106,7 @@ router.get('/chain/gameType', async (ctx, next) => {
     let dayPlayerGroup = _.groupBy(playerData, 'gameType')
     for (let key in chainMap) {
         for (let gameType in dayNameGroup) {
-            let parentMap = {smooth: true,  name: gameType, type: 'line', data: [] }
+            let parentMap = { name: gameType, type: 'line', data: [] }
             chainMap[key].yNames.push(gameType)
             for (let item of dayNameGroup[gameType]) {
                 chainMap[key].xNames.push(item.created)
@@ -119,7 +119,7 @@ router.get('/chain/gameType', async (ctx, next) => {
     //处理玩家人数
     chainMap.playerCount = { xNames: [], yNames: [], series: [] }
     for (let gameType in dayPlayerGroup) {
-        let parentMap = { smooth: true, name: gameType, type: 'line', data: [] }
+        let parentMap = { name: gameType, type: 'line', data: [] }
         chainMap.playerCount.yNames.push(gameType)
         for (let item of dayPlayerGroup[gameType]) {
             chainMap.playerCount.xNames.push(item.created)
