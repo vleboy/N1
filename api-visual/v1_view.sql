@@ -157,3 +157,25 @@ select t.gameType,t.createdMonth,count(t.userId) as playerCount from
 (select distinct(userId),gameType,createdMonth from round) as t
 group by t.gameType,t.createdMonth
 order by t.createdMonth;
+
+-- 商户，游戏大类分组玩家人数
+drop view if exists `v_round_parent_gametype_playercount_createddate`;
+create view v_round_parent_gametype_playercount_createddate as 
+select t.parent,t.parentDisplayName,t.gameType,t.createdDate,count(t.userId) as playerCount from
+(select distinct(userId),parent,parentDisplayName,gameType,createdDate from round) as t
+group by t.parent,t.parentDisplayName,t.gameType,t.createdDate
+order by t.createdDate;
+
+drop view if exists `v_round_parent_gametype_playercount_createdweek`;
+create view v_round_parent_gametype_playercount_createdweek as 
+select t.parent,t.parentDisplayName,t.gameType,t.createdWeek,count(t.userId) as playerCount from
+(select distinct(userId),parent,parentDisplayName,gameType,createdWeek from round) as t
+group by t.parent,t.parentDisplayName,t.createdWeek
+order by t.createdWeek;
+
+drop view if exists `v_round_parent_gametype_playercount_createdmonth`;
+create view v_round_parent_gametype_playercount_createdmonth as 
+select t.parent,t.parentDisplayName,t.gameType,t.createdMonth,count(t.userId) as playerCount from
+(select distinct(userId),parent,parentDisplayName,gameType,createdMonth from round) as t
+group by t.parent,t.parentDisplayName,t.gameType,t.createdMonth
+order by t.createdMonth;
