@@ -188,3 +188,55 @@ handleAmountDay: # 日报表-金额汇总
         test: :parent != null
         sql: and parent = :parent
     - group by days ORDER BY days
+
+mapPlayerCount: # 地图-玩家人数
+    - select count(a.userId) as total,a.province from
+    - (select distinct(userId),province from round where createdAt between :startTime and :endTime 
+    - if:
+        test: :queryFlag == 'province'
+        sql: and country = '中国'
+    - if:
+        test: :queryFlag == 'country'
+        sql: and country != '其他'
+    - if:
+        test: :gameType != null
+        sql: and gameType = :gameType
+    - if:
+        test: :parent != null
+        sql: and parent = :parent
+    - ) as a
+    - group by a.province
+
+mapHandleAmount: # 地图-金额汇总
+    - select
+    # 判断count与sum
+    - if:
+        test: :method == 'betCount'
+        sql: round(sum(betCount),2) as total,province
+    - if:
+        test: :method == 'betAmount'
+        sql: round(sum(betAmount),2) as total,province
+    - if:
+        test: :method == 'retAmount'
+        sql: round(sum(retAmount),2) as total,province
+    - if:
+        test: :method == 'refundAmount'
+        sql: round(sum(refundAmount),2) as total,province
+    - if:
+        test: :method == 'winloseAmount'
+        sql: round(sum(winloseAmount),2) as total,province
+    - from round where createdAt between :startTime and :endTime 
+    - if:
+        test: :queryFlag == 'province'
+        sql: and country = '中国'
+    - if:
+        test: :queryFlag == 'country'
+        sql: and country != '其他'
+    # 判断是否使用gameType
+    - if:
+        test: :gameType != null
+        sql: and gameType = :gameType
+    - if:
+        test: :parent != null
+        sql: and parent = :parent
+    - group by province
