@@ -9,6 +9,10 @@ batchInsert:
         sql: (:sn,:businessKey,:parent,:parentRole,:parentSn,:parentName,:parentDisplayId,:parentDisplayName,:userId,:userName,:company,:gameType,:gameId,:type,:originalAmount,:amount,:balance,:sourceIP,:country,:province,:city,:createdAt)
         seperator: ','
 
+#通过bk查询对应流水
+queryByBk:
+    - select {{ bill.attrs }} from bill where businessKey = :bk order by createdAt
+
 # chinaPlayerCount: # 中国地图-玩家人数
 #     - select count(a.userId) as total,a.province from
 #     - (select distinct(userId),province from bill where createdAt between :startTime and :endTime and country = '中国'
@@ -191,77 +195,74 @@ batchInsert:
 #         sql: and gameType = :gameType
 #     - GROUP BY gameType
 
-playerCountRank: # 商户排行-玩家人数
-    - SELECT t.parentSn,t.parentDisplayName,count(t.userId) as num from 
-    - (select distinct(userId), parentDisplayName,parentSn from bill where createdAt between :startTime and :endTime
-    - if:
-        test: :parent != null
-        sql: and parent = :parent
-    - ) 
-    - as t group by t.parentDisplayName,t.parentSn ORDER BY num desc
+# playerCountRank: # 商户排行-玩家人数
+#     - SELECT t.parentSn,t.parentDisplayName,count(t.userId) as num from 
+#     - (select distinct(userId), parentDisplayName,parentSn from bill where createdAt between :startTime and :endTime
+#     - if:
+#         test: :parent != null
+#         sql: and parent = :parent
+#     - ) 
+#     - as t group by t.parentDisplayName,t.parentSn ORDER BY num desc
 
-handleAmountRank: # 商户排行榜-金额汇总
-    - SELECT
-    # 判断count与sum
-    - if:
-        test: :method == 'betCount'
-        sql: count(sn) as num,parentDisplayName,parentSn
-    - if:
-        test: :method != 'betCount'
-        sql: round(sum(amount),2) as num,parentDisplayName,parentSn
-    - from bill where createdAt between :startTime and :endTime
-    # 判断是否使用type
-    - if:
-        test: :type != null
-        sql: and type = :type
-    - if:
-        test: :parent != null
-        sql: and parent = :parent
-    - GROUP BY parentDisplayName,parentSn 
-    - if:
-        test: :method == 'betAmount'
-        sql: ORDER BY num asc
-    - if:
-        test: :method == 'betCount'
-        sql: ORDER BY num desc
-    - if:
-        test: :method == 'retAmount'
-        sql: ORDER BY num desc
-    - if:
-        test: :method == 'winloseAmount'
-        sql: ORDER BY num asc
+# handleAmountRank: # 商户排行榜-金额汇总
+#     - SELECT
+#     # 判断count与sum
+#     - if:
+#         test: :method == 'betCount'
+#         sql: count(sn) as num,parentDisplayName,parentSn
+#     - if:
+#         test: :method != 'betCount'
+#         sql: round(sum(amount),2) as num,parentDisplayName,parentSn
+#     - from bill where createdAt between :startTime and :endTime
+#     # 判断是否使用type
+#     - if:
+#         test: :type != null
+#         sql: and type = :type
+#     - if:
+#         test: :parent != null
+#         sql: and parent = :parent
+#     - GROUP BY parentDisplayName,parentSn 
+#     - if:
+#         test: :method == 'betAmount'
+#         sql: ORDER BY num asc
+#     - if:
+#         test: :method == 'betCount'
+#         sql: ORDER BY num desc
+#     - if:
+#         test: :method == 'retAmount'
+#         sql: ORDER BY num desc
+#     - if:
+#         test: :method == 'winloseAmount'
+#         sql: ORDER BY num asc
 
-handleAmountPlayerRank: # 玩家排行榜-金额汇总
-    - SELECT 
-    # 判断count与sum
-    - if:
-        test: :method == 'betCount'
-        sql: count(sn) as num,userName
-    - if:
-        test: :method != 'betCount'
-        sql: round(sum(amount),2) as num,userName
-    - from bill where createdAt between :startTime and :endTime
-    # 判断是否使用type
-    - if:
-        test: :type != null
-        sql: and type = :type
-    - if:
-        test: :parent != null
-        sql: and parent = :parent
-    - GROUP BY userName
-    - if:
-        test: :method == 'betAmount'
-        sql: ORDER BY num asc limit 10
-    - if:
-        test: :method == 'betCount'
-        sql: ORDER BY num desc limit 10
-    - if:
-        test: :method == 'retAmount'
-        sql: ORDER BY num desc  limit 10
-    - if:
-        test: :method == 'winloseAmount'
-        sql: ORDER BY num asc
+# handleAmountPlayerRank: # 玩家排行榜-金额汇总
+#     - SELECT 
+#     # 判断count与sum
+#     - if:
+#         test: :method == 'betCount'
+#         sql: count(sn) as num,userName
+#     - if:
+#         test: :method != 'betCount'
+#         sql: round(sum(amount),2) as num,userName
+#     - from bill where createdAt between :startTime and :endTime
+#     # 判断是否使用type
+#     - if:
+#         test: :type != null
+#         sql: and type = :type
+#     - if:
+#         test: :parent != null
+#         sql: and parent = :parent
+#     - GROUP BY userName
+#     - if:
+#         test: :method == 'betAmount'
+#         sql: ORDER BY num asc limit 10
+#     - if:
+#         test: :method == 'betCount'
+#         sql: ORDER BY num desc limit 10
+#     - if:
+#         test: :method == 'retAmount'
+#         sql: ORDER BY num desc  limit 10
+#     - if:
+#         test: :method == 'winloseAmount'
+#         sql: ORDER BY num asc
     
-#通过bk查询对应流水
-queryByBk:
-    - select {{ bill.attrs }} from bill where businessKey = :bk order by createdAt

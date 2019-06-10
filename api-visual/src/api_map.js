@@ -44,7 +44,7 @@ router.get('/map/world', async (ctx, next) => {
 })
 
 //并发执行sql查询
-function promiseData(inparam) {
+async function promiseData(inparam) {
     let promiseArr = []
     // 获取区域玩家总人数
     promiseArr.push(queryGetSql('round.mapPlayerCount', 'playerCount', inparam))

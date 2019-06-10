@@ -30,15 +30,15 @@ router.get('/rank/merchant', async (ctx, next) => {
     }
     let promiseArr = []
     // 获取区域玩家总人数
-    promiseArr.push(queryGetRank('bill.playerCountRank', 'playerCount', inparam, rankMap))
+    promiseArr.push(queryGetRank('round.playerCountRank', 'playerCount', inparam, rankMap))
     // 获取区域玩家总下注次数
-    promiseArr.push(queryGetRank('bill.handleAmountRank', 'betCount', inparam, rankMap, 3))
+    promiseArr.push(queryGetRank('round.handleAmountRank', 'betCount', inparam, rankMap))
     // 获取区域玩家总下注金额
-    promiseArr.push(queryGetRank('bill.handleAmountRank', 'betAmount', inparam, rankMap, 3))
+    promiseArr.push(queryGetRank('round.handleAmountRank', 'betAmount', inparam, rankMap))
     // 获取区域玩家总返奖
-    promiseArr.push(queryGetRank('bill.handleAmountRank', 'retAmount', inparam, rankMap, 4))
+    promiseArr.push(queryGetRank('round.handleAmountRank', 'retAmount', inparam, rankMap))
     // 获取区域玩家总输赢
-    promiseArr.push(queryGetRank('bill.handleAmountRank', 'winloseAmount', inparam, rankMap))
+    promiseArr.push(queryGetRank('round.handleAmountRank', 'winloseAmount', inparam, rankMap))
     // 并发执行
     await Promise.all(promiseArr)
     ctx.body = { code: 0, data: rankMap }
@@ -65,13 +65,13 @@ router.get('/rank/player', async (ctx, next) => {
     }
     let promiseArr = []
     // 获取区域玩家总下注次数
-    promiseArr.push(queryGetRank('bill.handleAmountPlayerRank', 'betCount', inparam, rankMap, 3))
+    promiseArr.push(queryGetRank('round.handleAmountPlayerRank', 'betCount', inparam, rankMap))
     // 获取区域玩家总下注金额
-    promiseArr.push(queryGetRank('bill.handleAmountPlayerRank', 'betAmount', inparam, rankMap, 3))
+    promiseArr.push(queryGetRank('round.handleAmountPlayerRank', 'betAmount', inparam, rankMap))
     // 获取区域玩家总返奖
-    promiseArr.push(queryGetRank('bill.handleAmountPlayerRank', 'retAmount', inparam, rankMap, 4))
+    promiseArr.push(queryGetRank('round.handleAmountPlayerRank', 'retAmount', inparam, rankMap))
     // 获取区域玩家总输赢
-    promiseArr.push(queryGetRank('bill.handleAmountPlayerRank', 'winloseAmount', inparam, rankMap))
+    promiseArr.push(queryGetRank('round.handleAmountPlayerRank', 'winloseAmount', inparam, rankMap))
     // 并发执行
     await Promise.all(promiseArr)
     ctx.body = { code: 0, data: rankMap }
