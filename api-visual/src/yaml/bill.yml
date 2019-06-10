@@ -157,39 +157,39 @@ handleAmountGraph: # 时间段柱状图-金额汇总
         sql: and parent = :parent
     - GROUP BY hours
 
-playerCountPie: # 饼图-玩家人数
-    - select count(c.userId) as num,c.gameType from 
-    - (SELECT gameType,userId from bill where createdAt between :startTime and :endTime 
-    - if:
-        test: :parent != null
-        sql: and parent = :parent
-    - if:
-        test: :gameType != null
-        sql: and gameType = :gameType
-    - GROUP BY gameType,userId) as c 
-    - GROUP BY c.gameType
+# playerCountPie: # 饼图-玩家人数
+#     - select count(c.userId) as num,c.gameType from 
+#     - (SELECT gameType,userId from bill where createdAt between :startTime and :endTime 
+#     - if:
+#         test: :parent != null
+#         sql: and parent = :parent
+#     - if:
+#         test: :gameType != null
+#         sql: and gameType = :gameType
+#     - GROUP BY gameType,userId) as c 
+#     - GROUP BY c.gameType
 
-handleAmountPie: # 饼图-金额汇总
-    - SELECT
-    # 判断count与sum
-    - if:
-        test: :method == 'betCount'
-        sql: count(sn) as num,gameType
-    - if:
-        test: :method != 'betCount'
-        sql: round(sum(amount),2) as num,gameType
-    - from bill where createdAt between :startTime and :endTime
-    # 判断是否使用type
-    - if:
-        test: :type != null
-        sql: and type = :type
-    - if:
-        test: :parent != null
-        sql: and parent = :parent
-    - if:
-        test: :gameType != null
-        sql: and gameType = :gameType
-    - GROUP BY gameType
+# handleAmountPie: # 饼图-金额汇总
+#     - SELECT
+#     # 判断count与sum
+#     - if:
+#         test: :method == 'betCount'
+#         sql: count(sn) as num,gameType
+#     - if:
+#         test: :method != 'betCount'
+#         sql: round(sum(amount),2) as num,gameType
+#     - from bill where createdAt between :startTime and :endTime
+#     # 判断是否使用type
+#     - if:
+#         test: :type != null
+#         sql: and type = :type
+#     - if:
+#         test: :parent != null
+#         sql: and parent = :parent
+#     - if:
+#         test: :gameType != null
+#         sql: and gameType = :gameType
+#     - GROUP BY gameType
 
 playerCountRank: # 商户排行-玩家人数
     - SELECT t.parentSn,t.parentDisplayName,count(t.userId) as num from 

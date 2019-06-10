@@ -71,3 +71,40 @@ playerGameParentWeekData:
 
 playerGameParentMonthData:
     - select parent,parentDisplayName,createdMonth created,playerCount from v_round_parent_gametype_playercount_createdmonth where gameType=:gameType
+
+playerCountPie: # 饼图-玩家人数
+    - select count(c.userId) as num,c.gameType from 
+    - (SELECT gameType,userId from round where createdAt between :startTime and :endTime 
+    - if:
+        test: :parent != null
+        sql: and parent = :parent
+    - if:
+        test: :gameType != null
+        sql: and gameType = :gameType
+    - GROUP BY gameType,userId) as c 
+    - GROUP BY c.gameType
+
+handleAmountPie: # 饼图-金额汇总
+    - SELECT
+    # 判断统计类型
+    - if:
+        test: :method == 'betCount'
+        sql: round(sum(betCount),2) as num,gameType
+    - if:
+        test: :method == 'betAmount'
+        sql: round(sum(betAmount),2) as num,gameType
+    - if:
+        test: :method == 'retAmount'
+        sql: round(sum(retAmount),2) as num,gameType
+    - if:
+        test: :method == 'refundAmount'
+        sql: round(sum(refundAmount),2) as num,gameType
+    - from round where createdAt between :startTime and :endTime
+    # 条件参数
+    - if:
+        test: :parent != null
+        sql: and parent = :parent
+    - if:
+        test: :gameType != null
+        sql: and gameType = :gameType
+    - GROUP BY gameType

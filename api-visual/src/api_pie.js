@@ -31,15 +31,15 @@ router.get('/pie/game', async (ctx, next) => {
         winloseAmount: []
     }
     // 获取区域玩家总人数
-    promiseArr.push(queryGetPie('bill.playerCountPie', 'playerCount', inparam, pieMap))
+    promiseArr.push(queryGetPie('round.playerCountPie', 'playerCount', inparam, pieMap))
     // 获取区域玩家总下注次数
-    promiseArr.push(queryGetPie('bill.handleAmountPie', 'betCount', inparam, pieMap, 3))
+    promiseArr.push(queryGetPie('round.handleAmountPie', 'betCount', inparam, pieMap))
     // 获取区域玩家总下注金额
-    promiseArr.push(queryGetPie('bill.handleAmountPie', 'betAmount', inparam, pieMap, 3))
+    promiseArr.push(queryGetPie('round.handleAmountPie', 'betAmount', inparam, pieMap))
     // 获取区域玩家总返奖
-    promiseArr.push(queryGetPie('bill.handleAmountPie', 'retAmount', inparam, pieMap, 4))
+    promiseArr.push(queryGetPie('round.handleAmountPie', 'retAmount', inparam, pieMap))
     // 获取区域玩家总退款
-    promiseArr.push(queryGetPie('bill.handleAmountPie', 'refundAmount', inparam, pieMap, 5))
+    promiseArr.push(queryGetPie('round.handleAmountPie', 'refundAmount', inparam, pieMap))
     // 获取区域玩家总输赢
     // promiseArr.push(queryGetPie('bill.winloseAmountPie', 'winloseAmount', inparam, pieMap))
     // 并发执行
