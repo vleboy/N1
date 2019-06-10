@@ -58,13 +58,13 @@ router.get('/graph/:queryType', async (ctx, next) => {
     // 获取区间玩家总人数
     promiseArr.push(queryGetGraph('bill.playerCountGraph', 'playerCount', inparam, GraphMap))
     // 获取区间玩家总下注次数
-    promiseArr.push(queryGetGraph('bill.handleAmountGraph', 'betCount', inparam, GraphMap, 3))
+    promiseArr.push(queryGetGraph('bill.handleAmountGraph', 'betCount', inparam, GraphMap))
     // 获取区间玩家总下注金额
-    promiseArr.push(queryGetGraph('bill.handleAmountGraph', 'betAmount', inparam, GraphMap, 3))
+    promiseArr.push(queryGetGraph('bill.handleAmountGraph', 'betAmount', inparam, GraphMap))
     // 获取区间玩家总返奖
-    promiseArr.push(queryGetGraph('bill.handleAmountGraph', 'retAmount', inparam, GraphMap, 4))
+    promiseArr.push(queryGetGraph('bill.handleAmountGraph', 'retAmount', inparam, GraphMap))
     // 获取区间玩家总退款
-    promiseArr.push(queryGetGraph('bill.handleAmountGraph', 'refundAmount', inparam, GraphMap, 5))
+    promiseArr.push(queryGetGraph('bill.handleAmountGraph', 'refundAmount', inparam, GraphMap))
     // 获取区间玩家总输赢
     promiseArr.push(queryGetGraph('bill.handleAmountGraph', 'winloseAmount', inparam, GraphMap))
     // 并发执行

@@ -108,3 +108,43 @@ handleAmountPie: # 饼图-金额汇总
         test: :gameType != null
         sql: and gameType = :gameType
     - GROUP BY gameType
+
+playerCountGraph: # 时间段柱状图-玩家人数
+    - SELECT t.hours,count(t.userId) count from
+    - (select distinct(userId),FROM_UNIXTIME(createdAt/1000,:formatType) hours from round where createdAt between :startTime and :endTime
+    - if:
+        test: :gameType != null
+        sql: and gameType = :gameType
+    - if:
+        test: :parent != null
+        sql: and parent = :parent
+    - ) as t
+    - GROUP BY t.hours
+
+handleAmountGraph: # 时间段柱状图-金额汇总
+    - SELECT FROM_UNIXTIME(createdAt/1000,:formatType) hours,
+    # 判断count与sum
+    - if:
+        test: :method == 'betCount'
+        sql: round(sum(betCount),2) count
+    - if:
+        test: :method == 'betAmount'
+        sql: round(sum(betAmount),2) count
+    - if:
+        test: :method == 'retAmount'
+        sql: round(sum(retAmount),2) count
+    - if:
+        test: :method == 'refundAmount'
+        sql: round(sum(refundAmount),2) count
+    - if:
+        test: :method == 'winloseAmount'
+        sql: round(sum(winloseAmount),2) count
+    - from round where createdAt between :startTime and :endTime
+    # 判断是否使用gameType
+    - if:
+        test: :gameType != null
+        sql: and gameType = :gameType
+    - if:
+        test: :parent != null
+        sql: and parent = :parent
+    - GROUP BY hours

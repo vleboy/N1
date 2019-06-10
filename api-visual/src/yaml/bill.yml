@@ -122,40 +122,40 @@ handleAmountDay: # 日报表-金额汇总
         sql: and parent = :parent
     - group by days ORDER BY days
 
-playerCountGraph: # 时间段柱状图-玩家人数
-    - SELECT t.hours,count(t.userId) count from
-    - (select distinct(userId),FROM_UNIXTIME(createdAt/1000,:formatType) hours from bill where createdAt between :startTime and :endTime
-    - if:
-        test: :gameType != null
-        sql: and gameType = :gameType
-    - if:
-        test: :parent != null
-        sql: and parent = :parent
-    - ) as t
-    - GROUP BY t.hours
+# playerCountGraph: # 时间段柱状图-玩家人数
+#     - SELECT t.hours,count(t.userId) count from
+#     - (select distinct(userId),FROM_UNIXTIME(createdAt/1000,:formatType) hours from bill where createdAt between :startTime and :endTime
+#     - if:
+#         test: :gameType != null
+#         sql: and gameType = :gameType
+#     - if:
+#         test: :parent != null
+#         sql: and parent = :parent
+#     - ) as t
+#     - GROUP BY t.hours
 
-handleAmountGraph: # 时间段柱状图-金额汇总
-    - SELECT FROM_UNIXTIME(createdAt/1000,:formatType) hours,
-    # 判断count与sum
-    - if:
-        test: :method == 'betCount'
-        sql: count(sn) count
-    - if:
-        test: :method != 'betCount'
-        sql: round(sum(amount),2) count
-    - from bill where createdAt between :startTime and :endTime
-    # 判断是否使用type
-    - if:
-        test: :type != null
-        sql: and type = :type
-    # 判断是否使用gameType
-    - if:
-        test: :gameType != null
-        sql: and gameType = :gameType
-    - if:
-        test: :parent != null
-        sql: and parent = :parent
-    - GROUP BY hours
+# handleAmountGraph: # 时间段柱状图-金额汇总
+#     - SELECT FROM_UNIXTIME(createdAt/1000,:formatType) hours,
+#     # 判断count与sum
+#     - if:
+#         test: :method == 'betCount'
+#         sql: count(sn) count
+#     - if:
+#         test: :method != 'betCount'
+#         sql: round(sum(amount),2) count
+#     - from bill where createdAt between :startTime and :endTime
+#     # 判断是否使用type
+#     - if:
+#         test: :type != null
+#         sql: and type = :type
+#     # 判断是否使用gameType
+#     - if:
+#         test: :gameType != null
+#         sql: and gameType = :gameType
+#     - if:
+#         test: :parent != null
+#         sql: and parent = :parent
+#     - GROUP BY hours
 
 # playerCountPie: # 饼图-玩家人数
 #     - select count(c.userId) as num,c.gameType from 
