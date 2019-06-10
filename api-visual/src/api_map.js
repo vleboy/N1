@@ -21,7 +21,7 @@ router.get('/map/china', async (ctx, next) => {
     if (token.role == '100') {
         inparam.parent = token.userId
     }
-    let data = promiseData(inparam)
+    let data = await promiseData(inparam)
     ctx.body = { code: 0, data }
     console.timeEnd('中国地图查询用时')
 })
@@ -38,7 +38,7 @@ router.get('/map/world', async (ctx, next) => {
     if (token.role == '100') {
         inparam.parent = token.userId
     }
-    let data = promiseData(inparam)
+    let data = await promiseData(inparam)
     ctx.body = { code: 0, data }
     console.timeEnd('世界地图查询用时')
 })

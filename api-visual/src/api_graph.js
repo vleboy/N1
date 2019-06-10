@@ -56,17 +56,17 @@ router.get('/graph/:queryType', async (ctx, next) => {
         GraphMap.winloseAmount.push({ x: i, y: 0 })
     }
     // 获取区间玩家总人数
-    promiseArr.push(queryGetGraph('bill.playerCountGraph', 'playerCount', inparam, GraphMap))
+    promiseArr.push(queryGetGraph('round.playerCountGraph', 'playerCount', inparam, GraphMap))
     // 获取区间玩家总下注次数
-    promiseArr.push(queryGetGraph('bill.handleAmountGraph', 'betCount', inparam, GraphMap))
+    promiseArr.push(queryGetGraph('round.handleAmountGraph', 'betCount', inparam, GraphMap))
     // 获取区间玩家总下注金额
-    promiseArr.push(queryGetGraph('bill.handleAmountGraph', 'betAmount', inparam, GraphMap))
+    promiseArr.push(queryGetGraph('round.handleAmountGraph', 'betAmount', inparam, GraphMap))
     // 获取区间玩家总返奖
-    promiseArr.push(queryGetGraph('bill.handleAmountGraph', 'retAmount', inparam, GraphMap))
+    promiseArr.push(queryGetGraph('round.handleAmountGraph', 'retAmount', inparam, GraphMap))
     // 获取区间玩家总退款
-    promiseArr.push(queryGetGraph('bill.handleAmountGraph', 'refundAmount', inparam, GraphMap))
+    promiseArr.push(queryGetGraph('round.handleAmountGraph', 'refundAmount', inparam, GraphMap))
     // 获取区间玩家总输赢
-    promiseArr.push(queryGetGraph('bill.handleAmountGraph', 'winloseAmount', inparam, GraphMap))
+    promiseArr.push(queryGetGraph('round.handleAmountGraph', 'winloseAmount', inparam, GraphMap))
     // 并发执行
     await Promise.all(promiseArr)
 
