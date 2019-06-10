@@ -148,3 +148,43 @@ handleAmountGraph: # 时间段柱状图-金额汇总
         test: :parent != null
         sql: and parent = :parent
     - GROUP BY hours
+
+playerCountDay: # 日报表-玩家人数
+    - select count(userId) count,t.days from
+    - (SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,userId from round where createdAt between :startTime and :endTime
+    - if:
+        test: :gameType != null
+        sql: and gameType = :gameType
+    - if:
+        test: :parent != null
+        sql: and parent = :parent
+    - group by days,userId) as t
+    - GROUP BY t.days ORDER BY t.days
+
+handleAmountDay: # 日报表-金额汇总
+    - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,
+    # 判断count与sum
+     - if:
+        test: :method == 'betCount'
+        sql: round(sum(betCount),2) count
+    - if:
+        test: :method == 'betAmount'
+        sql: round(sum(betAmount),2) count
+    - if:
+        test: :method == 'retAmount'
+        sql: round(sum(retAmount),2) count
+    - if:
+        test: :method == 'refundAmount'
+        sql: round(sum(refundAmount),2) count
+    - if:
+        test: :method == 'winloseAmount'
+        sql: round(sum(winloseAmount),2) count
+    - from round where createdAt between :startTime and :endTime
+    # 判断是否使用gameType
+    - if:
+        test: :gameType != null
+        sql: and gameType = :gameType
+    - if:
+        test: :parent != null
+        sql: and parent = :parent
+    - group by days ORDER BY days

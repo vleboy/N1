@@ -33,13 +33,13 @@ router.get('/line/day', async (ctx, next) => {
     // 获取区域玩家总人数
     promiseArr.push(queryGetLine('bill.playerCountDay', 'playerCount', inparam, lineMap))
     // 获取区域玩家总下注次数
-    promiseArr.push(queryGetLine('bill.handleAmountDay', 'betCount', inparam, lineMap, 3))
+    promiseArr.push(queryGetLine('bill.handleAmountDay', 'betCount', inparam, lineMap))
     // 获取区域玩家总下注金额
-    promiseArr.push(queryGetLine('bill.handleAmountDay', 'betAmount', inparam, lineMap, 3))
+    promiseArr.push(queryGetLine('bill.handleAmountDay', 'betAmount', inparam, lineMap))
     // 获取区域玩家总返奖
-    promiseArr.push(queryGetLine('bill.handleAmountDay', 'retAmount', inparam, lineMap, 4))
+    promiseArr.push(queryGetLine('bill.handleAmountDay', 'retAmount', inparam, lineMap))
     // 获取区域玩家总退款
-    promiseArr.push(queryGetLine('bill.handleAmountDay', 'refundAmount', inparam, lineMap, 5))
+    promiseArr.push(queryGetLine('bill.handleAmountDay', 'refundAmount', inparam, lineMap))
     // 获取区域玩家总输赢
     promiseArr.push(queryGetLine('bill.handleAmountDay', 'winloseAmount', inparam, lineMap))
     // 并发执行
