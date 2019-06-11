@@ -204,7 +204,7 @@ module.exports = class PlayerModel extends BaseModel {
         if (isCheckBet) {
             if (player.gameId != naGameType || player.sid != naGameId) {
                 console.error(`玩家${player.userId}的游戏状态${player.gameId}-${player.sid},未在请求游戏${naGameType}-${naGameId}中`)
-                return { code: 10001, msg: '玩家未在请求游戏中' }
+                return { code: 10001, msg: '网络不稳定，请刷新重试' }
             }
             if (player.balance + amt < 0) {
                 console.error(`玩家${player.userId}的余额不足`)
