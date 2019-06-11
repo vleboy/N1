@@ -187,7 +187,7 @@ playerCountRank: # 商户排行-玩家人数
         test: :parent != null
         sql: and parent = :parent
     - ) 
-    - as t group by t.parentDisplayName,t.parentSn ORDER BY num desc
+    - as t group by t.parentDisplayName,t.parentSn ORDER BY playerCount desc
 
 handleAmountRank: # 商户排行榜-金额汇总
     - SELECT round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(winloseAmount),2) as winloseAmount,parentDisplayName,parentSn
