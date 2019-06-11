@@ -73,7 +73,7 @@ playerGameParentMonthData:
 
 # 饼图
 playerCountPie: # 玩家人数
-    - select count(c.userId) as playerCount,c.gameType from 
+    - select count(t.userId) as playerCount,t.gameType from 
     - (SELECT gameType,userId from round where createdAt between :startTime and :endTime 
     - if:
         test: :parent != null
@@ -81,8 +81,8 @@ playerCountPie: # 玩家人数
     - if:
         test: :gameType != null
         sql: and gameType = :gameType
-    - GROUP BY gameType,userId) as c 
-    - GROUP BY c.gameType
+    - GROUP BY gameType,userId) as t
+    - GROUP BY t.gameType
 
 handleAmountPie: # 金额汇总
     - SELECT round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(refundAmount),2) as refundAmount,gameType
@@ -98,7 +98,7 @@ handleAmountPie: # 金额汇总
 
 # 时间柱状图
 playerCountGraph: # 玩家人数
-    - SELECT t.hours,count(t.userId) playerCount from
+    - SELECT t.hours,count(t.userId) as playerCount from
     - (select distinct(userId),FROM_UNIXTIME(createdAt/1000,:formatType) hours from round where createdAt between :startTime and :endTime
     - if:
         test: :gameType != null
@@ -110,7 +110,7 @@ playerCountGraph: # 玩家人数
     - GROUP BY t.hours
 
 handleAmountGraph: # 金额汇总
-    - SELECT FROM_UNIXTIME(createdAt/1000,:formatType) hours,round(sum(betCount),2) betCount,round(sum(betAmount),2) betAmount,round(sum(retAmount),2) retAmount,round(sum(refundAmount),2) refundAmount, round(sum(winloseAmount),2) winloseAmount
+    - SELECT FROM_UNIXTIME(createdAt/1000,:formatType) hours,round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(refundAmount),2) as refundAmount, round(sum(winloseAmount),2) as winloseAmount
     - from round where createdAt between :startTime and :endTime
     # 判断是否使用gameType
     - if:
