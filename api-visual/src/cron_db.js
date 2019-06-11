@@ -59,13 +59,13 @@ async function queryIp(ip) {
     }
     let ipObj = ipquery.search(ip)
     if (ipObj && ipObj.country != '0') {
-        return [ipObj.country, ipObj.province, ipObj.city]
+        return [ipObj.country, ipObj.province.slice(0, ipObj.province.indexOf('省') == -1 ? ipObj.province.length : ipObj.province.indexOf('省')), ipObj.city]
     } else {
         try {
             // 淘宝IP查询
             let res = await axios.get(`http://ip.taobao.com/service/getIpInfo.php?ip=${ip}`)
             if (res.data && res.data.data.country && res.data.data.country != 'XX') {
-                return [res.data.data.country, res.data.data.region, res.data.data.city]
+                return [res.data.data.country, res.data.data.region.slice(0, res.data.data.region.indexOf('省') == -1 ? res.data.data.region.length : res.data.data.region.indexOf('省')), res.data.data.city]
             } else {
                 return ['其他', '其他', '其他']
             }
@@ -73,7 +73,7 @@ async function queryIp(ip) {
             // 其他IP查询
             let res2 = await axios.get(`http://freeapi.ipip.net/${ip}`)
             if (res2.data && res2.data.length > 0 && res2.data != 'not found' && res2.data[0] != '保留地址' && res2.data[0] != '局域网') {
-                return [res2.data[0], res2.data[1], res2.data[2]]
+                return [res2.data[0], res2.data[1].slice(0, res2.data[1].indexOf('省') == -1 ? res2.data[1].length : res2.data[1].indexOf('省')), res2.data[2]]
             } else {
                 return ['其他', '其他', '其他']
             }
