@@ -110,8 +110,6 @@ router.get('/graph/:queryType', async (ctx, next) => {
     console.timeEnd(`柱状图${ctx.params.queryType}统计耗时`)
 })
 
-
-
 // 柱状图sql查询
 async function queryGetGraph(sqlName, keyArr, inparam, map) {
     let res = await nodebatis.query(sqlName, { ...inparam })

@@ -34,14 +34,6 @@ router.get('/line/day', async (ctx, next) => {
     promiseArr.push(queryGetLine('round.playerCountDay', ['playerCount'], inparam, lineMap))
     // 获取区域玩家总下注次数
     promiseArr.push(queryGetLine('round.handleAmountDay', ['betCount', 'betAmount', 'retAmount', 'refundAmount', 'winloseAmount'], inparam, lineMap))
-    // // 获取区域玩家总下注金额
-    // promiseArr.push(queryGetLine('round.handleAmountDay', 'betAmount', inparam, lineMap))
-    // // 获取区域玩家总返奖
-    // promiseArr.push(queryGetLine('round.handleAmountDay', 'retAmount', inparam, lineMap))
-    // // 获取区域玩家总退款
-    // promiseArr.push(queryGetLine('round.handleAmountDay', 'refundAmount', inparam, lineMap))
-    // // 获取区域玩家总输赢
-    // promiseArr.push(queryGetLine('round.handleAmountDay', 'winloseAmount', inparam, lineMap))
     // 并发执行
     await Promise.all(promiseArr)
     ctx.body = { code: 0, data: lineMap }
