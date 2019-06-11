@@ -15,10 +15,10 @@ const { GameTypeEnum } = require('./lib/Enum')
 router.get('/chain/merchant', async (ctx, next) => {
     let inparam = ctx.request.query
     // 权限商户只能看自己的
-    // let token = ctx.tokenVerify
-    // if (token.role == '100') {
-    //     inparam.parent = token.userId
-    // }
+    let token = ctx.tokenVerify
+    if (token.role == '100') {
+        inparam.parent = token.userId
+    }
     let chainMap = {
         betCount: { xNames: [], yNames: [], series: [], selected: {} },
         betAmount: { xNames: [], yNames: [], series: [], selected: {} },
@@ -73,10 +73,10 @@ router.get('/chain/merchant', async (ctx, next) => {
 router.get('/chain/gameType', async (ctx, next) => {
     let inparam = ctx.request.query
     // // 权限商户只能看自己的
-    // let token = ctx.tokenVerify
-    // if (token.role == '100') {
-    //     inparam.parent = token.userId
-    // }
+    let token = ctx.tokenVerify
+    if (token.role == '100') {
+        inparam.parent = token.userId
+    }
     let chainMap = {
         betCount: { xNames: [], yNames: [], series: [], selected: {} },
         betAmount: { xNames: [], yNames: [], series: [], selected: {} },
