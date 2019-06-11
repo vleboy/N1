@@ -63,7 +63,6 @@ router.get('/rank/player', async (ctx, next) => {
     // 并发执行
     await Promise.all(promiseArr)
     //玩家特殊处理
-    //特殊处理
     for (let key in rankMap) {
         if (key != 'winloseAmount') { //只取十条数据
             rankMap[key] = rankMap[key].slice(0, 10)
@@ -87,9 +86,9 @@ async function queryGetRank(sqlName, keyArr, inparam, map) {
     }
     //排序处理
     for (let key in map) {
-        if (key == 'betAmount' || key == 'winloseAmount') {  //asc处理
+        if (key == 'winloseAmount') {  //asc处理
             map[key].sort(function (a, b) { return a.y - b.y })
-        } else if (key == 'betCount' || key == 'retAmount') {  //desc处理
+        } else if (key == 'betCount' || key == 'retAmount' || key == 'betAmount') {  //desc处理
             map[key].sort(function (a, b) { return b.y - a.y })
         }
     }
