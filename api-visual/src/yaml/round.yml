@@ -1,9 +1,9 @@
 namespace: 'round'
 
 attrs: businessKey,parent,parentRole,parentSn,parentName,parentDisplayId,parentDisplayName,userId,userName,company,gameType,gameId,sourceIP,country,province,city,betCount,betAmount,winAmount,refundAmount,retAmount,winloseAmount,createdDate,createdWeek,createdMonth,createdAt
+chainAttr: betCount,ABS(betAmount) betAmount,refundAmount,retAmount,winloseAmount
 amtAttrs: round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(winloseAmount),2) as winloseAmount
 allAmtAttrs: round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(winloseAmount),2) as winloseAmount,round(sum(refundAmount),2) as refundAmount
-
 
 batchInsert:
     - replace into round({{ round.attrs }}) values
@@ -18,23 +18,23 @@ queryAmountMap:
 
 #查询所有商户的每日数据
 queryDayData:
-    - select parent,parentDisplayName,createdDate created,betCount,ABS(betAmount) betAmount,refundAmount,retAmount,winloseAmount from v_round_parent_createddate 
+    - select parent,parentDisplayName,createdDate created, {{ round.chainAttr }} from v_round_parent_createddate 
 
 queryWeekData:
-    - select parent,parentDisplayName,createdWeek created,betCount,ABS(betAmount) betAmount,refundAmount,retAmount,winloseAmount from v_round_parent_createdweek
+    - select parent,parentDisplayName,createdWeek created, {{ round.chainAttr }} from v_round_parent_createdweek
 
 queryMonthData:
-    - select parent,parentDisplayName,createdMonth created,betCount,ABS(betAmount) betAmount,refundAmount,retAmount,winloseAmount from v_round_parent_createdmonth 
+    - select parent,parentDisplayName,createdMonth created, {{ round.chainAttr }} from v_round_parent_createdmonth 
 
 #查询所有游戏的每日数据
 queryGameDayData:
-    - select gameType,createdDate created,betCount,ABS(betAmount) betAmount,refundAmount,retAmount,winloseAmount from v_round_gametype_createddate 
+    - select gameType,createdDate created, {{ round.chainAttr }} from v_round_gametype_createddate 
 
 queryGameWeekData:
-    - select gameType,createdWeek created,betCount,ABS(betAmount) betAmount,refundAmount,retAmount,winloseAmount from v_round_gametype_createdweek
+    - select gameType,createdWeek created, {{ round.chainAttr }} from v_round_gametype_createdweek
 
 queryGameMonthData:
-    - select gameType,createdMonth created,betCount,ABS(betAmount) betAmount,refundAmount,retAmount,winloseAmount from v_round_gametype_createdmonth 
+    - select gameType,createdMonth created, {{ round.chainAttr }} from v_round_gametype_createdmonth 
 
 #查询玩家统计数据
 playerDayData:
@@ -57,13 +57,13 @@ playerGameMonthData:
 
 #查询商户某个游戏的统计数据
 queryGameParentDayData:
-    - select parent,parentDisplayName,gameType,createdDate created,betCount,ABS(betAmount) betAmount,refundAmount,retAmount,winloseAmount from v_round_parent_gametype_createddate where gameType=:gameType
+    - select parent,parentDisplayName,gameType,createdDate created, {{ round.chainAttr }} from v_round_parent_gametype_createddate where gameType=:gameType
 
 queryGameParentWeekData:
-    - select parent,parentDisplayName,gameType,createdWeek created,betCount,ABS(betAmount) betAmount,refundAmount,retAmount,winloseAmount from v_round_parent_gametype_createdweek where gameType=:gameType
+    - select parent,parentDisplayName,gameType,createdWeek created, {{ round.chainAttr }} from v_round_parent_gametype_createdweek where gameType=:gameType
 
 queryGameParentMonthData:
-    - select parent,parentDisplayName,gameType,createdMonth created,betCount,ABS(betAmount) betAmount,refundAmount,retAmount,winloseAmount from v_round_parent_gametype_createdmonth where gameType=:gameType
+    - select parent,parentDisplayName,gameType,createdMonth created, {{ round.chainAttr }} from v_round_parent_gametype_createdmonth where gameType=:gameType
 
 playerGameParentDayData:
     - select parent,parentDisplayName,createdDate created,playerCount from v_round_parent_gametype_playercount_createddate where gameType=:gameType
