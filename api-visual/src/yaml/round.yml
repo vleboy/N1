@@ -149,13 +149,13 @@ handleAmountDay: # 金额汇总
 # 地图
 mapPlayerCount: # 玩家人数
     - select count(a.userId) as playerCount,a.province from
-    - (select distinct(userId),province from round where createdAt between :startTime and :endTime 
+    - (
     - if:
         test: :queryFlag == 'province'
-        sql: and country = '中国'
+        sql: select distinct(userId),province from round where createdAt between :startTime and :endTime and country = '中国'
     - if:
         test: :queryFlag == 'country'
-        sql: and country != '其他'
+        sql: select distinct(userId),country as province from round where createdAt between :startTime and :endTime and country != '其他'
     - if:
         test: :gameType != null
         sql: and gameType = :gameType
@@ -166,14 +166,13 @@ mapPlayerCount: # 玩家人数
     - group by a.province
 
 mapHandleAmount: # 金额汇总
-    - select round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(refundAmount),2) as refundAmount,round(sum(winloseAmount),2) as winloseAmount,province
-    - from round where createdAt between :startTime and :endTime 
+    - select round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(refundAmount),2) as refundAmount,round(sum(winloseAmount),2) as winloseAmount,
     - if:
         test: :queryFlag == 'province'
-        sql: and country = '中国'
+        sql: province from round where createdAt between :startTime and :endTime and country = '中国'
     - if:
         test: :queryFlag == 'country'
-        sql: and country != '其他'
+        sql: country as province from round where createdAt between :startTime and :endTime and country != '其他'
     # 判断是否使用gameType
     - if:
         test: :gameType != null
@@ -181,7 +180,12 @@ mapHandleAmount: # 金额汇总
     - if:
         test: :parent != null
         sql: and parent = :parent
-    - group by province
+    - if:
+        test: :queryFlag == 'province'
+        sql: group by province
+    - if:
+        test: :queryFlag == 'country'
+        sql: group by country
 
 # 商户排行
 playerCountRank: # 玩家人数
