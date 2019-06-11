@@ -99,7 +99,7 @@ handleAmountPie: # 金额汇总
 # 时间柱状图
 playerCountGraph: # 玩家人数
     - SELECT t.hours,count(t.userId) as playerCount from
-    - (select distinct(userId),FROM_UNIXTIME(createdAt/1000,:formatType) hours from round where createdAt between :startTime and :endTime
+    - (select distinct(userId),FROM_UNIXTIME(createdAt/1000,:formatType) as hours from round where createdAt between :startTime and :endTime
     - if:
         test: :gameType != null
         sql: and gameType = :gameType
@@ -110,9 +110,8 @@ playerCountGraph: # 玩家人数
     - GROUP BY t.hours
 
 handleAmountGraph: # 金额汇总
-    - SELECT FROM_UNIXTIME(createdAt/1000,:formatType) hours,round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(refundAmount),2) as refundAmount, round(sum(winloseAmount),2) as winloseAmount
+    - SELECT FROM_UNIXTIME(createdAt/1000,:formatType) as hours,round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(refundAmount),2) as refundAmount, round(sum(winloseAmount),2) as winloseAmount
     - from round where createdAt between :startTime and :endTime
-    # 判断是否使用gameType
     - if:
         test: :gameType != null
         sql: and gameType = :gameType
@@ -124,7 +123,7 @@ handleAmountGraph: # 金额汇总
 # 日报表
 playerCountDay: # 玩家人数
     - select count(userId) playerCount,t.days from
-    - (SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,userId from round where createdAt between :startTime and :endTime
+    - (SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') as days,userId from round where createdAt between :startTime and :endTime
     - if:
         test: :gameType != null
         sql: and gameType = :gameType
@@ -135,7 +134,7 @@ playerCountDay: # 玩家人数
     - GROUP BY t.days ORDER BY t.days
 
 handleAmountDay: # 金额汇总
-    - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,round(sum(betCount),2) betCount,round(sum(betAmount),2) betAmount,round(sum(retAmount),2) retAmount,round(sum(refundAmount),2) refundAmount,round(sum(winloseAmount),2) winloseAmount
+    - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') as days,round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(refundAmount),2) as refundAmount,round(sum(winloseAmount),2) as winloseAmount
     - from round where createdAt between :startTime and :endTime
     # 判断是否使用gameType
     - if:
