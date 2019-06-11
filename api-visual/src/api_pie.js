@@ -31,17 +31,9 @@ router.get('/pie/game', async (ctx, next) => {
         winloseAmount: []
     }
     // 获取区域玩家总人数
-    promiseArr.push(queryGetPie('round.playerCountPie', 'playerCount', inparam, pieMap))
-    // 获取区域玩家总下注次数
-    promiseArr.push(queryGetPie('round.handleAmountPie', 'betCount', inparam, pieMap))
-    // 获取区域玩家总下注金额
-    promiseArr.push(queryGetPie('round.handleAmountPie', 'betAmount', inparam, pieMap))
-    // 获取区域玩家总返奖
-    promiseArr.push(queryGetPie('round.handleAmountPie', 'retAmount', inparam, pieMap))
-    // 获取区域玩家总退款
-    promiseArr.push(queryGetPie('round.handleAmountPie', 'refundAmount', inparam, pieMap))
-    // 获取区域玩家总输赢
-    // promiseArr.push(queryGetPie('bill.winloseAmountPie', 'winloseAmount', inparam, pieMap))
+    promiseArr.push(queryGetPie('round.playerCountPie', ['playerCount'], inparam, pieMap))
+    // 获取区域玩家总下注次数、下注金额、总返奖、总退款
+    promiseArr.push(queryGetPie('round.handleAmountPie', ['betCount', 'betAmount', 'retAmount', 'refundAmount'], inparam, pieMap))
     // 并发执行
     await Promise.all(promiseArr)
     ctx.body = { code: 0, data: pieMap }
@@ -49,10 +41,12 @@ router.get('/pie/game', async (ctx, next) => {
 })
 
 // 饼状图sql查询
-async function queryGetPie(sqlName, key, inparam, map, type) {
-    let res = await nodebatis.query(sqlName, { method: key, type, ...inparam })
-    for (let item of res) {
-        map[key].push({ name: GameTypeEnum[item.gameType].name || '其他', value: key == 'betAmount' ? Math.abs(item.num) : item.num })
+async function queryGetPie(sqlName, keyArr, inparam, map) {
+    let res = await nodebatis.query(sqlName, { ...inparam })
+    for (let key of keyArr) {
+        for (let item of res) {
+            map[key].push({ name: GameTypeEnum[item.gameType].name || '其他', value: key == 'betAmount' ? Math.abs(item[key]) : item[key] })
+        }
     }
 }
 

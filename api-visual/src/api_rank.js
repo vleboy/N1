@@ -30,15 +30,9 @@ router.get('/rank/merchant', async (ctx, next) => {
     }
     let promiseArr = []
     // 获取区域玩家总人数
-    promiseArr.push(queryGetRank('round.playerCountRank', 'playerCount', inparam, rankMap))
+    promiseArr.push(queryGetRank('round.playerCountRank', ['playerCount'], inparam, rankMap))
     // 获取区域玩家总下注次数
-    promiseArr.push(queryGetRank('round.handleAmountRank', 'betCount', inparam, rankMap))
-    // 获取区域玩家总下注金额
-    promiseArr.push(queryGetRank('round.handleAmountRank', 'betAmount', inparam, rankMap))
-    // 获取区域玩家总返奖
-    promiseArr.push(queryGetRank('round.handleAmountRank', 'retAmount', inparam, rankMap))
-    // 获取区域玩家总输赢
-    promiseArr.push(queryGetRank('round.handleAmountRank', 'winloseAmount', inparam, rankMap))
+    promiseArr.push(queryGetRank('round.handleAmountRank', ['betCount', 'betAmount', 'retAmount', 'winloseAmount'], inparam, rankMap))
     // 并发执行
     await Promise.all(promiseArr)
     ctx.body = { code: 0, data: rankMap }
@@ -65,28 +59,39 @@ router.get('/rank/player', async (ctx, next) => {
     }
     let promiseArr = []
     // 获取区域玩家总下注次数
-    promiseArr.push(queryGetRank('round.handleAmountPlayerRank', 'betCount', inparam, rankMap))
-    // 获取区域玩家总下注金额
-    promiseArr.push(queryGetRank('round.handleAmountPlayerRank', 'betAmount', inparam, rankMap))
-    // 获取区域玩家总返奖
-    promiseArr.push(queryGetRank('round.handleAmountPlayerRank', 'retAmount', inparam, rankMap))
-    // 获取区域玩家总输赢
-    promiseArr.push(queryGetRank('round.handleAmountPlayerRank', 'winloseAmount', inparam, rankMap))
+    promiseArr.push(queryGetRank('round.handleAmountPlayerRank', ['betCount', 'betAmount', 'retAmount', 'winloseAmount'], inparam, rankMap))
     // 并发执行
     await Promise.all(promiseArr)
+    //玩家特殊处理
+    //特殊处理
+    for (let key in rankMap) {
+        if (key != 'winloseAmount') { //只取十条数据
+            rankMap[key] = rankMap[key].slice(0, 10)
+        }
+    }
     ctx.body = { code: 0, data: rankMap }
     console.timeEnd('商户排行榜统计耗时')
 })
 
 
 // 排行榜统计sql
-async function queryGetRank(sqlName, key, inparam, map, type) {
-    let res = await nodebatis.query(sqlName, { method: key, type, ...inparam })
-    if (key == 'winloseAmount' && res.length > 20) {
-        res = res.slice(0, 10).concat(res.slice(res.length - 10))
+async function queryGetRank(sqlName, keyArr, inparam, map) {
+    let res = await nodebatis.query(sqlName, { ...inparam })
+    for (let key of keyArr) {
+        if (key == 'winloseAmount' && res.length > 20) {
+            res = res.slice(0, 10).concat(res.slice(res.length - 10))
+        }
+        for (let item of res) {
+            map[key].push({ x: item.parentDisplayName || item.userName, y: key == 'betAmount' ? Math.abs(item[key]) : item[key] })
+        }
     }
-    for (let item of res) {
-        map[key].push({ x: item.parentDisplayName || item.userName, y: key == 'betAmount' ? Math.abs(item.num) : item.num })
+    //排序处理
+    for (let key in map) {
+        if (key == 'betAmount' || key == 'winloseAmount') {  //asc处理
+            map[key].sort(function (a, b) { return a.y - b.y })
+        } else if (key == 'betCount' || key == 'retAmount') {  //desc处理
+            map[key].sort(function (a, b) { return b.y - a.y })
+        }
     }
 }
 

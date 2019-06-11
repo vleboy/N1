@@ -31,17 +31,17 @@ router.get('/line/day', async (ctx, next) => {
     }
     let promiseArr = []
     // 获取区域玩家总人数
-    promiseArr.push(queryGetLine('round.playerCountDay', 'playerCount', inparam, lineMap))
+    promiseArr.push(queryGetLine('round.playerCountDay', ['playerCount'], inparam, lineMap))
     // 获取区域玩家总下注次数
-    promiseArr.push(queryGetLine('round.handleAmountDay', 'betCount', inparam, lineMap))
-    // 获取区域玩家总下注金额
-    promiseArr.push(queryGetLine('round.handleAmountDay', 'betAmount', inparam, lineMap))
-    // 获取区域玩家总返奖
-    promiseArr.push(queryGetLine('round.handleAmountDay', 'retAmount', inparam, lineMap))
-    // 获取区域玩家总退款
-    promiseArr.push(queryGetLine('round.handleAmountDay', 'refundAmount', inparam, lineMap))
-    // 获取区域玩家总输赢
-    promiseArr.push(queryGetLine('round.handleAmountDay', 'winloseAmount', inparam, lineMap))
+    promiseArr.push(queryGetLine('round.handleAmountDay', ['betCount', 'betAmount', 'retAmount', 'refundAmount', 'winloseAmount'], inparam, lineMap))
+    // // 获取区域玩家总下注金额
+    // promiseArr.push(queryGetLine('round.handleAmountDay', 'betAmount', inparam, lineMap))
+    // // 获取区域玩家总返奖
+    // promiseArr.push(queryGetLine('round.handleAmountDay', 'retAmount', inparam, lineMap))
+    // // 获取区域玩家总退款
+    // promiseArr.push(queryGetLine('round.handleAmountDay', 'refundAmount', inparam, lineMap))
+    // // 获取区域玩家总输赢
+    // promiseArr.push(queryGetLine('round.handleAmountDay', 'winloseAmount', inparam, lineMap))
     // 并发执行
     await Promise.all(promiseArr)
     ctx.body = { code: 0, data: lineMap }
@@ -102,13 +102,15 @@ router.get('/line/player', async (ctx, next) => {
 })
 
 // 折线图sql查询
-async function queryGetLine(sqlName, key, inparam, map, type) {
-    let res = await nodebatis.query(sqlName, { method: key, type, ...inparam })
-    for (let item of res) {
-        if (key == 'betAmount') {
-            map[key].push({ x: item.days, y: Math.abs(item.count) })
-        } else {
-            map[key].push({ x: item.days, y: item.count })
+async function queryGetLine(sqlName, keyArr, inparam, map) {
+    let res = await nodebatis.query(sqlName, { ...inparam })
+    for (let key of keyArr) {
+        for (let item of res) {
+            if (key == 'betAmount') {
+                map[key].push({ x: item.days, y: Math.abs(item[key]) })
+            } else {
+                map[key].push({ x: item.days, y: item[key] })
+            }
         }
     }
 }

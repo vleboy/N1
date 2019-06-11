@@ -73,7 +73,7 @@ playerGameParentMonthData:
     - select parent,parentDisplayName,createdMonth created,playerCount from v_round_parent_gametype_playercount_createdmonth where gameType=:gameType
 
 playerCountPie: # 饼图-玩家人数
-    - select count(c.userId) as num,c.gameType from 
+    - select count(c.userId) as playerCount,c.gameType from 
     - (SELECT gameType,userId from round where createdAt between :startTime and :endTime 
     - if:
         test: :parent != null
@@ -85,20 +85,7 @@ playerCountPie: # 饼图-玩家人数
     - GROUP BY c.gameType
 
 handleAmountPie: # 饼图-金额汇总
-    - SELECT
-    # 判断统计类型
-    - if:
-        test: :method == 'betCount'
-        sql: round(sum(betCount),2) as num,gameType
-    - if:
-        test: :method == 'betAmount'
-        sql: round(sum(betAmount),2) as num,gameType
-    - if:
-        test: :method == 'retAmount'
-        sql: round(sum(retAmount),2) as num,gameType
-    - if:
-        test: :method == 'refundAmount'
-        sql: round(sum(refundAmount),2) as num,gameType
+    - SELECT round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(refundAmount),2) as refundAmount,gameType
     - from round where createdAt between :startTime and :endTime
     # 条件参数
     - if:
@@ -110,7 +97,7 @@ handleAmountPie: # 饼图-金额汇总
     - GROUP BY gameType
 
 playerCountGraph: # 时间段柱状图-玩家人数
-    - SELECT t.hours,count(t.userId) count from
+    - SELECT t.hours,count(t.userId) playerCount from
     - (select distinct(userId),FROM_UNIXTIME(createdAt/1000,:formatType) hours from round where createdAt between :startTime and :endTime
     - if:
         test: :gameType != null
@@ -122,23 +109,7 @@ playerCountGraph: # 时间段柱状图-玩家人数
     - GROUP BY t.hours
 
 handleAmountGraph: # 时间段柱状图-金额汇总
-    - SELECT FROM_UNIXTIME(createdAt/1000,:formatType) hours,
-    # 判断count与sum
-    - if:
-        test: :method == 'betCount'
-        sql: round(sum(betCount),2) count
-    - if:
-        test: :method == 'betAmount'
-        sql: round(sum(betAmount),2) count
-    - if:
-        test: :method == 'retAmount'
-        sql: round(sum(retAmount),2) count
-    - if:
-        test: :method == 'refundAmount'
-        sql: round(sum(refundAmount),2) count
-    - if:
-        test: :method == 'winloseAmount'
-        sql: round(sum(winloseAmount),2) count
+    - SELECT FROM_UNIXTIME(createdAt/1000,:formatType) hours,round(sum(betCount),2) betCount,round(sum(betAmount),2) betAmount,round(sum(retAmount),2) retAmount,round(sum(refundAmount),2) refundAmount, round(sum(winloseAmount),2) winloseAmount
     - from round where createdAt between :startTime and :endTime
     # 判断是否使用gameType
     - if:
@@ -150,7 +121,7 @@ handleAmountGraph: # 时间段柱状图-金额汇总
     - GROUP BY hours
 
 playerCountDay: # 日报表-玩家人数
-    - select count(userId) count,t.days from
+    - select count(userId) playerCount,t.days from
     - (SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,userId from round where createdAt between :startTime and :endTime
     - if:
         test: :gameType != null
@@ -162,23 +133,7 @@ playerCountDay: # 日报表-玩家人数
     - GROUP BY t.days ORDER BY t.days
 
 handleAmountDay: # 日报表-金额汇总
-    - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,
-    # 判断count与sum
-    - if:
-        test: :method == 'betCount'
-        sql: round(sum(betCount),2) count
-    - if:
-        test: :method == 'betAmount'
-        sql: round(sum(betAmount),2) count
-    - if:
-        test: :method == 'retAmount'
-        sql: round(sum(retAmount),2) count
-    - if:
-        test: :method == 'refundAmount'
-        sql: round(sum(refundAmount),2) count
-    - if:
-        test: :method == 'winloseAmount'
-        sql: round(sum(winloseAmount),2) count
+    - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') days,round(sum(betCount),2) betCount,round(sum(betAmount),2) betAmount,round(sum(retAmount),2) retAmount,round(sum(refundAmount),2) refundAmount,round(sum(winloseAmount),2) winloseAmount
     - from round where createdAt between :startTime and :endTime
     # 判断是否使用gameType
     - if:
@@ -190,7 +145,7 @@ handleAmountDay: # 日报表-金额汇总
     - group by days ORDER BY days
 
 mapPlayerCount: # 地图-玩家人数
-    - select count(a.userId) as total,a.province from
+    - select count(a.userId) as playerCount,a.province from
     - (select distinct(userId),province from round where createdAt between :startTime and :endTime 
     - if:
         test: :queryFlag == 'province'
@@ -208,23 +163,7 @@ mapPlayerCount: # 地图-玩家人数
     - group by a.province
 
 mapHandleAmount: # 地图-金额汇总
-    - select
-    # 判断count与sum
-    - if:
-        test: :method == 'betCount'
-        sql: round(sum(betCount),2) as total,province
-    - if:
-        test: :method == 'betAmount'
-        sql: round(sum(betAmount),2) as total,province
-    - if:
-        test: :method == 'retAmount'
-        sql: round(sum(retAmount),2) as total,province
-    - if:
-        test: :method == 'refundAmount'
-        sql: round(sum(refundAmount),2) as total,province
-    - if:
-        test: :method == 'winloseAmount'
-        sql: round(sum(winloseAmount),2) as total,province
+    - select round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(refundAmount),2) as refundAmount,round(sum(winloseAmount),2) as winloseAmount,province
     - from round where createdAt between :startTime and :endTime 
     - if:
         test: :queryFlag == 'province'
@@ -242,7 +181,7 @@ mapHandleAmount: # 地图-金额汇总
     - group by province
 
 playerCountRank: # 商户排行-玩家人数
-    - SELECT t.parentSn,t.parentDisplayName,count(t.userId) as num from 
+    - SELECT t.parentSn,t.parentDisplayName,count(t.userId) as playerCount from 
     - (select distinct(userId), parentDisplayName,parentSn from round where createdAt between :startTime and :endTime
     - if:
         test: :parent != null
@@ -251,67 +190,41 @@ playerCountRank: # 商户排行-玩家人数
     - as t group by t.parentDisplayName,t.parentSn ORDER BY num desc
 
 handleAmountRank: # 商户排行榜-金额汇总
-    - SELECT
-    # 判断count与sum
-    - if:
-        test: :method == 'betCount'
-        sql: round(sum(betCount),2) as num,parentDisplayName,parentSn
-    - if:
-        test: :method == 'betAmount'
-        sql: round(sum(betAmount),2) as num,parentDisplayName,parentSn
-    - if:
-        test: :method == 'retAmount'
-        sql: round(sum(retAmount),2) as num,parentDisplayName,parentSn
-    - if:
-        test: :method == 'winloseAmount'
-        sql: round(sum(winloseAmount),2) as num,parentDisplayName,parentSn
+    - SELECT round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(winloseAmount),2) as winloseAmount,parentDisplayName,parentSn
     - from round where createdAt between :startTime and :endTime
     - if:
         test: :parent != null
         sql: and parent = :parent
     - GROUP BY parentDisplayName,parentSn 
-    - if:
-        test: :method == 'betAmount'
-        sql: ORDER BY num asc
-    - if:
-        test: :method == 'betCount'
-        sql: ORDER BY num desc
-    - if:
-        test: :method == 'retAmount'
-        sql: ORDER BY num desc
-    - if:
-        test: :method == 'winloseAmount'
-        sql: ORDER BY num asc
+    # - if:
+    #     test: :method == 'betAmount'
+    #     sql: ORDER BY num asc
+    # - if:
+    #     test: :method == 'betCount'
+    #     sql: ORDER BY num desc
+    # - if:
+    #     test: :method == 'retAmount'
+    #     sql: ORDER BY num desc
+    # - if:
+    #     test: :method == 'winloseAmount'
+    #     sql: ORDER BY num asc
 
 handleAmountPlayerRank: # 玩家排行榜-金额汇总
-    - SELECT 
-    # 判断count与sum
-    - if:
-        test: :method == 'betCount'
-        sql: round(sum(betCount),2) as num,userName
-    - if:
-        test: :method == 'betAmount'
-        sql: round(sum(betAmount),2) as num,userName
-    - if:
-        test: :method == 'retAmount'
-        sql: round(sum(retAmount),2) as num,userName
-    - if:
-        test: :method == 'winloseAmount'
-        sql: round(sum(winloseAmount),2) as num,userName
+    - SELECT round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(winloseAmount),2) as winloseAmount,userName
     - from round where createdAt between :startTime and :endTime
     - if:
         test: :parent != null
         sql: and parent = :parent
     - GROUP BY userName
-    - if:
-        test: :method == 'betAmount'
-        sql: ORDER BY num asc limit 10
-    - if:
-        test: :method == 'betCount'
-        sql: ORDER BY num desc limit 10
-    - if:
-        test: :method == 'retAmount'
-        sql: ORDER BY num desc  limit 10
-    - if:
-        test: :method == 'winloseAmount'
-        sql: ORDER BY num asc
+    # - if:
+    #     test: :method == 'betAmount'
+    #     sql: ORDER BY num asc limit 10
+    # - if:
+    #     test: :method == 'betCount'
+    #     sql: ORDER BY num desc limit 10
+    # - if:
+    #     test: :method == 'retAmount'
+    #     sql: ORDER BY num desc  limit 10
+    # - if:
+    #     test: :method == 'winloseAmount'
+    #     sql: ORDER BY num asc

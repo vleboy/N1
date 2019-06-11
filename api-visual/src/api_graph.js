@@ -56,17 +56,9 @@ router.get('/graph/:queryType', async (ctx, next) => {
         GraphMap.winloseAmount.push({ x: i, y: 0 })
     }
     // 获取区间玩家总人数
-    promiseArr.push(queryGetGraph('round.playerCountGraph', 'playerCount', inparam, GraphMap))
-    // 获取区间玩家总下注次数
-    promiseArr.push(queryGetGraph('round.handleAmountGraph', 'betCount', inparam, GraphMap))
-    // 获取区间玩家总下注金额
-    promiseArr.push(queryGetGraph('round.handleAmountGraph', 'betAmount', inparam, GraphMap))
-    // 获取区间玩家总返奖
-    promiseArr.push(queryGetGraph('round.handleAmountGraph', 'retAmount', inparam, GraphMap))
-    // 获取区间玩家总退款
-    promiseArr.push(queryGetGraph('round.handleAmountGraph', 'refundAmount', inparam, GraphMap))
-    // 获取区间玩家总输赢
-    promiseArr.push(queryGetGraph('round.handleAmountGraph', 'winloseAmount', inparam, GraphMap))
+    promiseArr.push(queryGetGraph('round.playerCountGraph', ['playerCount'], inparam, GraphMap))
+    // 获取区间玩家总下注次数、下注金额、总返奖、总退款、总
+    promiseArr.push(queryGetGraph('round.handleAmountGraph', ['betCount', 'betAmount', 'retAmount', 'refundAmount', 'winloseAmount'], inparam, GraphMap))
     // 并发执行
     await Promise.all(promiseArr)
 
@@ -121,12 +113,14 @@ router.get('/graph/:queryType', async (ctx, next) => {
 
 
 // 柱状图sql查询
-async function queryGetGraph(sqlName, key, inparam, map, type) {
-    let res = await nodebatis.query(sqlName, { method: key, type, ...inparam })
-    for (let item of res) {
-        for (let valueMap of map[key]) {
-            if (valueMap.x == item.hours) {
-                valueMap.y = key == 'betAmount' ? Math.abs(item.count) : item.count
+async function queryGetGraph(sqlName, keyArr, inparam, map) {
+    let res = await nodebatis.query(sqlName, { ...inparam })
+    for (let key of keyArr) {
+        for (let item of res) {
+            for (let valueMap of map[key]) {
+                if (valueMap.x == item.hours) {
+                    valueMap.y = key == 'betAmount' ? Math.abs(item[key]) : item[key]
+                }
             }
         }
     }
