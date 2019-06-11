@@ -1,7 +1,10 @@
 namespace: 'round'
 
 attrs: businessKey,parent,parentRole,parentSn,parentName,parentDisplayId,parentDisplayName,userId,userName,company,gameType,gameId,sourceIP,country,province,city,betCount,betAmount,winAmount,refundAmount,retAmount,winloseAmount,createdDate,createdWeek,createdMonth,createdAt
-    
+amtAttrs: round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(winloseAmount),2) as winloseAmount
+allAmtAttrs: round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(winloseAmount),2) as winloseAmount,round(sum(refundAmount),2) as refundAmount
+
+
 batchInsert:
     - replace into round({{ round.attrs }}) values
     - for:
@@ -85,7 +88,7 @@ playerCountPie: # 玩家人数
     - GROUP BY t.gameType
 
 handleAmountPie: # 金额汇总
-    - SELECT round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(refundAmount),2) as refundAmount,gameType
+    - SELECT {{ round.amtAttrs }} ,gameType
     - from round where createdAt between :startTime and :endTime
     # 条件参数
     - if:
@@ -110,7 +113,7 @@ playerCountGraph: # 玩家人数
     - GROUP BY t.hours
 
 handleAmountGraph: # 金额汇总
-    - SELECT FROM_UNIXTIME(createdAt/1000,:formatType) as hours,round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(refundAmount),2) as refundAmount, round(sum(winloseAmount),2) as winloseAmount
+    - SELECT FROM_UNIXTIME(createdAt/1000,:formatType) as hours, {{ round.allAmtAttrs }}
     - from round where createdAt between :startTime and :endTime
     - if:
         test: :gameType != null
@@ -134,7 +137,7 @@ playerCountDay: # 玩家人数
     - GROUP BY t.days ORDER BY t.days
 
 handleAmountDay: # 金额汇总
-    - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') as days,round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(refundAmount),2) as refundAmount,round(sum(winloseAmount),2) as winloseAmount
+    - SELECT FROM_UNIXTIME(createdAt/1000,'%Y-%m-%d') as days, {{ round.allAmtAttrs }}
     - from round where createdAt between :startTime and :endTime
     # 判断是否使用gameType
     - if:
@@ -165,7 +168,7 @@ mapPlayerCount: # 玩家人数
     - group by a.province
 
 mapHandleAmount: # 金额汇总
-    - select round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(refundAmount),2) as refundAmount,round(sum(winloseAmount),2) as winloseAmount,
+    - select {{ round.allAmtAttrs }},
     - if:
         test: :queryFlag == 'province'
         sql: province from round where createdAt between :startTime and :endTime and country = '中国'
@@ -197,7 +200,7 @@ playerCountRank: # 玩家人数
     - as t group by t.parentDisplayName,t.parentSn ORDER BY playerCount desc
 
 handleAmountRank: # 金额汇总
-    - SELECT round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(winloseAmount),2) as winloseAmount,parentDisplayName,parentSn
+    - SELECT {{ round.amtAttrs }} ,parentDisplayName,parentSn
     - from round where createdAt between :startTime and :endTime
     - if:
         test: :parent != null
@@ -206,7 +209,7 @@ handleAmountRank: # 金额汇总
 
 # 玩家排行榜
 handleAmountPlayerRank: # 金额汇总
-    - SELECT round(sum(betCount),2) as betCount,round(sum(betAmount),2) as betAmount,round(sum(retAmount),2) as retAmount,round(sum(winloseAmount),2) as winloseAmount,userName
+    - SELECT {{ round.amtAttrs }} ,userName
     - from round where createdAt between :startTime and :endTime
     - if:
         test: :parent != null
