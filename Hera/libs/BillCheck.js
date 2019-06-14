@@ -171,10 +171,10 @@ module.exports = class BillCheck {
             throw checkAttError
         }
         if (typeof inparam.userName != 'string') {
-            throw { code: 10001, msg: '入参数据不合法', params: ['userName'] }
+            throw '请求参数userName错误'
         }
         if (!inparam.nickname && !inparam.userPwd) {
-            throw { code: 10001, msg: '入参数据不合法', params: ['userPwd'] }
+            throw '请求参数userPwd错误'
         }
         inparam.buId = +inparam.buId
         inparam.userName = inparam.userName.toString().trim()

@@ -46,7 +46,10 @@ module.exports.playerLogin = async function (e, c, cb) {
             userInfo = await new UserModel().queryUserById(userId)
         }
         if (_.isEmpty(userInfo)) {
-            return ResFail(cb, { msg: '所属商户或代理不存在' }, 10001)
+            return ResFail(cb, { msg: '所属商户不存在' }, 10001)
+        }
+        if (userInfo.status == 0) {
+            return ResFail(cb, { msg: '商户已锁定' }, 10006)
         }
         if (_.isEmpty(playerInfo)) {//说明是商户，商户需要组装用户名
             userName = `${userInfo.suffix}_${userName}`
@@ -57,10 +60,10 @@ module.exports.playerLogin = async function (e, c, cb) {
         }
         //4,检验密码是否正确，检验商户和玩家是否禁用
         if (playerInfo.password != inparam.userPwd) {
-            return ResFail(cb, { msg: '密码不正确' }, 10004)
+            return ResFail(cb, { msg: '玩家密码不正确' }, 10004)
         }
-        if (userInfo.status == 0 || playerInfo.state == 0) {
-            return ResFail(cb, { msg: '商户或玩家已被禁用' }, 10005)
+        if (playerInfo.state == 0) {
+            return ResFail(cb, { msg: '玩家已冻结' }, 10005)
         }
         //5,从缓存获取玩家余额,更新玩家信息
         playerInfo.usage = 'playerLogin'

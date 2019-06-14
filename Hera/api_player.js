@@ -45,7 +45,7 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
                         return ResFail(cb, { msg: '昵称已存在' }, 10013)
                     }
                 } else {
-                    return ResFail(cb, { msg: '昵称已存在' }, 10003)
+                    return ResFail(cb, { msg: '昵称已存在' }, 10013)
                 }
             } else {
                 return ResFail(cb, { msg: '玩家已存在' }, 10003)
@@ -54,7 +54,7 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
         // 新创建的玩家，检查昵称是否重复
         else if (inparam.nickname) {
             if (!inparam.userPwd) {
-                throw { code: 10001, msg: '入参数据不合法', params: ['userPwd'] }
+                return ResFail(cb, { msg: '请求参数userPwd错误' }, 500)
             }
             let checkNicknameRes = await new PlayerModel().checkNickname(userInfo.userId, inparam.nickname)
             if (checkNicknameRes.Items.length > 0) {
@@ -101,7 +101,6 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
     } catch (err) {
         console.error(err)
         let code = err == '非法IP' ? 10002 : 500
-        code = err.code == 10001 ? 10001 : 500
         return ResFail(cb, { msg: err }, code)
     }
 }
