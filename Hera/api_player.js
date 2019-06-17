@@ -28,6 +28,9 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
         if (_.isEmpty(userInfo) || userInfo.apiKey != inparam.apiKey) {
             return ResFail(cb, { msg: '商户不存在,请检查buId和apiKey' }, 10001)
         }
+        if (userInfo.status == 0) {
+            return ResFail(cb, { msg: '商户已停用' }, 10006)
+        }
         //ip校验
         new IPCheck().validateIP(e, userInfo)
         //4,检验玩家是否存在
