@@ -9,8 +9,6 @@ provider:
   timeout: 300
   environment:
       TOKEN_SECRET: ${ssm:TOKEN_SECRET~true}
-      NA_CENTER: ${ssm:NA_CENTER~true}
-      NALIVE_CENTER: ${ssm:NALIVE_CENTER~true}
       COMPANY_NA_KEY: ${ssm:COMPANY_NA_KEY~true}
   iamRoleStatements:
     - Effect: Allow
