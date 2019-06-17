@@ -126,13 +126,13 @@ module.exports.playerLoginToken = async function (e, c, cb) {
             return ResFail(cb, { msg: '非法身份' }, 500)
         }
         if (userInfo.status == '0') {
-            return ResFail(cb, { msg: '商户已锁定' }, 10006)
+            return ResFail(cb, { msg: '商户已停用' }, 10006)
         }
         //4,获取玩家信息
         let userName = `${userInfo.suffix}_${inparam.userName}`
         let playerInfo = await new PlayerModel().getPlayer(userName)
         if (playerInfo.state == 0) {
-            return ResFail(cb, { msg: '玩家已冻结' }, 10005)
+            return ResFail(cb, { msg: '玩家已启用' }, 10005)
         }
         if (playerInfo.password != inparam.userPwd) {
             return ResFail(cb, { msg: '玩家密码不正确' }, 10004)
@@ -180,7 +180,7 @@ module.exports.getGamePlayerBalance = async function (e, c, cb) {
         //4,获取商户信息
         let userInfo = await new UserModel().queryByDisplayId(inparam.buId)
         if (_.isEmpty(userInfo)) {
-            return ResFail(cb, { msg: '所属商户不存在' }, 10011)
+            return ResFail(cb, { msg: '商户不存在' }, 10011)
         }
         //ip校验
         new IPCheck().validateIP(e, userInfo)

@@ -49,7 +49,7 @@ module.exports.playerLogin = async function (e, c, cb) {
             return ResFail(cb, { msg: '所属商户不存在' }, 10001)
         }
         if (userInfo.status == 0) {
-            return ResFail(cb, { msg: '商户已锁定' }, 10006)
+            return ResFail(cb, { msg: '商户已停用' }, 10006)
         }
         if (_.isEmpty(playerInfo)) {//说明是商户，商户需要组装用户名
             userName = `${userInfo.suffix}_${userName}`
@@ -63,7 +63,7 @@ module.exports.playerLogin = async function (e, c, cb) {
             return ResFail(cb, { msg: '玩家密码不正确' }, 10004)
         }
         if (playerInfo.state == 0) {
-            return ResFail(cb, { msg: '玩家已冻结' }, 10005)
+            return ResFail(cb, { msg: '玩家已停用' }, 10005)
         }
         //5,从缓存获取玩家余额,更新玩家信息
         playerInfo.usage = 'playerLogin'

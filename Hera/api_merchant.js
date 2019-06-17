@@ -166,7 +166,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 const playerModel = new PlayerModel()
                 let playerInfo = await playerModel.getPlayer(userName)
                 if (playerInfo.state == '0') {
-                    return ResFail(cb, { msg: '玩家已冻结' }, 10005)
+                    return ResFail(cb, { msg: '玩家已停用' }, 10005)
                 }
                 if (playerInfo.gameState != GameStateEnum.OffLine) {
                     await playerModel.updateOffline(userName)
