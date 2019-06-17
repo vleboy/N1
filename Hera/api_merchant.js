@@ -1,13 +1,11 @@
-//工具
 const JSONParser = require('./libs/JSONParser')
 const { ResOK, ResFail } = require('./libs/Response')
 const BillCheck = require('./libs/BillCheck')
 const _ = require('lodash')
-const axios = require('axios')
 const uuid = require('uuid/v4')
 const NP = require('number-precision')
+// const axios = require('axios')
 // const jwt = require('jsonwebtoken')
-//model
 const UserModel = require('./models/UserModel')
 const LogModel = require('./models/LogModel')
 const HeraGameRecordModel = require('./models/HeraGameRecordModel')
@@ -295,83 +293,83 @@ module.exports.merchantPlayer = async function (e, c, cb) {
     }
 }
 
-/**
- * 商户报表
- */
-module.exports.gameReportByMerchant = async function (e, c, cb) {
-    try {
-        //1,获取入参
-        const inparam = JSONParser(e.body)
-        console.log(inparam)
-        //2,参数校验
-        new BillCheck().checkgGameReport(inparam)
-        //3,获取商户信息，检查密钥是否正确
-        let userInfo = await new UserModel().queryByDisplayId(inparam.buId)
-        if (_.isEmpty(userInfo) || userInfo.apiKey != inparam.apiKey) {
-            return ResFail(cb, { msg: '商户不存在,请检查buId和apiKey' }, 10001)
-        }
-        //ip校验
-        new IPCheck().validateIP(e, userInfo)
-        let { apiKey, gameType, startTime, endTime } = inparam
-        let domain = 'n1admin.na12345.com'
-        if (process.env.NA_CENTER != '47.74.152.121') {
-            domain = 'd3rqtlfdd4m9wd.cloudfront.net'
-        }
-        let res = await axios.post(`https://${domain}/externUserStat`, {
-            apiKey, gameType, role: '100', userIds: [userInfo.userId], query: { createdAt: [startTime, endTime] }
-        })
-        return ResOK(cb, { msg: 'success', data: (res.data.payload || [])[0] }, 0)
-    } catch (err) {
-        console.error(err)
-        let code = err == '非法IP' ? 10002 : 500
-        return ResFail(cb, { msg: err }, code)
-    }
-}
+// /**
+//  * 商户报表
+//  */
+// module.exports.gameReportByMerchant = async function (e, c, cb) {
+//     try {
+//         //1,获取入参
+//         const inparam = JSONParser(e.body)
+//         console.log(inparam)
+//         //2,参数校验
+//         new BillCheck().checkgGameReport(inparam)
+//         //3,获取商户信息，检查密钥是否正确
+//         let userInfo = await new UserModel().queryByDisplayId(inparam.buId)
+//         if (_.isEmpty(userInfo) || userInfo.apiKey != inparam.apiKey) {
+//             return ResFail(cb, { msg: '商户不存在,请检查buId和apiKey' }, 10001)
+//         }
+//         //ip校验
+//         new IPCheck().validateIP(e, userInfo)
+//         let { apiKey, gameType, startTime, endTime } = inparam
+//         let domain = 'n1admin.na12345.com'
+//         if (process.env.NA_CENTER != '47.74.152.121') {
+//             domain = 'd3rqtlfdd4m9wd.cloudfront.net'
+//         }
+//         let res = await axios.post(`https://${domain}/externUserStat`, {
+//             apiKey, gameType, role: '100', userIds: [userInfo.userId], query: { createdAt: [startTime, endTime] }
+//         })
+//         return ResOK(cb, { msg: 'success', data: (res.data.payload || [])[0] }, 0)
+//     } catch (err) {
+//         console.error(err)
+//         let code = err == '非法IP' ? 10002 : 500
+//         return ResFail(cb, { msg: err }, code)
+//     }
+// }
 
-/**
- * 商户玩家报表
- */
-module.exports.gameReportByPlayer = async function (e, c, cb) {
-    try {
-        //1,获取入参
-        const inparam = JSONParser(e.body)
-        console.log(inparam)
-        //2,参数校验
-        new BillCheck().checkgGameReport(inparam)
-        //3,获取商户信息，检查密钥是否正确
-        let userInfo = await new UserModel().queryByDisplayId(inparam.buId)
-        if (_.isEmpty(userInfo) || userInfo.apiKey != inparam.apiKey) {
-            return ResFail(cb, { msg: '商户不存在,请检查buId和apiKey' }, 10001)
-        }
-        //ip校验
-        new IPCheck().validateIP(e, userInfo)
-        let playerres = await new PlayerModel().query({
-            IndexName: 'parentIdIndex',
-            KeyConditionExpression: 'parent = :parent',
-            ProjectionExpression: 'userName',
-            ExpressionAttributeValues: {
-                ':parent': userInfo.userId
-            }
-        })
-        let gameUserNames = playerres.Items.map((item) => item.userName)
-        let { apiKey, gameType, startTime, endTime } = inparam
-        let domain = 'n1admin.na12345.com'
-        if (process.env.NA_CENTER != '47.74.152.121') {
-            domain = 'd3rqtlfdd4m9wd.cloudfront.net'
-        }
-        let res = await axios.post(`https://${domain}/externPlayerStat`, {
-            apiKey, gameUserNames, gameType, query: { createdAt: [startTime, endTime] }
-        })
-        for (let item of res.data.payload) {
-            item.userName = item.userName.slice(item.userName.indexOf('_') + 1)
-        }
-        return ResOK(cb, { msg: 'success', data: res.data.payload || [] }, 0)
-    } catch (err) {
-        console.error(err)
-        let code = err == '非法IP' ? 10002 : 500
-        return ResFail(cb, { msg: err }, code)
-    }
-}
+// /**
+//  * 商户玩家报表
+//  */
+// module.exports.gameReportByPlayer = async function (e, c, cb) {
+//     try {
+//         //1,获取入参
+//         const inparam = JSONParser(e.body)
+//         console.log(inparam)
+//         //2,参数校验
+//         new BillCheck().checkgGameReport(inparam)
+//         //3,获取商户信息，检查密钥是否正确
+//         let userInfo = await new UserModel().queryByDisplayId(inparam.buId)
+//         if (_.isEmpty(userInfo) || userInfo.apiKey != inparam.apiKey) {
+//             return ResFail(cb, { msg: '商户不存在,请检查buId和apiKey' }, 10001)
+//         }
+//         //ip校验
+//         new IPCheck().validateIP(e, userInfo)
+//         let playerres = await new PlayerModel().query({
+//             IndexName: 'parentIdIndex',
+//             KeyConditionExpression: 'parent = :parent',
+//             ProjectionExpression: 'userName',
+//             ExpressionAttributeValues: {
+//                 ':parent': userInfo.userId
+//             }
+//         })
+//         let gameUserNames = playerres.Items.map((item) => item.userName)
+//         let { apiKey, gameType, startTime, endTime } = inparam
+//         let domain = 'n1admin.na12345.com'
+//         if (process.env.NA_CENTER != '47.74.152.121') {
+//             domain = 'd3rqtlfdd4m9wd.cloudfront.net'
+//         }
+//         let res = await axios.post(`https://${domain}/externPlayerStat`, {
+//             apiKey, gameUserNames, gameType, query: { createdAt: [startTime, endTime] }
+//         })
+//         for (let item of res.data.payload) {
+//             item.userName = item.userName.slice(item.userName.indexOf('_') + 1)
+//         }
+//         return ResOK(cb, { msg: 'success', data: res.data.payload || [] }, 0)
+//     } catch (err) {
+//         console.error(err)
+//         let code = err == '非法IP' ? 10002 : 500
+//         return ResFail(cb, { msg: err }, code)
+//     }
+// }
 // /**
 //  *  校验玩家token，用于充值页面打开免账号登录
 //  */
