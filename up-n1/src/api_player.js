@@ -366,7 +366,7 @@ router.post('/player/bill/detail', async function (ctx, next) {
             typeName: typeName || (GameTypeEnum[item.gameType] || { name: "" }).name,
             winloseAmount: item.winloseAmount || 0,
             balance: +((item.originalAmount || 0) + (item.winloseAmount || 0)).toFixed(2),
-            content: ((item.content || {}).ret || []).concat(((item.content || {}).bet || []))
+            content: _.orderBy(((item.content || {}).ret || []).concat(((item.content || {}).bet || [])), ['createdAt'], ['desc'])
         }
     })
     ctx.body = { code: 0, msg: '操作成功', list: returnList, startKey: lastKey }
