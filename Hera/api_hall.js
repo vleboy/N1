@@ -46,7 +46,7 @@ module.exports.playerLogin = async function (e, c, cb) {
             userInfo = await new UserModel().queryUserById(userId)
         }
         if (_.isEmpty(userInfo)) {
-            return ResFail(cb, { msg: '所属商户不存在' }, 10001)
+            return ResFail(cb, { msg: '商户不存在' }, 10001)
         }
         if (userInfo.status == 0) {
             return ResFail(cb, { msg: '商户已停用' }, 10006)
