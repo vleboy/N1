@@ -155,11 +155,9 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 return ResOK(cb, { msg: 'success' }, 0)
             case 'OPERATE_PLAYER_BALANCE'://玩家存提点操作
                 if (!inparam.userName || !inparam.action || !inparam.amount) {
-                    console.log(1)
                     return ResFail(cb, { msg: '请检查入参' }, 500)
                 }
                 if (inparam.action != 1 && inparam.action != -1) {
-                    console.log(2)
                     return ResFail(cb, { msg: '请检查入参' }, 500)
                 }
                 //玩家操作的金额小数点两位处理
@@ -168,21 +166,18 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 //获取玩家信息，并验证
                 const playerModel = new PlayerModel()
                 let playerInfo = await playerModel.getPlayer(userName)
-                console.log(3)
                 if (playerInfo.state == '0') {
                     return ResFail(cb, { msg: '玩家已停用' }, 10005)
                 }
                 if (playerInfo.gameState != GameStateEnum.OffLine) {
                     await playerModel.updateOffline(userName)
                 }
-                console.log(4)
                 //根据不同的操作类型（充值或提现）有不同的处理
                 let usage = inparam.action == -1 ? 'billout' : 'billin' // 提现需要检查余额绝对正确
                 let palyerBalance = await playerModel.getNewBalance({ userName: playerInfo.userName, userId: playerInfo.userId, balance: playerInfo.balance, usage })
                 if (palyerBalance == 'err') {
                     return ResFail(cb, { msg: '账务正在结算中，请联系管理员' }, 500)
                 }
-                console.log(5)
                 if (inparam.action == 1) { //充值操作
                     //获取商户的点数并检查商户的点数是否足够
                     let userBalance = await new MerchantBillModel().queryUserBalance(userInfo.userId)
@@ -195,7 +190,6 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                         return ResFail(cb, { msg: '玩家提现金额大于账户余额' }, 10009)
                     }
                 }
-                console.log(6)
                 // 如果使用自定义SN，需要检查是否重复
                 let playerBillSn = uuid()
                 if (inparam.sn) {
@@ -209,7 +203,6 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                         playerBillSn = inparam.sn
                     }
                 }
-                console.log(7)
                 //更新玩家余额，并推送大厅
                 let updateBalance = {
                     userName: playerInfo.userName,
@@ -217,7 +210,6 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                     amt: action == 1 ? Math.abs(+inparam.amount) : Math.abs(+inparam.amount) * -1
                 }
                 let currentBalanceObj = await playerModel.updatePlayerBalance(updateBalance)
-                console.log(8)
                 //写入用户流水表
                 let userBill = {
                     sn: uuid(),
@@ -252,7 +244,6 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                     balance: currentBalanceObj.balance
                 }
                 await new MerchantBillModel().playerBillTransfer(userBill, playerBill)
-                console.log(9)
                 return ResOK(cb, { msg: 'success', data: { balance: currentBalanceObj.balance } }, 0)
             case 'OPERATE_PLAYER_FORZEN'://冻结|解冻玩家
                 if (typeof inparam.names != 'object' || inparam.names.length == 0) {
