@@ -207,6 +207,7 @@ async function delPlayer(agentInfo) {
         IndexName: 'parentIdIndex',
         KeyConditionExpression: '#parent  = :parent',
         ProjectionExpression: 'userName',
+        ExpressionAttributeNames: { '#parent': 'parent' },
         ExpressionAttributeValues: { ':parent': agentInfo.userId }
     })
     // 批量删除
