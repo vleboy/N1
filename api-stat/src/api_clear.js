@@ -73,25 +73,25 @@ router.get('/stat/clearAgentAll', async (ctx, next) => {
     })
     console.log(`一共需要删除的代理有${res.Items.length}个`)
     //删除代理的流水、代理的缓存、代理下玩家的流水、代理下玩家的战绩、代理下玩家局表、代理下玩家的局天表、代理下的玩家
-    let i = 0
+    let i = 1
     for (let agent of res.Items) {
         console.log(`开始删除第${i}个代理数据`)
         //删除代理的缓存
         await delCache(agent)
-        // //删除代理的流水
-        // await delBill(agent)
-        // //删除代理下的玩家流水
-        // await delPlayerBill(agent)
-        // //删除代理下的玩家战绩
-        // await delPlayerRecord(agent)
-        // //删除代理下的玩家局表
-        // await delPlayerRound(agent)
-        // //删除代理下的玩家局天表
-        // await delPlayerRoundDay(agent)
-        // //删除代理下的玩家
-        // await delPlayer(agent)
-        // //删除该代理
-        // await new UserModel().deleteItem({ Key: { 'role': '1000', 'userId ': agent.userId } })
+        //删除代理的流水
+        await delBill(agent)
+        //删除代理下的玩家流水
+        await delPlayerBill(agent)
+        //删除代理下的玩家战绩
+        await delPlayerRecord(agent)
+        //删除代理下的玩家局表
+        await delPlayerRound(agent)
+        //删除代理下的玩家局天表
+        await delPlayerRoundDay(agent)
+        //删除代理下的玩家
+        await delPlayer(agent)
+        //删除该代理
+        await new UserModel().deleteItem({ Key: { 'role': '1000', 'userId ': agent.userId } })
         console.log(`删除第${i}个代理数据完成`)
         i++
     }
