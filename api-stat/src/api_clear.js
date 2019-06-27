@@ -157,7 +157,7 @@ async function delPlayerBill(agentInfo) {
 //删除代理下玩家战绩
 async function delPlayerRecord(agentInfo) {
     let promiseArr = []
-    const ret = await new BaseModel().query({
+    const ret = await new BaseModel().queryOnce({
         TableName: 'HeraGameRecord',
         IndexName: 'parentIdIndex',
         KeyConditionExpression: 'parentId  = :parentId',
