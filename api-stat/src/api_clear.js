@@ -90,8 +90,6 @@ router.get('/stat/clearAgentAll', async (ctx, next) => {
         await delPlayerRoundDay(agent)
         //删除代理下的玩家
         await delPlayer(agent)
-        //删除该代理
-        await new UserModel().deleteItem({ Key: { 'role': '1000', 'userId ': agent.userId } })
         console.log(`删除第${i}个代理数据完成`)
         i++
     }
