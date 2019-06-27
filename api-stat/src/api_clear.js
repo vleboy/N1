@@ -61,7 +61,7 @@ router.post('/stat/clearBalanceCache', async function (ctx, next) {
 })
 
 /**
- * 清楚NA有关代理的所有数据
+ * 清楚NA下所有代理的数据
  */
 router.get('/stat/clearAgentAll', async (ctx, next) => {
     //查出所有的代理
