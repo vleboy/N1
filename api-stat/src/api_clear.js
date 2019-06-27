@@ -65,28 +65,33 @@ router.post('/stat/clearBalanceCache', async function (ctx, next) {
  */
 router.get('/stat/clearAgentAll', async (ctx, next) => {
     //查出所有的代理
-    let AgentInfo = await new UserModel().queryUserByRole('1000')
-    console.log(`一共需要删除代理有${AgentInfo.length}个`)
+    let res = await new UserModel().query({
+        KeyConditionExpression: '#role = :role',
+        ProjectionExpression: "userId",
+        ExpressionAttributeNames: { '#role': 'role' },
+        ExpressionAttributeValues: { ':role': '1000' }
+    })
+    console.log(`一共需要删除的代理有${res.Items.length}个`)
     //删除代理的流水、代理的缓存、代理下玩家的流水、代理下玩家的战绩、代理下玩家局表、代理下玩家的局天表、代理下的玩家
     let i = 0
-    for (let agent of AgentInfo) {
+    for (let agent of res.Items) {
         console.log(`开始删除第${i}个代理数据`)
-        //删除代理的流水
-        await delBill(agent)
         //删除代理的缓存
         await delCache(agent)
-        //删除代理下的玩家流水
-        await delPlayerBill(agent)
-        //删除代理下的玩家战绩
-        await delPlayerRecord(agent)
-        //删除代理下的玩家局表
-        await delPlayerRound(agent)
-        //删除代理下的玩家局天表
-        await delPlayerRoundDay(agent)
-        //删除代理下的玩家
-        await delPlayer(agent)
-        //删除该代理
-        await new UserModel().deleteItem({ Key: { 'role': '1000', 'userId ': agent.userId } })
+        // //删除代理的流水
+        // await delBill(agent)
+        // //删除代理下的玩家流水
+        // await delPlayerBill(agent)
+        // //删除代理下的玩家战绩
+        // await delPlayerRecord(agent)
+        // //删除代理下的玩家局表
+        // await delPlayerRound(agent)
+        // //删除代理下的玩家局天表
+        // await delPlayerRoundDay(agent)
+        // //删除代理下的玩家
+        // await delPlayer(agent)
+        // //删除该代理
+        // await new UserModel().deleteItem({ Key: { 'role': '1000', 'userId ': agent.userId } })
         console.log(`删除第${i}个代理数据完成`)
         i++
     }
@@ -96,6 +101,25 @@ router.get('/stat/clearAgentAll', async (ctx, next) => {
 /**
  * 内部方法
  */
+
+ //删除代理的缓存
+async function delCache(agentInfo) {
+    let promiseArr = []
+    const ret = await new BaseModel().query({
+        TableName: 'SYSCacheBalance',
+        KeyConditionExpression: 'userId = :userId',
+        ProjectionExpression: 'userId,#type',
+        ExpressionAttributeNames: { '#type': 'type' },
+        ExpressionAttributeValues: { ':userId': agentInfo.userId }
+    })
+    // 批量删除
+    for (let item of ret.Items) {
+        promiseArr.push(new BaseModel().deleteItem({ TableName: 'SYSCacheBalance', Key: item }))
+    }
+    await Promise.all(promiseArr)
+    console.info(`删除缓存${ret.Items.length}条`)
+}
+
 //删除代理的流水
 async function delBill(agentInfo) {
     let promiseArr = []
@@ -113,23 +137,7 @@ async function delBill(agentInfo) {
     await Promise.all(promiseArr)
     console.info(`删除流水${ret.Items.length}条`)
 }
-//删除代理的缓存
-async function delCache(agentInfo) {
-    let promiseArr = []
-    const ret = await new BaseModel().query({
-        TableName: 'SYSCacheBalance',
-        KeyConditionExpression: 'userId = :userId',
-        ProjectionExpression: 'userId,#type',
-        ExpressionAttributeNames: { '#type': 'type' },
-        ExpressionAttributeValues: { ':userId': agentInfo.userId }
-    })
-    // 批量删除
-    for (let item of ret.Items) {
-        promiseArr.push(new BaseModel().deleteItem({ TableName: 'SYSCacheBalance', Key: item }))
-    }
-    await Promise.all(promiseArr)
-    console.info(`删除缓存${ret.Items.length}条`)
-}
+
 //删除代理下玩家流水
 async function delPlayerBill(agentInfo) {
     let promiseArr = []
@@ -219,7 +227,6 @@ async function delPlayer(agentInfo) {
     await Promise.all(promiseArr)
     console.info(`删除代理玩家${ret.Items.length}条`)
 }
-
 
 // /**
 //  * 清除指定的流水
