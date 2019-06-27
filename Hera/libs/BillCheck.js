@@ -64,28 +64,6 @@ module.exports = class BillCheck {
         inparam.gameType = +inparam.gameType
         inparam.gameId = +inparam.gameId
     }
-    //玩家离线接口参数校验
-    checkPlayerExit(inparam) {
-        let [checkAttError, errorParams] = athena.Util.checkProperties([
-            { name: "uids", type: "J" },
-        ], inparam)
-        if (checkAttError) {
-            Object.assign(checkAttError, { params: errorParams })
-            throw checkAttError
-        }
-    }
-    //玩家登陆游戏参数校验
-    checkPlayerLogin(inparam) {
-        let [checkAttError, errorParams] = athena.Util.checkProperties([
-            { name: "userName", type: "S" },  // 玩家帐号
-            { name: "userId", type: "S" },    // 玩家所属用户ID
-            { name: "userPwd", type: "S" }    // 玩家密码
-        ], inparam)
-        if (checkAttError) {
-            Object.assign(checkAttError, { params: errorParams })
-            throw checkAttError
-        }
-    }
     //获取玩家余额参数校验
     checkPlayerBalance(inparam) {
         let [checkAttError, errorParams] = athena.Util.checkProperties([
@@ -197,36 +175,24 @@ module.exports = class BillCheck {
         inparam.buId = +inparam.buId
         inparam.userName = inparam.userName.toString().trim()
     }
-    //检查大厅更新玩家信息
-    checkUpdateInfo(inparam) {
-        let [checkAttError, errorParams] = athena.Util.checkProperties([
-            { name: "userId", type: "N" }
-        ], inparam)
-        if (checkAttError) {
-            Object.assign(checkAttError, { params: errorParams })
-            throw checkAttError
-        }
-        inparam.userId = +inparam.userId
-        inparam.sex = inparam.sex == 1 ? 1 : 2
-    }
     //检查报表参数
-    checkgGameReport(inparam) {
-        let [checkAttError, errorParams] = athena.Util.checkProperties([
-            { name: "buId", type: "N", min: 1 },
-            { name: "apiKey", type: "S" },
-            { name: "gameType", type: "J" },
-            { name: "startTime", type: "N" },
-            { name: "endTime", type: "N" },
-        ], inparam)
-        if (checkAttError) {
-            Object.assign(checkAttError, { params: errorParams })
-            throw checkAttError
-        }
-        if (inparam.endTime < inparam.startTime) {
-            throw { params: '结束时间不能小于开始时间' }
-        }
-        inparam.buId = +inparam.buId
-        inparam.startTime = +inparam.startTime
-        inparam.endTime = +inparam.endTime
-    }
+    // checkgGameReport(inparam) {
+    //     let [checkAttError, errorParams] = athena.Util.checkProperties([
+    //         { name: "buId", type: "N", min: 1 },
+    //         { name: "apiKey", type: "S" },
+    //         { name: "gameType", type: "J" },
+    //         { name: "startTime", type: "N" },
+    //         { name: "endTime", type: "N" },
+    //     ], inparam)
+    //     if (checkAttError) {
+    //         Object.assign(checkAttError, { params: errorParams })
+    //         throw checkAttError
+    //     }
+    //     if (inparam.endTime < inparam.startTime) {
+    //         throw { params: '结束时间不能小于开始时间' }
+    //     }
+    //     inparam.buId = +inparam.buId
+    //     inparam.startTime = +inparam.startTime
+    //     inparam.endTime = +inparam.endTime
+    // }
 }

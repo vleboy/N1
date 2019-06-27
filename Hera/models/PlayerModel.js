@@ -380,26 +380,6 @@ module.exports = class PlayerModel extends BaseModel {
     }
 
     /**
-     * 大厅修改玩家信息
-     */
-    hallUpdateInfo(userName, query) {
-        let keys = Object.keys(query)
-        let opts = {
-            Key: { 'userName': userName },
-            UpdateExpression: "SET ",
-            ExpressionAttributeValues: {},
-            ExpressionAttributeNames: {}
-        };
-        keys.forEach((k, index) => {
-            opts.UpdateExpression += `#${k}=:${k} `;
-            opts.ExpressionAttributeValues[`:${k}`] = query[k];
-            opts.ExpressionAttributeNames[`#${k}`] = k;
-            if (index != keys.length - 1) opts.UpdateExpression += ", ";
-        })
-        return this.updateItem(opts)
-    }
-
-    /**
      * 退出游戏
      * @param {*} userName
      */
