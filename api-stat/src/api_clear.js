@@ -174,7 +174,7 @@ async function delPlayerRecord(agentInfo) {
 //删除代理下玩家局表
 async function delPlayerRound(agentInfo) {
     let promiseArr = []
-    const ret = await new BaseModel().query({
+    const ret = await new BaseModel().queryOnce({
         TableName: 'StatRound',
         IndexName: 'ParentIndex',
         KeyConditionExpression: '#parent  = :parent',
