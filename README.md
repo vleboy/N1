@@ -2,14 +2,16 @@
 Lambda函数计算：
 Hera            // 对外SDK的API
 
+EC2主机：
+api-stat        // 基础数据整理服务
+api-ttg         // 第三方游戏服务
+
 ALIYUN主机：
 up-n1           // N1后台接口
 up-n1-agent     // N1代理后台接口
 api-visual      // 数据可视化服务
 
-EC2主机：
-api-stat        // 基础数据整理服务
-api-ttg         // 第三方游戏服务
+
 
 ##首先设置TOKEN密钥
 aws ssm put-parameter --name TOKEN_SECRET --value *** --type SecureString
