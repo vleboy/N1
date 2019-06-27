@@ -74,6 +74,7 @@ router.get('/stat/clearAgentAll', async (ctx, next) => {
     console.log(`一共需要删除的代理有${res.Items.length}个`)
     //删除代理的流水、代理的缓存、代理下玩家的流水、代理下玩家的战绩、代理下玩家局表、代理下玩家的局天表、代理下的玩家
     let i = 1
+
     for (let agent of res.Items) {
         console.log(`开始删除第${i}个代理数据`)
         //删除代理的缓存
@@ -93,6 +94,10 @@ router.get('/stat/clearAgentAll', async (ctx, next) => {
         console.log(`删除第${i}个代理数据完成`)
         i++
     }
+    
+    //删除代理日志
+    await delAgentLog()
+
     ctx.body = { code: 0, msg: 'Y' }
 })
 
@@ -100,7 +105,7 @@ router.get('/stat/clearAgentAll', async (ctx, next) => {
  * 内部方法
  */
 
- //删除代理的缓存
+//删除代理的缓存
 async function delCache(agentInfo) {
     let promiseArr = []
     const ret = await new BaseModel().query({
@@ -224,6 +229,23 @@ async function delPlayer(agentInfo) {
     }
     await Promise.all(promiseArr)
     console.info(`删除代理玩家${ret.Items.length}条`)
+}
+//删除代理下的日志
+async function delAgentLog() {
+    let promiseArr = []
+    const ret = await new LogModel().query({
+        IndexName: 'LogRoleIndex',
+        KeyConditionExpression: '#role  = :role',
+        ProjectionExpression: 'sn,userId',
+        ExpressionAttributeNames: { '#role': 'role' },
+        ExpressionAttributeValues: { ':role': '1000' }
+    })
+    // 批量删除
+    for (let item of ret.Items) {
+        promiseArr.push(new LogModel().deleteItem({ Key: item }))
+    }
+    await Promise.all(promiseArr)
+    console.info(`删除代理日志${ret.Items.length}条`)
 }
 
 // /**
