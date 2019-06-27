@@ -10,6 +10,7 @@ const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const LogModel = require('./model/LogModel')
 const BaseModel = require('./model/BaseModel')
+const UserModel = require('./model/UserModel')
 const Cache = require('./lib/Cache')
 
 /**
@@ -58,6 +59,164 @@ router.post('/stat/clearBalanceCache', async function (ctx, next) {
     console.info(`数据删除成功`)
     ctx.body = { code: 0, msg: 'Y' }
 })
+
+/**
+ * 清楚NA有关代理的所有数据
+ */
+router.get('/stat/clearAgentAll', async (ctx, next) => {
+    //查出所有的代理
+    let AgentInfo = await new UserModel().queryUserByRole('1000')
+    console.log(`一共需要删除代理有${AgentInfo.length}个`)
+    //删除代理的流水、代理的缓存、代理下玩家的流水、代理下玩家的战绩、代理下玩家局表、代理下玩家的局天表、代理下的玩家
+    let i = 0
+    for (let agent of AgentInfo) {
+        console.log(`开始删除第${i}个代理数据`)
+        //删除代理的流水
+        await delBill(agent)
+        //删除代理的缓存
+        await delCache(agent)
+        //删除代理下的玩家流水
+        await delPlayerBill(agent)
+        //删除代理下的玩家战绩
+        await delPlayerRecord(agent)
+        //删除代理下的玩家局表
+        await delPlayerRound(agent)
+        //删除代理下的玩家局天表
+        await delPlayerRoundDay(agent)
+        //删除代理下的玩家
+        await delPlayer(agent)
+        console.log(`删除第${i}个代理数据完成`)
+        i++
+    }
+    ctx.body = { code: 0, msg: 'Y' }
+})
+
+/**
+ * 内部方法
+ */
+//删除代理的流水
+async function delBill(agentInfo) {
+    let promiseArr = []
+    const ret = await new BaseModel().query({
+        TableName: 'ZeusPlatformBill',
+        IndexName: 'UserIdIndex',
+        KeyConditionExpression: 'userId = :userId',
+        ProjectionExpression: 'sn,userId',
+        ExpressionAttributeValues: { ':userId': agentInfo.userId }
+    })
+    // 批量删除
+    for (let item of ret.Items) {
+        promiseArr.push(new BaseModel().deleteItem({ TableName: 'ZeusPlatformBill', Key: item }))
+    }
+    await Promise.all(promiseArr)
+    console.info(`删除流水${ret.Items.length}条`)
+}
+//删除代理的缓存
+async function delCache(agentInfo) {
+    let promiseArr = []
+    const ret = await new BaseModel().query({
+        TableName: 'SYSCacheBalance',
+        KeyConditionExpression: 'userId = :userId',
+        ProjectionExpression: 'userId,#type',
+        ExpressionAttributeNames: { '#type': 'type' },
+        ExpressionAttributeValues: { ':userId': agentInfo.userId }
+    })
+    // 批量删除
+    for (let item of ret.Items) {
+        promiseArr.push(new BaseModel().deleteItem({ TableName: 'SYSCacheBalance', Key: item }))
+    }
+    await Promise.all(promiseArr)
+    console.info(`删除缓存${ret.Items.length}条`)
+}
+//删除代理下玩家流水
+async function delPlayerBill(agentInfo) {
+    let promiseArr = []
+    const ret = await new BaseModel().query({
+        TableName: 'PlayerBillDetail',
+        IndexName: 'ParentIndex',
+        KeyConditionExpression: '#parent  = :parent',
+        ProjectionExpression: 'sn',
+        ExpressionAttributeNames: { '#parent': 'parent' },
+        ExpressionAttributeValues: { ':parent': agentInfo.userId }
+    })
+    // 批量删除
+    for (let item of ret.Items) {
+        promiseArr.push(new BaseModel().deleteItem({ TableName: 'PlayerBillDetail', Key: item }))
+    }
+    await Promise.all(promiseArr)
+    console.info(`删除代理下流水${ret.Items.length}条`)
+}
+//删除代理下玩家战绩
+async function delPlayerRecord(agentInfo) {
+    let promiseArr = []
+    const ret = await new BaseModel().query({
+        TableName: 'HeraGameRecord',
+        IndexName: 'parentIdIndex',
+        KeyConditionExpression: 'parentId  = :parentId',
+        ProjectionExpression: 'userName,betId ',
+        ExpressionAttributeValues: { ':parentId': agentInfo.userId }
+    })
+    // 批量删除
+    for (let item of ret.Items) {
+        promiseArr.push(new BaseModel().deleteItem({ TableName: 'HeraGameRecord', Key: item }))
+    }
+    await Promise.all(promiseArr)
+    console.info(`删除代理下玩家战绩${ret.Items.length}条`)
+}
+//删除代理下玩家局表
+async function delPlayerRound(agentInfo) {
+    let promiseArr = []
+    const ret = await new BaseModel().query({
+        TableName: 'StatRound',
+        IndexName: 'ParentIndex',
+        KeyConditionExpression: '#parent  = :parent',
+        ProjectionExpression: 'businessKey',
+        ExpressionAttributeNames: { '#parent': 'parent' },
+        ExpressionAttributeValues: { ':parent': agentInfo.userId }
+    })
+    // 批量删除
+    for (let item of ret.Items) {
+        promiseArr.push(new BaseModel().deleteItem({ TableName: 'StatRound', Key: item }))
+    }
+    await Promise.all(promiseArr)
+    console.info(`删除代理下玩家局表${ret.Items.length}条`)
+}
+//删除代理下玩家局天表
+async function delPlayerRoundDay(agentInfo) {
+    let promiseArr = []
+    const ret = await new BaseModel().query({
+        TableName: 'StatRoundDay',
+        IndexName: 'ParentIndex',
+        KeyConditionExpression: '#parent  = :parent',
+        ProjectionExpression: 'userName,createdDate',
+        ExpressionAttributeNames: { '#parent': 'parent' },
+        ExpressionAttributeValues: { ':parent': agentInfo.userId }
+    })
+    // 批量删除
+    for (let item of ret.Items) {
+        promiseArr.push(new BaseModel().deleteItem({ TableName: 'StatRoundDay', Key: item }))
+    }
+    await Promise.all(promiseArr)
+    console.info(`删除代理下玩家局天表${ret.Items.length}条`)
+}
+//删除代理下的玩家
+async function delPlayer(agentInfo) {
+    let promiseArr = []
+    const ret = await new BaseModel().query({
+        TableName: 'HeraGamePlayer',
+        IndexName: 'parentIdIndex',
+        KeyConditionExpression: '#parent  = :parent',
+        ProjectionExpression: 'userName',
+        ExpressionAttributeValues: { ':parent': agentInfo.userId }
+    })
+    // 批量删除
+    for (let item of ret.Items) {
+        promiseArr.push(new BaseModel().deleteItem({ TableName: 'HeraGamePlayer', Key: item }))
+    }
+    await Promise.all(promiseArr)
+    console.info(`删除代理玩家${ret.Items.length}条`)
+}
+
 
 // /**
 //  * 清除指定的流水

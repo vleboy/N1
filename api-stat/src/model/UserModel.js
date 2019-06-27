@@ -49,6 +49,21 @@ class UserModel extends BaseModel {
         return querySet.Items[0]
     }
 
+    //根据角色查询
+    async queryUserByRole(role) {
+        const querySet = await this.query({
+            KeyConditionExpression: '#role = :role',
+            ProjectionExpression: "userId",
+            ExpressionAttributeNames: {
+                '#role': 'role'
+            },
+            ExpressionAttributeValues: {
+                ':role': role
+            }
+        })
+        return querySet.Items
+    }
+
     /**
      * 统计接入方消耗金额数据（默认起始时间为2018-10-01 00:00:00）
      */
