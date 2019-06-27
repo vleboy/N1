@@ -71,10 +71,14 @@ router.get('/stat/clearAgentAll', async (ctx, next) => {
         ExpressionAttributeNames: { '#role': 'role' },
         ExpressionAttributeValues: { ':role': '1000' }
     })
+    res.Item.push({userId:'da3e87de-7c46-4797-9726-927ce564767f'})
+    res.Item.push({userId:'aeb817bc-8ab6-4fc9-9df3-ccc686223620'})
+    res.Item.push({userId:'a5f89971-2490-4461-b7d9-547ca210538e'})
+    res.Item.push({userId:'96d25b78-e510-4aa3-98ee-95c70f10ca6a'})
+    res.Item.push({userId:'2b7ce0b1-767c-483d-9d2b-538b0cc37c10'})
     console.log(`一共需要删除的代理有${res.Items.length}个`)
-    //删除代理的流水、代理的缓存、代理下玩家的流水、代理下玩家的战绩、代理下玩家局表、代理下玩家的局天表、代理下的玩家
+    //删除代理的流水、代理的缓存、代理下玩家的流水、代理下玩家的战绩、代理下玩家局表、代理下玩家的局天表、代理下的玩家 
     let i = 1
-
     for (let agent of res.Items) {
         console.log(`开始删除第${i}个代理数据`)
         //删除代理的缓存
