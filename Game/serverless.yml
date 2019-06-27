@@ -5,11 +5,6 @@ provider:
   name: aws
   runtime: nodejs10.x
   region: ap-southeast-1
-  # memorySize: 256
-  # timeout: 300
-  # environment:
-  #     TOKEN_SECRET: ${ssm:TOKEN_SECRET~true}
-  #     ANOTHER_GAME_CENTER: ${ssm:ANOTHER_GAME_CENTER~true}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -22,43 +17,6 @@ provider:
             - ":"
             - Ref: AWS::AccountId
             - ":table/*"
-# functions:
-#   tokenAuth:
-#     handler: api.jwtverify
-#     memorySize: 128
-#     integration: lambda
-  #========== 以下是定时统计接口 ==========
-  # checkRound: #定时检查日志
-  #   handler: api_check.checkRound
-  #   memorySize: 512
-  #   events:
-  #     - schedule: rate(5 minutes)
-  #     -
-  #       http:
-  #         path: /checkRound
-  #         method: post
-  #         cors: true
-  #         authorizer: tokenAuth
-  # cronRound: #定时统计局表
-  #   handler: api_cron.cronRound
-  #   events:
-  #     - schedule: rate(3 minutes)
-  #     -
-  #       http:
-  #         path: /cronRound
-  #         method: post
-  #         cors: true
-  #         authorizer: tokenAuth
-  # cronRoundDay: #定时统计局天表
-  #   handler: api_cron.cronRoundDay
-  #   events:
-  #     - schedule: cron(0 18 * * ? *)
-  #     -
-  #       http:
-  #         path: /cronRoundDay
-  #         method: post
-  #         cors: true
-  #         authorizer: tokenAuth
 resources:
   Resources:
     #第一阶段部署
