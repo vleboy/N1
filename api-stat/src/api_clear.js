@@ -63,47 +63,47 @@ router.post('/stat/clearBalanceCache', async function (ctx, next) {
 /**
  * 清楚NA下所有代理的数据
  */
-router.get('/stat/clearAgentAll', async (ctx, next) => {
-    //查出所有的代理
-    let res = await new UserModel().query({
-        KeyConditionExpression: '#role = :role',
-        ProjectionExpression: "userId",
-        ExpressionAttributeNames: { '#role': 'role' },
-        ExpressionAttributeValues: { ':role': '1000' }
-    })
-    res.Items.push({userId:'da3e87de-7c46-4797-9726-927ce564767f'})
-    res.Items.push({userId:'aeb817bc-8ab6-4fc9-9df3-ccc686223620'})
-    res.Items.push({userId:'a5f89971-2490-4461-b7d9-547ca210538e'})
-    res.Items.push({userId:'96d25b78-e510-4aa3-98ee-95c70f10ca6a'})
-    res.Items.push({userId:'2b7ce0b1-767c-483d-9d2b-538b0cc37c10'})
-    console.log(`一共需要删除的代理有${res.Items.length}个`)
-    //删除代理的流水、代理的缓存、代理下玩家的流水、代理下玩家的战绩、代理下玩家局表、代理下玩家的局天表、代理下的玩家 
-    let i = 1
-    for (let agent of res.Items) {
-        console.log(`开始删除第${i}个代理数据`)
-        //删除代理的缓存
-        await delCache(agent)
-        //删除代理的流水
-        await delBill(agent)
-        //删除代理下的玩家流水
-        await delPlayerBill(agent)
-        //删除代理下的玩家战绩
-        await delPlayerRecord(agent)
-        //删除代理下的玩家局表
-        await delPlayerRound(agent)
-        //删除代理下的玩家局天表
-        await delPlayerRoundDay(agent)
-        //删除代理下的玩家
-        await delPlayer(agent)
-        console.log(`删除第${i}个代理数据完成`)
-        i++
-    }
+// router.get('/stat/clearAgentAll', async (ctx, next) => {
+//     //查出所有的代理
+//     let res = await new UserModel().query({
+//         KeyConditionExpression: '#role = :role',
+//         ProjectionExpression: "userId",
+//         ExpressionAttributeNames: { '#role': 'role' },
+//         ExpressionAttributeValues: { ':role': '1000' }
+//     })
+//     res.Items.push({userId:'da3e87de-7c46-4797-9726-927ce564767f'})
+//     res.Items.push({userId:'aeb817bc-8ab6-4fc9-9df3-ccc686223620'})
+//     res.Items.push({userId:'a5f89971-2490-4461-b7d9-547ca210538e'})
+//     res.Items.push({userId:'96d25b78-e510-4aa3-98ee-95c70f10ca6a'})
+//     res.Items.push({userId:'2b7ce0b1-767c-483d-9d2b-538b0cc37c10'})
+//     console.log(`一共需要删除的代理有${res.Items.length}个`)
+//     //删除代理的流水、代理的缓存、代理下玩家的流水、代理下玩家的战绩、代理下玩家局表、代理下玩家的局天表、代理下的玩家 
+//     let i = 1
+//     for (let agent of res.Items) {
+//         console.log(`开始删除第${i}个代理数据`)
+//         //删除代理的缓存
+//         await delCache(agent)
+//         //删除代理的流水
+//         await delBill(agent)
+//         //删除代理下的玩家流水
+//         await delPlayerBill(agent)
+//         //删除代理下的玩家战绩
+//         await delPlayerRecord(agent)
+//         //删除代理下的玩家局表
+//         await delPlayerRound(agent)
+//         //删除代理下的玩家局天表
+//         await delPlayerRoundDay(agent)
+//         //删除代理下的玩家
+//         await delPlayer(agent)
+//         console.log(`删除第${i}个代理数据完成`)
+//         i++
+//     }
     
-    //删除代理日志
-    await delAgentLog()
+//     //删除代理日志
+//     await delAgentLog()
 
-    ctx.body = { code: 0, msg: 'Y' }
-})
+//     ctx.body = { code: 0, msg: 'Y' }
+// })
 
 /**
  * 内部方法
