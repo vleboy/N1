@@ -1,6 +1,4 @@
 service: Game
-plugins:
-  - serverless-prune-plugin
 provider:
   name: aws
   runtime: nodejs10.x
