@@ -42,7 +42,7 @@ const RegEnum = {
     PRICE: /^[0-9]+([.]{1}[0-9]{1,2})?$/,
 
     NUMBER: /^[0-9]+$/,
-    SN: /^[A-Za-z0-9]{3,5}$/
+    SN: /^[A-Za-z0-9]{3,6}$/
 }
 
 class Util {

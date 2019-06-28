@@ -215,8 +215,7 @@ const RoleEditProps = {
     'rate',
     'gameList',
     'isTest',
-    'remark',
-    'chip'          // 限红
+    'remark'
   ],
   '10000': []
 }

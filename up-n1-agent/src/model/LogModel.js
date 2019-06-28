@@ -158,7 +158,7 @@ module.exports = class LogModel extends BaseModel {
             ret: ret,
             detail: detail,
             operateToken: inparam.operateToken,
-            parent: inparam.operateToken.parent ? inparam.operateToken.parent : '0'
+            parent: inparam.operateToken.parent || '0'
         }).then((res) => {
         }).catch((err) => {
             console.error(err)

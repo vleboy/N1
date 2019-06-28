@@ -242,6 +242,36 @@ class UserModel extends BaseModel {
         }
     }
 
+        /**
+     * 更新用户状态
+     * @param {用户角色} role 
+     * @param {用户ID} userId 
+     * @param {需要变更的状态} status 
+     */
+    async changeStatus(role, userId, status, companyList) {
+        let updateItem = {
+            Key: {
+                'role': role,
+                'userId': userId
+            },
+            UpdateExpression: "SET #status = :status",
+            ExpressionAttributeNames: {
+                '#status': 'status'
+            },
+            ExpressionAttributeValues: {
+                ':status': status
+            }
+        }
+        if (companyList) {
+            updateItem.UpdateExpression = 'SET #status = :status,companyList=:companyList'
+            updateItem.ExpressionAttributeValues = {
+                ':status': status,
+                ':companyList': companyList
+            }
+        }
+        return await this.updateItem(updateItem)
+    }
+
     /**
      * 查询用户
      * @param {*} userId 

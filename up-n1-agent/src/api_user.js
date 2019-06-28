@@ -124,6 +124,95 @@ router.get('/agentOne/:id', async function (ctx, next) {
 })
 
 // 变更用户状态
+// router.post('/userChangeStatus', async function (ctx, next) {
+//     let inparam = ctx.request.body
+//     let token = ctx.tokenVerify
+//     // 检查参数是否合法
+//     new UserCheck().checkStatus(inparam)
+//     // 查询用户
+//     let userRet = await new UserModel().getItem({
+//         ProjectionExpression: 'userId,username,levelIndex,companyList,#status',
+//         ExpressionAttributeNames: { '#status': 'status' },
+//         Key: { 'role': inparam.role, 'userId': inparam.userId }
+//     })
+//     let user = userRet.Item
+//     // 代理用户只能代理管理员/父辈操作
+//     if (Model.isAgent(user) && !Model.isAgentAdmin(token) && !Model.isSubChild(token, user)) {
+//         throw BizErr.TokenErr('代理用户只能代理管理员/上级操作')
+//     }
+//     // 更新用户状态
+//     if (!inparam.companyList && (inparam.status == StatusEnum.Enable || inparam.status == StatusEnum.Disable)) {
+//         user.status = inparam.status
+//     }
+//     // 更新用户拥有的游戏状态
+//     if (inparam.companyList) {
+//         user.companyList = inparam.companyList
+//     }
+//     // 开始更新用户
+//     const ret = await new UserModel().updateItem({
+//         Key: { role: inparam.role, userId: inparam.userId },
+//         UpdateExpression: 'SET #status = :status,companyList=:companyList',
+//         ExpressionAttributeNames: {
+//             '#status': 'status'
+//         },
+//         ExpressionAttributeValues: {
+//             ':status': user.status,
+//             ':companyList': user.companyList
+//         }
+//     })
+//     // 操作日志记录
+//     inparam.operateAction = '变更用户状态'
+//     inparam.operateToken = token
+//     new LogModel().addOperate(inparam, null, ret)
+
+//     // 如果是更新用户状态，还要进一步更新所有子用户状态
+//     if (!inparam.companyList && (inparam.status == StatusEnum.Enable || inparam.status == StatusEnum.Disable)) {
+//         const merchantUids = [user.userId]  // 需要推送状态变更的用户
+//         const allChildRet = await new UserModel().listAllChildUsers(user)
+//         for (let child of allChildRet) {
+//             new UserModel().updateItem({
+//                 Key: { role: child.role, userId: child.userId },
+//                 UpdateExpression: 'SET #status = :status',
+//                 ExpressionAttributeNames: {
+//                     '#status': 'status'
+//                 },
+//                 ExpressionAttributeValues: {
+//                     ':status': inparam.status,
+//                 }
+//             })
+//             merchantUids.push(child.userId) // 需要推送状态变更的用户
+//         }
+//         // 只有停用才通知大厅服务器，使玩家下线
+//         // if (inparam.status == StatusEnum.Disable) {
+//         //     new PushModel().pushForzen({ type: 2, uids: merchantUids, msg: '你已经被锁定，不能再继续游戏!' })
+//         // }
+//     }
+//     // 如果是停用用户游戏
+//     if (inparam.switch == StatusEnum.Disable) {
+//         const merchantUids = [user.userId]  // 需要推送状态变更的用户
+//         // const allChildRet = await new UserModel().listAllChildUsers(user)
+//         // for (let child of allChildRet) {
+//         //     merchantUids.push(child.userId) // 需要推送状态变更的用户
+//         // }
+//         token.detail = '手动停用'
+//         token.userId = user.userId
+//         token.userName = user.username
+//         token.changeUser = user.username
+//         new LogModel().add('7', inparam, token)
+//         // new PushModel().pushForzen({ type: 2, uids: merchantUids, msg: '请联系运营商' })
+//     } else if (inparam.switch == StatusEnum.Enable) {
+//         if (inparam.companyList) {
+//             token.detail = '手动启用'
+//             token.userId = user.userId
+//             token.userName = user.username
+//             token.changeUser = user.username
+//             new LogModel().add('7', inparam, token)
+//         }
+//     }
+//     // 结果返回
+//     ctx.body = { code: 0, payload: ret }
+// })
+
 router.post('/userChangeStatus', async function (ctx, next) {
     let inparam = ctx.request.body
     let token = ctx.tokenVerify
@@ -131,84 +220,34 @@ router.post('/userChangeStatus', async function (ctx, next) {
     new UserCheck().checkStatus(inparam)
     // 查询用户
     let userRet = await new UserModel().getItem({
-        ProjectionExpression: 'userId,username,levelIndex,companyList,#status',
-        ExpressionAttributeNames: { '#status': 'status' },
-        Key: { 'role': inparam.role, 'userId': inparam.userId }
+        ProjectionExpression: 'userId,levelIndex,companyList,#status,username',
+        ExpressionAttributeNames: {
+            '#status': 'status'
+        },
+        Key: {
+            'role': inparam.role,
+            'userId': inparam.userId
+        }
     })
     let user = userRet.Item
-    // 代理用户只能代理管理员/父辈操作
+    // 平台用户只能平台管理员/父辈操作
     if (Model.isAgent(user) && !Model.isAgentAdmin(token) && !Model.isSubChild(token, user)) {
         throw BizErr.TokenErr('代理用户只能代理管理员/上级操作')
     }
     // 更新用户状态
-    if (!inparam.companyList && (inparam.status == StatusEnum.Enable || inparam.status == StatusEnum.Disable)) {
-        user.status = inparam.status
-    }
-    // 更新用户拥有的游戏状态
-    if (inparam.companyList) {
-        user.companyList = inparam.companyList
-    }
-    // 开始更新用户
-    const ret = await new UserModel().updateItem({
-        Key: { role: inparam.role, userId: inparam.userId },
-        UpdateExpression: 'SET #status = :status,companyList=:companyList',
-        ExpressionAttributeNames: {
-            '#status': 'status'
-        },
-        ExpressionAttributeValues: {
-            ':status': user.status,
-            ':companyList': user.companyList
-        }
-    })
-    // 操作日志记录
-    inparam.operateAction = '变更用户状态'
-    inparam.operateToken = token
-    new LogModel().addOperate(inparam, null, ret)
-
-    // 如果是更新用户状态，还要进一步更新所有子用户状态
-    if (!inparam.companyList && (inparam.status == StatusEnum.Enable || inparam.status == StatusEnum.Disable)) {
-        const merchantUids = [user.userId]  // 需要推送状态变更的用户
+    if (inparam.status == StatusEnum.Disable && inparam.role == RoleCodeEnum.Agent) { 
         const allChildRet = await new UserModel().listAllChildUsers(user)
         for (let child of allChildRet) {
-            new UserModel().updateItem({
-                Key: { role: child.role, userId: child.userId },
-                UpdateExpression: 'SET #status = :status',
-                ExpressionAttributeNames: {
-                    '#status': 'status'
-                },
-                ExpressionAttributeValues: {
-                    ':status': inparam.status,
-                }
-            })
-            merchantUids.push(child.userId) // 需要推送状态变更的用户
-        }
-        // 只有停用才通知大厅服务器，使玩家下线
-        // if (inparam.status == StatusEnum.Disable) {
-        //     new PushModel().pushForzen({ type: 2, uids: merchantUids, msg: '你已经被锁定，不能再继续游戏!' })
-        // }
-    }
-    // 如果是停用用户游戏
-    if (inparam.switch == StatusEnum.Disable) {
-        const merchantUids = [user.userId]  // 需要推送状态变更的用户
-        // const allChildRet = await new UserModel().listAllChildUsers(user)
-        // for (let child of allChildRet) {
-        //     merchantUids.push(child.userId) // 需要推送状态变更的用户
-        // }
-        token.detail = '手动停用'
-        token.userId = user.userId
-        token.userName = user.username
-        token.changeUser = user.username
-        new LogModel().add('7', inparam, token)
-        // new PushModel().pushForzen({ type: 2, uids: merchantUids, msg: '请联系运营商' })
-    } else if (inparam.switch == StatusEnum.Enable) {
-        if (inparam.companyList) {
-            token.detail = '手动启用'
-            token.userId = user.userId
-            token.userName = user.username
-            token.changeUser = user.username
-            new LogModel().add('7', inparam, token)
+            new UserModel().changeStatus(child.role, child.userId, inparam.status)
         }
     }
+    // 开始更新用户
+    const ret = await new UserModel().changeStatus(inparam.role, inparam.userId, inparam.status)
+    // 操作日志记录
+    let detail = inparam.status == StatusEnum.Disable ? '禁用' : '启用'
+    inparam.operateAction = `变更用户【${user.username}】状态为${detail}`
+    inparam.operateToken = token
+    new LogModel().addOperate(inparam, null, ret)
     // 结果返回
     ctx.body = { code: 0, payload: ret }
 })
@@ -235,28 +274,6 @@ router.post('/updateSubrole', async function (ctx, next) {
     // 结果返回
     ctx.body = { code: 0, payload: adminUser }
 })
-
-// 代理更新限红
-router.post('/updateChip', async function (ctx, next) {
-    let inparam = ctx.request.body
-    //检查参数是否合法
-    new AgentCheck().checkChip(inparam)
-    // 业务操作
-    const updateRet = await new UserModel().updateItem({
-        Key: { role: RoleCodeEnum.Agent, userId: inparam.userId },
-        UpdateExpression: 'SET chip = :chip',
-        ExpressionAttributeValues: {
-            ':chip': inparam.chip
-        }
-    })
-    // 操作日志记录
-    inparam.operateAction = '更新代理的限红'
-    inparam.operateToken = ctx.tokenVerify
-    new LogModel().addOperate(inparam, null, updateRet)
-    // 结果返回
-    ctx.body = { code: 0, payload: updateRet }
-})
-
 
 // 代理更新
 router.post('/agentUpdate', async function (ctx, next) {
