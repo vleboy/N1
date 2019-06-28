@@ -60,8 +60,7 @@ const PlatformBaseBizRole = function () {
     gameList: [],                         // 游戏类型列表
     points: Model.NumberValue,            // 初始积分
     rate: Model.NumberValue,              // 抽成比
-    remark: Model.StringValue,            // 备注
-    chip: []                              // 限红
+    remark: Model.StringValue             // 备注
   }
 }
 /**

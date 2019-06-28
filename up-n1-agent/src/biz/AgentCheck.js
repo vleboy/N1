@@ -28,10 +28,6 @@ class AgentCheck {
         inparam.level = 0
         inparam.levelIndex = '0'
         inparam.rate = 100.00
-        inparam.signatureUrl = {
-            logo: ['http://d38xgux2jezyfx.cloudfront.net/NAlogo1516115365361.png', 'http://d38xgux2jezyfx.cloudfront.net/NAlogo1516115365361.png'],
-            name: ['http://d38xgux2jezyfx.cloudfront.net/NAlogo1516115365361.png', 'http://d38xgux2jezyfx.cloudfront.net/NAlogo1516115365361.png']
-        }
     }
     /**
      * 检查代理
