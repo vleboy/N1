@@ -527,12 +527,9 @@ router.post('/agent/player/create', async function (ctx, next) {
         merchantName: userInfo.displayName,
         parent: userInfo.userId,
         parentName: userInfo.username,
-        sex: inparam.sex || 0,
         remark: inparam.remark || 'NULL!',
         nickname: inparam.nickname || 'NULL!',
-        headPic: inparam.headPic || 'NULL!',
-        gameList: inparam.gameList,
-        chip: inparam.chip
+        gameList: inparam.gameList
     }
     //保存玩家
     await new PlayerModel().putItem(putplayer)
