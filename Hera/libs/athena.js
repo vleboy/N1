@@ -1,39 +1,13 @@
-//正则枚举
-const RegEnum = {
-
-    URL: /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?/,
-    IP: /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/,
-
-    // SUFFIX: /^[a-zA-z0-9]{1,6}$/,
-    SUFFIX: /^[A-Za-z0-9]{3,5}$/,
-
-    COMPANYNAME: /^[\u4E00-\u9FA5A-Za-z0-9]{2,20}$/,
-    COMPANYDESC: /^[\u4E00-\u9FA5A-Za-z0-9]{2,200}$/,
-    COMPANYCONTACT: /^[\u4E00-\u9FA5A-Za-z0-9]{2,16}$/,
-    COMPANYCONTACTWAY: /^[0-9]{2,20}$/,
-
-    USERNAME: /^[\u4E00-\u9FA5A-Za-z0-9_\-.@]{4,16}$/,
-    HOSTNAME: /^[\u4E00-\u9FA5A-Za-z]{2,16}$/,
-
-    EMAIL: /[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?/,
-
-    RATE: /^(\d{1,2}(\.\d{1,2})?|100(\.0{1,2})?)$/,
-    PRICE: /^[0-9]+([.]{1}[0-9]{1,2})?$/,
-
-    NUMBER: /^[0-9]+$/
-}
-
 const CODES = {
     JSON_FORMAT_ERROR: 10000,
-    INPARAM_ERROR: 10001,
-    DB_ERROR: 500
+    INPARAM_ERROR: 10001
 }
 
 const EMSG = {
     "10000": "数据错误",
-    "10001": "入参数据不合法",
-    "500": "服务器错误"
+    "10001": "入参数据不合法"
 }
+
 //校验方法工具
 class Util {
     static parseJSON(obj) {
@@ -43,6 +17,16 @@ class Util {
             return [null, obj];
         } catch (err) {
             return [new AError(CODES.JSON_FORMAT_ERROR), null];
+        }
+    }
+
+    static parseNumber(v) {
+        try {
+            let value = +v;
+            if (Number.isNaN(value)) return [new AError(CODES.INPARAM_ERROR), null]
+            return [null, value];
+        } catch (err) {
+            return [new AError(CODES.INPARAM_ERROR), null];
         }
     }
 
@@ -124,26 +108,15 @@ class Util {
         return Object.is(errorArray.length, 0) ? [null, errorArray] :
             [new AError(CODES.INPARAM_ERROR), errorArray]
     }
-
-    static parseNumber(v) {
-        try {
-            let value = +v;
-            if (Number.isNaN(value)) return [new AError(CODES.INPARAM_ERROR), null]
-            return [null, value];
-        } catch (err) {
-            return [new AError(CODES.INPARAM_ERROR), null];
-        }
-    }
 }
 
 class AError {
     constructor(code, msg) {
-        this.code = code;
-        this.msg = EMSG[code.toString()];
+        this.code = code
+        this.msg = EMSG[code.toString()]
     }
 }
 
 module.exports = {
-    RegEnum,
     Util
 }

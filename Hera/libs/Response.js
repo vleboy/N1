@@ -1,4 +1,7 @@
-const Codes = require('./Codes').Codes
+const Codes = {
+  OK: '0',
+  Error: '-1'
+}
 // 返回模板
 const responseTemplate = (statusCode, body, code, headers = {}) => {
   headers = {
