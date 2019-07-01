@@ -8,6 +8,13 @@ const EMSG = {
     "10001": "入参数据不合法"
 }
 
+class AError {
+    constructor(code) {
+        this.code = code
+        this.msg = EMSG[code.toString()]
+    }
+}
+
 //校验方法工具
 class Util {
     static parseJSON(obj) {
@@ -107,13 +114,6 @@ class Util {
         }
         return Object.is(errorArray.length, 0) ? [null, errorArray] :
             [new AError(CODES.INPARAM_ERROR), errorArray]
-    }
-}
-
-class AError {
-    constructor(code, msg) {
-        this.code = code
-        this.msg = EMSG[code.toString()]
     }
 }
 
