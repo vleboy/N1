@@ -11,8 +11,6 @@ up-n1           // N1后台接口
 up-n1-agent     // N1代理后台接口
 api-visual      // 数据可视化服务
 
-
-
 ##首先设置TOKEN密钥
 aws ssm put-parameter --name TOKEN_SECRET --value *** --type SecureString
 
@@ -227,17 +225,8 @@ ulimit -n
 $ ssh-keygen -t rsa
 cat ~/.ssh/id_rsa.pub  将输出的密钥复制到github的deploykey上，远程主机就有了下载权限
 
-
 需要把NULL!的战绩改成
 anotherGameData{data:[{\"GameResult\":[{\"BaccaratResult\":[]}]}],mixAmount:0}
-
-测试服大厅
-【国内】http://web.risheng3d.com/h5_lobby.html?userId=268184&token=0
-【国外】http://ext.na77.org.s3-website-ap-southeast-1.amazonaws.com/h5_lobby.html?userId=268184&token=0
-正式服大厅
-【国内】http://webpage.risheng3d.com/h5_lobby.html?userId=268184&token=0
-【国外】http://webpage.na77.org/h5_lobby.html?userId=268184&token=0
-
 
 yum clean all后，需要往下面文件添加地址
 rhui-load-balancers.conf
