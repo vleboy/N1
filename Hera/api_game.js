@@ -70,7 +70,7 @@ module.exports.auth = async function (e, c, cb) {
         }
         else {
             let company = userInfo.gameList[index].company
-            if (_.find(userInfo.companyList, function (o) { return o.company == company }).status == 0) {
+            if (userInfo.companyList && _.find(userInfo.companyList, function (o) { return o.company == company }).status == 0) {
                 return ResFail(cb, { msg: '商家游戏已被禁用，请联系运营商' }, 11007)
             }
         }
