@@ -250,7 +250,7 @@ module.exports = class LogModel extends BaseModel {
                 this.putItem({
                     ...this.item,
                     createdStr: moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
-                    detail:`用户【${inparam.changeUser}】在【${moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}】时间点的运营商标识【${inparam.company}】被【${inparam.detail}】`,
+                    detail:`【${moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}】，将【${inparam.changeUser}】的【${inparam.company}】游戏，进行如下操作【${inparam.detail}】`,
                     inparams: '人工修复',
                     ret: 'N',
                     role: role,
