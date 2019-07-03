@@ -172,7 +172,7 @@ router.post('/setUserMap', async (ctx, next) => {
     // 更新用户
     const ret = await new UserModel().changeStatus(inparam.role, inparam.userId, user.status, user.companyList)
     // 操作日志记录
-    inparam.operateAction = `用户【${user.username}】在【${moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}】时间点的运营商标识【${inparam.updateItem.company}】被【${token.detail}】`
+    inparam.operateAction = `【${moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}】，将【${user.username}】的【${inparam.updateItem.company}】游戏，进行如下操作【${token.detail}】`
     inparam.operateToken = token
     new LogModel().addOperate(inparam, null, ret)
     // 结果返回
