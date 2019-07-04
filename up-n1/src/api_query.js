@@ -136,6 +136,19 @@ router.post('/queryPlayerStat', async function (ctx, next) {
     ctx.body = { code: 0, payload: finalRes }
 })
 
+// 查询单个玩家一段时间洗码量
+router.post('/querySinglePlayerStat', async (ctx, next) => {
+    //获取入参
+    let inparam = ctx.request.body
+    //数据处理
+    new CalcCheck().check(inparam)
+    //逻辑处理
+    const res = await new PlayerBillModel().calcPlayerStat(inparam)
+    amountFixed(res)
+    // 返回结果
+    ctx.body = { code: 0, payload: res }
+})
+
 // 查询所有有效玩家统计信息
 router.post('/queryRealPlayerStat', async function (ctx, next) {
     let inparam = ctx.request.body
