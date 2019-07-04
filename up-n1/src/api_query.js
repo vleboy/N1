@@ -14,7 +14,7 @@ const PlayerModel = require('./model/PlayerModel')
 const SysBillModel = require('./model/SysBillModel')
 const PlayerBillModel = require('./model/PlayerBillModel')
 const CalcCheck = require('./biz/CalcCheck')
-const GameTypeEnum = require('./lib/Consts').GameTypeEnum
+const { GameTypeEnum, GameListEnum } = require('./lib/Consts')
 const { Model } = require('./lib/Model')
 const { BizErr } = require('./lib/Codes')
 
@@ -140,7 +140,21 @@ router.post('/queryPlayerStat', async function (ctx, next) {
 router.post('/querySinglePlayerStat', async (ctx, next) => {
     //获取入参
     let inparam = ctx.request.body
-    //数据处理
+    //游戏大类处理
+    if (inparam.gameType) {
+        inparam.gameType = [inparam.gameType]
+    } else {
+        if (inparam.company == '-1') {
+            inparam.gameType = Object.keys(GameTypeEnum)
+        } else {
+            inparam.gameType = GameListEnum[inparam.company].map((o) => { return o.code })
+        }
+    }
+    //时间处理
+    inparam.query = { "createdAt": [inparam.startTime, inparam.endTime] }
+    //用户处理
+    inparam.gameUserNames = [inparam.userName]
+    //构造处理
     new CalcCheck().check(inparam)
     //逻辑处理
     const res = await new PlayerBillModel().calcPlayerStat(inparam)
