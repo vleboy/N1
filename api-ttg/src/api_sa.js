@@ -279,41 +279,42 @@ router.post('/sa/betdetail', async (ctx, next) => {
  */
 router.get('/sa/setBetLimit', async (ctx, next) => {
     // 查询sa限红的ID编号
-    // const data = saParams('QueryBetLimit', { Currency: 'CNY' })
-    // const res = await axios.post(config.sa.apiurl, querystring.stringify(data), {
-    //     headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    // })
-    // const finalRes = await xmlParse(res.data)
-    // let chipArr = []
-    // for (let item of finalRes.QueryBetLimitResponse.BetLimitList[0].BetLimit) {
-    //     chipArr.push(item)
-    // }
-    // console.log(chipArr)
-    // 所有最近一个月登录过游戏的玩家数量
-    const playerModel = new PlayerModel()
-    const playerRes = await playerModel.scan({
-        ProjectionExpression: 'userId'
+    const data = saParams('QueryBetLimit', { Currency: 'CNY' })
+    const res = await axios.post(config.sa.apiurl, querystring.stringify(data), {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     })
-    console.log(playerRes.Items.length)
-    // // 查询所有玩家余额，每100个玩家一组
-    let i = 0
-    for (let player of playerRes.Items) {
-        //设置限红
-        const setdata = saParams('SetBetLimit', { Username: player.userId, Currency: 'CNY', Set1: 2251799813685248, Set2: 70368744177664, Set3: 1048576 })
-        // try {
-        axios.post(config.sa.apiurl, querystring.stringify(setdata), {
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        }).catch(err => console.log(err))
-
-        if (i % 8 == 0) {
-            await waitASecond()
-        }
-        console.log(i++)
-        // } catch (error) {
-        //     console.log(player.userId)
-        //     console.error(error)
-        // }
+    const finalRes = await xmlParse(res.data)
+    let chipArr = []
+    for (let item of finalRes.QueryBetLimitResponse.BetLimitList[0].BetLimit) {
+        chipArr.push(item)
     }
+    console.log(chipArr)
+
+    // // 所有最近一个月登录过游戏的玩家数量
+    // const playerModel = new PlayerModel()
+    // const playerRes = await playerModel.scan({
+    //     ProjectionExpression: 'userId'
+    // })
+    // console.log(playerRes.Items.length)
+    // // // 查询所有玩家余额，每100个玩家一组
+    // let i = 0
+    // for (let player of playerRes.Items) {
+    //     //设置限红
+    //     const setdata = saParams('SetBetLimit', { Username: player.userId, Currency: 'CNY', Set1: 2251799813685248, Set2: 70368744177664, Set3: 1048576 })
+    //     // try {
+    //     axios.post(config.sa.apiurl, querystring.stringify(setdata), {
+    //         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    //     }).catch(err => console.log(err))
+
+    //     if (i % 8 == 0) {
+    //         await waitASecond()
+    //     }
+    //     console.log(i++)
+    //     // } catch (error) {
+    //     //     console.log(player.userId)
+    //     //     console.error(error)
+    //     // }
+    // }
     ctx.body = { code: 0, msg: 'Y' }
 })
 
