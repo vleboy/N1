@@ -61,6 +61,41 @@ router.post('/stat/clearBalanceCache', async function (ctx, next) {
 })
 
 /**
+ * 清除用户下gameList不存在的游戏
+ */
+router.get('/stat/clearUserGameList', async function (ctx, next) {
+    // 查询所有用户
+    let userModel = new UserModel()
+    let res = await userModel.scan({
+        ProjectionExpression: "#role,userId,gameList",
+        ExpressionAttributeNames: {
+            '#role': 'role'
+        }
+    })
+    res = res.Items.filter((o) => { if (o.gameList) return true })
+    // 业务操作
+    let i = 1
+    for (let item of res) {
+        let gameList = item.gameList.filter((o) => {
+            if (o.code == '10000' || o.code == '30000' || o.code == '40000' || o.code == '50000' || o.code == '60000') {
+                return false
+            }
+            return true
+        })
+        if (gameList.length != 0) {
+            await userModel.updateItem({
+                Key: { role: item.role, userId: item.userId },
+                UpdateExpression: 'SET gameList=:gameList',
+                ExpressionAttributeValues: { ":gameList": gameList }
+            })
+            i++
+        }
+    }
+    console.log(`一共有${i}个用户更新了gameList`)
+    ctx.body = { code: 0, msg: 'Y' }
+})
+
+/**
  * 清楚NA下所有代理的数据
  */
 // router.get('/stat/clearAgentAll', async (ctx, next) => {
@@ -98,7 +133,7 @@ router.post('/stat/clearBalanceCache', async function (ctx, next) {
 //         console.log(`删除第${i}个代理数据完成`)
 //         i++
 //     }
-    
+
 //     //删除代理日志
 //     await delAgentLog()
 
