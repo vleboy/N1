@@ -87,7 +87,6 @@ router.get('/stat/clearUserGameList', async function (ctx, next) {
             ExpressionAttributeValues: { ":gameList": gameList }
         })
     }
-    console.log(`一共有${i}个用户更新了gameList`)
     ctx.body = { code: 0, msg: 'Y' }
 })
 
