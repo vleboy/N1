@@ -74,7 +74,6 @@ router.get('/stat/clearUserGameList', async function (ctx, next) {
     })
     res = res.Items.filter((o) => { if (o.gameList) return true })
     // 业务操作
-    let i = 1
     for (let item of res) {
         let gameList = item.gameList.filter((o) => {
             if (o.code == '10000' || o.code == '30000' || o.code == '40000' || o.code == '50000' || o.code == '60000') {
@@ -82,14 +81,11 @@ router.get('/stat/clearUserGameList', async function (ctx, next) {
             }
             return true
         })
-        if (gameList.length != 0) {
-            await userModel.updateItem({
-                Key: { role: item.role, userId: item.userId },
-                UpdateExpression: 'SET gameList=:gameList',
-                ExpressionAttributeValues: { ":gameList": gameList }
-            })
-            i++
-        }
+        await userModel.updateItem({
+            Key: { role: item.role, userId: item.userId },
+            UpdateExpression: 'SET gameList=:gameList',
+            ExpressionAttributeValues: { ":gameList": gameList }
+        })
     }
     console.log(`一共有${i}个用户更新了gameList`)
     ctx.body = { code: 0, msg: 'Y' }
