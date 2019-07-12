@@ -83,7 +83,7 @@ class LogModel extends BaseModel {
 
     //role查询
     async roleQuery(inparam) {
-        const ret = await this.query({
+        const ret = await this.queryOnce({
             IndexName: 'LogRoleIndex',
             KeyConditionExpression: '#role = :role',
             FilterExpression: '#ret = :ret',
@@ -105,12 +105,12 @@ class LogModel extends BaseModel {
         let logs = await this.roleQuery(inparam)
         console.log(`一共查出需要删除的日志条数${logs.length}`)
         // 批量删除
-        let i = 0
+        // let i = 0
         for (let item of logs) {
-            i++
-            if (i > 10000) {
-                return
-            }
+            // i++
+            // if (i > 10000) {
+            //     return
+            // }
             this.deleteItem({
                 Key: {
                     'sn': item.sn,
