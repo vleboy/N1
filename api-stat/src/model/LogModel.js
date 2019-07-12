@@ -108,7 +108,7 @@ class LogModel extends BaseModel {
         let i = 0
         for (let item of logs) {
             i++
-            if (i > 100000) {
+            if (i > 10000) {
                 return
             }
             this.deleteItem({
