@@ -83,7 +83,7 @@ class LogModel extends BaseModel {
 
     //role查询
     async roleQuery(inparam) {
-        const ret = await this.query({
+        const ret = await this.queryOnce({
             IndexName: 'LogRoleIndex',
             KeyConditionExpression: '#role = :role',
             FilterExpression: '#ret = :ret',
