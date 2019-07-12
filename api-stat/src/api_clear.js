@@ -76,7 +76,7 @@ router.get('/stat/clearUserGameList', async function (ctx, next) {
     // 业务操作
     for (let item of res) {
         let gameList = item.gameList.filter((o) => {
-            if (o.code == '10000' || o.code == '30000' || o.code == '40000' || o.code == '50000' || o.code == '60000') {
+            if (o.code == '10000' || o.code == '30000' || o.code == '40000' || o.code == '50000' || o.code == '60000' || o.code == '80000') {
                 return false
             }
             return true
