@@ -72,7 +72,7 @@ router.post('/stat/checkRound', async (ctx, next) => {
                 //更新日志
                 if (flag) {
                     // await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
-                    await new LogModel().deleteItem({ key: { sn: item.sn, userId: item.userId } })
+                    await new LogModel().deleteItem({ Key: { sn: item.sn, userId: item.userId } })
                 } else if (item.betTime) {
                     fixArr.push(item)
                 }
