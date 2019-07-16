@@ -13,6 +13,7 @@ const CryptoJS = require("crypto-js")
 // 日志相关
 const moment = require('moment')
 const log = require('tracer').colorConsole({ level: config.log.level })
+const LogModel = require('./model/LogModel')
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
 const ipMap = {}
@@ -35,25 +36,53 @@ router.get('/sa/gameurl/:userId/:token', async (ctx, next) => {
         return ctx.body = { code: nares.data.code, msg: nares.data.msg }
     }
     //查询sa游戏中玩家的状态
-    let userStatusInfo = await checkSAUserStatus(ctx.params)
+    let userStatusInfo = await requestSA('GetUserStatusDV', { Username: ctx.params.userId })
     //请求登录SA游戏
-    let finalRes = await loginSA(ctx.params)
+    let finalRes = await requestSA('LoginRequest', { Username: ctx.params.userId, CurrencyType: 'CNY' })
     // 进入大厅
     if (!finalRes || !finalRes.LoginRequestResponse) {
         ctx.body = { code: -1, msg: 'SA正在维护中...' }
     } else if (finalRes.LoginRequestResponse.ErrorMsgId == 0) {
-        //玩家不在sa游戏中，需要上分
+        //玩家不存在或者离线，则需要上分
         if (userStatusInfo.ErrorMsgId == 116 || userStatusInfo.Online == false) {
             const player = await new PlayerModel().getPlayerById(ctx.params)
+            let money = player.balance
+            const orderid = `IN${moment().utcOffset(8).format("YYYYMMDDHHmmssSSS")}${player.userId}`            //流水号
             // 上分，必须先模拟下注
-            const txnidTemp = `${ctx.params}_BET_${orderid}`
+            const txnidTemp = `${player.userId}_BET_${orderid}`
             const updateParams = { billType: 3 }
             updateParams.amt = money * -1
             updateParams.gameType = config.ky.gameType
-            updateParams.businessKey = `BKY_${account}_${orderid}`
+            updateParams.businessKey = `BSA_${player.userId}_${orderid}`
             updateParams.txnidTemp = txnidTemp
             updateParams.sourceIP = ipMap[player.userId]
             let amtAfter = await new PlayerModel().updatebalance(player, updateParams)
+            if (amtAfter == 'err') {
+                ctx.body = { code: -1, msg: "游戏状态错误" }
+            } else {
+                let checkRes = false
+                let res = false
+                try {
+                    res = await requestSA('CreditBalanceDV', { Username: player.userId, OrderId: orderid, CreditAmount: money })
+                } catch (error) {
+                    checkRes = await requestSA('CheckOrderId', { OrderId: orderid })
+                }
+                // 上分失败，退款 
+                if (res.ErrorMsgId != 0 || checkRes.ErrorMsgId != 0) {
+                    const updateParams2 = { billType: 5 }
+                    updateParams2.amt = money
+                    updateParams2.gameType = config.sa.gameType
+                    updateParams2.businessKey = `BSA_${player.userId}_${orderid}`
+                    updateParams2.betsn = `ASA_${txnidTemp}`
+                    updateParams2.txnidTemp = `${player.userId}_BETCANCEL_${orderid}`
+                    updateParams2.sourceIP = ipMap[player.userId]
+                    let amtAfter = await new PlayerModel().updatebalance(player, updateParams2)
+                    if (amtAfter == 'err') {
+                        new LogModel().add('2', 'SAUPError', updateParams2, `SA退款失败${orderid}`)
+                    }
+                    ctx.body = { code: -1, msg: res.ErrorMsg + checkRes.ErrorMsg }
+                }
+            }
         }
         // 默认移动版
         let lobbyType = ctx.request.query.lobbyType != '0' ? true : false
@@ -160,22 +189,9 @@ router.get('/sa/fisher/:token', async (ctx, next) => {
 //     }
 // })
 
-// sa玩家状态校验
-async function checkSAUserStatus(inparam) {
-    const data = saParams('GetUserStatusDV', { Username: inparam.userId })
-    // log.info(`请求SA【POST】${config.sa.apiurl}`)
-    // log.info('请求SA【参数】' + querystring.stringify(data))
-    const res = await axios.post(config.sa.apiurl, querystring.stringify(data), {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    })
-    return await xmlParse(res.data)
-}
-// 登录sa游戏
-async function loginSA(inparam) {
-    // 登录请求（因为SA不支持下划线，所以使用用户ID）
-    const data = saParams('LoginRequest', { Username: inparam.userId, CurrencyType: 'CNY' })
-    // log.info(`请求SA【POST】${config.sa.apiurl}`)
-    // log.info('请求SA【参数】' + querystring.stringify(data))
+// 向sa请求获取结果
+async function requestSA(method, inparam) {
+    const data = saParams(method, { ...inparam })
     const res = await axios.post(config.sa.apiurl, querystring.stringify(data), {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     })
