@@ -107,50 +107,6 @@ router.get('/sa/fisher/:token', async (ctx, next) => {
     }
 })
 
-// /**
-//  * 获取SA玩家TOKEN
-//  * @param {*} userId 玩家ID
-//  */
-// router.get('/sa/token/:userId', async function (ctx, next) {
-//     const data = saParams('LoginRequest', { Username: ctx.params.userId, CurrencyType: 'CNY' })
-//     // log.info(`请求SA【POST】${config.sa.apiurl}`)
-//     // log.info('请求SA【参数】' + querystring.stringify(data))
-//     const res = await axios.post(config.sa.apiurl, querystring.stringify(data), {
-//         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-//     })
-//     const finalRes = await xmlParse(res.data)
-//     ctx.body = finalRes.LoginRequestResponse
-// })
-
-// /**
-//  * 网页玩家登出
-//  * @param {*} userId 玩家ID
-//  * @param {*} sid 具体游戏ID
-//  */
-// router.get('/sa/logout/:userId/:sid', async (ctx, next) => {
-//     // log.info(`准备退出玩家【${ctx.params.userId}】`)
-//     // 请求N1退出
-//     let data = {
-//         exit: 1,
-//         userId: ctx.params.userId,
-//         gameType: config.sa.gameType,
-//         gameId: ctx.params.sid,
-//         timestamp: Date.now()
-//     }
-//     // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.sa.gameKey}`).toString(CryptoJS.enc.Hex)
-//     axios.post(config.na.exiturl, data).then(res => {
-//         res.data.code != 0 ? log.error(res.data) : null
-//     }).catch(err => {
-//         log.error(err)
-//     })
-//     // ctx.body = { code: 0, msg: '退出成功' }
-//     if (ctx.request.query.homeurl) {
-//         ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
-//     } else {
-//         ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
-//     }
-// })
-
 // xml解析
 function xmlParse(xml) {
     return new Promise((reslove, reject) => {
