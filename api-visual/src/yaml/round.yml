@@ -88,7 +88,7 @@ playerCountPie: # 玩家人数
     - GROUP BY t.gameType
 
 handleAmountPie: # 金额汇总
-    - SELECT {{ round.amtAttrs }} ,gameType
+    - SELECT {{ round.allAmtAttrs }} ,gameType
     - from round where createdAt between :startTime and :endTime
     # 条件参数
     - if:

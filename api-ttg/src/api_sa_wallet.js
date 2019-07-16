@@ -34,20 +34,29 @@ router.get('/sa/gameurl/:userId/:token', async (ctx, next) => {
     if (nares.data.code != 0) {
         return ctx.body = { code: nares.data.code, msg: nares.data.msg }
     }
-    // 默认移动版
-    let lobbyType = ctx.request.query.lobbyType != '0' ? true : false
-    // 登录请求（因为SA不支持下划线，所以使用用户ID）
-    const data = saParams('LoginRequest', { Username: ctx.params.userId, CurrencyType: 'CNY' })
-    // log.info(`请求SA【POST】${config.sa.apiurl}`)
-    // log.info('请求SA【参数】' + querystring.stringify(data))
-    const res = await axios.post(config.sa.apiurl, querystring.stringify(data), {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    })
-    const finalRes = await xmlParse(res.data)
+    //查询sa游戏中玩家的状态
+    let userStatusInfo = await checkSAUserStatus(ctx.params)
+    //请求登录SA游戏
+    let finalRes = await loginSA(ctx.params)
     // 进入大厅
     if (!finalRes || !finalRes.LoginRequestResponse) {
         ctx.body = { code: -1, msg: 'SA正在维护中...' }
     } else if (finalRes.LoginRequestResponse.ErrorMsgId == 0) {
+        //玩家不在sa游戏中，需要上分
+        if (userStatusInfo.ErrorMsgId == 116 || userStatusInfo.Online == false) {
+            const player = await new PlayerModel().getPlayerById(ctx.params)
+            // 上分，必须先模拟下注
+            const txnidTemp = `${ctx.params}_BET_${orderid}`
+            const updateParams = { billType: 3 }
+            updateParams.amt = money * -1
+            updateParams.gameType = config.ky.gameType
+            updateParams.businessKey = `BKY_${account}_${orderid}`
+            updateParams.txnidTemp = txnidTemp
+            updateParams.sourceIP = ipMap[player.userId]
+            let amtAfter = await new PlayerModel().updatebalance(player, updateParams)
+        }
+        // 默认移动版
+        let lobbyType = ctx.request.query.lobbyType != '0' ? true : false
         let page = '<body onload="document.mainform.submit();">'
         page += `<form name="mainform" action="${config.sa.appurl}" method="POST">`
         page += `<input type="hidden" id="username" name="username" value="${ctx.params.userId}">`
@@ -106,6 +115,73 @@ router.get('/sa/fisher/:token', async (ctx, next) => {
         // ctx.redirect('https://uniwebview.na77.com?key=value&anotherKey=anotherValue')
     }
 })
+
+// /**
+//  * 获取SA玩家TOKEN
+//  * @param {*} userId 玩家ID
+//  */
+// router.get('/sa/token/:userId', async function (ctx, next) {
+//     const data = saParams('LoginRequest', { Username: ctx.params.userId, CurrencyType: 'CNY' })
+//     // log.info(`请求SA【POST】${config.sa.apiurl}`)
+//     // log.info('请求SA【参数】' + querystring.stringify(data))
+//     const res = await axios.post(config.sa.apiurl, querystring.stringify(data), {
+//         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+//     })
+//     const finalRes = await xmlParse(res.data)
+//     ctx.body = finalRes.LoginRequestResponse
+// })
+
+// /**
+//  * 网页玩家登出
+//  * @param {*} userId 玩家ID
+//  * @param {*} sid 具体游戏ID
+//  */
+// router.get('/sa/logout/:userId/:sid', async (ctx, next) => {
+//     // log.info(`准备退出玩家【${ctx.params.userId}】`)
+//     // 请求N1退出
+//     let data = {
+//         exit: 1,
+//         userId: ctx.params.userId,
+//         gameType: config.sa.gameType,
+//         gameId: ctx.params.sid,
+//         timestamp: Date.now()
+//     }
+//     // data.apiKey = CryptoJS.SHA1(`${data.timestamp}${config.sa.gameKey}`).toString(CryptoJS.enc.Hex)
+//     axios.post(config.na.exiturl, data).then(res => {
+//         res.data.code != 0 ? log.error(res.data) : null
+//     }).catch(err => {
+//         log.error(err)
+//     })
+//     // ctx.body = { code: 0, msg: '退出成功' }
+//     if (ctx.request.query.homeurl) {
+//         ctx.redirect(decodeURIComponent(ctx.request.query.homeurl))
+//     } else {
+//         ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
+//     }
+// })
+
+// sa玩家状态校验
+async function checkSAUserStatus(inparam) {
+    const data = saParams('GetUserStatusDV', { Username: inparam.userId })
+    // log.info(`请求SA【POST】${config.sa.apiurl}`)
+    // log.info('请求SA【参数】' + querystring.stringify(data))
+    const res = await axios.post(config.sa.apiurl, querystring.stringify(data), {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    })
+    return await xmlParse(res.data)
+}
+// 登录sa游戏
+async function loginSA(inparam) {
+    // 登录请求（因为SA不支持下划线，所以使用用户ID）
+    const data = saParams('LoginRequest', { Username: inparam.userId, CurrencyType: 'CNY' })
+    // log.info(`请求SA【POST】${config.sa.apiurl}`)
+    // log.info('请求SA【参数】' + querystring.stringify(data))
+    const res = await axios.post(config.sa.apiurl, querystring.stringify(data), {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    })
+    return await xmlParse(res.data)
+}
+
 
 // xml解析
 function xmlParse(xml) {
