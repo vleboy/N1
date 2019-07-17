@@ -23,7 +23,7 @@ const ipMap = {}
  * @param {*} token    玩家在NA的TOKEN
  * @param {*} lobbyType 0是电脑版1是移动版
  */
-router.get('/sa/gameurl/:userId/:token', async (ctx, next) => {
+router.get('/sa2/gameurl/:userId/:token', async (ctx, next) => {
     ipMap[ctx.params.userId] = ctx.request.ip
     // 请求N1服务器是否允许玩家进入游戏
     const nares = await axios.post(config.na.joingameurl, {
@@ -114,7 +114,7 @@ router.get('/sa/gameurl/:userId/:token', async (ctx, next) => {
  * 获取SA捕鱼游戏链接
  * @param {*} token 玩家在NA的TOKEN
  */
-router.get('/sa/fisher/:token', async (ctx, next) => {
+router.get('/sa2/fisher/:token', async (ctx, next) => {
     ipMap[ctx.params.userId] = ctx.request.ip
     // 解析NA的玩家TOKEN
     const decoded = jwt.decode(ctx.params.token)
