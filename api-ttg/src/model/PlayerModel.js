@@ -93,7 +93,8 @@ module.exports = class PlayerModel extends BaseModel {
      * @param {*} data 实时流水
      */
     async updatebalance(player, data) {
-        console.time('单笔流水处理耗时')
+        let now = Date.now()
+        console.time(`${now}单笔流水处理耗时`)
         // 1，入参初始化
         if (!data.businessKey) {
             return player.balance
@@ -218,7 +219,7 @@ module.exports = class PlayerModel extends BaseModel {
         if ((naGameType != config.sa.fishGameType && naGameType != config.ysb.gameType && isCheckRet) || isCheckKYRet) {
             new PlayerBillDetailModel().checkExpire(bkBet, billItem)
         }
-        console.timeEnd('单笔流水处理耗时')
+        console.timeEnd(`${now}单笔流水处理耗时`)
         return billItem.balance
     }
 
