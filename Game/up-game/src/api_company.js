@@ -8,7 +8,7 @@ const _ = require('lodash')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
-// const CompanyModel = require('./model/CompanyModel')
+const CompanyModel = require('./model/CompanyModel')
 // const LogModel = require('./model/LogModel')
 // const CompanyCheck = require('./biz/CompanyCheck')
 const BizErr = require('./lib/Codes').BizErr
@@ -16,11 +16,11 @@ const CompanyEnum = require('./lib/Consts').companyEnum
 
 //  厂商列表
 router.post('/companyList', async function (ctx, next) {
-    let inparam = ctx.request.body
+    // let inparam = ctx.request.body
     // 业务操作  
     // const ret = await new CompanyModel().listCompany(inparam)
     // 结果返回
-    ctx.body = { code: 0, payload: CompanyEnum }
+    ctx.body = { code: 0, payload: { Items: CompanyEnum } }
 })
 
 // 单个厂商
@@ -35,7 +35,7 @@ router.get('/companyOne/:companyName/:companyId', async function (ctx, next) {
     }
     // 业务操作
     // const ret = await new CompanyModel().getOne(inparam)
-    const ret = _.find(companyEnum, (o) => { return o.companyName == inparam.companyName })
+    const ret = _.find(CompanyEnum, (o) => { return o.companyName == inparam.companyName })
     // 结果返回
     ctx.body = { code: 0, payload: ret }
 })
@@ -52,9 +52,9 @@ router.get('/companyOne/:companyName', async function (ctx, next) {
     }
     // 业务操作
     // const ret = await new CompanyModel().getOne(inparam)
-    const ret = _.find(companyEnum, (o) => { return o.companyName == inparam.companyName })
+    const ret = _.find(CompanyEnum, (o) => { return o.companyName == inparam.companyName })
     // 结果返回
-    ctx.body = { code: 0, payload: ret }
+    ctx.body = { code: 0, payload: { "companyKey": ret.companyKey } }
 })
 
 // 创建厂商
