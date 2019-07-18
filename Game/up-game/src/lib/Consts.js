@@ -11,7 +11,7 @@ const companyEnum = [
         "companyType": "2",
         "createdAt": "1514276120116",
         "createdDate": "2017-12-26",
-        "gameTypeList": "[  { \"S\" : \"1050000\" }]",
+        "gameTypeList": [1050000],
         "remark": "AsiaGaming",
         "updatedAt": "1530849875146",
         "createdTime": "02:57:37"
@@ -27,7 +27,7 @@ const companyEnum = [
         "companyType": "2",
         "createdAt": "1531813979184",
         "createdDate": "2018-07-17",
-        "gameTypeList": "[  { \"S\" : \"1150000\" }]",
+        "gameTypeList": [1150000],
         "remark": "NULL!",
         "updatedAt": "1534747938657",
         "createdTime": "07:52:59"
@@ -43,7 +43,7 @@ const companyEnum = [
         "companyType": "2",
         "createdAt": "1537843404738",
         "createdDate": "2018-09-25",
-        "gameTypeList": "[  { \"S\" : \"1040000\" }]",
+        "gameTypeList": [1040000],
         "remark": "NULL!",
         "updatedAt": "1537843404738",
         "createdTime": "02:43:24"
@@ -59,7 +59,7 @@ const companyEnum = [
         "companyType": "2",
         "createdAt": "1514278049875",
         "createdDate": "2017-12-26",
-        "gameTypeList": "[  { \"S\" : \"10300000\" }]",
+        "gameTypeList": [10300000],
         "remark": "NULL!",
         "updatedAt": "1515575832690",
         "createdTime": ""
@@ -75,7 +75,7 @@ const companyEnum = [
         "companyType": "1",
         "createdAt": "1504000945332",
         "createdDate": "2017-12-22",
-        "gameTypeList": "[  { \"S\" : \"40000\" },  { \"S\" : \"50000\" },  { \"S\" : \"30000\" },  { \"S\" : \"60000\" },  { \"S\" : \"70000\" },  { \"S\" : \"80000\" },  { \"S\" : \"10000\" },  { \"S\" : \"90000\" }]",
+        "gameTypeList": [40000, 50000, 30000, 60000, 70000, 80000, 10000, 90000],
         "remark": "NULL!",
         "updatedAt": "1550646041025",
         "createdTime": "08:36:58"
@@ -91,7 +91,7 @@ const companyEnum = [
         "companyType": "2",
         "createdAt": "1537843471496",
         "createdDate": "2018-09-25",
-        "gameTypeList": "[  { \"S\" : \"1090000\" }]",
+        "gameTypeList": [1090000],
         "remark": "NULL!",
         "updatedAt": "1537843471496",
         "createdTime": "02:44:31"
@@ -107,7 +107,7 @@ const companyEnum = [
         "companyType": "2",
         "createdAt": "1537843497937",
         "createdDate": "2018-09-25",
-        "gameTypeList": "[  { \"S\" : \"1020000\" }]",
+        "gameTypeList": [1020000],
         "remark": "NULL!",
         "updatedAt": "1537843497937",
         "createdTime": "02:44:57"
@@ -123,7 +123,7 @@ const companyEnum = [
         "companyType": "2",
         "createdAt": "1534756019666",
         "createdDate": "2018-08-20",
-        "gameTypeList": "[  { \"S\" : \"1160000\" }]",
+        "gameTypeList": [1160000],
         "remark": "NULL!",
         "updatedAt": "1534756019666",
         "createdTime": "09:06:59"
@@ -139,7 +139,7 @@ const companyEnum = [
         "companyType": "2",
         "createdAt": "1530849992799",
         "createdDate": "2018-07-06",
-        "gameTypeList": "[  { \"S\" : \"1140000\" }]",
+        "gameTypeList": [1140000],
         "remark": "NULL!",
         "updatedAt": "1530849992799",
         "createdTime": "04:06:32"
@@ -155,7 +155,7 @@ const companyEnum = [
         "companyType": "2",
         "createdAt": "1514276942180",
         "createdDate": "2017-12-26",
-        "gameTypeList": "[  { \"S\" : \"1060000\" },  { \"S\" : \"1110000\" }]",
+        "gameTypeList": [1060000, 1110000],
         "remark": "NULL!",
         "updatedAt": "1519897413984",
         "createdTime": ""
@@ -171,7 +171,7 @@ const companyEnum = [
         "companyType": "2",
         "createdAt": "1531813929369",
         "createdDate": "2018-07-17",
-        "gameTypeList": "[  { \"S\" : \"1080000\" },  { \"S\" : \"1120000\" }]",
+        "gameTypeList": [1080000, 1120000],
         "remark": "NULL!",
         "updatedAt": "1531813929369",
         "createdTime": "07:52:09"
@@ -187,7 +187,7 @@ const companyEnum = [
         "companyType": "2",
         "createdAt": "1513652293750",
         "createdDate": "2017-12-19",
-        "gameTypeList": "[  { \"S\" : \"1010000\" }]",
+        "gameTypeList": [1010000],
         "remark": "NULL!",
         "updatedAt": "1514189524646",
         "createdTime": ""
@@ -203,7 +203,7 @@ const companyEnum = [
         "companyType": "2",
         "createdAt": "1526629203202",
         "createdDate": "2018-05-18",
-        "gameTypeList": "[  { \"S\" : \"1130000\" }]",
+        "gameTypeList": [1130000],
         "remark": "NULL!",
         "updatedAt": "1526629203202",
         "createdTime": ""
