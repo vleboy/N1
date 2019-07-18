@@ -8,7 +8,7 @@ const _ = require('lodash')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
-const CompanyModel = require('./model/CompanyModel')
+// const CompanyModel = require('./model/CompanyModel')
 // const LogModel = require('./model/LogModel')
 // const CompanyCheck = require('./biz/CompanyCheck')
 const BizErr = require('./lib/Codes').BizErr
@@ -26,7 +26,7 @@ router.post('/companyList', async function (ctx, next) {
 // 单个厂商
 router.get('/companyOne/:companyName/:companyId', async function (ctx, next) {
     let inparam = ctx.params
-    let token = ctx.tokenVerify
+    // let token = ctx.tokenVerify
     // 参数校验
     if (!inparam.companyName || !inparam.companyId) {
         throw BizErr.InparamErr()
@@ -43,7 +43,7 @@ router.get('/companyOne/:companyName/:companyId', async function (ctx, next) {
 // 通过厂商名称获取单个厂商
 router.get('/companyOne/:companyName', async function (ctx, next) {
     let inparam = ctx.params
-    let token = ctx.tokenVerify
+    // let token = ctx.tokenVerify
     // 参数校验
     if (!inparam.companyName) {
         throw BizErr.InparamErr()
