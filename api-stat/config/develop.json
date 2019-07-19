@@ -17,6 +17,7 @@
         "errMsg": "未认证",
         "errStatus": 200,
         "pass": [
+            "/deploy/n1web",
             "/auth",
             "/stat/*"
         ]

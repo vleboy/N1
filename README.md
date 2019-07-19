@@ -67,7 +67,7 @@ server {
 
     #自动构建服务
     location /deploy/ {
-        proxy_pass http://localhost:3000/deploy/;
+        proxy_pass http://localhost:4000/deploy/;
     }
     #静态资源
     location /static/ {
