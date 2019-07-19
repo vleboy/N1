@@ -13,6 +13,7 @@ const cronRound = require('./src/cron_round')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 业务控制器
+const autodeployrouter = require('./src/api_autodeploy')
 const fixapirouter = require('./src/api_fix')
 const checkapirouter = require('./src/api_check')
 const repairapirouter = require('./src/api_repair')
@@ -49,6 +50,7 @@ app.use(xauth(config.auth, (v) => { // TOKEN身份认证中间件，参数1：�
 }))
 
 // 业务路由
+app.use(autodeployrouter.routes())      // 自动构建路由
 app.use(fixapirouter.routes())          // 修正接口路由
 app.use(checkapirouter.routes())        // 检查接口路由
 app.use(repairapirouter.routes())       // 修复接口路由

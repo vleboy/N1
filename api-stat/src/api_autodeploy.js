@@ -24,9 +24,7 @@ router.post('/deploy/n1web', async (ctx, next) => {
         await deployWebAdmin()
         deployWebMerchant()
         deployWebManager()
-        // await gitPull('/usr/dev/N1_WEB')
         deployWebAgent()
-        // deployWebGame()
         ctx.body = 'Y'
     } catch (error) {
         log.error('自动构建发生错误异常：')
@@ -213,58 +211,5 @@ function deployWebAgent() {
 //         ctx.body = 'N'
 //     }
 // })
-// function deploy(commands) {
-//     exec(commands, execOptions, (error, stdout, stderr) => {
-//         if (error) {
-//             log.error(`exec error: ${error}`)
-//             return
-//         }
-//         if (stdout) {
-//             log.info(`stdout: ${stdout}`)
-//         }
-//         if (stderr) {
-//             log.error(`stderr: ${stderr}`)
-//         }
-//         log.info('结束自动构建')
-//     })
-// }
-// 部署旧后台前端
-// router.post('/deploy/na', async function (ctx, next) {
-//     try {
-//         log.info('接受到请求，准备持续构建 ...')
-//         await gitPull('/usr/dev/NA/')
-//         deployGame()
-//         ctx.body = 'Y'
-//     } catch (error) {
-//         log.error('自动构建发生错误异常：')
-//         log.error(error)
-//         ctx.body = 'N'
-//     }
-// })
-// function deployWebGame() {
-//     return new Promise((reslove, reject) => {
-//         const commands = [
-//             'cd /usr/dev/N1_WEB/n1-game',
-//             'npm run test-game',
-//             'cd game',
-//             '/usr/local/bin/aws s3 rm s3://dev-game.na12345.com/*',
-//             '/usr/local/bin/aws s3 sync . s3://dev-game.na12345.com --acl public-read --delete',
-//         ].join(' && ')
-//         log.info('开始自动构建游戏系统 ...')
-//         exec(commands, execOptions, (error, stdout, stderr) => {
-//             if (error) {
-//                 log.error(`exec error: ${error}`)
-//                 reject(error)
-//             }
-//             if (stdout) {
-//                 log.info(`stdout: ${stdout}`)
-//             }
-//             if (stderr) {
-//                 log.error(`stderr: ${stderr}`)
-//             }
-//             reslove(stdout)
-//         })
-//     })
-// }
 
 module.exports = router

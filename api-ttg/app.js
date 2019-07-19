@@ -15,7 +15,6 @@ const xlog = require('koa-xlog')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 业务控制器
-const autodeployrouter = require('./src/api_autodeploy')
 const webapirouter = require('./src/api_web')
 const ttgrouter = require('./src/api_ttg')
 const sarouter = require('./src/api_sa')
@@ -99,7 +98,6 @@ app.use(xauth(config.auth, (v) => { // TOKEN身份认证中间件，参数1：�
     }
 }))
 // 业务路由
-app.use(autodeployrouter.routes())      // 业务路由中间件
 app.use(webapirouter.routes())          // 业务路由中间件
 app.use(ttgrouter.routes())             // 业务路由中间件
 app.use(sarouter.routes())              // 业务路由中间件
