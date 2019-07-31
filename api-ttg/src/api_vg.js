@@ -45,6 +45,7 @@ router.get('/vg/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
         let player = await new PlayerModel().getPlayerById(inparam.userId)
         if (!player.regMap || !player.regMap.vg) {
             res = await getVG({ username: inparam.userId, action: 'create' })
+            log.info(res)
             if (res.response.errcode == '0' || res.response.errcode == '-99') {
                 player.regMap ? player.regMap.vg = 1 : player.regMap = { vg: 1 }
                 new PlayerModel().updateRegMap(player)
