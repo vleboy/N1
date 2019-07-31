@@ -58,10 +58,10 @@ router.post('/vg/transaction', async (ctx, next) => {
     let balance = player.balance
     if (inparam.type == 'BET') {
         inparam.billType = 3
-        inparam.amount = balance * -1
+        inparam.amt = balance * -1
     } else {
         inparam.billType = 4
-        balance = inparam.amount = Math.abs(inparam.amount)
+        balance = inparam.amt = Math.abs(inparam.amount)
     }
     inparam.gameType = config.vg.gameType
     inparam.businessKey = `BVG_${inparam.username}_${inparam.transactionId}`
