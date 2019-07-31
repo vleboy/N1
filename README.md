@@ -126,9 +126,9 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
-    #UG服务
-    location /ug/ {
-        proxy_pass http://localhost:3000/ug/;
+    #VG服务
+    location /vg/ {
+        proxy_pass http://localhost:3000/vg/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
