@@ -40,7 +40,7 @@ router.get('/vg/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
         let verifyCode = CryptoJS.MD5(`${ctx.params.userId}create${config.vg.channel}${config.vg.privatekey}`).toString(CryptoJS.enc.Hex).toUpperCase()
         let res = await axios.get(`${config.vg.apiUrl}?username=${ctx.params.userId}&action=create&channel=${config.vg.channel}&verifyCode=${verifyCode}`)
         res = await xmlParse(res.data)
-        if (res.response.errcode[0] == '0') {
+        if (res.response.errcode[0] == '0' || res.response.errcode[0] == '-99') {
             player.regMap ? player.regMap.vg = 1 : player.regMap = { vg: 1 }
             new PlayerModel().updateRegMap(player)
         } else {
