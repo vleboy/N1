@@ -58,7 +58,7 @@ router.post('/vg/transaction', async (ctx, next) => {
     let balance = player.balance
     if (inparam.type == 'BET') {
         inparam.billType = 3
-        inparam.amount = player.balance * -1
+        inparam.amount = balance * -1
     } else {
         inparam.billType = 4
         balance = inparam.amount = Math.abs(inparam.amount)

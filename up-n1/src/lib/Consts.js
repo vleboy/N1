@@ -143,7 +143,8 @@ const CompanyEnum = [
     { company: 'SA', companyName: 'SA' },
     { company: 'SB', companyName: 'SB' },
     { company: 'TTG', companyName: 'TTG' },
-    { company: 'YSB', companyName: 'YSB' }
+    { company: 'YSB', companyName: 'YSB' },
+    { company: 'VG', companyName: 'VG' }
 ]
 
 //玩家游戏状态枚举
