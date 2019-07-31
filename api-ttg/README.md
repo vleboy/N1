@@ -143,5 +143,6 @@ https://ext.na77.org/ky/3/268184/406765.88
 #VG棋牌游戏
 https://ext.na77.org/vg/gameurl/1100000/1100001/268184/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6IlFKU0hfd3dqMDIiLCJzdWZmaXgiOiJRSlNIIiwidXNlcklkIjoyNjgxODQsImV4cGlyZSI6MTUzMDkzNzQzMTE4NiwiaWF0IjoxNTMwODUxMDMxfQ.50tUvo3l_Flkb4aVHrotoFD8yhKunXoBt4z3lfJDcUk
 
+https://ext.na77.org/vg/gameurl/1100000/1100001/0/0
 
 
