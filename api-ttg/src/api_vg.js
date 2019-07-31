@@ -40,7 +40,7 @@ router.get('/vg/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
     let verifyCode = CryptoJS.MD5(`${ctx.params.userId}loginWithChannel${config.vg.channel}1000${gameversion}true${config.vg.privatekey}`).toString(CryptoJS.enc.Hex)
     let finalUrl = await axios.get(`${config.vg.apiUrl}?username=${ctx.params.userId}&action=loginWithChannel&channel=${config.vg.channel}&gametype=1000&gameversion=${gameversion}&create=true&verifyCode=${verifyCode}`)
     // 跳转VG游戏
-    log.info(`VG游戏链接 ${finalUrl}`)
+    log.info(finalUrl)
     ctx.redirect(finalUrl)
 })
 
