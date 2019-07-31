@@ -53,27 +53,27 @@ router.get('/vg/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
  */
 router.post('/vg/transaction', async (ctx, next) => {
     ipMap[ctx.params.userId] = ctx.request.ip
-    let inparam = ctx.request.body    
+    let inparam = ctx.request.body
     let player = await new PlayerModel().getPlayerById(inparam.username)
+    let balance = player.balance
     if (inparam.type == 'BET') {
         inparam.billType = 3
         inparam.amount = player.balance * -1
     } else {
         inparam.billType = 4
-        inparam.amount = Math.abs(inparam.amount)
+        balance = inparam.amount = Math.abs(inparam.amount)
     }
     inparam.gameType = config.vg.gameType
     inparam.businessKey = `BVG_${inparam.username}_${inparam.transactionId}`
     inparam.anotherGameData = JSON.stringify(inparam)
     inparam.txnidTemp = `${inparam.username}_${inparam.type}_${inparam.transactionId}`
     console.log(inparam)
-    // let amtAfter = await new PlayerModel().updatebalance(player, inparam)
-
-    // if (amtAfter == 'err') {
-    //     ctx.body = { code: -1, msg: 'error' }
-    // } else {
-    //     ctx.body = { code: 0, msg: 'success', balance: amtAfter }
-    // }
+    let amtAfter = await new PlayerModel().updatebalance(player, inparam)
+    if (amtAfter == 'err') {
+        ctx.body = { code: -1, msg: 'error' }
+    } else {
+        ctx.body = { code: 0, msg: 'success', balance }
+    }
 })
 
 module.exports = router
