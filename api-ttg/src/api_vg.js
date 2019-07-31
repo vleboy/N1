@@ -34,6 +34,19 @@ router.get('/vg/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
     if (nares.data.code != 0) {
         return ctx.body = { code: nares.data.code, msg: nares.data.msg }
     }
+    // 检查VG玩家注册
+    let player = await new PlayerModel().getPlayerById(inparam.userId)
+    if (!player.regMap || !player.regMap.vg) {
+        let verifyCode = CryptoJS.MD5(`${ctx.params.userId}create${config.vg.channel}${config.vg.privatekey}`).toString(CryptoJS.enc.Hex).toUpperCase()
+        let res = await axios.get(`${config.vg.apiUrl}?username=${inparam.userId}&action=create&channel=${config.vg.channel}&verifyCode=${verifyCode}`)
+        res = await xmlParse(res.data)
+        if (res.response.errcode[0] == '0') {
+            player.regMap ? player.regMap.vg = 1 : player.regMap = { vg: 1 }
+            new PlayerModel().updateRegMap(player)
+        } else {
+            return ctx.body = res
+        }
+    }
     // 默认移动版
     let gameversion = ctx.request.query.lobbyType != '0' ? 2 : 1
     // 请求VG游戏登录
