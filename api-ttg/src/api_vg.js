@@ -35,10 +35,10 @@ router.get('/vg/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
         return ctx.body = { code: nares.data.code, msg: nares.data.msg }
     }
     // 检查VG玩家注册
-    let player = await new PlayerModel().getPlayerById(inparam.userId)
+    let player = await new PlayerModel().getPlayerById(ctx.params.userId)
     if (!player.regMap || !player.regMap.vg) {
         let verifyCode = CryptoJS.MD5(`${ctx.params.userId}create${config.vg.channel}${config.vg.privatekey}`).toString(CryptoJS.enc.Hex).toUpperCase()
-        let res = await axios.get(`${config.vg.apiUrl}?username=${inparam.userId}&action=create&channel=${config.vg.channel}&verifyCode=${verifyCode}`)
+        let res = await axios.get(`${config.vg.apiUrl}?username=${ctx.params.userId}&action=create&channel=${config.vg.channel}&verifyCode=${verifyCode}`)
         res = await xmlParse(res.data)
         if (res.response.errcode[0] == '0') {
             player.regMap ? player.regMap.vg = 1 : player.regMap = { vg: 1 }
