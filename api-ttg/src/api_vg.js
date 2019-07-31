@@ -38,10 +38,11 @@ router.get('/vg/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
     let gameversion = ctx.request.query.lobbyType != '0' ? 2 : 1
     // 请求VG游戏登录
     let verifyCode = CryptoJS.MD5(`${ctx.params.userId}loginWithChannel${config.vg.channel}1000${gameversion}true${config.vg.privatekey}`).toString(CryptoJS.enc.Hex)
-    let finalUrl = await axios.get(`${config.vg.apiUrl}?username=${ctx.params.userId}&action=loginWithChannel&channel=${config.vg.channel}&gametype=1000&gameversion=${gameversion}&create=true&verifyCode=${verifyCode}`)
+    let res = await axios.get(`${config.vg.apiUrl}?username=${ctx.params.userId}&action=loginWithChannel&channel=${config.vg.channel}&gametype=1000&gameversion=${gameversion}&create=true&verifyCode=${verifyCode}`)
+    res = await xmlParse(res.data)
+    console.log(res)
     // 跳转VG游戏
-    log.info(finalUrl)
-    ctx.redirect(finalUrl)
+    // ctx.redirect(finalUrl)
 })
 
 /**
@@ -75,5 +76,15 @@ router.post('/vg/transaction', async (ctx, next) => {
         ctx.body = { code: 0, msg: 'success', balance }
     }
 })
+
+
+// 私有方法：XML解析
+function xmlParse(xml) {
+    return new Promise((reslove, reject) => {
+        parseString(xml, function (err, res) {
+            reslove(res)
+        })
+    })
+}
 
 module.exports = router
