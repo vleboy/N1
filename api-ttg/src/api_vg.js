@@ -52,15 +52,14 @@ router.get('/vg/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
                 return ctx.body = res
             }
         }
+        // 请求VG游戏登录
+        res = await getVG({ username: inparam.userId, action: 'loginWithChannel', gametype: '1000', gameversion, create: 'true' })
     }
     // 试玩玩家
     else {
         res = await getVG({ gametype: '1000', gameversion })
     }
-    // 请求VG游戏登录
-    res = await getVG({ username: inparam.userId, action: 'loginWithChannel', gametype: '1000', gameversion, create: 'true' })
     log.info(res)
-    // 跳转VG游戏
     ctx.redirect(res.response.result)
 })
 
