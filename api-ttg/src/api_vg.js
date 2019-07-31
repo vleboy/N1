@@ -34,8 +34,8 @@ router.get('/vg/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
         // 请求N1服务器是否允许玩家进入游戏
         const nares = await axios.post(config.na.joingameurl, {
             userId: inparam.userId,
-            gameId: config.sa.gameType,
-            sid: config.sa.gameId,
+            gameId: config.vg.gameType,
+            sid: config.vg.gameId,
             token: inparam.token
         })
         if (nares.data.code != 0) {
