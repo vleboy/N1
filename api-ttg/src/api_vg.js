@@ -38,11 +38,14 @@ router.get('/vg/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
     let gameversion = ctx.request.query.lobbyType != '0' ? 2 : 1
     // 请求VG游戏登录
     let verifyCode = CryptoJS.MD5(`${ctx.params.userId}loginWithChannel${config.vg.channel}1000${gameversion}true${config.vg.privatekey}`).toString(CryptoJS.enc.Hex)
+    console.log(`请求VG登录MD5加密前：${ctx.params.userId}loginWithChannel${config.vg.channel}1000${gameversion}true${config.vg.privatekey}`)
+    console.log(`请求VG登录MD5加密后：${verifyCode}`)
+    console.log(`请求VG登录URL：${config.vg.apiUrl}?username=${ctx.params.userId}&action=loginWithChannel&channel=${config.vg.channel}&gametype=1000&gameversion=${gameversion}&create=true&verifyCode=${verifyCode}`)
     let res = await axios.get(`${config.vg.apiUrl}?username=${ctx.params.userId}&action=loginWithChannel&channel=${config.vg.channel}&gametype=1000&gameversion=${gameversion}&create=true&verifyCode=${verifyCode}`)
     res = await xmlParse(res.data)
     console.log(res)
     // 跳转VG游戏
-    // ctx.redirect(finalUrl)
+    ctx.redirect(res.response.result[0])
 })
 
 /**
