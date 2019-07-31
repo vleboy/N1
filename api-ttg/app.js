@@ -29,6 +29,7 @@ const habarouter = require('./src/api_haba')
 const pgrouter = require('./src/api_pg')
 const pngrouter = require('./src/api_png')
 const kyrouter = require('./src/api_ky')
+const vgrouter = require('./src/api_vg')
 
 // const socketrouter = require('./src/socket_game')
 // const cq9router = require('./src/api_cq9')
@@ -54,6 +55,7 @@ app.use(mount('/haba/', cors()))        // HABA网页跨域请求
 app.use(mount('/pg/', cors()))          // PG网页跨域请求
 app.use(mount('/png/', cors()))         // PNG网页跨域请求
 app.use(mount('/ky/', cors()))          // KY网页跨域请求
+app.use(mount('/vg/', cors()))          // VG网页跨域请求
 
 // app.use(mount('/maya/', cors()))        // MAYA网页跨域请求
 // app.use(mount('/ug/', cors()))          // UG网页跨域请求
@@ -73,6 +75,7 @@ app.use(mount('/haba/', bodyParser()))  // HABA服务入参解析中间件
 app.use(mount('/pg/', bodyParser()))    // PG服务入参解析中间件
 app.use(mount('/png/', xmlParser()))    // PNG服务入参解析中间件
 app.use(mount('/ky/', bodyParser()))    // KY服务入参解析中间件
+app.use(mount('/vg/', koaBody()))       // VG服务入参解析中间件
 
 // app.use(mount('/ug/', bodyParser()))    // UG服务入参解析中间件
 // app.use(mount('/cq9/', koaBody()))      // CQ9服务入参解析中间件
@@ -112,6 +115,7 @@ app.use(habarouter.routes())            // 业务路由中间件
 app.use(pgrouter.routes())              // 业务路由中间件
 app.use(pngrouter.routes())             // 业务路由中间件
 app.use(kyrouter.routes())              // 业务路由中间件
+app.use(vgrouter.routes())              // 业务路由中间件
 
 // app.use(socketrouter.routes())          // 业务路由中间件
 // app.use(ugrouter.routes())              // 业务路由中间件

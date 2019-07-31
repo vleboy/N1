@@ -49,10 +49,8 @@ class StatRoundModel extends BaseModel {
             IndexName: 'CreatedDateIndex',
             KeyConditionExpression: 'createdDate = :createdDate',
             ProjectionExpression: 'betAmount,retAmount,winAmount,refundAmount,winloseAmount,mixAmount,userId,userName,createdDate,gameType,betCount,parent',
-            FilterExpression: 'gameType <> :longTimeGameType1',
             ExpressionAttributeValues: {
-                ':createdDate': inparam.lastDayTime,
-                ':longTimeGameType1': 1100000   // UG体育游戏排除
+                ':createdDate': inparam.lastDayTime
             }
         }
         // 只有重置初始局天表才统计YSB体育游戏

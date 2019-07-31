@@ -139,11 +139,11 @@ class PlayerBillModel extends BaseModel {
             let gameTypeObj1 = {}
             let gameTypeObj2 = {}
             for (let key in gameTypeObj) {
-                if (key == ':1100000') {
-                    gameTypeObj1[key] = gameTypeObj[key]    // 只包含长延时类型游戏
-                } else {
-                    gameTypeObj2[key] = gameTypeObj[key]    // 只包含非长延时类型游戏
-                }
+                // if (key == ':体育大类') {
+                //     gameTypeObj1[key] = gameTypeObj[key]    // 只包含长延时类型游戏
+                // } else {
+                gameTypeObj2[key] = gameTypeObj[key]    // 只包含非长延时类型游戏
+                // }
             }
             if (!_.isEmpty(gameTypeObj1)) {
                 p0 = self.calcPlayerInterval({ userName, gameType, gameTypeObj: gameTypeObj1, createdAt })
@@ -392,11 +392,11 @@ class PlayerBillModel extends BaseModel {
         let gameTypeObj1 = {}
         let gameTypeObj2 = {}
         for (let key in gameTypeObj) {
-            if (key == ':1100000') {
-                gameTypeObj1[key] = gameTypeObj[key]    // 只包含长延时类型游戏
-            } else {
+            // if (key == ':体育大类') {
+            //     gameTypeObj1[key] = gameTypeObj[key]    // 只包含长延时类型游戏
+            // } else {
                 gameTypeObj2[key] = gameTypeObj[key]    // 只包含非长延时类型游戏
-            }
+            // }
         }
         if (!_.isEmpty(gameTypeObj1)) {
             p0 = self.calcParentPlayerInterval({ parent, gameType, gameTypeObj: gameTypeObj1, createdAt })

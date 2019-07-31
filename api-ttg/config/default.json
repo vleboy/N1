@@ -38,7 +38,8 @@
             "/pg/*",
             "/png/*",
             "/haba/*",
-            "/ky/*"
+            "/ky/*",
+            "/vg/*"
         ]
     },
     "na": {
@@ -63,7 +64,8 @@
         "1020000": "PNG",
         "1040000": "HABA",
         "1070000": "KY",
-        "1090000": "PG"
+        "1090000": "PG",
+        "1100000": "VG"
     },
     "ttg": {
         "gameType": "1010000",
@@ -85,7 +87,7 @@
         "lobbyCode": "A376"
     },
     "cq9": {
-        "gameType": "1100000",
+        "gameType": "",
         "gameId": "1100001",
         "gameKey": "278ec432-7c75-4e2d-9efd-17b92507417b",
         "wtoken": "cq9game"
@@ -109,7 +111,7 @@
         "checkTicketStatusUrl": "http://uatapi.hgline88.com:3381/resource/CheckTicketStatus.ucs"
     },
     "ug": {
-        "gameType": "1100000",
+        "gameType": "",
         "gameId": "1100001",
         "gameKey": "f87e772c-6307-4479-aca0-8f5ca87bcdad",
         "apikey": "e5c669a1b08d4ec5d7067cafe6c1c9ce",
@@ -156,6 +158,13 @@
         "apiUrl": "https://kyapi.ky206.com:189/channelHandle",
         "recordUrl": "https://kyrecord.ky206.com:190/getRecordHandle"
     },
+    "vg": {
+        "gameType": "1100000",
+        "gameId": "1100001",
+        "channel": "N1",
+        "privatekey": "Dwuuh7#dwz2*89j",
+        "apiUrl": "https://ew68.cn/webapi/interface.aspx"
+    },
     "dt": {
         "gameType": "1150000",
         "gameKey": "ae73d261-333c-479f-b945-88cabf6c801f",
@@ -176,23 +185,23 @@
     "png": {
         "gameType": "1020000",
         "gameKey": "81865278-9681-42d2-9fe2-a7a731f9e817",
-        "launchUrl":"https://agastage.playngonetwork.com/casino/PlayMobile",
-        "pid":"320",
-        "brandId":"XYZ"
+        "launchUrl": "https://agastage.playngonetwork.com/casino/PlayMobile",
+        "pid": "320",
+        "brandId": "XYZ"
     },
     "haba": {
         "gameType": "1040000",
         "gameKey": "f37d3de2-dd62-47ee-9777-b8ac4c000e1a",
-        "brandid":"a7c2b781-77c0-e811-8119-000d3a800c8d",
-        "apikey":"659EBD24-8E1B-4268-B406-C82498578053",
-        "launchUrl":"https://app-test.insvr.com/go.ashx"
+        "brandid": "a7c2b781-77c0-e811-8119-000d3a800c8d",
+        "apikey": "659EBD24-8E1B-4268-B406-C82498578053",
+        "launchUrl": "https://app-test.insvr.com/go.ashx"
     },
     "pg": {
         "gameType": "1090000",
         "gameKey": "826e7293-bf8a-4d3c-958c-ce7c07cfce7c",
-        "operator_token":"ce7f5c9d990b988e8d6c285b48b3c0f2",
-        "secret_key":"e8e8079898806ee9913e5f3571665b23",
-        "launchUrl":"https://m.pg-redirect.us"
+        "operator_token": "ce7f5c9d990b988e8d6c285b48b3c0f2",
+        "secret_key": "e8e8079898806ee9913e5f3571665b23",
+        "launchUrl": "https://m.pg-redirect.us"
     },
     "maya": {
         "gameType": "",

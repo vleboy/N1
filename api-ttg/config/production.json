@@ -38,7 +38,8 @@
             "/pg/*",
             "/png/*",
             "/haba/*",
-            "/ky/*"
+            "/ky/*",
+            "/vg/*"
         ]
     },
     "na": {
@@ -63,7 +64,8 @@
         "1020000": "PNG",
         "1040000": "HABA",
         "1070000": "KY",
-        "1090000": "PG"
+        "1090000": "PG",
+        "1100000": "VG"
     },
     "ttg": {
         "gameType": "1010000",
@@ -85,7 +87,7 @@
         "lobbyCode": "A376"
     },
     "cq9": {
-        "gameType": "1100000",
+        "gameType": "",
         "gameId": "1100001",
         "gameKey": "278ec432-7c75-4e2d-9efd-17b92507417b",
         "wtoken": "cq9game"
@@ -109,7 +111,7 @@
         "checkTicketStatusUrl": "https://swapi.agingames.com/resource/CheckTicketStatus.ucs"
     },
     "ug": {
-        "gameType": "1100000",
+        "gameType": "",
         "gameId": "1100001",
         "gameKey": "b718ef23-a34d-462b-a640-571e5a6a831b",
         "apikey": "8ddd694b14d1d7c3b4583fac2e268a00",
@@ -155,6 +157,13 @@
         "md5key": "EVCHIHBIJWYW46S3",
         "apiUrl": "https://kyapi.ky206.com:189/channelHandle",
         "recordUrl": "https://kyrecord.ky206.com:190/getRecordHandle"
+    },
+    "vg": {
+        "gameType": "1100000",
+        "gameId": "1100001",
+        "channel":"N1",
+        "privatekey":"Dwuuh7#dwz2*89j",
+        "apiUrl":"https://ew68.cn/webapi/interface.aspx"
     },
     "dt": {
         "gameType": "1150000",
