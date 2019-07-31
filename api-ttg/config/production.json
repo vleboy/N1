@@ -161,9 +161,10 @@
     "vg": {
         "gameType": "1100000",
         "gameId": "1100001",
-        "channel":"N1",
-        "privatekey":"Dwuuh7#dwz2*89j",
-        "apiUrl":"https://ew68.cn/webapi/interface.aspx"
+        "channel": "N1",
+        "privatekey": "Dwuuh7#dwz2*89j",
+        "apiUrl": "https://ew68.cn/webapi/interface.aspx",
+        "tryUrl": "https://ew68.cn/webapi/trygame.aspx"
     },
     "dt": {
         "gameType": "1150000",
@@ -185,23 +186,23 @@
     "png": {
         "gameType": "1020000",
         "gameKey": "68f48ea3-c718-4ea0-a50a-82ef72c75131",
-        "launchUrl":"https://agacw.playngonetwork.com/casino/PlayMobile",
-        "pid":"320",
-        "brandId":"XYZ"
+        "launchUrl": "https://agacw.playngonetwork.com/casino/PlayMobile",
+        "pid": "320",
+        "brandId": "XYZ"
     },
     "haba": {
         "gameType": "1040000",
         "gameKey": "9e2dfc82-93bb-44f4-925a-34bf212ad231",
-        "brandid":"40c6d2c4-d4cd-e811-81ab-000d3a805b30",
-        "apikey":"C53C83EE-CF6F-4E51-B85B-4E36D2D69716",
-        "launchUrl":"https://app-a.insvr.com/go.ashx"
+        "brandid": "40c6d2c4-d4cd-e811-81ab-000d3a805b30",
+        "apikey": "C53C83EE-CF6F-4E51-B85B-4E36D2D69716",
+        "launchUrl": "https://app-a.insvr.com/go.ashx"
     },
     "pg": {
         "gameType": "1090000",
         "gameKey": "465f5898-6103-4c8e-9db2-bcf4f3afc5ce",
-        "operator_token":"F4A04F25-7515-4CC5-8707-D86F39E451AF",
-        "secret_key":"64W7GZ94FJL3791HHTJ6Q07Q1BWRTOTH",
-        "launchUrl":"https://m.pgnojk.com"
+        "operator_token": "F4A04F25-7515-4CC5-8707-D86F39E451AF",
+        "secret_key": "64W7GZ94FJL3791HHTJ6Q07Q1BWRTOTH",
+        "launchUrl": "https://m.pgnojk.com"
     },
     "maya": {
         "gameType": "",

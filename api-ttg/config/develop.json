@@ -163,7 +163,8 @@
         "gameId": "1100001",
         "channel":"N1",
         "privatekey":"Dwuuh7#dwz2*89j",
-        "apiUrl":"https://ew68.cn/webapi/interface.aspx"
+        "apiUrl":"https://ew68.cn/webapi/interface.aspx",
+        "tryUrl": "https://ew68.cn/webapi/trygame.aspx"
     },
     "dt": {
         "gameType": "1150000",

@@ -45,7 +45,6 @@ router.get('/vg/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
         let player = await new PlayerModel().getPlayerById(inparam.userId)
         if (!player.regMap || !player.regMap.vg) {
             res = await getVG({ username: inparam.userId, action: 'create' })
-            log.info(res)
             if (res.response.errcode == '0' || res.response.errcode == '-99') {
                 player.regMap ? player.regMap.vg = 1 : player.regMap = { vg: 1 }
                 new PlayerModel().updateRegMap(player)
@@ -106,7 +105,8 @@ async function getVG(obj) {
         verifyCode += obj[key]
     }
     verifyCode = CryptoJS.MD5(`${verifyCode}${config.vg.privatekey}`).toString(CryptoJS.enc.Hex).toUpperCase()
-    let res = await axios.get(`${config.vg.apiUrl}?${query}&verifyCode=${verifyCode}`)
+    let url = obj.action ? config.vg.apiUrl : config.vg.tryUrl
+    let res = await axios.get(`${url}?${query}&verifyCode=${verifyCode}`)
     res = await xmlParse(res.data)
     return res
 }
