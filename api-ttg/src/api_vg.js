@@ -77,3 +77,5 @@ router.post('/vg/transaction', async (ctx, next) => {
     //     ctx.body = { code: 0, msg: 'success', balance: amtAfter }
     // }
 })
+
+module.exports = router
