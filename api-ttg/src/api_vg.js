@@ -58,14 +58,13 @@ router.get('/vg/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
 })
 
 /**
- * VG 游戏链接
- * userId 玩家ID
- * type   上分或下分
- * id     流水ID
- * betId  关联交易号
+ * VG 免转接口
+ * username         玩家ID
+ * type             BET/RET
+ * transactionId    交易号
+ * amount           返还金额
  */
 router.post('/vg/transaction', async (ctx, next) => {
-    ipMap[ctx.params.userId] = ctx.request.ip
     let inparam = ctx.request.body
     let player = await new PlayerModel().getPlayerById(inparam.username)
     let balance = player.balance
@@ -77,9 +76,10 @@ router.post('/vg/transaction', async (ctx, next) => {
         balance = inparam.amt = Math.abs(inparam.amount)
     }
     inparam.gameType = config.vg.gameType
-    inparam.businessKey = `BVG_${inparam.username}_${inparam.transactionId}`
+    inparam.businessKey = `BVG_${player.userId}_${inparam.transactionId}`
     inparam.anotherGameData = JSON.stringify(inparam)
-    inparam.txnidTemp = `${inparam.username}_${inparam.type}_${inparam.transactionId}`
+    inparam.txnidTemp = `${player.userId}_${inparam.type}_${inparam.transactionId}`
+    inparam.sourceIP = ipMap[player.userId]
     log.info(inparam)
     let amtAfter = await new PlayerModel().updatebalance(player, inparam)
     if (amtAfter == 'err') {
@@ -88,6 +88,15 @@ router.post('/vg/transaction', async (ctx, next) => {
         ctx.body = { code: 0, msg: 'success', balance }
     }
 })
+
+/**
+ * VG 查询游戏记录
+ */
+router.post('/vg/betdetail/:id', async (ctx, next) => {
+    let res = await getVG({ id: ctx.params.id })
+    ctx.body = res.data.value
+})
+
 
 // 私有方法：VG请求
 async function getVG(obj) {
