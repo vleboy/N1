@@ -59,7 +59,6 @@ router.get('/vg/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
     else {
         res = await getVG({ gametype: '1000', gameversion })
     }
-    log.info(res)
     ctx.redirect(res.response.result)
 })
 
