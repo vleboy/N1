@@ -21,148 +21,129 @@ const LogModel = require('./model/LogModel')
 const StatRoundModel = require('./model/StatRoundModel')
 /**
  * 修正局表数据
- * @param {*} start 起始时间戳
- * @param {*} end   结束时间戳
- * @param {*} start 时间戳
  */
 router.post('/stat/checkRound', async (ctx, next) => {
-    try {
-        console.time(`定时检查修正用时`)
-        let fixArr = []
-        let promiseAll = []
-        let repeatMap = {}
-        const RoleRet2 = await new LogModel().roleQuery({ role: '2' })
-        console.log(`一共查出role=2需要检验的日志条数${RoleRet2.length}`)
-        const RoleRet3 = await new LogModel().roleQuery({ role: '3' })
-        console.log(`一共查出role=3需要检验的日志条数${RoleRet3.length}`)
-        const RoleRet4 = await new LogModel().roleQuery({ role: '4' })
-        console.log(`一共查出role=4需要检验的日志条数${RoleRet4.length}`)
-        // 修正超时返奖，检查局表和流水数量是否一致，不一致则需要修正
-        for (let item of RoleRet3) {
-            let p = new Promise(async (resolve, reject) => {
-                let bk = item.inparams.businessKey
-                //查询局表中该bk数量
-                let roundNumber = await new StatRoundModel().bkQuery({ bk })
-                //查询流水中该bk数量
-                let detailNumber = await new PlayerBillDetailModel().bkQuery({ bk })
-                //如果数量相等，更新日志
-                if (roundNumber == detailNumber) {
-                    // await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
-                    await new LogModel().deleteItem({ Key: { sn: item.sn, userId: item.userId } })
-                } else {
-                    fixArr.push(item)
-                }
-                resolve(1)
-            })
-            promiseAll.push(p)
-        }
-        // 修正SA战绩查询失败，检查局表中是否存在anotherGameData，不存在则需要修正
-        for (let item of RoleRet4) {
-            let p = new Promise(async (resolve, reject) => {
-                let bk = item.inparams.businessKey
-                let flag = false
-                // 已重复bk，直接更新Y
-                if (repeatMap[bk]) {
-                    flag = true
-                }
-                // 检查是否已经统计 
-                else {
-                    repeatMap[bk] = true
-                    flag = await new StatRoundModel().isAnotherGameDate({ bk })
-                }
-                //更新日志
-                if (flag) {
-                    // await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
-                    await new LogModel().deleteItem({ Key: { sn: item.sn, userId: item.userId } })
-                } else if (item.betTime) {
-                    fixArr.push(item)
-                }
-                resolve(1)
-            })
-            promiseAll.push(p)
-        }
-        // 其他异常日志处理
-        let startTime = 9999999999999, endTime = 0, kyArr = []
-        for (let item of RoleRet2) {
-            // 修正返奖时查询不到的下注，如果确认下注不存在，则清除该日志
-            if (item.type == 'findBetError') {
-                let p = new Promise(async (resolve, reject) => {
-                    let flag = true
-                    // 根据betsn确认
-                    if (item.inparams.betsn) {
-                        let billRes = await new PlayerBillDetailModel().getItem({ Key: { 'sn': item.inparams.betsn } })
-                        if (!billRes.Item || _.isEmpty(billRes.Item)) {
-                            // await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
-                            await new LogModel().deleteItem({ Key: { sn: item.sn, userId: item.userId } })
-                            flag = false
-                        }
-                    }
-                    // 根据bk确认
-                    else {
-                        let detailNumber = await new PlayerBillDetailModel().bkQuery({ bk: item.inparams.businessKey })
-                        if (detailNumber == -1) {
-                            // await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
-                            await new LogModel().deleteItem({ Key: { sn: item.sn, userId: item.userId } })
-                            flag = false
-                        }
-                    }
-                    // 投注与退款相同
-                    if (flag) {
-                        const bkRet = await new StatRoundModel().query({
-                            KeyConditionExpression: 'businessKey = :businessKey',
-                            ExpressionAttributeValues: { ':businessKey': item.inparams.businessKey }
-                        })
-                        if (bkRet && bkRet.Items.length > 0) {
-                            let betCount = bkRet.Items[0].content.bet.length
-                            let refundCount = 0
-                            let retArr = bkRet.Items[0].content.ret
-                            for (let ret of retArr) {
-                                if (ret.type == 5) {
-                                    refundCount++
-                                }
-                            }
-                            if (betCount == refundCount) {
-                                // await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
-                                await new LogModel().deleteItem({ Key: { sn: item.sn, userId: item.userId } })
-                            }
-                        }
-                    }
-                    resolve(1)
-                })
-                promiseAll.push(p)
+    console.time(`定时检查修正用时`)
+    let promiseAll = []
+    const role2Arr = await new LogModel().roleQuery({ role: '2' })
+    const role3Arr = await new LogModel().roleQuery({ role: '3' })
+    const role4Arr = await new LogModel().roleQuery({ role: '4' })
+    console.log(`role2:${role2Arr.length},role3:${role3Arr.length},role4:${role4Arr.length}`)
+    // 修正超时返奖，检查局表和流水数量是否一致，不一致则需要修正
+    for (let item of role3Arr) {
+        promiseAll.push(new Promise(async (resolve, reject) => {
+            let bk = item.inparams.businessKey
+            let roundNumber = await new StatRoundModel().bkQuery({ bk })
+            let detailNumber = await new PlayerBillDetailModel().bkQuery({ bk })
+            if (roundNumber == detailNumber) { //局表与流水数量一致
+                // await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
+                await new LogModel().deleteItem({ Key: { sn: item.sn, userId: item.userId } })
+                resolve(false)
+            } else {
+                resolve(item)
             }
-            // KY棋牌游戏记录查询失败，记录起始和结束查询时间
-            else if (item.type == 'KYRecordError') {
-                startTime = item.inparams.startTime < startTime ? item.inparams.startTime : startTime
-                endTime = item.inparams.endTime > endTime ? item.inparams.endTime : endTime
-                kyArr.push(item)
-            }
-        }
-        // KY重新查询，写入游戏记录，并更新日志
-        if (endTime) {
-            console.log(`自检请求KY${startTime}-${endTime}`)
-            if (await new HeraGameRecordModel().getKYRecord(startTime, endTime)) {
-                kyArr.map(async (item) => {
-                    // await new LogModel().updateLog({ sn: o.sn, userId: o.userId })
-                    await new LogModel().deleteItem({ Key: { sn: item.sn, userId: item.userId } })
-                })
-            }
-        }
-        // 并发执行
-        await Promise.all(promiseAll)
-        console.log(`一共有${fixArr.length}条数据修正`)
-        let start = 0, end = 0
-        if (fixArr.length > 0) {
-            let token = jwt.sign({ exp: Math.floor(Date.now() / 1000) + 86400 }, config.na.TOKEN_SECRET)
-            start = _.minBy(fixArr, 'betTime') ? +(_.minBy(fixArr, 'betTime').betTime) - 1 : new Date(`${_.minBy(fixArr, 'createdAt').createdDate}T00:00:00+08:00`).getTime()
-            end = _.maxBy(fixArr, 'betTime') ? +(_.maxBy(fixArr, 'betTime').betTime) + 90000 : new Date(`${_.maxBy(fixArr, 'createdAt').createdDate}T23:59:59+08:00`).getTime()
-            console.log(`请求修复时间为：${start}-${end}，${moment(start).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}至${moment(end).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}`)
-            axios.post(`http://localhost:4000/stat/fixRound`, { start, end }, { headers: { 'Authorization': `Bearer ${token}` } })
-        }
-        console.timeEnd(`定时检查修正用时`)
-    } catch (error) {
-        console.error(error)
+        }))
     }
+    // 修正SA战绩查询失败，检查局表中是否存在anotherGameData，不存在则需要修正
+    let repeatMap = {}
+    for (let item of role4Arr) {
+        promiseAll.push(new Promise(async (resolve, reject) => {
+            let bk = item.inparams.businessKey
+            let flag = false
+            if (repeatMap[bk]) { // 已重复bk
+                flag = true
+            } else {             // 检查是否已经统计 
+                repeatMap[bk] = true
+                flag = await new StatRoundModel().isAnotherGameDate({ bk })
+            }
+            if (flag) {
+                // await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
+                await new LogModel().deleteItem({ Key: { sn: item.sn, userId: item.userId } })
+                resolve(false)
+            } else if (item.betTime) {
+                resolve(item)
+            } else {
+                resolve(false)
+            }
+        }))
+    }
+    // 其他异常日志处理
+    let kyArr = [], startTime = 9999999999999, endTime = 0
+    for (let item of role2Arr) {
+        // 修正返奖时查询不到的下注，如果确认下注不存在，则清除该日志
+        if (item.type == 'findBetError') {
+            let flag = true
+            // 根据betsn确认
+            if (item.inparams.betsn) {
+                let billRes = await new PlayerBillDetailModel().getItem({ Key: { 'sn': item.inparams.betsn } })
+                if (!billRes.Item || _.isEmpty(billRes.Item)) {
+                    // await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
+                    await new LogModel().deleteItem({ Key: { sn: item.sn, userId: item.userId } })
+                    flag = false
+                }
+            }
+            // 根据bk确认
+            else {
+                let detailNumber = await new PlayerBillDetailModel().bkQuery({ bk: item.inparams.businessKey })
+                if (detailNumber == -1) {
+                    // await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
+                    await new LogModel().deleteItem({ Key: { sn: item.sn, userId: item.userId } })
+                    flag = false
+                }
+            }
+            // 根据投注与退款是否相同确认
+            if (flag) {
+                const bkRet = await new StatRoundModel().query({
+                    KeyConditionExpression: 'businessKey = :businessKey',
+                    ExpressionAttributeValues: { ':businessKey': item.inparams.businessKey }
+                })
+                if (bkRet && bkRet.Items.length > 0) {
+                    let betCount = bkRet.Items[0].content.bet.length
+                    let refundCount = 0
+                    let retArr = bkRet.Items[0].content.ret
+                    for (let ret of retArr) {
+                        if (ret.type == 5) {
+                            refundCount++
+                        }
+                    }
+                    if (betCount == refundCount) {
+                        // await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
+                        await new LogModel().deleteItem({ Key: { sn: item.sn, userId: item.userId } })
+                    }
+                }
+            }
+        }
+        // KY棋牌游戏记录查询失败，记录起始和结束查询时间
+        else if (item.type == 'KYRecordError') {
+            startTime = item.inparams.startTime < startTime ? item.inparams.startTime : startTime
+            endTime = item.inparams.endTime > endTime ? item.inparams.endTime : endTime
+            kyArr.push(item)
+        }
+    }
+    // KY重新查询，写入游戏记录，并更新日志
+    if (endTime) {
+        console.log(`自检请求KY${startTime}-${endTime}`)
+        if (await new HeraGameRecordModel().getKYRecord(startTime, endTime)) {
+            kyArr.map(async (item) => {
+                // await new LogModel().updateLog({ sn: o.sn, userId: o.userId })
+                await new LogModel().deleteItem({ Key: { sn: item.sn, userId: item.userId } })
+            })
+        }
+    }
+
+    // 并发执行
+    let fixArr = await Promise.all(promiseAll)
+    fixArr = fixArr.filter(o => o)
+    console.log(`一共有${fixArr.length}条数据修正`)
+    let start = 0, end = 0
+    if (fixArr.length > 0) {
+        let token = jwt.sign({ exp: Math.floor(Date.now() / 1000) + 86400 }, config.na.TOKEN_SECRET)
+        start = _.minBy(fixArr, 'betTime') ? +(_.minBy(fixArr, 'betTime').betTime) - 1 : new Date(`${_.minBy(fixArr, 'createdAt').createdDate}T00:00:00+08:00`).getTime()
+        end = _.maxBy(fixArr, 'betTime') ? +(_.maxBy(fixArr, 'betTime').betTime) + 90000 : new Date(`${_.maxBy(fixArr, 'createdAt').createdDate}T23:59:59+08:00`).getTime()
+        console.log(`请求修复时间为：${start}-${end}，${moment(start).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}至${moment(end).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}`)
+        axios.post(`http://localhost:4000/stat/fixRound`, { start, end }, { headers: { 'Authorization': `Bearer ${token}` } })
+    }
+    console.timeEnd(`定时检查修正用时`)
     ctx.body = { code: 0, msg: 'Y' }
 })
 
