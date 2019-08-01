@@ -60,7 +60,7 @@ router.get('/vg/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
 /**
  * VG 免转接口
  * username         玩家ID
- * type             BET/RET
+ * type             BALANCE/BET/RET
  * transactionId    交易号
  * amount           返还金额
  */
@@ -68,7 +68,9 @@ router.post('/vg/transaction', async (ctx, next) => {
     let inparam = ctx.request.body
     let player = await new PlayerModel().getPlayerById(inparam.username)
     let balance = player.balance
-    if (inparam.type == 'BET') {
+    if (inparam.type == 'BALANCE') {
+        return ctx.body = { code: 0, balance: player.balance }
+    } else if (inparam.type == 'BET') {
         inparam.billType = 3
         inparam.amt = balance * -1
     } else {
