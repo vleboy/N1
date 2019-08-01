@@ -110,7 +110,9 @@ async function getVG(obj) {
     verifyCode = CryptoJS.MD5(`${verifyCode}${config.vg.privatekey}`).toString(CryptoJS.enc.Hex).toUpperCase()
     let url = obj.action ? config.vg.apiUrl : config.vg.tryUrl
     let res = await axios.get(`${url}?${query}&verifyCode=${verifyCode}`)
-    res = await xmlParse(res.data)
+    if (!obj.id) {
+        res = await xmlParse(res.data)
+    }
     return res
 }
 
