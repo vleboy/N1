@@ -92,7 +92,7 @@ router.post('/vg/transaction', async (ctx, next) => {
 /**
  * VG 查询游戏记录
  */
-router.post('/vg/betdetail/:id', async (ctx, next) => {
+router.get('/vg/betdetail/:id', async (ctx, next) => {
     let res = await getVG({ id: ctx.params.id })
     ctx.body = res.data.value
 })
