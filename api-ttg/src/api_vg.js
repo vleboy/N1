@@ -71,11 +71,11 @@ router.post('/vg/transaction', async (ctx, next) => {
     if (inparam.type == 'BALANCE') {
         return ctx.body = { code: 0, balance: player.balance }
     } else if (inparam.type == 'BET') {
-        await waitASecond()
-        return
         inparam.billType = 3
         inparam.amt = balance * -1
     } else {
+        await waitASecond()
+        return
         inparam.billType = 4
         balance = inparam.amt = Math.abs(inparam.amount)
     }
