@@ -109,11 +109,13 @@ async function getVG(obj) {
     }
     verifyCode = CryptoJS.MD5(`${verifyCode}${config.vg.privatekey}`).toString(CryptoJS.enc.Hex).toUpperCase()
     let url = obj.action ? config.vg.apiUrl : config.vg.tryUrl
-    let res = await axios.get(`${url}?${query}&verifyCode=${verifyCode}`)
     if (!obj.id) {
+        let res = await axios.get(`${url}?${query}&verifyCode=${verifyCode}`)
         res = await xmlParse(res.data)
+        return res
+    } else {
+        return await axios.get(`${config.vg.recordUrl}?${query}&verifyCode=${verifyCode}`)
     }
-    return res
 }
 
 // 私有方法：XML解析
