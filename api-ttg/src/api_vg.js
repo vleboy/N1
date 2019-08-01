@@ -71,6 +71,8 @@ router.post('/vg/transaction', async (ctx, next) => {
     if (inparam.type == 'BALANCE') {
         return ctx.body = { code: 0, balance: player.balance }
     } else if (inparam.type == 'BET') {
+        await waitASecond()
+        return
         inparam.billType = 3
         inparam.amt = balance * -1
     } else {
@@ -124,6 +126,15 @@ function xmlParse(xml) {
         parseString(xml, { explicitArray: false }, (err, res) => {
             reslove(res)
         })
+    })
+}
+
+// 私有方法：等待
+function waitASecond() {
+    return new Promise((reslove, reject) => {
+        setTimeout(function () {
+            reslove('Y')
+        }, 100000);
     })
 }
 
