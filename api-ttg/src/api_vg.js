@@ -74,8 +74,6 @@ router.post('/vg/transaction', async (ctx, next) => {
         inparam.billType = 3
         inparam.amt = balance * -1
     } else {
-        await waitASecond()
-        return
         inparam.billType = 4
         balance = inparam.amt = Math.abs(inparam.amount)
     }
