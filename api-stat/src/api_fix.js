@@ -47,7 +47,8 @@ router.post('/stat/checkRound', async (ctx, next) => {
                 let detailNumber = await new PlayerBillDetailModel().bkQuery({ bk })
                 //如果数量相等，更新日志
                 if (roundNumber == detailNumber) {
-                    await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
+                    // await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
+                    await new LogModel().deleteItem({ Key: { sn: item.sn, userId: item.userId } })
                 } else {
                     fixArr.push(item)
                 }
@@ -91,7 +92,8 @@ router.post('/stat/checkRound', async (ctx, next) => {
                     if (item.inparams.betsn) {
                         let billRes = await new PlayerBillDetailModel().getItem({ Key: { 'sn': item.inparams.betsn } })
                         if (!billRes.Item || _.isEmpty(billRes.Item)) {
-                            await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
+                            // await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
+                            await new LogModel().deleteItem({ Key: { sn: item.sn, userId: item.userId } })
                             flag = false
                         }
                     }
@@ -99,7 +101,8 @@ router.post('/stat/checkRound', async (ctx, next) => {
                     else {
                         let detailNumber = await new PlayerBillDetailModel().bkQuery({ bk: item.inparams.businessKey })
                         if (detailNumber == -1) {
-                            await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
+                            // await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
+                            await new LogModel().deleteItem({ Key: { sn: item.sn, userId: item.userId } })
                             flag = false
                         }
                     }
@@ -119,7 +122,8 @@ router.post('/stat/checkRound', async (ctx, next) => {
                                 }
                             }
                             if (betCount == refundCount) {
-                                await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
+                                // await new LogModel().updateLog({ sn: item.sn, userId: item.userId })
+                                await new LogModel().deleteItem({ Key: { sn: item.sn, userId: item.userId } })
                             }
                         }
                     }
@@ -138,7 +142,10 @@ router.post('/stat/checkRound', async (ctx, next) => {
         if (endTime) {
             console.log(`自检请求KY${startTime}-${endTime}`)
             if (await new HeraGameRecordModel().getKYRecord(startTime, endTime)) {
-                kyArr.map(async (o) => { await new LogModel().updateLog({ sn: o.sn, userId: o.userId }) })
+                kyArr.map(async (item) => {
+                    // await new LogModel().updateLog({ sn: o.sn, userId: o.userId })
+                    await new LogModel().deleteItem({ Key: { sn: item.sn, userId: item.userId } })
+                })
             }
         }
         // 并发执行
