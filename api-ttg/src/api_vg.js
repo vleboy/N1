@@ -94,7 +94,6 @@ router.post('/vg/transaction', async (ctx, next) => {
  */
 router.get('/vg/betdetail/:id', async (ctx, next) => {
     let res = await getVG({ id: ctx.params.id })
-    console.log(res.data)
     ctx.body = res.data.value
 })
 
@@ -111,10 +110,9 @@ async function getVG(obj) {
     let url = obj.action ? config.vg.apiUrl : config.vg.tryUrl
     if (!obj.id) {
         let res = await axios.get(`${url}?${query}&verifyCode=${verifyCode}`)
-        res = await xmlParse(res.data)
-        return res
+        return xmlParse(res.data)
     } else {
-        return await axios.get(`${config.vg.recordUrl}?${query}&verifyCode=${verifyCode}`)
+        return axios.get(`${config.vg.recordUrl}?${query}&verifyCode=${verifyCode}`)
     }
 }
 
