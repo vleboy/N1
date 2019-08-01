@@ -94,6 +94,7 @@ router.post('/vg/transaction', async (ctx, next) => {
  */
 router.get('/vg/betdetail/:id', async (ctx, next) => {
     let res = await getVG({ id: ctx.params.id })
+    console.log(res.data)
     ctx.body = res.data.value
 })
 
