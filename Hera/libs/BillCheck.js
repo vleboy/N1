@@ -96,10 +96,15 @@ module.exports = class BillCheck {
         inparam.startTime = +inparam.startTime
         inparam.endTime = +inparam.endTime
         inparam.buId = +inparam.buId
-        inparam.pageSize = inparam.pageSize ? +inparam.pageSize : 20                             //设置查询数量
-        if (inparam.pageSize > 1000) {
-            inparam.pageSize = 1000
+        inparam.pageSize = 100
+        // 默认按照派彩时间查询
+        if (inparam.queryType != 0) {
+            inparam.queryType = 1
         }
+        // inparam.pageSize = inparam.pageSize ? +inparam.pageSize : 20
+        // if (inparam.pageSize > 1000) {
+        //     inparam.pageSize = 1000
+        // }
     }
     //获取线路商游戏记录参数校验
     checkManagerGameRecord(inparam) {

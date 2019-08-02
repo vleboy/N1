@@ -77,7 +77,7 @@ class HeraGameRecordModel extends BaseModel {
             ScanIndexForward: false, //降序返回结果
             KeyConditionExpression: keyObj.FilterExpression,
             FilterExpression: queryObj.FilterExpression,
-            Limit: 1000,//inparam.pageSize,
+            Limit: 100,//inparam.pageSize,
             ExpressionAttributeNames: Object.assign(keyObj.ExpressionAttributeNames, queryObj.ExpressionAttributeNames, { '#record': 'record' }),
             ExpressionAttributeValues: Object.assign(keyObj.ExpressionAttributeValues, queryObj.ExpressionAttributeValues)
         }
@@ -90,7 +90,7 @@ class HeraGameRecordModel extends BaseModel {
     /**
      * 商户战绩分页查询，递归循环查询结果
      */
-    async forQueryRes(query, array = [], pageSize = 20) {
+    async forQueryRes(query, array = [], pageSize = 100) {
         return this.db$('query', query).then((result) => {
             // 合并上一次的查询结果
             array = array.concat(result.Items)

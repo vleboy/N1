@@ -50,17 +50,11 @@ module.exports.gameRecordPage = async function (e, c, cb) {
         }
         // 按照创建时间查询
         if (inparam.queryType == 1) {
-            keys = {
-                parentId: userInfo.userId,
-                createdAt: { "$range": [+inparam.startTime, +inparam.endTime] }
-            }
+            keys = { parentId: userInfo.userId, createdAt: { "$range": [+inparam.startTime, +inparam.endTime] } }
         }
         // 按照下注时间查询
         else {
-            keys = {
-                parentId: userInfo.userId,
-                betTime: { "$range": [+inparam.startTime, +inparam.endTime] }
-            }
+            keys = { parentId: userInfo.userId, betTime: { "$range": [+inparam.startTime, +inparam.endTime] } }
         }
         //5,查询数据
         let [records, islastKey] = await new HeraGameRecordModel().queryParms(indexName, keys, queryParms, inparam)
