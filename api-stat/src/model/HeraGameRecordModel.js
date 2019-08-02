@@ -246,7 +246,6 @@ class HeraGameRecordModel extends BaseModel {
                 recordArr.push(gameRecord)
             }
             // 写入VG游戏记录
-            console.log(recordArr)
             await Promise.all(this.batchWriteRound(recordArr))
             // 返回最后一条id
             return resArr[resArr.length - 1].id
