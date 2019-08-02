@@ -153,7 +153,7 @@ function getOtherObj(record) {
         delete betObj.CellScore
         delete betObj.Profit
         otherObj.roundResult = betObj
-    } else if (gameType == "1070000") {    // 财神棋牌
+    } else if (gameType == "1100000") {    // 财神棋牌
         let betObj = record.anotherGameData
         if (betObj == 'NULL!') {
             return {}
