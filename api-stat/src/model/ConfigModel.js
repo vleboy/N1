@@ -27,10 +27,9 @@ class ConfigModel extends BaseModel {
     // 更新VG最后同步ID
     updateLastVGId(inparam) {
         return this.updateItem({
-            KeyConditionExpression: '#code = :code',
+            Key: { 'code': inparam.code, },
             UpdateExpression: 'SET lastVGId = :lastVGId',
-            ExpressionAttributeNames: { '#code': 'code' },
-            ExpressionAttributeValues: { ':code': inparam.code, ':lastVGId': inparam.lastVGId }
+            ExpressionAttributeValues: { ':lastVGId': inparam.lastVGId }
         })
     }
 }
