@@ -175,6 +175,10 @@ function getOtherObj(record) {
         delete betObj.validbetamount
         delete betObj.money
         delete betObj.beforebalance
+        delete betObj.createtime
+        delete betObj.channel
+        delete betObj.endtime
+        delete betObj.begintime
         otherObj.roundResult = betObj
     } else {                            //其他第三方游戏
         let betObj = getContentBetObj(record)

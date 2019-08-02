@@ -49,7 +49,7 @@ class HeraGameRecordModel extends BaseModel {
                         betId: item.businessKey,
                         betTime: +betTime,
                         createdAt: +createdAt,
-                        createdDate: moment(+item.createdAt).utcOffset(8).format('YYYY-MM-DD'),
+                        createdDate: moment(+createdAt).utcOffset(8).format('YYYY-MM-DD'),
                         gameId: item.gameId ? item.gameId.toString() : item.gameType.toString(),
                         gameType: +item.gameType,
                         parentId: item.parent,
