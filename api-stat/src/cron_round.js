@@ -57,11 +57,11 @@ cron.schedule('0 0 18 * * *', async () => {
 
 // 定时拉取中心钱包游戏记录(每5秒拉取一次)
 cron.schedule('*/5 * * * * *', async () => {
-    console.time(`游戏记录拉取用时`)
+    // console.time(`游戏记录拉取用时`)
     const queryRet = await new ConfigModel().queryLastTime({ code: 'roundLast' })
     let lastVGId = await new HeraGameRecordModel().getVGRecord(queryRet.lastVGId)
     lastVGId != queryRet.lastVGId && await new ConfigModel().updateLastVGId({ code: 'roundLast', lastVGId })
-    console.timeEnd(`游戏记录拉取用时`)
+    // console.timeEnd(`游戏记录拉取用时`)
 })
 
 // 定时修正玩家状态在游戏中但12小时内无流水
