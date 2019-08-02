@@ -23,13 +23,14 @@ class HeraGameRecordModel extends BaseModel {
      * status==3不会提供给商户查询
      */
     writeRound(item) {
+        let createdAt = Date.now()
         return this.putItem({
             userId: +item.userId,
             userName: item.userName,
             betId: item.businessKey,
             betTime: +item.createdAt,
-            createdAt: Date.now(),
-            createdStr: moment(Date.now()).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
+            createdAt,
+            createdStr: moment(createdAt).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
             gameId: item.gameId ? item.gameId.toString() : item.gameType.toString(),
             gameType: +item.gameType,
             parentId: item.parent,
