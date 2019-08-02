@@ -140,7 +140,7 @@ function axiosCron(inparam) {
     axios.post(cronUrl, {}, {
         headers: { 'Authorization': `Bearer ${tokenAdmin}` }
     }).then(res => {
-        console.log(res.data)
+        // console.log(res.data)
     }).catch(err => {
         console.error(`${inparam.methodName}接口返回异常`)
         console.error(err)
