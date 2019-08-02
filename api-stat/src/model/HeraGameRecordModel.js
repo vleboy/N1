@@ -214,7 +214,6 @@ class HeraGameRecordModel extends BaseModel {
         let recordArr = []
         if (resArr && resArr.length > 0) {
             //玩家分组查询对应的商户id
-            console.log(resArr)
             let groupByMap = _.groupBy(resArr, 'username')
             console.log(groupByMap)
             let parentIdArr = []
