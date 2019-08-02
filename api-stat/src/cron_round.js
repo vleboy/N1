@@ -34,7 +34,7 @@ cron.schedule('0 */3 * * * *', async () => {
     inparam.isFix = false                                           // 非修正
     await new CronRoundModel().fixRound(inparam)
     // 查询和写入KY游戏记录
-    await new HeraGameRecordModel().getKYRecord(inparam.start, inparam.end)
+    // await new HeraGameRecordModel().getKYRecord(inparam.start, inparam.end)
     // 更新配置时间
     queryRet.lastTime = inparam.end
     await new ConfigModel().putItem(queryRet)
@@ -53,6 +53,15 @@ cron.schedule('0 0 18 * * *', async () => {
     else {
         roundDayProcess()
     }
+})
+
+// 定时拉取中心钱包游戏记录(每5秒拉取一次)
+cron.schedule('0 0 */5 * * *', async () => {
+    console.time(`游戏记录拉取用时`)
+    const queryRet = await new ConfigModel().queryLastTime({ code: 'roundLast' })
+    queryRet.lastVGId = await new HeraGameRecordModel().getVGRecord(queryRet.lastVGId)
+    await new ConfigModel().putItem(queryRet)
+    console.timeEnd(`游戏记录拉取用时`)
 })
 
 // 定时修正玩家状态在游戏中但12小时内无流水

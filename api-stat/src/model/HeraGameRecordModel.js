@@ -133,10 +133,10 @@ class HeraGameRecordModel extends BaseModel {
         })
     }
     /**
-   * 查询KY战绩
-   * @param {*} beginTime 
-   * @param {*} endTime 
-   */
+     * 查询KY战绩
+     * @param {*} beginTime 
+     * @param {*} endTime 
+     */
     async getKYRecord(beginTime, endTime) {
         let tokenAdmin = jwt.sign({
             role: RoleCodeEnum.PlatformAdmin,
@@ -204,6 +204,49 @@ class HeraGameRecordModel extends BaseModel {
         }
     }
 
+    /**
+     * 查询VG战绩
+     * @param {*} id
+     */
+    async getVGRecord(id) {
+        let res = await axios.get(`http://${config.na.ANOTHER_GAME_CENTER}/vg/betdetail/${id}`)
+        let recordArr = []
+        if (res && res.length > 0) {
+            //玩家分组查询对应的商户id
+            let groupByMap = _.groupBy(res, 'username')
+            let parentIdArr = []
+            for (let userId in groupByMap) {
+                let playerRes = await this.query({
+                    IndexName: 'userIdIndex',
+                    KeyConditionExpression: 'userId = :userId',
+                    ProjectionExpression: 'parent,userId,userName',
+                    ExpressionAttributeValues: { ':userId': +userId }
+                })
+                parentIdArr.push({ parent: playerRes.Items[0].parent, userId: playerRes.Items[0].userId, userName: playerRes.Items[0].userName })
+            }
+            for (let record of res) {
+                let anotherGameData = { ...record }
+                let gameRecord = {
+                    betTime: new Date(`${record.begintime}+08:00`).getTime(),
+                    createdAt: new Date(`${record.createtime}+08:00`).getTime(),
+                    gameId: '1100001',
+                    gameType: 1100000,
+                    anotherGameData
+                }
+                let item = _.find(parentIdArr, (o) => { return o.userId == +record.username })
+                gameRecord.parent = item.parent
+                gameRecord.userId = item.userId
+                gameRecord.userName = item.userName
+                gameRecord.businessKey = `BVG_${item.userId}_${item.id}`
+                recordArr.push(gameRecord)
+            }
+            // 写入VG游戏记录
+            await Promise.all(this.batchWriteRound(recordArr))
+            // 返回最后一条id
+            return res[res.length - 1].id
+        }
+        return id
+    }
 }
 
 module.exports = HeraGameRecordModel

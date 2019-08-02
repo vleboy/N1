@@ -24,9 +24,7 @@ module.exports = {
             }
             return { ...baseObj, ...getOtherObj(record) }
         })
-        page.list = page.list.filter((record) => {
-            return record.gameType != '1070000' || record.settleTime
-        })
+        page.list = page.list.filter(record => record != {})
         page.pageSize = page.list.length
     },
     // 对内查询单条
@@ -154,6 +152,29 @@ function getOtherObj(record) {
         delete betObj.AllBet
         delete betObj.CellScore
         delete betObj.Profit
+        otherObj.roundResult = betObj
+    } else if (gameType == "1070000") {    // 财神棋牌
+        let betObj = record.anotherGameData
+        if (betObj == 'NULL!') {
+            return {}
+        }
+        otherObj = {
+            gameName: "财神棋牌游戏",
+            preBalance: parseFloat((+betObj.beforebalance).toFixed(2)),
+            betAmount: parseFloat((+betObj.betamount).toFixed(2)),
+            winAmount: parseFloat((+betObj.betamount + +betObj.money + +betObj.servicemoney).toFixed(2)),
+            refundAmount: 0,
+            retAmount: parseFloat((+betObj.betamount + +betObj.money + +betObj.servicemoney).toFixed(2)),
+            winloseAmount: parseFloat((+betObj.money + +betObj.servicemoney).toFixed(2)),
+            mixAmount: parseFloat((+betObj.validbetamount).toFixed(2)),
+            betCount: 1
+        }
+        delete betObj.username
+        delete betObj.agent
+        delete betObj.betamount
+        delete betObj.validbetamount
+        delete betObj.money
+        delete betObj.beforebalance
         otherObj.roundResult = betObj
     } else {                            //其他第三方游戏
         let betObj = getContentBetObj(record)

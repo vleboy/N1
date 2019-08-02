@@ -20,12 +20,11 @@ module.exports = {
                 gameId: record.gameId,
                 betId: record.betId,
                 betTime: record.betTime,
+                buId: record.buId
             }
             return { ...baseObj, ...getOtherObj(record) }
         })
-        page.list = page.list.filter((record) => {
-            return record.gameType != '1070000' || record.settleTime
-        })
+        page.list = page.list.filter(record => record != {})
         page.pageSize = page.list.length
     },
     // 对内查询单条
@@ -98,7 +97,7 @@ function getOtherObj(record) {
         if (!record.anotherGameData || record.anotherGameData == 'NULL!') {        // SA查询没有战绩，则设置默认战绩
             record.anotherGameData = { data: '[{\"GameResult\":[{\"BaccaratResult\":[]}]}]', mixAmount: 0 }
         }
-        let item = JSON.parse(record.anotherGameData.data)[0]
+        let item = JSON.parse(record.anotherGameData.data)[0] || {}
         otherObj = {
             gameName: (item.HostName || ['SA真人游戏'])[0],
             preBalance: betObj.preBalance,
@@ -153,6 +152,29 @@ function getOtherObj(record) {
         delete betObj.AllBet
         delete betObj.CellScore
         delete betObj.Profit
+        otherObj.roundResult = betObj
+    } else if (gameType == "1070000") {    // 财神棋牌
+        let betObj = record.anotherGameData
+        if (betObj == 'NULL!') {
+            return {}
+        }
+        otherObj = {
+            gameName: "财神棋牌游戏",
+            preBalance: parseFloat((+betObj.beforebalance).toFixed(2)),
+            betAmount: parseFloat((+betObj.betamount).toFixed(2)),
+            winAmount: parseFloat((+betObj.betamount + +betObj.money + +betObj.servicemoney).toFixed(2)),
+            refundAmount: 0,
+            retAmount: parseFloat((+betObj.betamount + +betObj.money + +betObj.servicemoney).toFixed(2)),
+            winloseAmount: parseFloat((+betObj.money + +betObj.servicemoney).toFixed(2)),
+            mixAmount: parseFloat((+betObj.validbetamount).toFixed(2)),
+            betCount: 1
+        }
+        delete betObj.username
+        delete betObj.agent
+        delete betObj.betamount
+        delete betObj.validbetamount
+        delete betObj.money
+        delete betObj.beforebalance
         otherObj.roundResult = betObj
     } else {                            //其他第三方游戏
         let betObj = getContentBetObj(record)
@@ -311,7 +333,7 @@ function setAGResult(gameResult) {
 
 // 获取SA真人战绩
 function setSAResult(gameResult) {
-    gameResult = (gameResult || [])[0].BaccaratResult;
+    gameResult = (gameResult || [{}])[0].BaccaratResult;
     gameResult = gameResult || [];
     let obj = {
         "p": [],

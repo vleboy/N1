@@ -82,11 +82,13 @@ router.post('/vg/transaction', async (ctx, next) => {
     inparam.anotherGameData = JSON.stringify(inparam)
     inparam.txnidTemp = `${player.userId}_${inparam.type}_${inparam.transactionId}`
     inparam.sourceIP = ipMap[player.userId]
-    log.info(inparam)
     let amtAfter = await new PlayerModel().updatebalance(player, inparam)
     if (amtAfter == 'err') {
         ctx.body = { code: -1, msg: 'error' }
     } else {
+        if (inparam.billType == 4) {
+            new PlayerModel().addRound(player, inparam)
+        }
         ctx.body = { code: 0, msg: 'success', balance }
     }
 })

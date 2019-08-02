@@ -49,17 +49,14 @@ module.exports = class CronRoundModel extends BaseModel {
             KeyConditionExpression: '#type = :type AND createdAt between :createdAt0  and :createdAt1',
             ProjectionExpression: 'gameType,userId,businessKey,createdAt',
             ExpressionAttributeNames: { '#type': 'type' },
-            ExpressionAttributeValues: {
-                ':type': inparam.type,
-                ':createdAt0': inparam.beginTime,
-                ':createdAt1': inparam.endTime
-            }
+            ExpressionAttributeValues: { ':type': inparam.type, ':createdAt0': inparam.beginTime, ':createdAt1': inparam.endTime }
         }
         // 非修正情况下排除【触发成局】的游戏
         if (!inparam.isFix) {
-            query.FilterExpression = 'gameType <> :longTimeGameType1 AND gameType <> :longTimeGameType2'
-            query.ExpressionAttributeValues[':longTimeGameType1'] = 1110000 // SA捕鱼游戏排除
-            query.ExpressionAttributeValues[':longTimeGameType2'] = 1130000 // YSB体育游戏排除
+            query.FilterExpression = 'gameType <> :longTimeGameType1 AND gameType <> :longTimeGameType2 AND gameType <> :longTimeGameType3'
+            query.ExpressionAttributeValues[':longTimeGameType1'] = 1100000 // VG棋牌游戏排除
+            query.ExpressionAttributeValues[':longTimeGameType2'] = 1110000 // SA捕鱼游戏排除
+            query.ExpressionAttributeValues[':longTimeGameType3'] = 1130000 // YSB体育游戏排除
         }
         return this.query(query)
     }
