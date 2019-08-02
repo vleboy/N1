@@ -227,7 +227,7 @@ class HeraGameRecordModel extends BaseModel {
                 parentIdArr.push({ parent: playerRes.Items[0].parent, userId: playerRes.Items[0].userId, userName: playerRes.Items[0].userName })
             }
             for (let record of resArr) {
-                let anotherGameData = { ...record }
+                let anotherGameData = { ..._.omitBy(record, o => o) }
                 let gameRecord = {
                     betTime: new Date(`${record.begintime}+08:00`).getTime(),
                     createdAt: new Date(`${record.createtime}+08:00`).getTime(),
