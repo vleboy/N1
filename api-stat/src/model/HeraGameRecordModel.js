@@ -42,7 +42,7 @@ class HeraGameRecordModel extends BaseModel {
                 if (parseInt(item.gameType) > 100000) {
                     // 单条战绩
                     let betTime = item.betTime || item.createdAt
-                    let createdAt = item.createdTime || Date.now()
+                    let createdAt = item.createdTime || item.createdAt
                     let gameRecord = {
                         userId: +item.userId,
                         userName: item.userName,
