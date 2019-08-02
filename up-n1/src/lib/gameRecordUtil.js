@@ -24,7 +24,7 @@ module.exports = {
             }
             return { ...baseObj, ...getOtherObj(record) }
         })
-        page.list = page.list.filter(record => record != {})
+        page.list = page.list.filter(record => record.settleTime)
         page.pageSize = page.list.length
     },
     // 对内查询单条
