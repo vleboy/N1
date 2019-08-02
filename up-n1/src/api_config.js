@@ -19,11 +19,7 @@ const RoleCodeEnum = require('./lib/UserConsts').RoleCodeEnum
 router.post('/configNew', async function (ctx, next) {
     let inparam = ctx.request.body
     //检查参数是否合法
-    if (inparam.code == 'queue') {
-        new ConfigCheck().checkQueue(inparam)
-    } else if (inparam.code == 'bfagent') {
-        new ConfigCheck().checkBFagent(inparam)
-    } else if (inparam.code == 'mystery') {
+    if (inparam.code == 'mystery') {
         new ConfigCheck().checkMystery(inparam)
     } else if (inparam.code == 'appVersion') {
         new ConfigCheck().checkVersion(inparam)
