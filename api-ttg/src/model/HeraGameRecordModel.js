@@ -20,15 +20,16 @@ class HeraGameRecordModel extends BaseModel {
     /**
      * 单条写入注单战绩
      * @param {*} item 
+     * status==3不会提供给商户查询
      */
     writeRound(item) {
         return this.putItem({
             userId: +item.userId,
             userName: item.userName,
             betId: item.businessKey,
-            createdAt: +item.createdAt,
             betTime: +item.createdAt,
-            createdStr: moment(+item.createdAt).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
+            createdAt: Date.now(),
+            createdStr: moment(Date.now()).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
             gameId: item.gameId ? item.gameId.toString() : item.gameType.toString(),
             gameType: +item.gameType,
             parentId: item.parent,

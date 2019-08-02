@@ -152,7 +152,6 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
                     userId: player.userId,
                     userName: player.userName,
                     businessKey: inparam.businessKey,
-                    createdAt: Date.now(),
                     gameId: inparam.gameType.toString(),
                     gameType: inparam.gameType,
                     parent: player.parent,
