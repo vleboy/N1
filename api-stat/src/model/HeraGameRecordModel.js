@@ -211,7 +211,7 @@ class HeraGameRecordModel extends BaseModel {
     async getVGRecord(id = 0) {
         let res = await axios.get(`http://${config.na.ANOTHER_GAME_CENTER}/vg/betdetail/${id}`)
         let recordArr = []
-        if (res && res.length > 0) {
+        if (res.data && res.data.length > 0) {
             //玩家分组查询对应的商户id
             let groupByMap = _.groupBy(res, 'username')
             let parentIdArr = []
@@ -224,7 +224,7 @@ class HeraGameRecordModel extends BaseModel {
                 })
                 parentIdArr.push({ parent: playerRes.Items[0].parent, userId: playerRes.Items[0].userId, userName: playerRes.Items[0].userName })
             }
-            for (let record of res) {
+            for (let record of res.data) {
                 let anotherGameData = { ...record }
                 let gameRecord = {
                     betTime: new Date(`${record.begintime}+08:00`).getTime(),
@@ -243,7 +243,7 @@ class HeraGameRecordModel extends BaseModel {
             // 写入VG游戏记录
             await Promise.all(this.batchWriteRound(recordArr))
             // 返回最后一条id
-            return res[res.length - 1].id
+            return res[res.data.length - 1].id
         }
         return id
     }
