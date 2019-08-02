@@ -208,7 +208,7 @@ class HeraGameRecordModel extends BaseModel {
      * 查询VG战绩
      * @param {*} id
      */
-    async getVGRecord(id) {
+    async getVGRecord(id = 0) {
         let res = await axios.get(`http://${config.na.ANOTHER_GAME_CENTER}/vg/betdetail/${id}`)
         let recordArr = []
         if (res && res.length > 0) {
