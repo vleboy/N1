@@ -41,11 +41,14 @@ class HeraGameRecordModel extends BaseModel {
                 // 只处理第三方游戏
                 if (parseInt(item.gameType) > 100000) {
                     // 单条战绩
+                    let betTime = item.betTime || item.createdAt
+                    let createdAt = item.createdTime || Date.now()
                     let gameRecord = {
                         userId: +item.userId,
                         userName: item.userName,
                         betId: item.businessKey,
-                        betTime: +item.createdAt,
+                        betTime: +betTime,
+                        createdAt: +createdAt,
                         createdDate: moment(+item.createdAt).utcOffset(8).format('YYYY-MM-DD'),
                         gameId: item.gameId ? item.gameId.toString() : item.gameType.toString(),
                         gameType: +item.gameType,
@@ -182,7 +185,7 @@ class HeraGameRecordModel extends BaseModel {
                     }
                     let gameRecord = {
                         betTime: new Date(`${anotherGameData.GameStartTime}+08:00`).getTime(),
-                        createdAt: new Date(`${anotherGameData.GameEndTime}+08:00`).getTime(),
+                        createdTime: new Date(`${anotherGameData.GameEndTime}+08:00`).getTime(),
                         gameId: '1070001',
                         gameType: 1070000,
                         anotherGameData
@@ -230,7 +233,7 @@ class HeraGameRecordModel extends BaseModel {
                 let anotherGameData = { ..._.omitBy(record, o => o == '') }
                 let gameRecord = {
                     betTime: new Date(`${record.begintime}+08:00`).getTime(),
-                    createdAt: new Date(`${record.createtime}+08:00`).getTime(),
+                    createdTime: new Date(`${record.createtime}+08:00`).getTime(),
                     gameId: '1100001',
                     gameType: 1100000,
                     anotherGameData
@@ -239,7 +242,7 @@ class HeraGameRecordModel extends BaseModel {
                 gameRecord.parent = item.parent
                 gameRecord.userId = item.userId
                 gameRecord.userName = item.userName
-                gameRecord.businessKey = `BVG_${item.userId}_${item.id}`
+                gameRecord.businessKey = `BVG_${item.userId}_${record.id}`
                 recordArr.push(gameRecord)
             }
             // 写入VG游戏记录
