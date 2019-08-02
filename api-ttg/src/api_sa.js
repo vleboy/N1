@@ -183,7 +183,7 @@ router.post('/sa/PlaceBetCancel', async (ctx, next) => {
     ctx.body = `<?xml version="1.0" encoding="utf-8"?><RequestResponse><username>${inparam.username}</username><currency>CNY</currency><amount>${amtAfter}</amount><error>0</error></RequestResponse>`
     // 捕鱼游戏新增注单
     if (inparam.gamecode == 'FishermenGold') {
-        new PlayerModel().addRound(player, inparam)
+        new PlayerModel().addRound(inparam)
     }
 })
 
@@ -213,7 +213,7 @@ router.post('/sa/PlayerWin', async (ctx, next) => {
     ctx.body = `<?xml version="1.0" encoding="utf-8"?><RequestResponse><username>${inparam.username}</username><currency>CNY</currency><amount>${amtAfter}</amount><error>0</error></RequestResponse>`
     // 捕鱼游戏新增注单
     if (inparam.gamecode == 'FishermenGold') {
-        new PlayerModel().addRound(player, inparam)
+        new PlayerModel().addRound(inparam)
     }
 })
 
@@ -239,7 +239,7 @@ router.post('/sa/PlayerLost', async (ctx, next) => {
     inparam.anotherGameData = JSON.stringify(inparam)                    // 原始游戏信息
     if (inparam.gamecode == 'FishermenGold') {
         inparam.gameType = config.sa.fishGameType
-        new PlayerModel().addRound(player, inparam)
+        new PlayerModel().addRound(inparam)
     }
 })
 

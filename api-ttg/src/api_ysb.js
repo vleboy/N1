@@ -180,7 +180,7 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
                     S = 1013
                     ED = '返奖已存在'
                 } else {
-                    new PlayerModel().addRound(player, inparam)
+                    new PlayerModel().addRound(inparam)
                 }
             }
             ctx.body = getYSBResponse(action, { TRX, UN: `NAPL_${UN}`, CC, BAL, S, ED })

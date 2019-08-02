@@ -127,6 +127,10 @@ module.exports = class BillCheck {
         inparam.startTime = +inparam.startTime
         inparam.endTime = +inparam.endTime
         inparam.managerId = +inparam.managerId
+        // 默认按照派彩时间查询
+        if (inparam.queryType != 0) {
+            inparam.queryType = 1
+        }
     }
     //检查商户对玩家操作的参数校验
     checkMerchantPlayer(inparam) {

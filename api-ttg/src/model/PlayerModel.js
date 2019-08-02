@@ -225,10 +225,9 @@ module.exports = class PlayerModel extends BaseModel {
 
     /**
      * 生成新注单
-     * @param {*} player 
      * @param {*} inparam 
      */
-    addRound(player, inparam) {
+    addRound(inparam) {
         return new Promise(async (resolve, reject) => {
             // 查询BK对应的流水
             let bills = await new PlayerBillDetailModel().queryBk({ bk: inparam.businessKey })
@@ -267,12 +266,11 @@ module.exports = class PlayerModel extends BaseModel {
                     gameType: +bet.gameType,
                     gameId: bet.gameId ? +bet.gameId : +bet.gameType,
                     roundId: bet.roundId,
-                    content: content
+                    content
                 }
                 // 写入局表和战绩表
                 await new StatRoundModel().putItem(round)
                 await new HeraGameRecordModel().writeRound(round)
-                console.info(`【${round.businessKey}】注单已生成`)
                 // YSB体育游戏需要通知N1点数进度
                 if (round.gameType == '1130000') {
                     axios.post(config.na.fixPlayerRoundDayUrl, { userName: round.userName, createdDate: round.createdDate, parent: round.parent, betAmount: round.betAmount, winloseAmount: round.winloseAmount, mixAmount: round.mixAmount })

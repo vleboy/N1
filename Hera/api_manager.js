@@ -39,17 +39,11 @@ module.exports.managerGameRecord = async function (e, c, cb) {
         }
         // 按照创建时间查询
         if (inparam.queryType == 1) {
-            keys = {
-                parentId: null,
-                createdAt: { "$range": [+inparam.startTime, +inparam.endTime] }
-            }
+            keys = { parentId: null, createdAt: { "$range": [+inparam.startTime, +inparam.endTime] } }
         }
         // 按照下注时间查询
         else {
-            keys = {
-                parentId: null,
-                betTime: { "$range": [+inparam.startTime, +inparam.endTime] }
-            }
+            keys = { parentId: null, betTime: { "$range": [+inparam.startTime, +inparam.endTime] } }
         }
         //5,查询数据
         let promiseArr = []
