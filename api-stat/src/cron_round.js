@@ -56,7 +56,7 @@ cron.schedule('0 0 18 * * *', async () => {
 })
 
 // 定时拉取中心钱包游戏记录(每5秒拉取一次)
-cron.schedule('0 0 */5 * * *', async () => {
+cron.schedule('*/5 * * * * *', async () => {
     console.time(`游戏记录拉取用时`)
     const queryRet = await new ConfigModel().queryLastTime({ code: 'roundLast' })
     queryRet.lastVGId = await new HeraGameRecordModel().getVGRecord(queryRet.lastVGId)
