@@ -1,4 +1,5 @@
 const { Tables, RoleCodeEnum } = require('../lib/Model')
+const PlayerModel = require('./PlayerModel')
 const BaseModel = require('./BaseModel')
 const _ = require('lodash')
 const moment = require('moment')
@@ -152,7 +153,7 @@ class HeraGameRecordModel extends BaseModel {
                 let groupByMap = _.groupBy(listMap.Accounts)
                 let parentIdArr = []
                 for (let kyUserId in groupByMap) {
-                    let playerRes = await this.query({
+                    let playerRes = await new PlayerModel().query({
                         IndexName: 'userIdIndex',
                         KeyConditionExpression: 'userId = :userId',
                         ProjectionExpression: 'parent,userId,userName',
@@ -215,10 +216,9 @@ class HeraGameRecordModel extends BaseModel {
         if (resArr && resArr.length > 0) {
             //玩家分组查询对应的商户id
             let groupByMap = _.groupBy(resArr, 'username')
-            console.log(groupByMap)
             let parentIdArr = []
             for (let userId in groupByMap) {
-                let playerRes = await this.query({
+                let playerRes = await new PlayerModel().query({
                     IndexName: 'userIdIndex',
                     KeyConditionExpression: 'userId = :userId',
                     ProjectionExpression: 'parent,userId,userName',
