@@ -38,18 +38,17 @@ class HeraGameRecordModel extends BaseModel {
             let batch = { RequestItems: {} }
             batch.RequestItems[Tables.HeraGameRecord] = []
             for (let item of chunk) {
-                // 只处理第三方游戏
+                // 只有第三方游戏会延迟
                 if (parseInt(item.gameType) > 100000) {
-                    // 单条战绩
-                    let betTime = item.betTime || item.createdAt
-                    let createdAt = item.createdTime || item.createdAt
+                    let betTime = item.createdAt
+                    let createdAt = item.retAt || item.createdAt
                     let gameRecord = {
                         userId: +item.userId,
                         userName: item.userName,
                         betId: item.businessKey,
-                        betTime: +betTime,
-                        createdAt: +createdAt,
-                        createdDate: moment(+createdAt).utcOffset(8).format('YYYY-MM-DD'),
+                        betTime,
+                        createdAt,
+                        createdDate: moment(createdAt).utcOffset(8).format('YYYY-MM-DD'),
                         gameId: item.gameId ? item.gameId.toString() : item.gameType.toString(),
                         gameType: +item.gameType,
                         parentId: item.parent,
@@ -184,8 +183,8 @@ class HeraGameRecordModel extends BaseModel {
                         CardValue: listMap.CardValue[i]
                     }
                     let gameRecord = {
-                        betTime: new Date(`${anotherGameData.GameStartTime}+08:00`).getTime(),
-                        createdTime: new Date(`${anotherGameData.GameEndTime}+08:00`).getTime(),
+                        createdAt: new Date(`${anotherGameData.GameStartTime}+08:00`).getTime(),
+                        retAt: new Date(`${anotherGameData.GameEndTime}+08:00`).getTime(),
                         gameId: '1070001',
                         gameType: 1070000,
                         anotherGameData
@@ -232,8 +231,8 @@ class HeraGameRecordModel extends BaseModel {
             for (let record of resArr) {
                 let anotherGameData = { ..._.omitBy(record, o => o == '') }
                 let gameRecord = {
-                    betTime: new Date(`${record.begintime}+08:00`).getTime(),
-                    createdTime: new Date(`${record.createtime}+08:00`).getTime(),
+                    createdAt: new Date(`${record.begintime}+08:00`).getTime(),
+                    retAt: new Date(`${record.createtime}+08:00`).getTime(),
                     gameId: '1100001',
                     gameType: 1100000,
                     anotherGameData

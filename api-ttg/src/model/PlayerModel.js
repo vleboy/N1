@@ -236,6 +236,7 @@ module.exports = class PlayerModel extends BaseModel {
                 let bet = bets[0]                                                                   // 第一条下注
                 let ret = bills.Items.filter(i => i.type == 4 || i.type == 5)                       // 所有返奖
                 let content = ret ? { bet: bets, ret } : { bet: bets }
+                let lastRetItem = _.maxBy(bills.Items, 'createdAt')
                 // 生成注单
                 let betAmount = 0                                                                   // 下注金额
                 for (let item of bets) {
@@ -255,6 +256,7 @@ module.exports = class PlayerModel extends BaseModel {
                     createdAt: bet.createdAt,
                     createdDate: +moment(bet.createdAt).utcOffset(8).format('YYYYMMDD'),
                     createdStr: bet.createdStr,
+                    retAt: lastRetItem.createdAt,
                     betCount: bets.length,
                     originalAmount: bet.originalAmount,
                     betAmount: betAmount,

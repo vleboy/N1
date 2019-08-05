@@ -79,8 +79,9 @@ module.exports = class CronRoundModel extends BaseModel {
                 let anotherGameData = { bet: [], ret: [] }  //第三方游戏数据
                 // 查询相同BK的所有流水
                 const bkRet = await this.queryBk({ bk })
-                // 获取单局最早的下注时间
+                // 获取单局最早的下注时间和最晚的派彩时间
                 let firstBetItem = _.minBy(bkRet.Items, 'createdAt')
+                let lastRetItem = _.maxBy(bkRet.Items, 'createdAt')
                 let betTimeStart = firstBetItem.createdAt
                 let originalAmount = firstBetItem.originalAmount
                 let createdStr = moment(betTimeStart).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')
@@ -137,6 +138,7 @@ module.exports = class CronRoundModel extends BaseModel {
                     createdAt: betTimeStart,
                     createdDate: createdDate,
                     createdStr: createdStr,
+                    retAt: lastRetItem.createdAt,
                     betCount: betCount,
                     originalAmount: originalAmount,
                     betAmount: betAmount,

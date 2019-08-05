@@ -157,7 +157,8 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
                     parent: player.parent,
                     status: 3,
                     content: { bet: [], ret: [] },
-                    anotherGameData: inparam.anotherGameData
+                    anotherGameData: inparam.anotherGameData,
+                    createdAt: Date.now()
                 })
             }
             ctx.body = getYSBResponse(action, { TRX, UN: `NAPL_${UN}`, CC, BAL, S })
