@@ -23,6 +23,9 @@ cron.schedule('0 */5 * * * *', async () => {
 })
 
 // 定时汇总局表(每3分钟统计一次)
+// 流水汇总成局
+// 第三方游戏的流水汇总成局后，还要重新写入游戏记录
+// KY，VG棋牌只有上下分的流水被汇总成局
 cron.schedule('0 */3 * * * *', async () => {
     console.time(`局表统计用时`)
     let inparam = {}
@@ -64,7 +67,7 @@ cron.schedule('*/5 * * * * *', async () => {
     // console.timeEnd(`游戏记录拉取用时`)
 })
 
-// 定时修正玩家状态在游戏中但12小时内无流水
+// 定时离线连续12小时无流水的玩家
 cron.schedule('0 */5 * * * *', async () => {
     console.time(`定时离线玩家用时`)
     // 查询出所有在线的玩家
