@@ -43,8 +43,7 @@ router.get('/dj/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
     }
     // 登录游戏
     let res = await postDJ('login', { account: player.userId, pwd: '123456', language: "0", source })
-    console.log(res)
-    ctx.redirect(res.retobj.url)
+    ctx.redirect(res.data.retobj.url)
 })
 
 router.post('/dj/query_user_credit', async (ctx, next) => {
