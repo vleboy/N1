@@ -39,7 +39,8 @@
             "/png/*",
             "/haba/*",
             "/ky/*",
-            "/vg/*"
+            "/vg/*",
+            "/dj/*"
         ]
     },
     "na": {
@@ -65,7 +66,8 @@
         "1040000": "HABA",
         "1070000": "KY",
         "1090000": "PG",
-        "1100000": "VG"
+        "1100000": "VG",
+        "1170000": "DJ"
     },
     "ttg": {
         "gameType": "1010000",
@@ -168,8 +170,8 @@
         "recordUrl": "https://ew68.cn/webapi/gamerecordid.aspx"
     },
     "dj": {
-        "gameType": "",
-        "gameId": "",
+        "gameType": "1170000",
+        "gameId": "1170001",
         "xmyheader": "",
         "xcode": "",
         "md5key": "",
