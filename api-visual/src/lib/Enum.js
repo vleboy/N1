@@ -23,6 +23,7 @@ const GameTypeEnum = {
     '1140000': { type: 2, code: '1140000', name: 'RTG电子游戏', company: 'RTG' },
     '1150000': { type: 2, code: '1150000', name: 'DT电子游戏', company: 'DT' },
     '1160000': { type: 2, code: '1160000', name: 'PP电子游戏', company: 'PP' },
+    '1170000': { type: 5, code: '1170000', name: 'DJ电竞游戏', company: 'DJ' },
 }
 
 

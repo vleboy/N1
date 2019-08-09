@@ -165,7 +165,15 @@
         "privatekey": "Dwuuh7#dwz2*89j",
         "apiUrl": "https://ew68.cn/webapi/interface.aspx",
         "tryUrl": "https://ew68.cn/webapi/trygame.aspx",
-        "recordUrl":"https://ew68.cn/webapi/gamerecordid.aspx"
+        "recordUrl": "https://ew68.cn/webapi/gamerecordid.aspx"
+    },
+    "dj": {
+        "gameType": "",
+        "gameId": "",
+        "xmyheader": "",
+        "xcode": "",
+        "md5key": "",
+        "server": ""
     },
     "dt": {
         "gameType": "1150000",

@@ -23,6 +23,7 @@ const GameTypeEnum = {
     '1140000': { type: 2, code: '1140000', name: 'RTG电子游戏', company: 'RTG' },
     '1150000': { type: 2, code: '1150000', name: 'DT电子游戏', company: 'DT' },
     '1160000': { type: 2, code: '1160000', name: 'PP电子游戏', company: 'PP' },
+    '1170000': { type: 5, code: '1170000', name: 'DJ电竞游戏', company: 'DJ' },
 }
 const GameListEnum = {
     "NA": [
@@ -77,8 +78,11 @@ const GameListEnum = {
     "PP": [
         { company: 'PP', code: '1160000', name: 'PP电子游戏', type: 2 },
     ],
-    "VG":[
+    "VG": [
         { company: 'VG', code: '1100000', name: 'VG棋牌游戏', type: 4 },
+    ],
+    "DJ": [
+        { company: 'DJ', code: '1170000', name: 'DJ电竞游戏', type: 5 },
     ]
 }
 /**
@@ -98,7 +102,8 @@ const CompanyEnum = [
     { company: 'SB', companyName: 'SB' },
     { company: 'TTG', companyName: 'TTG' },
     { company: 'YSB', companyName: 'YSB' },
-    { company: 'VG', companyName: 'VG' }
+    { company: 'VG', companyName: 'VG' },
+    { company: 'DJ', companyName: 'DJ' }
 ]
 
 

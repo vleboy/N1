@@ -167,6 +167,14 @@
         "tryUrl": "https://ew68.cn/webapi/trygame.aspx",
         "recordUrl":"https://ew68.cn/webapi/gamerecordid.aspx"
     },
+    "dj": {
+        "gameType": "",
+        "gameId": "",
+        "xmyheader": "",
+        "xcode": "",
+        "md5key": "",
+        "server": ""
+    },
     "dt": {
         "gameType": "1150000",
         "gameKey": "ae73d261-333c-479f-b945-88cabf6c801f",
