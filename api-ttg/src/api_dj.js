@@ -33,7 +33,7 @@ router.get('/dj/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
     // 检查玩家注册
     let player = await new PlayerModel().getPlayerById(inparam.userId)
     if (!player.regMap || !player.regMap.dj) {
-        res = await postDJ('create_user', { account: player.userId, userName: player.userId, pwd: '123456' })
+        let res = await postDJ('create_user', { account: player.userId, userName: player.userId, pwd: '123456' })
         if (res.data.code == 1 || res.data.code == -4) {
             player.regMap ? player.regMap.dj = 1 : player.regMap = { dj: 1 }
             new PlayerModel().updateRegMap(player)
