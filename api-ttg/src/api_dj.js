@@ -52,7 +52,7 @@ router.post('/dj/query_user_credit', async (ctx, next) => {
     if (!player || _.isEmpty(player)) {
         ctx.body = { code: -2, errmsg: "玩家不存在" }
     } else {
-        ctx.body = { code: 1, errmsg: "", retobj: { account: player.userId, credit: player.balance } }
+        ctx.body = { code: 1, errmsg: "", retobj: { account: player.userId.toString(), credit: player.balance.toString() } }
     }
 })
 
@@ -72,7 +72,7 @@ router.post('/dj/bet', async (ctx, next) => {
     if (amtAfter == 'err') {
         ctx.body = { code: -3, errmsg: "投注失败" }
     } else {
-        ctx.body = { code: 1, errmsg: "", retobj: { transNo: inparam.sntemp, credit: amtAfter } }
+        ctx.body = { code: 1, errmsg: "", retobj: { transNo: inparam.sntemp, credit: amtAfter.toString() } }
     }
 })
 
@@ -91,7 +91,7 @@ router.post('/dj/refund', async (ctx, next) => {
     inparam.sourceIP = ipMap[player.userId]
     inparam.anotherGameData = JSON.stringify(inparam)
     const amtAfter = await new PlayerModel().updatebalance(player, inparam)
-    ctx.body = { code: 1, errmsg: "", retobj: { transNo: inparam.sn, credit: amtAfter } }
+    ctx.body = { code: 1, errmsg: "", retobj: { transNo: inparam.sn, credit: amtAfter.toString() } }
     new PlayerModel().addRound(inparam)
 })
 
@@ -109,7 +109,7 @@ router.post('/dj/prize', async (ctx, next) => {
     inparam.sourceIP = ipMap[player.userId]
     inparam.anotherGameData = JSON.stringify(inparam)
     const amtAfter = await new PlayerModel().updatebalance(player, inparam)
-    ctx.body = { code: 1, errmsg: "", retobj: { transNo: inparam.sn, credit: amtAfter } }
+    ctx.body = { code: 1, errmsg: "", retobj: { transNo: inparam.sn, credit: amtAfter.toString() } }
     new PlayerModel().addRound(inparam)
 })
 
