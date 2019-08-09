@@ -53,10 +53,11 @@ module.exports = class CronRoundModel extends BaseModel {
         }
         // 非修正情况下排除【触发成局】的游戏
         if (!inparam.isFix) {
-            query.FilterExpression = 'gameType <> :longTimeGameType1 AND gameType <> :longTimeGameType2 AND gameType <> :longTimeGameType3'
+            query.FilterExpression = 'gameType <> :longTimeGameType1 AND gameType <> :longTimeGameType2 AND gameType <> :longTimeGameType3 AND gameType <> :longTimeGameType4'
             query.ExpressionAttributeValues[':longTimeGameType1'] = 1100000 // VG棋牌游戏排除
             query.ExpressionAttributeValues[':longTimeGameType2'] = 1110000 // SA捕鱼游戏排除
             query.ExpressionAttributeValues[':longTimeGameType3'] = 1130000 // YSB体育游戏排除
+            query.ExpressionAttributeValues[':longTimeGameType4'] = 1170000 // DJ电竞游戏排除
         }
         return this.query(query)
     }

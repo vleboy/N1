@@ -88,6 +88,7 @@ router.post('/dj/refund', async (ctx, next) => {
     inparam.anotherGameData = JSON.stringify(inparam)
     const amtAfter = await new PlayerModel().updatebalance(player, inparam)
     ctx.body = { code: 1, errmsg: "", retobj: { transNo: inparam.sn, credit: amtAfter } }
+    new PlayerModel().addRound(inparam)
 })
 
 router.post('/dj/prize', async (ctx, next) => {
@@ -105,6 +106,7 @@ router.post('/dj/prize', async (ctx, next) => {
     inparam.anotherGameData = JSON.stringify(inparam)
     const amtAfter = await new PlayerModel().updatebalance(player, inparam)
     ctx.body = { code: 1, errmsg: "", retobj: { transNo: inparam.sn, credit: amtAfter } }
+    new PlayerModel().addRound(inparam)
 })
 
 // 私有方法，请求DJ接口
