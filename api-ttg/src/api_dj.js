@@ -9,7 +9,6 @@ const axios = require('axios')
 const CryptoJS = require("crypto-js")
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
-const LogModel = require('./model/LogModel')
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
 const ipMap = {}
