@@ -24,6 +24,7 @@ const ipMap = {}
 router.get('/dj/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
     ipMap[ctx.params.userId] = ctx.request.ip
     const inparam = ctx.params
+    let source = ctx.request.query.lobbyType || '1'
     // 请求N1服务器是否允许玩家进入游戏
     const nares = await axios.post(config.na.joingameurl, { userId: inparam.userId, gameId: config.vg.gameType, sid: config.vg.gameId, token: inparam.token })
     if (nares.data.code != 0) {
@@ -40,6 +41,10 @@ router.get('/dj/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
             return ctx.body = res.data
         }
     }
+    // 登录游戏
+    let res = await postDJ('login', { account: player.userId, pwd: '123456', language: "0", source })
+    console.log(res)
+    ctx.redirect(res.retobj.url)
 })
 
 router.post('/dj/query_user_credit', async (ctx, next) => {

@@ -172,10 +172,10 @@
     "dj": {
         "gameType": "1170000",
         "gameId": "1170001",
-        "xmyheader": "",
-        "xcode": "",
-        "md5key": "",
-        "server": ""
+        "xmyheader": "ABCDE",
+        "xcode": "400005",
+        "md5key": "U2FsdGVkX1+0YS6mAkHyC+DOGGGFiln7YWsuvts=",
+        "server": "http://35.247.175.189:8080"
     },
     "dt": {
         "gameType": "1150000",
