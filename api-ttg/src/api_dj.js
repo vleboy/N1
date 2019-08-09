@@ -31,10 +31,10 @@ router.get('/dj/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
     }
     // 检查玩家注册
     let player = await new PlayerModel().getPlayerById(inparam.userId)
-    if (!player.regMap || !player.regMap.yibo) {
-        res = await postYIBO('create_user', { account: player.userId, userName: player.userId, pwd: '123456' })
+    if (!player.regMap || !player.regMap.dj) {
+        res = await postDJ('create_user', { account: player.userId, userName: player.userId, pwd: '123456' })
         if (res.data.code == 1 || res.data.code == -4) {
-            player.regMap ? player.regMap.yibo = 1 : player.regMap = { yibo: 1 }
+            player.regMap ? player.regMap.dj = 1 : player.regMap = { dj: 1 }
             new PlayerModel().updateRegMap(player)
         } else {
             return ctx.body = res.data
@@ -107,13 +107,13 @@ router.post('/dj/prize', async (ctx, next) => {
     ctx.body = { code: 1, errmsg: "", retobj: { transNo: inparam.sn, credit: amtAfter } }
 })
 
-// 私有方法，请求YIBO接口
-function postYIBO(method, inparam) {
-    return axios.post(`${config.yibo.server}/third/${method}`, inparam, {
+// 私有方法，请求DJ接口
+function postDJ(method, inparam) {
+    return axios.post(`${config.dj.server}/third/${method}`, inparam, {
         headers: {
-            'X-MyHeader-api': config.yibo.xmyheader,
-            'X-code': config.yibo.xcode,
-            'X-signature': CryptoJS.MD5(`${config.yibo.xcode}${JSON.stringify(inparam)}${config.vg.md5key}`).toString(CryptoJS.enc.Hex).toUpperCase()
+            'X-MyHeader-api': config.dj.xmyheader,
+            'X-code': config.dj.xcode,
+            'X-signature': CryptoJS.MD5(`${config.dj.xcode}${JSON.stringify(inparam)}${config.dj.md5key}`).toString(CryptoJS.enc.Hex).toUpperCase()
         }
     })
 }
