@@ -56,6 +56,7 @@ router.post('/dj/query_user_credit', async (ctx, next) => {
 })
 
 router.post('/dj/bet', async (ctx, next) => {
+    const inparam = ctx.request.body
     const player = await new PlayerModel().getPlayerById(inparam.account)
     if (!player || _.isEmpty(player)) {
         return ctx.body = { code: -2, errmsg: "玩家不存在" }
@@ -76,6 +77,7 @@ router.post('/dj/bet', async (ctx, next) => {
 })
 
 router.post('/dj/refund', async (ctx, next) => {
+    const inparam = ctx.request.body
     const player = await new PlayerModel().getPlayerById(inparam.account)
     if (!player || _.isEmpty(player)) {
         return ctx.body = { code: -2, errmsg: "玩家不存在" }
@@ -95,6 +97,7 @@ router.post('/dj/refund', async (ctx, next) => {
 })
 
 router.post('/dj/prize', async (ctx, next) => {
+    const inparam = ctx.request.body
     const player = await new PlayerModel().getPlayerById(inparam.account)
     if (!player || _.isEmpty(player)) {
         return ctx.body = { code: -2, errmsg: "玩家不存在" }
