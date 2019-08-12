@@ -25,7 +25,7 @@ router.get('/dj/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
     const inparam = ctx.params
     let source = ctx.request.query.lobbyType || '1'
     // 请求N1服务器是否允许玩家进入游戏
-    const nares = await axios.post(config.na.joingameurl, { userId: inparam.userId, gameId: config.vg.gameType, sid: config.vg.gameId, token: inparam.token })
+    const nares = await axios.post(config.na.joingameurl, { userId: inparam.userId, gameId: config.dj.gameType, sid: config.dj.gameId, token: inparam.token })
     if (nares.data.code != 0) {
         return ctx.body = { code: nares.data.code, msg: nares.data.msg }
     }
