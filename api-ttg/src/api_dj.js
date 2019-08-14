@@ -69,7 +69,6 @@ router.post('/dj/bet', async (ctx, next) => {
     inparam.sourceIP = ipMap[player.userId]
     inparam.anotherGameData = JSON.stringify(inparam)
     const amtAfter = await new PlayerModel().updatebalance(player, inparam)
-    await waitASecond()
     if (amtAfter == 'err') {
         ctx.body = { code: -3, errmsg: "投注失败" }
     } else {
@@ -112,6 +111,7 @@ router.post('/dj/prize', async (ctx, next) => {
     inparam.sourceIP = ipMap[player.userId]
     inparam.anotherGameData = JSON.stringify(inparam)
     const amtAfter = await new PlayerModel().updatebalance(player, inparam)
+    await waitASecond()
     ctx.body = { code: 1, errmsg: "", retobj: { transNo: inparam.sntemp, credit: amtAfter.toString() } }
     new PlayerModel().addRound(inparam)
 })
