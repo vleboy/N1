@@ -104,6 +104,7 @@ router.post('/dj/prize', async (ctx, next) => {
     }
     // 计算玩家实时余额和更新
     inparam.gameType = config.dj.gameType
+    inparam.billType = 4
     inparam.amt = parseFloat(inparam.prizeAmount)
     inparam.businessKey = `BDJ_${player.userId}_${inparam.orderNo}`
     inparam.txnidTemp = `${player.userId}_WIN_${inparam.orderNo}`
