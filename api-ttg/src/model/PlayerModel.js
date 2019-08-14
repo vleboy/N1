@@ -216,7 +216,7 @@ module.exports = class PlayerModel extends BaseModel {
         billItem.balance = parseFloat((res.Attributes.balance + amt).toFixed(2)) // 玩家余额
         await new PlayerBillDetailModel().putItem(billItem)
         // 6，非延时长的游戏,非下注流水检查是否超时
-        if ((naGameType != config.sa.fishGameType && naGameType != config.ysb.gameType && isCheckRet) || isCheckKYRet) {
+        if ((naGameType != config.sa.fishGameType && naGameType != config.ysb.gameType && naGameType != config.dj.gameType && naGameType != config.vg.gameType && isCheckRet) || isCheckKYRet) {
             new PlayerBillDetailModel().checkExpire(bkBet, billItem)
         }
         console.timeEnd(`${now}单笔流水处理耗时`)
