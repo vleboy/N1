@@ -69,6 +69,7 @@ router.post('/dj/bet', async (ctx, next) => {
     inparam.sourceIP = ipMap[player.userId]
     inparam.anotherGameData = JSON.stringify(inparam)
     const amtAfter = await new PlayerModel().updatebalance(player, inparam)
+    await waitASecond()
     if (amtAfter == 'err') {
         ctx.body = { code: -3, errmsg: "投注失败" }
     } else {
@@ -123,6 +124,15 @@ function postDJ(method, inparam) {
             'X-code': config.dj.xcode,
             'X-signature': CryptoJS.MD5(`${config.dj.xcode}${JSON.stringify(inparam)}${config.dj.md5key}`).toString(CryptoJS.enc.Hex).toUpperCase()
         }
+    })
+}
+
+// 私有方法：等待
+function waitASecond() {
+    return new Promise((reslove, reject) => {
+        setTimeout(function () {
+            reslove('Y')
+        }, 100000);
     })
 }
 
