@@ -223,10 +223,10 @@ async function transferNA(inparam, cb) {
         return ResFail(cb, { msg: '商家暂无此款游戏' }, 11006)
     }
     //查询是否已有相同成功流水
-    let detailInfo = await new SYSTransferModel().getBkSN(inparam)
-    if (!_.isEmpty(detailInfo)) {
-        return ResOK(cb, { msg: `重复流水`, balance: detailInfo.balance }, 0)
-    }
+    // let detailInfo = await new SYSTransferModel().getBkSN(inparam)
+    // if (!_.isEmpty(detailInfo)) {
+    //     return ResOK(cb, { msg: `重复流水`, balance: detailInfo.balance }, 0)
+    // }
     //构造请求参数
     let data = {
         businessKey: inparam.businessKey,
