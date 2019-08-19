@@ -379,6 +379,9 @@ resources:
             AttributeName: userId
             AttributeType: S
           -
+            AttributeName: status
+            AttributeType: S
+          -
             AttributeName: createdAt
             AttributeType: N
         KeySchema:
