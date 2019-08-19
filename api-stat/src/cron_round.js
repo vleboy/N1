@@ -95,9 +95,9 @@ cron.schedule('0 */5 * * * *', async () => {
 })
 
 // 定时重推免转(每10秒重推一次)
-cron.schedule('*/10 * * * * *', async () => {
-    await new SysTransferModel().repush()
-})
+// cron.schedule('*/10 * * * * *', async () => {
+//     await new SysTransferModel().repush()
+// })
 
 // 周一特殊处理
 function mondayProcess(inparam = {}) {
