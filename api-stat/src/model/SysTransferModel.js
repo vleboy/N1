@@ -77,7 +77,7 @@ class SysTransferModel extends BaseModel {
             ExpressionAttributeNames: { '#status': 'status' },
             ExpressionAttributeValues: { ':status': 'E', }
         }))
-        // 所有返奖/退款的失败记录
+        // 所有返还的失败记录
         promiseArr.push(this.query({
             IndexName: 'StatusIndex',
             KeyConditionExpression: '#status = :status AND createdAt between :createdAt0 and :createdAt1',
@@ -92,19 +92,19 @@ class SysTransferModel extends BaseModel {
         }))
         let resArr = await Promise.all(promiseArr)
         let repushArr = resArr[0].Items.concat(resArr[1].Items)
+        // 重推所有超时和返还失败记录
         for (let record of repushArr) {
             try {
                 let platRes = await axios.post(record.transferURL, record.repush, { timeout: 10 * 1000 })
                 if (platRes.data.code == 0 && !isNaN(parseFloat(platRes.data.balance))) {
                     data.status = 'Y'
-                    data.balance = parseFloat(platRes.data.balance.toFixed(2))
                     await this.putItem(data)
                 } else {
                     data.status = 'N'
-                    data.errorMsg = JSON.stringify(platRes.data)
                     await this.putItem(data)
                 }
             } catch (error) {
+                console.error('自动重推超时')
             }
         }
     }
