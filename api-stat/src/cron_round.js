@@ -10,6 +10,7 @@ const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
 const HeraGameRecordModel = require('./model/HeraGameRecordModel')
 const ConfigModel = require('./model/ConfigModel')
 const CronRoundModel = require('./model/CronRoundModel')
+const SysTransferModel = require('./model/SysTransferModel')
 
 // 定时检查日志和修正数据（每5分钟检查一次）
 cron.schedule('0 */5 * * * *', async () => {
@@ -93,6 +94,10 @@ cron.schedule('0 */5 * * * *', async () => {
     console.timeEnd(`定时离线玩家用时`)
 })
 
+// 定时重推免转(每10秒重推一次)
+cron.schedule('*/10 * * * * *', async () => {
+    await new SysTransferModel().repush()
+})
 
 // 周一特殊处理
 function mondayProcess(inparam = {}) {
