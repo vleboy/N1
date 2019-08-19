@@ -206,7 +206,6 @@ async function transferAuth(inparam, cb) {
 
 //第三方 接入na游戏 内部方法(bet/win/refund)
 async function transferNA(inparam, cb) {
-    return ResOK(cb, { msg: 'Y', balance: O }, 0)
     if (inparam.exit) {
         return ResOK(cb, { msg: '退出成功' }, 0)
     }
