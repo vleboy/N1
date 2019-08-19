@@ -94,6 +94,7 @@ class SysTransferModel extends BaseModel {
         let repushArr = resArr[0].Items.concat(resArr[1].Items)
         // 重推所有超时和返还失败记录
         for (let record of repushArr) {
+            console.log(`免转重推数量：${repushArr.length}`)
             try {
                 let platRes = await axios.post(record.transferURL, record.repush, { timeout: 10 * 1000 })
                 if (platRes.data.code == 0 && !isNaN(parseFloat(platRes.data.balance))) {
