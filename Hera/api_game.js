@@ -119,7 +119,7 @@ module.exports.postTransfer = async function (e, c, cb) {
         console.log(e.body)
         const inparam = JSONParser(e.body)
         if (inparam.plat && inparam.plat != 'NA') {
-            return transferNA(inparam, cb)        // 是否进入免转流程
+            return await transferNA(inparam, cb)        // 是否进入免转流程
         }
         //2,查询玩家
         const playerModel = new PlayerModel()
@@ -206,6 +206,7 @@ async function transferAuth(inparam, cb) {
 
 //第三方 接入na游戏 内部方法(bet/win/refund)
 async function transferNA(inparam, cb) {
+    return ResOK(cb, { msg: `操作成功`, balance: 0 }, 0)
     if (inparam.exit) {
         return ResOK(cb, { msg: '退出成功' }, 0)
     }
