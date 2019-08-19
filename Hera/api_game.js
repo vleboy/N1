@@ -273,7 +273,7 @@ async function transferNA(inparam, cb) {
             item.errorMsg = platRes.data.msg
             item.transferURL = userInfo.transferURL
             item.repush = data
-            if (platRes.data.msg != '玩家不存在') {
+            if (platRes.data.code == -1) {
                 await new SYSTransferModel().putItem(item)
             }
             return ResFail(cb, { msg: platRes.data.msg, balance: +platRes.data.balance }, platRes.data.code)
