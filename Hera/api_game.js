@@ -193,8 +193,8 @@ async function transferAuth(inparam, cb) {
     try {
         //请求第三方验证
         let platAuth = await axios.post(userInfo.transferURL, data, { timeout: 10 * 1000 })
-        if (platAuth.data.code == 0 && platAuth.data.userNick && !isNaN(parseFloat(platAuth.data.balance))) {
-            return ResOK(cb, { msg: '操作成功', balance: parseFloat(platAuth.data.balance.toFixed(2)), nickname: platAuth.data.userNick, userId: inparam.userId }, 0)
+        if (platAuth.data.code == 0 && platAuth.data.userNick) {
+            return ResOK(cb, { msg: '操作成功', balance: +platAuth.data.balance, nickname: platAuth.data.userNick, userId: inparam.userId }, 0)
         } else {
             return ResFail(cb, { msg: platAuth.data.msg }, platAuth.data.code)
         }
@@ -241,47 +241,48 @@ async function transferNA(inparam, cb) {
     } else if (inparam.billType == 4) {
         data.method = 'win'
         data.amount = Math.abs(inparam.amt)
+        data.betsn = inparam.betsn
     } else if (inparam.billType == 5) {
         data.method = 'refund'
         data.amount = Math.abs(inparam.amt)
+        data.betsn = inparam.betsn
     }
     //签名
     data.sign = CryptoJS.SHA1(`${data.amount}${data.businessKey}${data.gameId}${data.method}${data.sn}${data.timestamp}${data.userId}${userInfo.apiKey}`).toString(CryptoJS.enc.Hex)
+    //构造写入流水数据
+    let item = { ...data }
+    item.userNick = inparam.userNick || data.userId
+    item.plat = inparam.plat
+    item.anotherGameData = JSON.stringify(inparam)
+    item.createdAt = data.timestamp
+    item.createdDate = moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD')
+    item.createdStr = moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')
+    item.type = inparam.billType
+    item.gameType = inparam.gameType
     try {
         //请求第三方获取结果
         let platRes = await axios.post(userInfo.transferURL, data, { timeout: 10 * 1000 })
-        //构造写入流水数据
-        data.userNick = inparam.userNick || data.userId
-        data.plat = inparam.plat
-        data.anotherGameData = JSON.stringify(inparam)
-        data.createdAt = data.timestamp
-        data.createdDate = moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD')
-        data.createdStr = moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')
-        data.type = inparam.billType
-        data.gameType = inparam.gameType
         //成功，失败，超时三种情况
-        if (platRes.data.code == 0 && !isNaN(parseFloat(platRes.data.balance))) {
-            data.status = 'Y'
-            data.balance = parseFloat(platRes.data.balance.toFixed(2))
-            await new SYSTransferModel().putItem(data)
-            return ResOK(cb, { msg: `操作成功`, balance: data.balance }, 0)
+        if (platRes.data.code == 0) {
+            item.status = 'Y'
+            item.balance = platRes.data.balance ? +platRes.data.balance : 0
+            await new SYSTransferModel().putItem(item)
+            return ResOK(cb, { msg: `操作成功`, balance: item.balance }, 0)
         } else {
-            data.status = 'N'
-            data.errorMsg = JSON.stringify(platRes.data)
-            await new SYSTransferModel().putItem(data)
-            return ResFail(cb, { msg: platRes.data.msg, balance: parseFloat(platRes.data.balance.toFixed(2)) }, platRes.data.code)
+            item.status = 'N'
+            item.errorMsg = platRes.data.msg
+            item.transferURL = userInfo.transferURL
+            item.repush = data
+            if (platRes.data.msg != '玩家不存在') {
+                await new SYSTransferModel().putItem(item)
+            }
+            return ResFail(cb, { msg: platRes.data.msg, balance: +platRes.data.balance }, platRes.data.code)
         }
     } catch (error) {
-        data.status = 'E'
-        data.userNick = inparam.userNick || data.userId
-        data.plat = inparam.plat
-        data.anotherGameData = JSON.stringify(inparam)
-        data.createdAt = data.timestamp
-        data.createdDate = moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD')
-        data.createdStr = moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')
-        data.type = inparam.billType
-        data.gameType = inparam.gameType
-        await new SYSTransferModel().putItem(data)
+        item.status = 'E'
+        item.transferURL = userInfo.transferURL
+        item.repush = data
+        await new SYSTransferModel().putItem(item)
         return ResFail(cb, { msg: '推送错误' }, 500)
     }
 }
