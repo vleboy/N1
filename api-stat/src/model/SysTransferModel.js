@@ -97,11 +97,11 @@ class SysTransferModel extends BaseModel {
             try {
                 let platRes = await axios.post(record.transferURL, record.repush, { timeout: 10 * 1000 })
                 if (platRes.data.code == 0 && !isNaN(parseFloat(platRes.data.balance))) {
-                    data.status = 'Y'
-                    await this.putItem(data)
+                    record.status = 'Y'
+                    await this.putItem(record)
                 } else {
-                    data.status = 'N'
-                    await this.putItem(data)
+                    record.status = 'N'
+                    await this.putItem(record)
                 }
             } catch (error) {
                 console.error('自动重推超时')
