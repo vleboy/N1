@@ -412,6 +412,17 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
+          -
+            IndexName: StatusIndex
+            KeySchema:
+              -
+                AttributeName: status
+                KeyType: HASH
+              -
+                AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
               
     # #移植第三阶段
     # ZeusPlatformUser: #用户表
