@@ -52,21 +52,14 @@ module.exports = class UserModel extends BaseModel {
     }
 
     //通过role 和 plat查询
-    async queryRolePlat(role, plat) {
-        const res = await this.queryOnce({
+    async queryRolePlat(plat) {
+        return this.queryOnce({
             ProjectionExpression: 'transferURL,apiKey,gameList,#status',
             KeyConditionExpression: '#role = :role',
             FilterExpression: 'sn = :sn',
-            ExpressionAttributeNames: {
-                '#role': 'role',
-                '#status': 'status'
-            },
-            ExpressionAttributeValues: {
-                ':role': role,
-                ':sn': plat
-            }
+            ExpressionAttributeNames: { '#role': 'role', '#status': 'status' },
+            ExpressionAttributeValues: { ':role': '100', ':sn': plat }
         })
-        return res.Items[0]
     }
 
     // 查询线路商下的所有商户

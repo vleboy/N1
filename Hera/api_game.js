@@ -169,17 +169,13 @@ module.exports.postTransfer = async function (e, c, cb) {
 
 //第三方 接入na游戏 内部方法(auth)
 async function transferAuth(inparam, cb) {
-    //查询标识获取玩家认证
-    let userInfo = await new UserModel().queryRolePlat('100', inparam.plat)
-    if (_.isEmpty(userInfo)) {
-        return ResFail(cb, { msg: '商户未找到' }, 500)
-    }
-    //校验玩家所属商户是否购买此款游戏
-    if (userInfo.status != 1) {
+    //查询标识获取商户信息
+    let userInfoRes = await new UserModel().queryRolePlat(inparam.plat)
+    let userInfo = userInfoRes.Items[0]
+    if (_.isEmpty(userInfo) || userInfo.status != 1) {
         return ResFail(cb, { msg: '商户已停用' }, 10006)
     }
-    let index = _.findIndex(userInfo.gameList, function (o) { return o.code == inparam.gameType })
-    if (index == -1) {
+    if (_.findIndex(userInfo.gameList, (o) => o.code == inparam.gameType) == -1) {
         return ResFail(cb, { msg: '商家暂无此款游戏' }, 11006)
     }
     //构造验证参数
@@ -194,7 +190,7 @@ async function transferAuth(inparam, cb) {
         //请求第三方验证
         let platAuth = await axios.post(userInfo.transferURL, data, { timeout: 10 * 1000 })
         if (platAuth.data.code == 0 && platAuth.data.userNick) {
-            return ResOK(cb, { msg: '操作成功', balance: +platAuth.data.balance, nickname: platAuth.data.userNick, userId: inparam.userId }, 0)
+            return ResOK(cb, { msg: '操作成功', userId: inparam.userId, nickname: platAuth.data.userNick, balance: +platAuth.data.balance }, 0)
         } else {
             return ResFail(cb, { msg: platAuth.data.msg }, platAuth.data.code)
         }
@@ -209,17 +205,13 @@ async function transferNA(inparam, cb) {
     if (inparam.exit) {
         return ResOK(cb, { msg: '退出成功' }, 0)
     }
-    //查询标识获取玩家认证
-    let userInfo = await new UserModel().queryRolePlat('100', inparam.plat)
-    if (_.isEmpty(userInfo) || !userInfo.transferURL) {
-        return ResFail(cb, { msg: '商户未找到或商户未配置免转钱包URL' }, 500)
-    }
-    //校验玩家所属商户是否购买此款游戏
-    if (userInfo.status != 1) {
+    //查询标识获取商户信息
+    let userInfoRes = await new UserModel().queryRolePlat('100', inparam.plat)
+    let userInfo = userInfoRes.Items[0]
+    if (_.isEmpty(userInfo) || userInfo.status != 1 || !userInfo.transferURL) {
         return ResFail(cb, { msg: '商户已停用' }, 10006)
     }
-    let index = _.findIndex(userInfo.gameList, function (o) { return o.code == inparam.gameType })
-    if (index == -1) {
+    if (_.findIndex(userInfo.gameList, (o) => o.code == inparam.gameType) == -1) {
         return ResFail(cb, { msg: '商家暂无此款游戏' }, 11006)
     }
     //查询是否已有相同成功流水
@@ -233,7 +225,7 @@ async function transferNA(inparam, cb) {
         sn: inparam.sn,
         gameId: inparam.gameId,
         userId: inparam.userId.toString(),
-        timestamp: Date.now()
+        timestamp: inparam.timestamp || Date.now()
     }
     if (inparam.billType == 3) {
         data.method = 'bet'
@@ -253,12 +245,12 @@ async function transferNA(inparam, cb) {
     let item = { ...data }
     item.userNick = inparam.userNick || data.userId
     item.plat = inparam.plat
+    item.type = inparam.billType
+    item.gameType = inparam.gameType
     item.anotherGameData = JSON.stringify(inparam)
     item.createdAt = data.timestamp
     item.createdDate = moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD')
     item.createdStr = moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')
-    item.type = inparam.billType
-    item.gameType = inparam.gameType
     try {
         //请求第三方获取结果
         let platRes = await axios.post(userInfo.transferURL, data, { timeout: 10 * 1000 })
