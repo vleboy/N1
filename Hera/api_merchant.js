@@ -163,7 +163,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 if (playerInfo.state == '0') {
                     return ResFail(cb, { msg: '玩家已停用' }, 10005)
                 }
-                if (playerInfo.gameState != GameStateEnum.OffLine) {
+                if (inparam.action == -1 && playerInfo.gameState != GameStateEnum.OffLine) {
                     await playerModel.updateOffline(userName)
                 }
                 //根据不同的操作类型（充值或提现）有不同的处理
@@ -197,7 +197,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                         playerBillSn = inparam.sn
                     }
                 }
-                //更新玩家余额，并推送大厅
+                //更新玩家余额
                 let updateBalance = {
                     userName: playerInfo.userName,
                     userId: playerInfo.userId,
