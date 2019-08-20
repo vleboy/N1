@@ -206,7 +206,7 @@ async function transferNA(inparam, cb) {
         return ResOK(cb, { msg: '退出成功' }, 0)
     }
     //查询标识获取商户信息
-    let userInfoRes = await new UserModel().queryRolePlat('100', inparam.plat)
+    let userInfoRes = await new UserModel().queryRolePlat(inparam.plat)
     let userInfo = userInfoRes.Items[0]
     if (_.isEmpty(userInfo) || userInfo.status != 1 || !userInfo.transferURL) {
         return ResFail(cb, { msg: '商户已停用' }, 10006)
@@ -214,11 +214,6 @@ async function transferNA(inparam, cb) {
     if (_.findIndex(userInfo.gameList, (o) => o.code == inparam.gameType) == -1) {
         return ResFail(cb, { msg: '商家暂无此款游戏' }, 11006)
     }
-    //查询是否已有相同成功流水
-    // let detailInfo = await new SYSTransferModel().getBkSN(inparam)
-    // if (!_.isEmpty(detailInfo)) {
-    //     return ResOK(cb, { msg: `重复流水`, balance: detailInfo.balance }, 0)
-    // }
     //构造请求参数
     let data = {
         businessKey: inparam.businessKey,
