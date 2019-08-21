@@ -109,7 +109,7 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
 }
 
 /**
- * 玩家获取token(登录)
+ * 玩家获取token(废弃)
  */
 module.exports.playerLoginToken = async function (e, c, cb) {
     try {
@@ -160,7 +160,7 @@ module.exports.playerLoginToken = async function (e, c, cb) {
 }
 
 /**
- * 玩家获取自己的余额
+ * 玩家获取自己的余额(废弃)
  */
 module.exports.getGamePlayerBalance = async function (e, c, cb) {
     try {

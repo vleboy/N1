@@ -27,29 +27,13 @@ functions:
   #   handler: api.jwtverify
   #   integration: lambda
   ##商户API
-  gamePlayerRegister: #玩家自行注册
+  gamePlayerRegister: #玩家注册
     handler: api_player.gamePlayerRegister
     memorySize: 128
     events:
       - http:
           path: /player/register
           method: post
-          cors: true
-  playerLoginToken: #玩家获取token(一天)
-    handler: api_player.playerLoginToken
-    memorySize: 128
-    events:
-      - http:
-          path: /player
-          method: post
-          cors: true
-  getGamePlayerBalance: #玩家自行获取余额
-    handler: api_player.getGamePlayerBalance
-    memorySize: 128
-    events:
-      - http:
-          path: /player/{userName}/balance
-          method: get
           cors: true
   gameRecordPage: #获取玩家游戏记录
     handler: api_merchant.gameRecordPage
@@ -99,6 +83,22 @@ functions:
           method: post
           cors: true
   ##即将废弃接口
+  playerLoginToken: #玩家获取token(一天)
+    handler: api_player.playerLoginToken
+    memorySize: 128
+    events:
+      - http:
+          path: /player
+          method: post
+          cors: true
+  getGamePlayerBalance: #玩家自行获取余额
+    handler: api_player.getGamePlayerBalance
+    memorySize: 128
+    events:
+      - http:
+          path: /player/{userName}/balance
+          method: get
+          cors: true
   # gameReportByMerchant: #提供查询商户的NA报表
   #   handler: api_merchant.gameReportByMerchant
   #   events:
