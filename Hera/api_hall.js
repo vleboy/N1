@@ -11,35 +11,32 @@ const GameStateEnum = require('./libs/Dynamo').GameStateEnum
 const TOKEN_SECRET = process.env.TOKEN_SECRET
 
 /**
- * 玩家登陆游戏接口（注意这是登陆，而不是进入游戏玩游戏）
+ * API玩家登陆获取TOKEN
+ * buId
+ * userName
+ * userPwd
  */
 module.exports.playerLogin = async function (e, c, cb) {
     try {
         //1,获取入参
         const inparam = JSONParser(e.body)
         console.log(inparam)
-        //2,查询玩家，获取商户/代理信息
+        //2,查询玩家，获取父级信息
         const playerModel = new PlayerModel()
         let userName = inparam.userName
-        let userId = inparam.userId
         let playerInfo = {}
-        //代理玩家
-        if (userId == '0' || inparam.buId == '0') {
-            //查询玩家的信息,获取代理的id
+        let userInfo = {}
+        // API接线玩家
+        if (inparam.buId) {
+            userInfo = await new UserModel().queryByDisplayId(inparam.buId)
+        }
+        // 全帐号登录玩家
+        else {
             playerInfo = await playerModel.getPlayerByUserName(userName)
             if (_.isEmpty(playerInfo)) {
                 return ResFail(cb, { msg: '玩家不存在' }, 10012)
             }
-            userId = playerInfo.parent
-        }
-        let userInfo = {}
-        //网页商户玩家
-        if (inparam.buId) {
-            userInfo = await new UserModel().queryByDisplayId(inparam.buId)
-        }
-        //APP商户玩家或代理玩家
-        else {
-            userInfo = await new UserModel().queryUserById(userId)
+            userInfo = await new UserModel().queryUserById(playerInfo.parent)
         }
         if (_.isEmpty(userInfo)) {
             return ResFail(cb, { msg: '商户不存在' }, 10001)
@@ -47,7 +44,8 @@ module.exports.playerLogin = async function (e, c, cb) {
         if (userInfo.status == 0) {
             return ResFail(cb, { msg: '商户已停用' }, 10006)
         }
-        if (_.isEmpty(playerInfo)) {//说明是商户，商户需要组装用户名
+        // API接线玩家需要组装完整帐号
+        if (_.isEmpty(playerInfo)) {
             userName = `${userInfo.suffix}_${userName}`
             playerInfo = await playerModel.getPlayerByUserName(userName)
             if (_.isEmpty(playerInfo)) {
@@ -74,16 +72,11 @@ module.exports.playerLogin = async function (e, c, cb) {
         let callObj = {
             token: loginToken,
             balance: balance,
-            // msn: playerInfo.msn,
             username: userName,
             userId: playerInfo.userId,
             nickname: playerInfo.nickname,
-            headPic: playerInfo.headPic,
-            // sex: playerInfo.sex || 0,
-            // parentId: userId,
+            // headPic: playerInfo.headPic,
             gameList: playerInfo.gameList,
-            // liveMix: 0, //无用了
-            // vedioMix: 0,//无用了
             gameId: playerInfo.gameId || 0,
             sid: playerInfo.sid || 0,
             isTest: userInfo.isTest

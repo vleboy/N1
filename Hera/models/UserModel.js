@@ -39,14 +39,8 @@ module.exports = class UserModel extends BaseModel {
             IndexName: 'merchantIdIndex',
             KeyConditionExpression: 'displayId = :displayId',
             ProjectionExpression: 'userId,apiKey,#status,suffix,loginWhiteList,username,#level,displayName,gameList,msn,sn,uname,#role,isTest',
-            ExpressionAttributeNames: {
-                '#status': 'status',
-                '#level': 'level',
-                '#role': 'role'
-            },
-            ExpressionAttributeValues: {
-                ':displayId': +displayId
-            }
+            ExpressionAttributeNames: { '#status': 'status', '#level': 'level', '#role': 'role' },
+            ExpressionAttributeValues: { ':displayId': +displayId }
         })
         return res.Items[0]
     }
