@@ -247,7 +247,7 @@ router.post('/merchant/player/point', async (ctx, next) => {
   if (!inparam.userName || !inparam.action || !inparam.amount) {
     throw { code: -1, msg: "请输入金额" }
   }
-  //玩家操作的金额小数点两位处理
+  // 玩家操作的金额小数点两位处理
   inparam.amount = NP.round(+inparam.amount, 2)
   // 检查商户
   let userInfo = await new UserModel().getUser(token.userId, RoleCodeEnum.Merchant)
@@ -258,7 +258,8 @@ router.post('/merchant/player/point', async (ctx, next) => {
   let playerModel = new PlayerModel()
   let playerInfo = await playerModel.getItem({
     ConsistentRead: true,
-    ProjectionExpression: 'userId',
+    ProjectionExpression: 'userId,#parent,#state,gameState,userName,userId,balance',
+    ExpressionAttributeNames: { '#parent': 'parent', '#state': 'state' },
     Key: { 'userName': inparam.userName }
   })
   if (playerInfo.state == '0') {
@@ -295,18 +296,18 @@ router.post('/merchant/player/point', async (ctx, next) => {
   //写入用户流水表
   let userBill = {
     sn: uuid(),
-    fromRole: action == 1 ? '100' : '10000',  //如果是充值则
+    fromRole: action == 1 ? '100' : '10000',
     toRole: action == 1 ? '10000' : '100',
     fromUser: action == 1 ? userInfo.username : userName,
     toUser: action == 1 ? userName : userInfo.username,
     amount: action == 1 ? Math.abs(inparam.amount) * -1 : Math.abs(inparam.amount),
-    operator: userName,
-    remark: action > 0 ? "中心钱包转入" : "中心钱包转出",
+    operator: userInfo.username,
+    remark: action == 1 ? "上分" : "下分",
     typeName: "中心钱包",
     username: userInfo.username,
     userId: userInfo.userId,
     fromLevel: userInfo.level,
-    fromDisplayName: playerInfo.userName,
+    fromDisplayName: userInfo.displayName,
     toDisplayName: playerInfo.userName,
     toLevel: 10000,
     action: -action
