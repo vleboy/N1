@@ -5,6 +5,8 @@ const Router = require('koa-router')
 const router = new Router()
 // 工具相关
 const _ = require('lodash')
+const uuid = require('uuid/v4')
+const NP = require('number-precision')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
@@ -180,10 +182,13 @@ router.post('/merchants/:id', async function (ctx, next) {
   // 结果返回
   ctx.body = { code: 0, payload: updateRet }
 })
+
 /**
  * 商户自主创建玩家
+ * userName
+ * userPwd
  */
-router.post('/merchant/player/create', async function (ctx, next) {
+router.post('/merchant/player/create', async (ctx, next) => {
   let inparam = ctx.request.body
   let token = ctx.tokenVerify
   // 检查商户
@@ -193,7 +198,8 @@ router.post('/merchant/player/create', async function (ctx, next) {
   }
   // 检查玩家
   let userName = `${userInfo.suffix}_${inparam.userName}`
-  let playerInfo = await new PlayerModel().getItem({
+  let playerModel = new PlayerModel()
+  let playerInfo = await playerModel.getItem({
     ConsistentRead: true,
     ProjectionExpression: 'userId',
     Key: { 'userName': userName }
@@ -206,10 +212,10 @@ router.post('/merchant/player/create', async function (ctx, next) {
   }
   // 生成玩家的userId
   let userId = _.random(100000, 999999)
-  while (await new PlayerModel().isUserIdExit(userId)) {
+  while (await playerModel.isUserIdExit(userId)) {
     userId = _.random(100000, 999999)
   }
-  await new PlayerModel().putItem({
+  await playerModel.putItem({
     userName: userName,
     userId: userId,
     password: inparam.userPwd,
@@ -227,11 +233,98 @@ router.post('/merchant/player/create', async function (ctx, next) {
   })
   ctx.body = { code: 0 }
 })
+
 /**
  * 商户给玩家上下分
+ * userName
+ * action
+ * amount
  */
-router.post('/merchant/player/point', async function (ctx, next) {
-  
+router.post('/merchant/player/point', async (ctx, next) => {
+  let inparam = ctx.request.body
+  let token = ctx.tokenVerify
+  // 检查入参
+  if (!inparam.userName || !inparam.action || !inparam.amount) {
+    throw { code: -1, msg: "请输入金额" }
+  }
+  //玩家操作的金额小数点两位处理
+  inparam.amount = NP.round(+inparam.amount, 2)
+  // 检查商户
+  let userInfo = await new UserModel().getUser(token.userId, RoleCodeEnum.Merchant)
+  if (userInfo.status == 0) {
+    throw { code: -1, msg: "商户已停用" }
+  }
+  // 检查玩家
+  let playerModel = new PlayerModel()
+  let playerInfo = await playerModel.getItem({
+    ConsistentRead: true,
+    ProjectionExpression: 'userId',
+    Key: { 'userName': inparam.userName }
+  })
+  if (playerInfo.state == '0') {
+    throw { code: -1, msg: "玩家已停用" }
+  }
+  // 提现时需要离线玩家
+  if (inparam.action == -1 && playerInfo.gameState != GameStateEnum.OffLine) {
+    await playerModel.updateOffline(userName)
+  }
+  // 充值，获取商户的点数并检查商户的点数是否足够
+  if (inparam.action == 1) {
+    let userBalance = await new BillModel().checkUserBalance(userInfo)
+    if (userBalance < inparam.amount) {
+      throw { code: -1, msg: "商户余额不足" }
+    }
+  }
+  // 提现，检查玩家的点数是否足够
+  else if (inparam.action == -1) {
+    let usage = inparam.action == -1 ? 'billout' : 'billin' // 提现需要检查余额绝对正确
+    let palyerBalance = await playerModel.getNewBalance({ userName: playerInfo.userName, userId: playerInfo.userId, balance: playerInfo.balance, usage })
+    if (palyerBalance == 'err') {
+      throw { code: -1, msg: "账务正在结算中，请联系管理员" }
+    }
+    if (palyerBalance < inparam.amount) {
+      throw { code: -1, msg: "玩家余额不足" }
+    }
+  }
+  //更新玩家余额
+  let currentBalanceObj = await playerModel.updatePlayerBalance({
+    userName: playerInfo.userName,
+    userId: playerInfo.userId,
+    amt: action == 1 ? Math.abs(inparam.amount) : Math.abs(inparam.amount) * -1
+  })
+  //写入用户流水表
+  let userBill = {
+    sn: uuid(),
+    fromRole: action == 1 ? '100' : '10000',  //如果是充值则
+    toRole: action == 1 ? '10000' : '100',
+    fromUser: action == 1 ? userInfo.username : userName,
+    toUser: action == 1 ? userName : userInfo.username,
+    amount: action == 1 ? Math.abs(inparam.amount) * -1 : Math.abs(inparam.amount),
+    operator: userName,
+    remark: action > 0 ? "中心钱包转入" : "中心钱包转出",
+    typeName: "中心钱包",
+    username: userInfo.username,
+    userId: userInfo.userId,
+    fromLevel: userInfo.level,
+    fromDisplayName: playerInfo.userName,
+    toDisplayName: playerInfo.userName,
+    toLevel: 10000,
+    action: -action
+  }
+  //写入玩家流水表
+  let playerBill = {
+    sn: playerBillSn,
+    action: action,
+    type: 11,  //中心钱包
+    gameType: 1,
+    userId: playerInfo.userId,
+    userName: playerInfo.userName,
+    parent: playerInfo.parent,
+    originalAmount: currentBalanceObj.originalAmount,
+    amount: currentBalanceObj.amount,
+    balance: currentBalanceObj.balance
+  }
+  await playerModel.playerBillTransfer(userBill, playerBill)
 })
 
 

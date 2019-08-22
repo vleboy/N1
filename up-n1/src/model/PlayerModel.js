@@ -285,5 +285,46 @@ module.exports = class PlayerModel extends BaseModel {
         })
         return res.Count
     }
+
+    /**
+     * 更新玩家余额
+     */
+    async updatePlayerBalance(inparam) {
+        let res = await this.updateItem({
+            Key: { 'userName': inparam.userName },
+            ReturnValues: ["UPDATED_OLD"],
+            UpdateExpression: "SET balance = balance + :amt",
+            ExpressionAttributeValues: { ':amt': inparam.amt }
+        })
+        let balance = parseFloat((res.Attributes.balance + inparam.amt).toFixed(2))
+        return { originalAmount: res.Attributes.balance, amount: inparam.amt, balance }
+    }
+
+    /**
+     * 玩家转账
+     * @param {*} userBill
+     * @param {*} playerBill 
+     */
+    async playerBillTransfer(userBill, playerBill) {
+        userBill.createdAt = Date.now()
+        userBill.updatedAt = Date.now()
+        userBill.createdStr = moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss')
+        userBill.createdDate = moment().utcOffset(8).format('YYYY-MM-DD')
+        userBill.createdTime = moment().utcOffset(8).format('HH:mm:ss')
+        playerBill.createdAt = Date.now()
+        playerBill.updatedAt = Date.now()
+        playerBill.createdStr = moment().utcOffset(8).format('YYYY-MM-DD HH:mm:ss')
+        playerBill.createdDate = moment().utcOffset(8).format('YYYY-MM-DD')
+        playerBill.createdTime = moment().utcOffset(8).format('HH:mm:ss')
+        playerBill.businessKey = playerBill.sn
+        let batch = { RequestItems: {} }
+        batch.RequestItems[config.env.TABLE_NAMES.PLATFORM_BILL] = [{
+            PutRequest: { Item: userBill }
+        }]
+        batch.RequestItems[config.env.TABLE_NAMES.PlayerBillDetail] = [{
+            PutRequest: { Item: playerBill }
+        }]
+        return this.batchWrite(batch)
+    }
 }
 
