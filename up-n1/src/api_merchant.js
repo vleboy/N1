@@ -306,7 +306,6 @@ router.post('/merchant/player/point', async (ctx, next) => {
     typeName: "中心钱包",
     username: userInfo.username,
     userId: userInfo.userId,
-    fromLevel: userInfo.level,
     fromDisplayName: action == 1 ? userInfo.displayName : playerInfo.userName,
     toDisplayName: action == 1 ? playerInfo.userName : userInfo.displayName,
     action: -action

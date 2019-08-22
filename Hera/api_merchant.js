@@ -217,7 +217,6 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                     typeName: "中心钱包",
                     username: userInfo.username,
                     userId: userInfo.userId,
-                    fromLevel: userInfo.level,
                     fromDisplayName: action == 1 ? userInfo.displayName : userName,
                     toDisplayName: action == 1 ? userName : userInfo.displayName,
                     action: -action
