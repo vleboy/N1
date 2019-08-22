@@ -143,18 +143,14 @@ module.exports = class PlayerModel extends BaseModel {
     }
 
     /**
-     * 更新玩家余额,并推送到大厅
+     * 更新玩家余额
      */
     async updatePlayerBalance(inparam) {
         let res = await this.updateItem({
-            Key: {
-                'userName': inparam.userName
-            },
+            Key: { 'userName': inparam.userName },
             ReturnValues: ["UPDATED_OLD"],
             UpdateExpression: "SET balance = balance + :amt",
-            ExpressionAttributeValues: {
-                ':amt': inparam.amt
-            }
+            ExpressionAttributeValues: { ':amt': inparam.amt }
         })
         let balance = parseFloat((res.Attributes.balance + inparam.amt).toFixed(2)) // 玩家余额
         return { originalAmount: res.Attributes.balance, amount: inparam.amt, balance }
