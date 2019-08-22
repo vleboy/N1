@@ -155,7 +155,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                     return ResFail(cb, { msg: '请检查入参' }, 500)
                 }
                 //玩家操作的金额小数点两位处理
-                inparam.amount = NP.round(inparam.amount, 2)
+                inparam.amount = NP.round(+inparam.amount, 2)
                 userName = `${userInfo.suffix}_${inparam.userName}`
                 //获取玩家信息，并验证
                 const playerModel = new PlayerModel()
@@ -166,21 +166,21 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 if (inparam.action == -1 && playerInfo.gameState != GameStateEnum.OffLine) {
                     await playerModel.updateOffline(userName)
                 }
-                //根据不同的操作类型（充值或提现）有不同的处理
-                let usage = inparam.action == -1 ? 'billout' : 'billin' // 提现需要检查余额绝对正确
-                let palyerBalance = await playerModel.getNewBalance({ userName: playerInfo.userName, userId: playerInfo.userId, balance: playerInfo.balance, usage })
-                if (palyerBalance == 'err') {
-                    return ResFail(cb, { msg: '账务正在结算中，请联系管理员' }, 500)
-                }
-                if (inparam.action == 1) { //充值操作
-                    //获取商户的点数并检查商户的点数是否足够
+                //充值，检查商户余额
+                if (inparam.action == 1) {
                     let userBalance = await new MerchantBillModel().queryUserBalance(userInfo.userId)
-                    if (userBalance < +inparam.amount) {
+                    if (userBalance < inparam.amount) {
                         return ResFail(cb, { msg: '商户余额不足' }, 10008)
                     }
-                } else if (inparam.action == -1) { //提现操作
-                    //检查玩家的点数是否足够
-                    if (palyerBalance < +inparam.amount) {
+                }
+                // 提现，检查玩家余额
+                else if (inparam.action == -1) {
+                    let usage = inparam.action == -1 ? 'billout' : 'billin'
+                    let palyerBalance = await playerModel.getNewBalance({ userName: playerInfo.userName, userId: playerInfo.userId, balance: playerInfo.balance, usage })
+                    if (palyerBalance == 'err') {
+                        return ResFail(cb, { msg: '账务正在结算中，请联系管理员' }, 500)
+                    }
+                    if (palyerBalance < inparam.amount) {
                         return ResFail(cb, { msg: '玩家提现金额大于账户余额' }, 10009)
                     }
                 }
@@ -201,26 +201,25 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 let updateBalance = {
                     userName: playerInfo.userName,
                     userId: playerInfo.userId,
-                    amt: action == 1 ? Math.abs(+inparam.amount) : Math.abs(+inparam.amount) * -1
+                    amt: action == 1 ? Math.abs(inparam.amount) : Math.abs(inparam.amount) * -1
                 }
                 let currentBalanceObj = await playerModel.updatePlayerBalance(updateBalance)
                 //写入用户流水表
                 let userBill = {
                     sn: uuid(),
-                    fromRole: action == 1 ? '100' : '10000',  //如果是充值则
+                    fromRole: action == 1 ? '100' : '10000',
                     toRole: action == 1 ? '10000' : '100',
                     fromUser: action == 1 ? userInfo.username : userName,
                     toUser: action == 1 ? userName : userInfo.username,
-                    amount: action == 1 ? Math.abs(+inparam.amount) * -1 : Math.abs(+inparam.amount),
+                    amount: action == 1 ? Math.abs(inparam.amount) * -1 : Math.abs(inparam.amount),
                     operator: userName,
-                    remark: action > 0 ? "中心钱包转入" : "中心钱包转出",
-                    // gameType: -1,
+                    remark: action == 1 ? "中心钱包转入" : "中心钱包转出",
                     typeName: "中心钱包",
                     username: userInfo.username,
                     userId: userInfo.userId,
                     fromLevel: userInfo.level,
-                    fromDisplayName: playerInfo.userName,
-                    toDisplayName: playerInfo.userName,
+                    fromDisplayName: action == 1 ? userInfo.displayName : userName,
+                    toDisplayName: action == 1 ? userName : userInfo.displayName,
                     toLevel: 10000,
                     action: -action
                 }

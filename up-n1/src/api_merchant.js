@@ -307,8 +307,8 @@ router.post('/merchant/player/point', async (ctx, next) => {
     username: userInfo.username,
     userId: userInfo.userId,
     fromLevel: userInfo.level,
-    fromDisplayName: userInfo.displayName,
-    toDisplayName: playerInfo.userName,
+    fromDisplayName: action == 1 ? userInfo.displayName : playerInfo.userName,
+    toDisplayName: action == 1 ? playerInfo.userName : userInfo.displayName,
     toLevel: 10000,
     action: -action
   }
