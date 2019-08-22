@@ -258,7 +258,7 @@ router.post('/merchant/player/point', async (ctx, next) => {
   let playerModel = new PlayerModel()
   let playerInfo = await playerModel.getItem({
     ConsistentRead: true,
-    ProjectionExpression: 'userId,#parent,#state,gameState,userName,userId,balance',
+    ProjectionExpression: 'userId,userName,#parent,#state,gameState,balance',
     ExpressionAttributeNames: { '#parent': 'parent', '#state': 'state' },
     Key: { 'userName': inparam.userName }
   })

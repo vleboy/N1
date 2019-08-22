@@ -181,7 +181,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                         return ResFail(cb, { msg: '账务正在结算中，请联系管理员' }, 500)
                     }
                     if (palyerBalance < inparam.amount) {
-                        return ResFail(cb, { msg: '玩家提现金额大于账户余额' }, 10009)
+                        return ResFail(cb, { msg: '玩家余额不足' }, 10009)
                     }
                 }
                 //如果使用自定义SN，需要检查是否重复
