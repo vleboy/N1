@@ -325,6 +325,7 @@ router.post('/merchant/player/point', async (ctx, next) => {
     balance: currentBalanceObj.balance
   }
   await playerModel.playerBillTransfer(userBill, playerBill)
+  ctx.body = { code: 0 }
 })
 
 
