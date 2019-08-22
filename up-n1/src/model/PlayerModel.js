@@ -302,7 +302,7 @@ module.exports = class PlayerModel extends BaseModel {
     }
 
     /**
-     * 玩家转账
+     * 商户自主给玩家上下分
      * @param {*} userBill
      * @param {*} playerBill 
      */
