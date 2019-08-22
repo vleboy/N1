@@ -218,6 +218,10 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                     userId: userInfo.userId,
                     fromDisplayName: inparam.action == 1 ? userInfo.displayName : userName,
                     toDisplayName: inparam.action == 1 ? userName : userInfo.displayName,
+                    fromDisplayName: playerInfo.userName,
+                    toDisplayName: playerInfo.userName,
+                    fromLevel: userInfo.level,
+                    toLevel: 10000,
                     action: -inparam.action
                 }
                 //写入玩家流水表

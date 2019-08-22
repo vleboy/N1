@@ -307,8 +307,10 @@ router.post('/merchant/player/point', async (ctx, next) => {
     typeName: "中心钱包",
     username: userInfo.username,
     userId: userInfo.userId,
-    fromDisplayName: inparam.action == 1 ? userInfo.displayName : playerInfo.userName,
-    toDisplayName: inparam.action == 1 ? playerInfo.userName : userInfo.displayName,
+    fromDisplayName: playerInfo.userName,
+    toDisplayName: playerInfo.userName,
+    fromLevel: userInfo.level,
+    toLevel: 10000,
     action: -inparam.action
   }
   // 写入玩家流水表
