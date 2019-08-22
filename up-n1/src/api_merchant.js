@@ -204,7 +204,7 @@ router.post('/merchant/player/create', async (ctx, next) => {
     ProjectionExpression: 'userId',
     Key: { 'userName': userName }
   })
-  if (!_.isEmpty(playerInfo)) {
+  if (!_.isEmpty(playerInfo.Item)) {
     throw { code: -1, msg: "玩家已存在" }
   }
   else if (!inparam.userPwd) {
@@ -262,10 +262,10 @@ router.post('/merchant/player/point', async (ctx, next) => {
     ExpressionAttributeNames: { '#parent': 'parent', '#state': 'state' },
     Key: { 'userName': inparam.userName }
   })
+  playerInfo = playerInfo.Item
   if (playerInfo.state == '0') {
     throw { code: -1, msg: "玩家已停用" }
   }
-  console.log(1111111)
   // 提现时需要离线玩家
   if (inparam.action == -1 && playerInfo.gameState != GameStateEnum.OffLine) {
     await playerModel.updateOffline(userName)
@@ -288,7 +288,6 @@ router.post('/merchant/player/point', async (ctx, next) => {
       throw { code: -1, msg: "玩家余额不足" }
     }
   }
-  console.log(222222)
   // 更新玩家余额
   let currentBalanceObj = await playerModel.updatePlayerBalance({
     userName: playerInfo.userName,
