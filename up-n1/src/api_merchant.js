@@ -313,7 +313,7 @@ router.post('/merchant/player/point', async (ctx, next) => {
   }
   // 写入玩家流水表
   let playerBill = {
-    sn: playerBillSn,
+    sn: uuid(),
     action: inparam.action,
     type: 11,  //中心钱包
     gameType: 1,
