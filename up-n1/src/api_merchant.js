@@ -227,6 +227,12 @@ router.post('/merchant/player/create', async function (ctx, next) {
   })
   ctx.body = { code: 0 }
 })
+/**
+ * 商户给玩家上下分
+ */
+router.post('/merchant/player/point', async function (ctx, next) {
+  
+})
 
 
 // ==================== 以下为内部方法 ====================
