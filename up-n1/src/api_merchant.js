@@ -189,7 +189,7 @@ router.post('/merchant/player/create', async function (ctx, next) {
   // 检查商户
   let userInfo = await new UserModel().getUser(token.userId, RoleCodeEnum.Merchant)
   if (userInfo.status == 0) {
-    throw { "code": -1, "msg": "商户已停用" }
+    throw { code: -1, msg: "商户已停用" }
   }
   // 检查玩家
   let userName = `${userInfo.suffix}_${inparam.userName}`
@@ -199,10 +199,10 @@ router.post('/merchant/player/create', async function (ctx, next) {
     Key: { 'userName': userName }
   })
   if (!_.isEmpty(playerInfo)) {
-    throw { "code": -1, "msg": "玩家已存在" }
+    throw { code: -1, msg: "玩家已存在" }
   }
   else if (!inparam.userPwd) {
-    throw { "code": -1, "msg": "请输入玩家密码" }
+    throw { code: -1, msg: "请输入玩家密码" }
   }
   // 生成玩家的userId
   let userId = _.random(100000, 999999)
@@ -225,6 +225,7 @@ router.post('/merchant/player/create', async function (ctx, next) {
     gameState: GameStateEnum.OffLine,
     parentSn: userInfo.sn
   })
+  ctx.body = { code: 0 }
 })
 
 
