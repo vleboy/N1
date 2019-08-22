@@ -173,7 +173,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                         return ResFail(cb, { msg: '商户余额不足' }, 10008)
                     }
                 }
-                // 提现，检查玩家余额
+                //提现，检查玩家余额
                 else if (inparam.action == -1) {
                     let usage = inparam.action == -1 ? 'billout' : 'billin'
                     let palyerBalance = await playerModel.getNewBalance({ userName: playerInfo.userName, userId: playerInfo.userId, balance: playerInfo.balance, usage })
@@ -184,7 +184,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                         return ResFail(cb, { msg: '玩家提现金额大于账户余额' }, 10009)
                     }
                 }
-                // 如果使用自定义SN，需要检查是否重复
+                //如果使用自定义SN，需要检查是否重复
                 let playerBillSn = uuid()
                 if (inparam.sn) {
                     if (!_.startsWith(inparam.sn, `${inparam.buId}_${inparam.userName}_`)) {
@@ -220,10 +220,9 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                     fromLevel: userInfo.level,
                     fromDisplayName: action == 1 ? userInfo.displayName : userName,
                     toDisplayName: action == 1 ? userName : userInfo.displayName,
-                    toLevel: 10000,
                     action: -action
                 }
-                //9,写入玩家流水表
+                //写入玩家流水表
                 let playerBill = {
                     sn: playerBillSn,
                     action: action,

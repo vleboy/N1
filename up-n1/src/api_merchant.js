@@ -309,7 +309,6 @@ router.post('/merchant/player/point', async (ctx, next) => {
     fromLevel: userInfo.level,
     fromDisplayName: action == 1 ? userInfo.displayName : playerInfo.userName,
     toDisplayName: action == 1 ? playerInfo.userName : userInfo.displayName,
-    toLevel: 10000,
     action: -action
   }
   // 写入玩家流水表
