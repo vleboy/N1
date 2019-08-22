@@ -1,5 +1,6 @@
 // 系统配置参数
 const _ = require('lodash')
+const moment = require('moment')
 const NP = require('number-precision')
 const BaseModel = require('./BaseModel')
 const config = require('config')
