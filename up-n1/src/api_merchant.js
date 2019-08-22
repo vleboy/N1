@@ -291,29 +291,29 @@ router.post('/merchant/player/point', async (ctx, next) => {
   let currentBalanceObj = await playerModel.updatePlayerBalance({
     userName: playerInfo.userName,
     userId: playerInfo.userId,
-    amt: action == 1 ? Math.abs(inparam.amount) : Math.abs(inparam.amount) * -1
+    amt: inparam.action == 1 ? Math.abs(inparam.amount) : Math.abs(inparam.amount) * -1
   })
   // 写入用户流水表
   let userBill = {
     sn: uuid(),
-    fromRole: action == 1 ? '100' : '10000',
-    toRole: action == 1 ? '10000' : '100',
-    fromUser: action == 1 ? userInfo.username : userName,
-    toUser: action == 1 ? userName : userInfo.username,
-    amount: action == 1 ? Math.abs(inparam.amount) * -1 : Math.abs(inparam.amount),
+    fromRole: inparam.action == 1 ? '100' : '10000',
+    toRole: inparam.action == 1 ? '10000' : '100',
+    fromUser: inparam.action == 1 ? userInfo.username : userName,
+    toUser: inparam.action == 1 ? userName : userInfo.username,
+    amount: inparam.action == 1 ? Math.abs(inparam.amount) * -1 : Math.abs(inparam.amount),
     operator: userInfo.username,
-    remark: action == 1 ? "上分" : "下分",
+    remark: inparam.action == 1 ? "上分" : "下分",
     typeName: "中心钱包",
     username: userInfo.username,
     userId: userInfo.userId,
-    fromDisplayName: action == 1 ? userInfo.displayName : playerInfo.userName,
-    toDisplayName: action == 1 ? playerInfo.userName : userInfo.displayName,
-    action: -action
+    fromDisplayName: inparam.action == 1 ? userInfo.displayName : playerInfo.userName,
+    toDisplayName: inparam.action == 1 ? playerInfo.userName : userInfo.displayName,
+    action: -inparam.action
   }
   // 写入玩家流水表
   let playerBill = {
     sn: playerBillSn,
-    action: action,
+    action: inparam.action,
     type: 11,  //中心钱包
     gameType: 1,
     userId: playerInfo.userId,

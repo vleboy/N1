@@ -111,7 +111,6 @@ module.exports.merchantPlayer = async function (e, c, cb) {
     try {
         //1,获取入参
         let inparam = JSONParser(e.body)
-        let action = inparam.action
         //2,参数校验
         new BillCheck().checkMerchantPlayer(inparam)
         //3,获取商户信息
@@ -201,30 +200,30 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 let updateBalance = {
                     userName: playerInfo.userName,
                     userId: playerInfo.userId,
-                    amt: action == 1 ? Math.abs(inparam.amount) : Math.abs(inparam.amount) * -1
+                    amt: inparam.action == 1 ? Math.abs(inparam.amount) : Math.abs(inparam.amount) * -1
                 }
                 let currentBalanceObj = await playerModel.updatePlayerBalance(updateBalance)
                 //写入用户流水表
                 let userBill = {
                     sn: uuid(),
-                    fromRole: action == 1 ? '100' : '10000',
-                    toRole: action == 1 ? '10000' : '100',
-                    fromUser: action == 1 ? userInfo.username : userName,
-                    toUser: action == 1 ? userName : userInfo.username,
-                    amount: action == 1 ? Math.abs(inparam.amount) * -1 : Math.abs(inparam.amount),
+                    fromRole: inparam.action == 1 ? '100' : '10000',
+                    toRole: inparam.action == 1 ? '10000' : '100',
+                    fromUser: inparam.action == 1 ? userInfo.username : userName,
+                    toUser: inparam.action == 1 ? userName : userInfo.username,
+                    amount: inparam.action == 1 ? Math.abs(inparam.amount) * -1 : Math.abs(inparam.amount),
                     operator: userName,
-                    remark: action == 1 ? "中心钱包转入" : "中心钱包转出",
+                    remark: inparam.action == 1 ? "中心钱包转入" : "中心钱包转出",
                     typeName: "中心钱包",
                     username: userInfo.username,
                     userId: userInfo.userId,
-                    fromDisplayName: action == 1 ? userInfo.displayName : userName,
-                    toDisplayName: action == 1 ? userName : userInfo.displayName,
-                    action: -action
+                    fromDisplayName: inparam.action == 1 ? userInfo.displayName : userName,
+                    toDisplayName: inparam.action == 1 ? userName : userInfo.displayName,
+                    action: -inparam.action
                 }
                 //写入玩家流水表
                 let playerBill = {
                     sn: playerBillSn,
-                    action: action,
+                    action: inparam.action,
                     type: 11,  //中心钱包
                     gameType: 1,
                     userId: playerInfo.userId,
