@@ -196,7 +196,6 @@ router.post('/merchant/player/create', async function (ctx, next) {
   let playerInfo = await new PlayerModel().getItem({
     ConsistentRead: true,
     ProjectionExpression: 'userId',
-    ExpressionAttributeNames: { '#state': 'state' },
     Key: { 'userName': userName }
   })
   if (!_.isEmpty(playerInfo)) {
