@@ -265,6 +265,7 @@ router.post('/merchant/player/point', async (ctx, next) => {
   if (playerInfo.state == '0') {
     throw { code: -1, msg: "玩家已停用" }
   }
+  console.log(1111111)
   // 提现时需要离线玩家
   if (inparam.action == -1 && playerInfo.gameState != GameStateEnum.OffLine) {
     await playerModel.updateOffline(userName)
@@ -287,6 +288,7 @@ router.post('/merchant/player/point', async (ctx, next) => {
       throw { code: -1, msg: "玩家余额不足" }
     }
   }
+  console.log(222222)
   // 更新玩家余额
   let currentBalanceObj = await playerModel.updatePlayerBalance({
     userName: playerInfo.userName,
