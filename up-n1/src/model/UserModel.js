@@ -357,26 +357,16 @@ class UserModel extends BaseModel {
      * @param {*} options 
      */
     async getUser(userId, role, options) {
-        let query = {
-            KeyConditionExpression: '#role = :role AND userId = :userId',
-            ExpressionAttributeNames: {
-                '#role': 'role'
-            },
-            ExpressionAttributeValues: {
-                ':role': role,
-                ':userId': userId
-            }
-        }
+        let query = { Key: { 'role': role, 'userId': userId } }
         if (options) {
             query.ProjectionExpression = options.ProjectionExpression
             query.ExpressionAttributeNames = options.ExpressionAttributeNames
         }
-        const queryRet = await this.query(query)
-        if (queryRet.Items.length - 1 != 0) {
+        const queryRet = await this.getItem(query)
+        if (!queryRet.Item || _.isEmpty(queryRet.Item)) {
             throw BizErr.UserNotFoundErr()
         }
-        const User = queryRet.Items[0]
-        return User
+        return queryRet.Item
     }
 
     /**

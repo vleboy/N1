@@ -4,7 +4,7 @@ const { ResOK, ResFail } = require('./libs/Response')
 const BillCheck = require('./libs/BillCheck')
 const jwt = require('jsonwebtoken')
 const _ = require('lodash')
-const crypto = require('crypto')
+// const crypto = require('crypto')
 //model
 const PlayerModel = require('./models/PlayerModel')
 const UserModel = require('./models/UserModel')
@@ -64,25 +64,14 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
                 return ResFail(cb, { msg: '昵称已存在' }, 10013)
             }
         }
-        //5,组装参数
-        //加密密码
-        const sha = crypto.createHash('sha256')
-        sha.update(inparam.userPwd)
-        let userPwd = sha.digest('hex')
         //生成玩家的userId
-        let userId = 0
-        let isTrue = true
-        while (isTrue) {
-            userId = getLengthNum(6)
-            let isExist = await new PlayerModel().isUserIdExit(+userId)
-            if (!isExist) {
-                isTrue = false
-            }
+        let userId = _.random(100000, 999999)
+        while (await new PlayerModel().isUserIdExit(userId)) {
+            userId = _.random(100000, 999999)
         }
-        let putParms = {
-            userName: userName,
-            userId: userId,
-            userPwd: userPwd,
+        await new PlayerModel().putItem({
+            userName,
+            userId,
             password: inparam.userPwd,
             buId: inparam.buId,
             role: 10000,
@@ -92,14 +81,10 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
             merchantName: userInfo.displayName,
             parent: userInfo.userId,
             parentName: userInfo.username,
-            amount: 0,
-            sex: 0,
             nickname: inparam.nickname || 'NULL!',
-            headPic: 'NULL!',
             gameState: GameStateEnum.OffLine,
             parentSn: userInfo.sn
-        }
-        await new PlayerModel().putItem(putParms)
+        })
         return ResOK(cb, { msg: 'success' }, 0)
     } catch (err) {
         console.error(err)
@@ -200,14 +185,5 @@ module.exports.getGamePlayerBalance = async function (e, c, cb) {
             err = '玩家不存在'
         }
         return ResFail(cb, { msg: err }, code)
-    }
-}
-
-function getLengthNum(len) {
-    let number = Number.parseInt(Math.random() * Math.pow(10, len));
-    if (number > Math.pow(10, len - 1) && number < Math.pow(10, len)) {
-        return number;
-    } else {
-        return getLengthNum(len);
     }
 }

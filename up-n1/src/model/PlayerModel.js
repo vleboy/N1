@@ -68,6 +68,22 @@ module.exports = class PlayerModel extends BaseModel {
         }
         return await this.getPlayer(res.Items[0].userName)
     }
+
+    /**
+     * 根据userId校验玩家是否存在
+     */
+    async isUserIdExit(userId) {
+        const res = await this.query({
+            ProjectionExpression: 'userName',
+            IndexName: 'userIdIndex',
+            KeyConditionExpression: 'userId = :userId',
+            ExpressionAttributeValues: {
+                ':userId': +userId
+            }
+        })
+        return (res && res.Items.length == 0) ? false : true
+    }
+
     /**
      * 退出游戏
      * @param {*} userName

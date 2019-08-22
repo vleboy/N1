@@ -16,7 +16,7 @@ const BillModel = require('./model/BillModel')
 const UserCheck = require('./biz/UserCheck')
 const RoleCodeEnum = require('./lib/UserConsts').RoleCodeEnum
 const RoleEditProps = require('./lib/UserConsts').RoleEditProps
-const { GameTypeEnum } = require('./lib/Consts')
+const { GameTypeEnum, GameStateEnum } = require('./lib/Consts')
 const Model = require('./lib/Model').Model
 
 /**
@@ -180,6 +180,54 @@ router.post('/merchants/:id', async function (ctx, next) {
   // 结果返回
   ctx.body = { code: 0, payload: updateRet }
 })
+/**
+ * 商户自主创建玩家
+ */
+router.post('/merchant/player/create', async function (ctx, next) {
+  let inparam = ctx.request.body
+  let token = ctx.tokenVerify
+  // 检查商户
+  let userInfo = await new UserModel().getUser(token.userId, RoleCodeEnum.Merchant)
+  if (userInfo.status == 0) {
+    throw { "code": -1, "msg": "商户已停用" }
+  }
+  // 检查玩家
+  let userName = `${userInfo.suffix}_${inparam.userName}`
+  let playerInfo = await new PlayerModel().getItem({
+    ConsistentRead: true,
+    ProjectionExpression: 'userId',
+    ExpressionAttributeNames: { '#state': 'state' },
+    Key: { 'userName': userName }
+  })
+  if (!_.isEmpty(playerInfo)) {
+    throw { "code": -1, "msg": "玩家已存在" }
+  }
+  else if (!inparam.userPwd) {
+    throw { "code": -1, "msg": "请输入玩家密码" }
+  }
+  // 生成玩家的userId
+  let userId = _.random(100000, 999999)
+  while (await new PlayerModel().isUserIdExit(userId)) {
+    userId = _.random(100000, 999999)
+  }
+  await new PlayerModel().putItem({
+    userName: userName,
+    userId: userId,
+    password: inparam.userPwd,
+    buId: userInfo.displayId,
+    role: 10000,
+    state: 1,
+    balance: 0,
+    msn: _.padStart(userInfo.msn, 3, '0'),
+    merchantName: userInfo.displayName,
+    parent: userInfo.userId,
+    parentName: userInfo.username,
+    nickname: 'NULL!',
+    gameState: GameStateEnum.OffLine,
+    parentSn: userInfo.sn
+  })
+})
+
 
 // ==================== 以下为内部方法 ====================
 /**
