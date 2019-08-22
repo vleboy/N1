@@ -287,13 +287,13 @@ router.post('/merchant/player/point', async (ctx, next) => {
       throw { code: -1, msg: "玩家余额不足" }
     }
   }
-  //更新玩家余额
+  // 更新玩家余额
   let currentBalanceObj = await playerModel.updatePlayerBalance({
     userName: playerInfo.userName,
     userId: playerInfo.userId,
     amt: action == 1 ? Math.abs(inparam.amount) : Math.abs(inparam.amount) * -1
   })
-  //写入用户流水表
+  // 写入用户流水表
   let userBill = {
     sn: uuid(),
     fromRole: action == 1 ? '100' : '10000',
@@ -312,7 +312,7 @@ router.post('/merchant/player/point', async (ctx, next) => {
     toLevel: 10000,
     action: -action
   }
-  //写入玩家流水表
+  // 写入玩家流水表
   let playerBill = {
     sn: playerBillSn,
     action: action,
