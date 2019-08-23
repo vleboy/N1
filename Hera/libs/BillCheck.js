@@ -167,23 +167,23 @@ module.exports = class BillCheck {
         inparam.userName = inparam.userName.toString().trim()
     }
     //检查玩家获取token
-    checkPlayerLoginToken(inparam) {
-        let [checkAttError, errorParams] = athena.Util.checkProperties([
-            { name: "userName", type: "S" },
-            { name: "userPwd", type: "S" },
-            { name: "buId", type: "N" },
-            { name: "apiKey", type: "S", min: 1 },
-        ], inparam)
-        if (checkAttError) {
-            Object.assign(checkAttError, { params: errorParams })
-            throw checkAttError
-        }
-        if (typeof inparam.userName != 'string') {
-            throw { code: 10001, msg: '入参数据不合法', params: ['userName'] }
-        }
-        inparam.buId = +inparam.buId
-        inparam.userName = inparam.userName.toString().trim()
-    }
+    // checkPlayerLoginToken(inparam) {
+    //     let [checkAttError, errorParams] = athena.Util.checkProperties([
+    //         { name: "userName", type: "S" },
+    //         { name: "userPwd", type: "S" },
+    //         { name: "buId", type: "N" },
+    //         { name: "apiKey", type: "S", min: 1 },
+    //     ], inparam)
+    //     if (checkAttError) {
+    //         Object.assign(checkAttError, { params: errorParams })
+    //         throw checkAttError
+    //     }
+    //     if (typeof inparam.userName != 'string') {
+    //         throw { code: 10001, msg: '入参数据不合法', params: ['userName'] }
+    //     }
+    //     inparam.buId = +inparam.buId
+    //     inparam.userName = inparam.userName.toString().trim()
+    // }
     //检查报表参数
     // checkgGameReport(inparam) {
     //     let [checkAttError, errorParams] = athena.Util.checkProperties([

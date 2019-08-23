@@ -66,6 +66,14 @@ functions:
           path: /game/login
           method: post
           cors: true
+  playerLoginToken: #玩家获取token(一天)或更新玩家密码
+    handler: api_player.playerLoginToken
+    memorySize: 128
+    events:
+      - http:
+          path: /player
+          method: post
+          cors: true
   ##游戏API
   auth: #网页游戏认证
     handler: api_game.auth
@@ -83,14 +91,6 @@ functions:
           method: post
           cors: true
   ##即将废弃接口
-  playerLoginToken: #玩家获取token(一天)
-    handler: api_player.playerLoginToken
-    memorySize: 128
-    events:
-      - http:
-          path: /player
-          method: post
-          cors: true
   getGamePlayerBalance: #玩家自行获取余额
     handler: api_player.getGamePlayerBalance
     memorySize: 128

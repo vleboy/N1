@@ -94,17 +94,28 @@ module.exports.gamePlayerRegister = async function (e, c, cb) {
 }
 
 /**
- * 玩家获取token(废弃)
+ * 玩家获取token
  */
 module.exports.playerLoginToken = async function (e, c, cb) {
     try {
-        //1,获取入参
+        //获取入参
         const inparam = JSONParser(e.body)
         console.log(inparam)
-        //2,参数校验
-        new BillCheck().checkPlayerLoginToken(inparam)
-        //3,获取商户信息
-        let userInfo = await new UserModel().queryByDisplayId(inparam.buId)
+        //判断是否为修改密码
+        if (inparam.oldUserPwd) {
+            let playerInfo = await new PlayerModel().getPlayer(inparam.userName)
+            if (playerInfo.state == 0) {
+                return ResFail(cb, { msg: '玩家已停用' }, 10005)
+            }
+            if (playerInfo.password != inparam.oldUserPwd) {
+                return ResFail(cb, { msg: '玩家旧密码不正确' }, 10004)
+            }
+            await new PlayerModel().updatePwd({ userName, newPwd: inparam.userPwd })
+            return ResOK(cb, { msg: 'success' }, 0)
+        }
+        
+        //获取商户信息
+        let userInfo = await new UserModel().queryByDisplayId(+inparam.buId)
         if (_.isEmpty(userInfo) || userInfo.apiKey != inparam.apiKey) {
             return ResFail(cb, { msg: '商户不存在,请检查buId和apiKey' }, 10001)
         }
@@ -116,23 +127,21 @@ module.exports.playerLoginToken = async function (e, c, cb) {
         if (userInfo.status == '0') {
             return ResFail(cb, { msg: '商户已停用' }, 10006)
         }
-        //4,获取玩家信息
+        //获取玩家信息
         let userName = `${userInfo.suffix}_${inparam.userName}`
         let playerInfo = await new PlayerModel().getPlayer(userName)
         if (playerInfo.state == 0) {
-            return ResFail(cb, { msg: '玩家已启用' }, 10005)
+            return ResFail(cb, { msg: '玩家已停用' }, 10005)
         }
         if (playerInfo.password != inparam.userPwd) {
             return ResFail(cb, { msg: '玩家密码不正确' }, 10004)
         }
-        //5,生成token返回
+        //生成token返回
         let loginToken = jwt.sign({ userName, suffix: userInfo.suffix, userId: +playerInfo.userId, exp: Math.floor(Date.now() / 1000) + 86400 }, TOKEN_SECRET)
         let data = {
-            token: loginToken,
-            userName: playerInfo.userName,
-            userId: playerInfo.userId
+            token: loginToken, userName: playerInfo.userName, userId: playerInfo.userId
         }
-        return ResOK(cb, { msg: 'success', data: data }, 0)
+        return ResOK(cb, { msg: 'success', data }, 0)
     } catch (err) {
         console.error(err)
         let code = err == '非法IP' ? 10002 : 500

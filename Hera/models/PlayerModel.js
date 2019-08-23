@@ -1,6 +1,5 @@
 const _ = require('lodash')
 const NP = require('number-precision')
-const crypto = require("crypto")
 const BaseModel = require('./BaseModel')
 const PlayerBillDetailModel = require('./PlayerBillDetailModel')
 const HeraGameRecordModel = require('./HeraGameRecordModel')
@@ -160,16 +159,10 @@ module.exports = class PlayerModel extends BaseModel {
      * 更新玩家密码
      */
     updatePwd(inparam) {
-        const sha = crypto.createHash('sha256');
-        sha.update(inparam.newPwd);
-        let userPwd = sha.digest('hex');
         return this.updateItem({
             Key: { 'userName': inparam.userName },
-            UpdateExpression: "SET userPwd=:userPwd,password=:password",
-            ExpressionAttributeValues: {
-                ':userPwd': userPwd,
-                ':password': inparam.newPwd
-            }
+            UpdateExpression: "SET password=:password",
+            ExpressionAttributeValues: { ':password': inparam.newPwd }
         })
     }
 
