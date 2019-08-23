@@ -441,9 +441,6 @@ module.exports = class PlayerModel extends BaseModel {
                     console.error(`玩家${userName}在玩家表余额和流水汇总余额不一致:玩家表余额${playerBalance},流水汇总余额${balance}`)
                     new LogModel().add('2', 'playerBalanceErr1', { userName, userId }, `操作接口或类型为:${usage},玩家${userName}在玩家表余额和流水汇总余额不一致:玩家表余额${playerBalance},流水汇总余额${balance}`)
                     isAllowUpdateCache = false
-                    // if (usage == 'billout') {
-                    //     return 'err'
-                    // }
                 }
             }
             // 最后一条的流水余额和玩家表余额不一致，则报警异常

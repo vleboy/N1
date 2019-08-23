@@ -3,7 +3,6 @@ const { ResOK, ResFail } = require('./libs/Response')
 const BillCheck = require('./libs/BillCheck')
 const _ = require('lodash')
 const uuid = require('uuid/v4')
-const NP = require('number-precision')
 // const axios = require('axios')
 // const jwt = require('jsonwebtoken')
 const UserModel = require('./models/UserModel')
@@ -109,11 +108,9 @@ module.exports.gameRecordPage = async function (e, c, cb) {
  */
 module.exports.merchantPlayer = async function (e, c, cb) {
     try {
-        //1,获取入参
         let inparam = JSONParser(e.body)
-        //2,参数校验
         new BillCheck().checkMerchantPlayer(inparam)
-        //3,获取商户信息
+        //获取商户信息
         let userInfo = await new UserModel().queryByDisplayId(inparam.buId)
         if (_.isEmpty(userInfo) || userInfo.apiKey != inparam.apiKey) {
             return ResFail(cb, { msg: '商户不存在,请检查buId和apiKey' }, 10001)
@@ -123,7 +120,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
         }
         //ip校验
         new IPCheck().validateIP(e, userInfo)
-        //4,根据不同操作标识，处理相关逻辑
+        //根据不同操作标识，处理相关逻辑
         let names = []  //玩家账号数组
         let userName = '' //玩家用户名
         switch (inparam.method) {
@@ -154,7 +151,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                     return ResFail(cb, { msg: '请检查入参' }, 500)
                 }
                 //玩家操作的金额小数点两位处理
-                inparam.amount = NP.round(+inparam.amount, 2)
+                inparam.amount = +inparam.amount.toFixed(2)
                 userName = `${userInfo.suffix}_${inparam.userName}`
                 //获取玩家信息，并验证
                 const playerModel = new PlayerModel()
@@ -174,7 +171,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 }
                 //提现，检查玩家余额
                 else if (inparam.action == -1) {
-                    let usage = inparam.action == -1 ? 'billout' : 'billin'
+                    let usage = 'billout'
                     let palyerBalance = await playerModel.getNewBalance({ userName: playerInfo.userName, userId: playerInfo.userId, balance: playerInfo.balance, usage })
                     if (palyerBalance == 'err') {
                         return ResFail(cb, { msg: '账务正在结算中，请联系管理员' }, 500)
