@@ -19,24 +19,66 @@ class MerchantBillModel extends BaseModel {
             sn: uuid(),
         }
     }
-    //获取用户的点数
-    async queryUserBalance(userId) {
-        const res = await this.query({
-            IndexName: 'UserIdIndex',
-            KeyConditionExpression: 'userId = :userId',
-            ProjectionExpression: '#amount',
+ 
+    /**
+     * 查询用户余额
+     * @param {*} user 
+     */
+    async checkUserBalance(user) {
+        // 1、从缓存获取用户余额
+        let initPoint = user.points
+        let cacheRet = await this.query({
+            TableName: Tables.SYSCacheBalance,
+            KeyConditionExpression: 'userId = :userId AND #type = :type',
+            ProjectionExpression: 'balance,lastTime',
             ExpressionAttributeNames: {
-                '#amount': 'amount'
+                '#type': 'type'
             },
             ExpressionAttributeValues: {
-                ':userId': userId
+                ':userId': user.userId,
+                ':type': 'ALL'
             }
         })
-        let balance = 0
-        if (res && res.Items.length != 0) {
-            balance = _.sumBy(res.Items, function (o) { return o.amount })
-            balance = parseFloat(balance.toFixed(2))
+        // 2、根据缓存是否存在进行不同处理，默认没有缓存查询所有
+        let query = {
+            IndexName: 'UserIdIndex',
+            KeyConditionExpression: 'userId = :userId',
+            ProjectionExpression: 'amount,createdAt',
+            ExpressionAttributeValues: {
+                ':userId': user.userId
+            }
         }
+        // 3、缓存存在，只查询后续流水
+        if (cacheRet && !_.isEmpty(cacheRet.Items)) {
+            // 获取缓存余额
+            initPoint = cacheRet.Items[0].balance
+            let lastTime = cacheRet.Items[0].lastTime
+            // 根据最后缓存时间查询后续账单
+            query = {
+                IndexName: 'UserIdIndex',
+                KeyConditionExpression: 'userId = :userId AND createdAt > :createdAt',
+                ProjectionExpression: 'amount,createdAt',
+                ExpressionAttributeValues: {
+                    ':userId': user.userId,
+                    ':createdAt': lastTime
+                }
+            }
+        }
+        let bills = await this.query(query)
+
+        // 4、账单汇总
+        const sums = _.reduce(bills.Items, (sum, bill) => {
+            return sum + bill.amount
+        }, 0.0)
+        const balance = parseFloat((initPoint + sums).toFixed(2))
+        // 5、更新用户余额缓存
+        if (!_.isEmpty(bills.Items)) {
+            new BaseModel().db$('put', {
+                TableName: Tables.SYSCacheBalance,
+                Item: { userId: user.userId, type: 'ALL', balance, lastTime: bills.Items[bills.Items.length - 1].createdAt }
+            })
+        }
+        // 6、返回最后余额
         return balance
     }
 

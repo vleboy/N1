@@ -164,7 +164,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 }
                 //充值，检查商户余额
                 if (inparam.action == 1) {
-                    let userBalance = await new MerchantBillModel().queryUserBalance(userInfo.userId)
+                    let userBalance = await new MerchantBillModel().checkUserBalance(userInfo)
                     if (userBalance < inparam.amount) {
                         return ResFail(cb, { msg: '商户余额不足' }, 10008)
                     }
@@ -260,7 +260,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                 }
                 return ResOK(cb, { msg: 'success', isExist }, 0)
             case 'QUERY_MERCHANT_INFO'://获取商户信息
-                let merchantBalance = await new MerchantBillModel().queryUserBalance(userInfo.userId)
+                let merchantBalance = await new MerchantBillModel().checkUserBalance(userInfo)
                 let data = {
                     displayId: inparam.buId,
                     displayName: userInfo.displayName,
