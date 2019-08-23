@@ -110,10 +110,10 @@ module.exports.playerLoginToken = async function (e, c, cb) {
             if (playerInfo.password != inparam.oldUserPwd) {
                 return ResFail(cb, { msg: '玩家旧密码不正确' }, 10004)
             }
-            await new PlayerModel().updatePwd({ userName, newPwd: inparam.userPwd })
+            await new PlayerModel().updatePwd({ userName: inparam.userName, newPwd: inparam.userPwd })
             return ResOK(cb, { msg: 'success' }, 0)
         }
-        
+
         //获取商户信息
         let userInfo = await new UserModel().queryByDisplayId(+inparam.buId)
         if (_.isEmpty(userInfo) || userInfo.apiKey != inparam.apiKey) {
