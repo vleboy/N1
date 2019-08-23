@@ -241,7 +241,7 @@ module.exports.merchantPlayer = async function (e, c, cb) {
                     return ResFail(cb, { msg: '参数names不合法' }, 500)
                 }
                 let state = inparam.state || 0
-                if (state != 0 && state != 1) {
+                if (state != 1) {
                     state = 0
                 }
                 names = inparam.names.map((item) => {
