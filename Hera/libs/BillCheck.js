@@ -1,6 +1,5 @@
 const athena = require("../libs/athena")
 const LogModel = require('../models/LogModel')
-const NP = require('number-precision')
 module.exports = class BillCheck {
     //流水账单检查
     check(inparam) {
@@ -20,9 +19,9 @@ module.exports = class BillCheck {
         }
         // 数据类型处理
         if (inparam.billType == 3) {
-            inparam.amt = Math.abs(NP.round(inparam.amt, 2)) * -1  //两位小数数学处理
+            inparam.amt = Math.abs(+inparam.amt.toFixed(2)) * -1
         } else {
-            inparam.amt = Math.abs(NP.round(inparam.amt, 2))
+            inparam.amt = Math.abs(+inparam.amt.toFixed(2))
         }
         inparam.userId = +inparam.userId
         inparam.gameType = +inparam.gameType
