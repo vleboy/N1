@@ -347,7 +347,7 @@ module.exports = class PlayerModel extends BaseModel {
                 gameId: bet.gameId ? +bet.gameId : +bet.gameType,
                 roundId: bet.roundId,
                 content,
-                anotherGameData: bet.anotherGameData || 'NULL!'
+                anotherGameData: 'NULL!'
             }
             // 生成游戏记录
             let omitArr = ['userId', 'userName', 'betId', 'parentId', 'gameId', 'gameType', 'betTime', 'createdAt', 'winType', 'updatedAt', 'createdAtString', 'updatedAtString']
@@ -364,10 +364,6 @@ module.exports = class PlayerModel extends BaseModel {
                 sourceIP: data.sourceIP,
                 record: _.omit(data.gameRecord, omitArr)
             }
-            console.log('测试1')
-            console.log(playerRound)
-            console.log(playerRecord)
-            console.log('测试2')
             let batch = { RequestItems: {} }
             batch.RequestItems[Tables.StatRound] = [{
                 PutRequest: { Item: playerRound }
