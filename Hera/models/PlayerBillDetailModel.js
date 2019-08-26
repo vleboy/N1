@@ -58,4 +58,16 @@ module.exports = class PlayerBillDetailModel extends BaseModel {
             }
         })
     }
+
+    /**
+     * 查询对应的BK数据
+     * @param {*} inparam 
+     */
+    queryBk(inparam) {
+        return this.queryOnce({
+            IndexName: 'BusinessKeyIndex',
+            KeyConditionExpression: 'businessKey=:businessKey',
+            ExpressionAttributeValues: { ':businessKey': inparam.bk }
+        })
+    }
 }

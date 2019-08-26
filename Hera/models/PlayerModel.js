@@ -172,7 +172,6 @@ module.exports = class PlayerModel extends BaseModel {
      * @param {*} data 实时流水
      */
     async updatebalance(player, data) {
-        const time1 = Date.now()
         // 1，入参初始化
         const naGameType = data.gameType    // NA游戏大类
         const naGameId = data.gameId        // NA游戏ID
@@ -214,7 +213,6 @@ module.exports = class PlayerModel extends BaseModel {
                 console.error(`玩家${player.userId}的所属商户的游戏供应商${naGameCompany}已被控分警告停用`)
                 return { code: 10006, msg: '商户已停用' }
             }
-            console.log(`单笔流水-执行至下注/冻结检查耗时：${Date.now() - time1}`)
         }
         // 检查2.2：重复的流水，直接返回当前玩家余额
         let billRepeatRes = await playerBillDetailModel.getBill(data.sn)
@@ -222,7 +220,6 @@ module.exports = class PlayerModel extends BaseModel {
             console.error('重复流水')
             return player.balance
         }
-        console.log(`单笔流水-执行至重复流水检查耗时：${Date.now() - time1}`)
         // 检查2.3：返奖/退款，检查其对应的下注信息
         if (isCheckRet) {
             // 使用SN返还，检查下注是否存在
@@ -243,7 +240,6 @@ module.exports = class PlayerModel extends BaseModel {
                 }
             }
             betItem = billBetRes.Item
-            console.log(`单笔流水-执行至检查返还的下注耗时：${Date.now() - time1}`)
             // 检查流水与战绩是否一致
             let billBetAmount = betItem.amount
             // 返奖时，进一步根据不同游戏检查战绩的输赢金额和流水输赢金额是否一致
@@ -296,10 +292,61 @@ module.exports = class PlayerModel extends BaseModel {
         billItem.originalAmount = res.Attributes.balance                         // 帐变前金额
         billItem.balance = NP.plus(res.Attributes.balance, amt)                  // 帐变后金额
         await playerBillDetailModel.putItem(billItem)
-        console.log(`单笔流水-执行至余额流水持久化耗时：${Date.now() - time1}`)
-        // 6，返还时写战绩
+        // 6，返还时写局表和战绩
         if (isCheckRet) {
             playerBillDetailModel.checkExpire(betItem, billItem)
+            let bills = await playerBillDetailModel.queryBk({ bk: billItem.businessKey })
+            await this.addRound(billItem, bills)
+        }
+        return billItem.balance
+    }
+
+    /**
+     * 生成新注单
+     * @param {*} inparam 
+     */
+    addRound(inparam, bills) {
+        // 查询BK对应的流水
+        if (bills.Items && bills.Items.length > 0) {
+            let bets = bills.Items.filter(i => i.type == 3)                                     // 所有下注
+            let bet = bets[0]                                                                   // 第一条下注
+            let ret = bills.Items.filter(i => i.type == 4 || i.type == 5)                       // 所有返奖
+            let content = ret ? { bet: bets, ret } : { bet: bets }
+            let lastRetItem = _.maxBy(bills.Items, 'createdAt')
+            // 生成注单
+            let betAmount = 0                                                                   // 下注金额
+            for (let item of bets) {
+                betAmount += item.amount
+            }
+            let retAmount = inparam.amt                                                         // 返回金额
+            let winloseAmount = parseFloat((retAmount + betAmount).toFixed(2))                  // 输赢金额（正负相加）
+            let winAmount = inparam.billType == 5 ? 0.0 : retAmount                             // 返奖金额
+            let refundAmount = inparam.billType == 5 ? retAmount : 0.0                          // 退款金额
+            let mixAmount = Math.min(Math.abs(betAmount), Math.abs(winloseAmount))              // 洗码量
+            let playerRound = {
+                businessKey: bet.businessKey,
+                parent: bet.parent,
+                userName: bet.userName,
+                userId: +bet.userId,
+                createdAt: bet.createdAt,
+                createdDate: +moment(bet.createdAt).utcOffset(8).format('YYYYMMDD'),
+                createdStr: bet.createdStr,
+                retAt: lastRetItem.createdAt,
+                betCount: bets.length,
+                originalAmount: bet.originalAmount,
+                betAmount: betAmount,
+                retAmount: retAmount,
+                winAmount: winAmount,
+                refundAmount: refundAmount,
+                winloseAmount: winloseAmount,
+                mixAmount: mixAmount,
+                gameType: +bet.gameType,
+                gameId: bet.gameId ? +bet.gameId : +bet.gameType,
+                roundId: bet.roundId,
+                content,
+                anotherGameData: bet.anotherGameData || 'NULL!'
+            }
+            // 生成游戏记录
             let omitArr = ['userId', 'userName', 'betId', 'parentId', 'gameId', 'gameType', 'betTime', 'createdAt', 'winType', 'updatedAt', 'createdAtString', 'updatedAtString']
             let playerRecord = {
                 userId: +player.userId,
@@ -314,10 +361,15 @@ module.exports = class PlayerModel extends BaseModel {
                 sourceIP: data.sourceIP,
                 record: _.omit(data.gameRecord, omitArr)
             }
-            await new HeraGameRecordModel().putItem(playerRecord)
+            let batch = { RequestItems: {} }
+            batch.RequestItems[Tables.StatRound] = [{
+                PutRequest: { Item: playerRound }
+            }]
+            batch.RequestItems[Tables.HeraGameRecord] = [{
+                PutRequest: { Item: playerRecord }
+            }]
+            return this.batchWrite(batch)
         }
-        console.log(`单笔流水-执行至战绩持久化耗时：${Date.now() - time1}`)
-        return billItem.balance
     }
 
     /**
