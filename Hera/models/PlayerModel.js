@@ -321,10 +321,10 @@ module.exports = class PlayerModel extends BaseModel {
             for (let item of bets) {
                 betAmount += item.amount
             }
-            let retAmount = billItem.amt                                                        // 返回金额
+            let retAmount = billItem.amount                                                     // 返回金额
             let winloseAmount = parseFloat((retAmount + betAmount).toFixed(2))                  // 输赢金额（正负相加）
-            let winAmount = billItem.billType == 5 ? 0.0 : retAmount                            // 返奖金额
-            let refundAmount = billItem.billType == 5 ? retAmount : 0.0                         // 退款金额
+            let winAmount = billItem.type == 5 ? 0.0 : retAmount                                // 返奖金额
+            let refundAmount = billItem.type == 5 ? retAmount : 0.0                             // 退款金额
             let mixAmount = Math.min(Math.abs(betAmount), Math.abs(winloseAmount))              // 洗码量
             let playerRound = {
                 businessKey: bet.businessKey,
