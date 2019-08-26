@@ -296,7 +296,7 @@ module.exports = class PlayerModel extends BaseModel {
         if (isCheckRet) {
             playerBillDetailModel.checkExpire(betItem, billItem)
             let bills = await playerBillDetailModel.queryBk({ bk: billItem.businessKey })
-            await this.addRound(billItem, bills)
+            await this.addRound(billItem, bills, player)
         }
         return billItem.balance
     }
@@ -305,7 +305,7 @@ module.exports = class PlayerModel extends BaseModel {
      * 生成新注单
      * @param {*} inparam 
      */
-    addRound(inparam, bills) {
+    addRound(inparam, bills, player) {
         // 查询BK对应的流水
         if (bills.Items && bills.Items.length > 0) {
             let bets = bills.Items.filter(i => i.type == 3)                                     // 所有下注
