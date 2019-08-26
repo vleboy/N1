@@ -364,6 +364,10 @@ module.exports = class PlayerModel extends BaseModel {
                 sourceIP: data.sourceIP,
                 record: _.omit(data.gameRecord, omitArr)
             }
+            console.log('测试1')
+            console.log(playerRound)
+            console.log(playerRecord)
+            console.log('测试2')
             let batch = { RequestItems: {} }
             batch.RequestItems[Tables.StatRound] = [{
                 PutRequest: { Item: playerRound }
