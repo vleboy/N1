@@ -296,16 +296,19 @@ module.exports = class PlayerModel extends BaseModel {
         if (isCheckRet) {
             playerBillDetailModel.checkExpire(betItem, billItem)
             let bills = await playerBillDetailModel.queryBk({ bk: billItem.businessKey })
-            await this.addRound(billItem, bills, player)
+            await this.addRound(billItem, bills, player, data)
         }
         return billItem.balance
     }
 
     /**
      * 生成新注单
-     * @param {*} inparam 
+     * @param {*} billItem 当前流水
+     * @param {*} bills    所有流水
+     * @param {*} player   玩家
+     * @param {*} data     原始数据
      */
-    addRound(inparam, bills, player) {
+    addRound(billItem, bills, player, data) {
         // 查询BK对应的流水
         if (bills.Items && bills.Items.length > 0) {
             let bets = bills.Items.filter(i => i.type == 3)                                     // 所有下注
@@ -318,10 +321,10 @@ module.exports = class PlayerModel extends BaseModel {
             for (let item of bets) {
                 betAmount += item.amount
             }
-            let retAmount = inparam.amt                                                         // 返回金额
+            let retAmount = billItem.amt                                                        // 返回金额
             let winloseAmount = parseFloat((retAmount + betAmount).toFixed(2))                  // 输赢金额（正负相加）
-            let winAmount = inparam.billType == 5 ? 0.0 : retAmount                             // 返奖金额
-            let refundAmount = inparam.billType == 5 ? retAmount : 0.0                          // 退款金额
+            let winAmount = billItem.billType == 5 ? 0.0 : retAmount                            // 返奖金额
+            let refundAmount = billItem.billType == 5 ? retAmount : 0.0                         // 退款金额
             let mixAmount = Math.min(Math.abs(betAmount), Math.abs(winloseAmount))              // 洗码量
             let playerRound = {
                 businessKey: bet.businessKey,
@@ -351,11 +354,11 @@ module.exports = class PlayerModel extends BaseModel {
             let playerRecord = {
                 userId: +player.userId,
                 userName: player.userName,
-                betId: billItem.businessKey,
-                parentId: player.parent,
-                gameId: data.gameId.toString(),
-                gameType: naGameType,
-                betTime: betItem.createdAt,
+                betId: bet.businessKey,
+                parentId: bet.parent,
+                gameId: bet.gameId.toString(),
+                gameType: +bet.gameType,
+                betTime: bet.createdAt,
                 createdAt: Date.now(),
                 winType: data.gameRecord.winType,
                 sourceIP: data.sourceIP,
