@@ -221,6 +221,7 @@ async function transferNA(inparam, cb) {
         gameType: inparam.gameType,
         gameId: inparam.gameId,
         userId: inparam.userId.toString(),
+        sourceIP: inparam.sourceIP,
         timestamp: inparam.timestamp || Date.now()
     }
     if (inparam.billType == 3) {
