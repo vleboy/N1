@@ -50,6 +50,9 @@
         "exiturl": "https://api.na12345.com/dev/game/postTransfer",
         "fixPlayerRoundDayUrl": "https://webgame.na77.org/stat/fixPlayerRoundDay"
     },
+    "n2": {
+        "apiUrl": "https://api.1bets.co/xserver/wallet/transfer"
+    },
     "companyMap": {
         "1010000": "TTG",
         "1060000": "SA",

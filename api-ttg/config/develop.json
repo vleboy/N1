@@ -50,6 +50,9 @@
         "exiturl": "https://xbbw2jfb58.execute-api.ap-southeast-1.amazonaws.com/dev/game/postTransfer",
         "fixPlayerRoundDayUrl": "https://ext.na77.org/stat/fixPlayerRoundDay"
     },
+    "n2": {
+        "apiUrl": "https://api.1bets.co/xserver/wallet/transfer"
+    },
     "companyMap": {
         "1010000": "TTG",
         "1060000": "SA",

@@ -16,10 +16,12 @@ const acMap = {}  // 试玩帐号缓存
 const PlayerModel = require('./model/PlayerModel')
 const SYSTransferModel = require('./model/SYSTransferModel')
 const ipMap = {}
+const gameIdMap = {}
 
 // 免转接出-AG游戏连接
 router.get('/ag/:gameId/:userId/:token', async (ctx, next) => {
     ipMap[ctx.params.userId] = ctx.request.ip
+    gameIdMap[ctx.params.userId] = ctx.params.gameId
     const inparam = ctx.params
     const gameType = +`${inparam.gameId.substring(0, inparam.gameId.length - 2)}00`
     const agGameType = +inparam.gameId - gameType
@@ -80,7 +82,7 @@ router.post('/ag/postTransfer', async (ctx, next) => {
             timestamp: Date.now(),
             sourceIP: ipMap[userId],
             gameType: +config.ag.gameType,
-            gameId: +config.ag.gameType,
+            gameId: +gameIdMap[userId],
             detail: inparam
         }
         // 预置SYSTransfer数据
