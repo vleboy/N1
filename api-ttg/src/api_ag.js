@@ -29,12 +29,11 @@ router.get('/ag/:gameId/:userId/:token', async (ctx, next) => {
     if (n2res.data.code != 0) { return ctx.body = { code: n2res.data.code, msg: n2res.data.msg } }
     const player = {
         userId: inparam.userId,
-        regMap: n2res.data.regMap,
-        userName: n2res.data.userName,
+        regMap: n2res.data.regMap
     }
     // 检查AG玩家注册
     if (!player.regMap || !player.regMap.ag) {
-        const agLoginParams = `cagent=${config.ag.cagent}/\\\\/loginname=${player.userId}/\\\\/method=lg/\\\\/actype=1/\\\\/password=123456/\\\\/cur=CNY`
+        const agLoginParams = `cagent=${config.ag.cagent}/\\\\/loginname=T${player.userId}/\\\\/method=lg/\\\\/actype=1/\\\\/password=123456/\\\\/cur=CNY`
         // log.info(`请求AG注册【参数】${agLoginParams}`)
         const params1 = agEnctypt(agLoginParams, config.ag.DES_Encrypt_key)
         const key1 = CryptoJS.MD5(params1 + config.ag.MD5_Encrypt_key).toString()
@@ -52,14 +51,14 @@ router.get('/ag/:gameId/:userId/:token', async (ctx, next) => {
         axios.post(config.n2.apiUrl, player)
     }
     // 建立AG Session
-    const agSessionUrl = `${config.ag.createAGSessionUrl}productid=${config.ag.productid}&username=${player.userId}&session_token=${player.userName}&credit=${player.balance}`
+    const agSessionUrl = `${config.ag.createAGSessionUrl}productid=${config.ag.productid}&username=T${player.userId}&session_token=T${player.userId}&credit=${player.balance}`
     // log.info(`请求AG【GET】${agSessionUrl}`)
     const res2 = await axios.get(agSessionUrl)
     // log.info(`接收AG【返回】${res2.data}`)
     // const finalRes2 = await xmlParse(res2.data)
     // log.info(`AG数据【转换】${JSON.stringify(finalRes2)}`)
     // 返回最终游戏连接
-    const agGameParams = `cagent=${config.ag.cagent}/\\\\/loginname=${player.userId}/\\\\/actype=1/\\\\/password=123456/\\\\/sid=${config.ag.cagent}${parseInt(Date.now() / 1000)}${player.userId}/\\\\/gameType=${agGameType}/\\\\/mh5=y/\\\\/cur=CNY`
+    const agGameParams = `cagent=${config.ag.cagent}/\\\\/loginname=T${player.userId}/\\\\/actype=1/\\\\/password=123456/\\\\/sid=${config.ag.cagent}${parseInt(Date.now() / 1000)}T${player.userId}/\\\\/gameType=${agGameType}/\\\\/mh5=y/\\\\/cur=CNY`
     // log.info(`请求AG【获取游戏链接】${agGameParams}`)
     const params2 = agEnctypt(agGameParams, config.ag.DES_Encrypt_key)
     const key2 = CryptoJS.MD5(params2 + config.ag.MD5_Encrypt_key).toString()
@@ -76,7 +75,7 @@ router.post('/ag/postTransfer', async (ctx, next) => {
     //     inparam[key] = inparam[key][0]
     // }
     // 查询玩家
-    const userId = inparam.sessionToken.toString()
+    const userId = inparam.sessionToken.toString().substr(1)
     if (userId.length == 8) {
         const transactionType = inparam.transactionType
         const transactionID = inparam.transactionID
