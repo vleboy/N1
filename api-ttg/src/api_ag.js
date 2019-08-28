@@ -35,14 +35,10 @@ router.get('/ag/:gameId/:userId/:token', async (ctx, next) => {
     // 检查AG玩家注册
     if (!player.regMap || !player.regMap.ag) {
         const agLoginParams = `cagent=${config.ag.cagent}/\\\\/loginname=T${player.userId}/\\\\/method=lg/\\\\/actype=1/\\\\/password=123456/\\\\/cur=CNY`
-        // log.info(`请求AG注册【参数】${agLoginParams}`)
         const params1 = agEnctypt(agLoginParams, config.ag.DES_Encrypt_key)
         const key1 = CryptoJS.MD5(params1 + config.ag.MD5_Encrypt_key).toString()
-        // log.info(`请求AG注册【GET】${config.ag.checkOrCreateGameAccoutUrl}params=${params1}&key=${key1}`)
         const res1 = await axios.get(`${config.ag.checkOrCreateGameAccoutUrl}params=${params1}&key=${key1}`)
-        // log.info(`接收AG注册【返回】${res1.data}`)
         const finalRes1 = await xmlParse(res1.data)
-        // log.info(`AG数据注册【转换】${JSON.stringify(finalRes1)}`)
         if (finalRes1.result.$.info != 0) {
             return ctx.body = finalRes1
         }
@@ -53,14 +49,10 @@ router.get('/ag/:gameId/:userId/:token', async (ctx, next) => {
     }
     // 建立AG Session
     const agSessionUrl = `${config.ag.createAGSessionUrl}productid=${config.ag.productid}&username=T${player.userId}&session_token=T${player.userId}&credit=${player.balance}`
-    // log.info(`请求AG【GET】${agSessionUrl}`)
-    const res2 = await axios.get(agSessionUrl)
-    // log.info(`接收AG【返回】${res2.data}`)
-    // const finalRes2 = await xmlParse(res2.data)
-    // log.info(`AG数据【转换】${JSON.stringify(finalRes2)}`)
+    await axios.get(agSessionUrl)
+
     // 返回最终游戏连接
     const agGameParams = `cagent=${config.ag.cagent}/\\\\/loginname=T${player.userId}/\\\\/actype=1/\\\\/password=123456/\\\\/sid=${config.ag.cagent}${parseInt(Date.now() / 1000)}T${player.userId}/\\\\/gameType=${agGameType}/\\\\/mh5=y/\\\\/cur=CNY`
-    // log.info(`请求AG【获取游戏链接】${agGameParams}`)
     const params2 = agEnctypt(agGameParams, config.ag.DES_Encrypt_key)
     const key2 = CryptoJS.MD5(params2 + config.ag.MD5_Encrypt_key).toString()
     const finalUrl = `${config.ag.forwardGameUrl}params=${params2}&key=${key2}`
@@ -91,27 +83,39 @@ router.post('/ag/postTransfer', async (ctx, next) => {
             gameId: +config.ag.gameType,
             detail: inparam
         }
+        // 预置SYSTransfer数据
+        let item = {
+            ...data,
+            plat: 'YIBO',
+            userNick: data.userId,
+            gameType: data.gameType,
+            anotherGameData: JSON.stringify(inparam),
+            createdAt: data.timestamp,
+            createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
+            createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
+            userId: item.userId.toString()
+        }
         // 判断交易类型
         switch (transactionType) {
             case 'BET':
-                inparam.billType = 3
+                item.type = 3
                 data.method = 'bet'
                 data.amount = parseFloat(inparam.value) * -1
                 break;
             case 'WIN':
-                inparam.billType = 4
+                item.type = 4
                 data.method = 'win'
                 data.amount = parseFloat(inparam.validBetAmount) + parseFloat(inparam.netAmount)
                 data.betsn = `AG_${userId}_BET_${transactionID}`
                 break;
             case 'LOSE':
-                inparam.billType = 4
+                item.type = 4
                 data.method = 'win'
                 data.amount = parseFloat(inparam.validBetAmount) + parseFloat(inparam.netAmount)
                 data.betsn = `AG_${userId}_BET_${transactionID}`
                 break;
             case 'REFUND':
-                inparam.billType = 5
+                item.type = 5
                 data.method = 'refund'
                 data.amount = parseFloat(inparam.value)
                 data.betsn = `AG_${userId}_BET_${transactionID}`
@@ -119,21 +123,9 @@ router.post('/ag/postTransfer', async (ctx, next) => {
             default:
                 return
         }
-        // 构造写入SYSTransfer数据
-        let item = { ...data }
-        item.plat = 'YIBO'
-        item.userNick = data.userId
-        item.type = inparam.billType
-        item.gameType = data.gameType
-        item.anotherGameData = JSON.stringify(inparam)
-        item.createdAt = data.timestamp
-        item.createdDate = moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD')
-        item.createdStr = moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')
-        item.userId = item.userId.toString()
+        // 向N2同步
         try {
-            // 向N2同步
             let n2res = await axios.post(config.n2.apiUrl, data)
-            // 返回AG
             if (n2res.data.code == 0) {
                 item.status = 'Y'
                 item.balance = n2res.data.balance ? +n2res.data.balance : 0
@@ -161,7 +153,6 @@ router.post('/ag/postTransfer', async (ctx, next) => {
         return next()
     }
 })
-
 
 /**
  * 获取AG游戏连接
