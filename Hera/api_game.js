@@ -218,6 +218,7 @@ async function transferNA(inparam, cb) {
     let data = {
         businessKey: inparam.businessKey,
         sn: inparam.sn,
+        gameType: inparam.gameType,
         gameId: inparam.gameId,
         userId: inparam.userId.toString(),
         timestamp: inparam.timestamp || Date.now()
