@@ -85,7 +85,7 @@ router.post('/ag/postTransfer', async (ctx, next) => {
         }
         // 预置SYSTransfer数据
         let item = {
-            ..._.omit(data, ['timestamp', 'detail']),
+            ..._.omit(data, ['method', 'timestamp', 'detail']),
             plat: 'YIBO',
             userId: data.userId.toString(),
             userNick: data.userId.toString(),
