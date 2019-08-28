@@ -71,6 +71,7 @@ router.post('/ag/postTransfer', async (ctx, next) => {
         const transactionType = inparam.transactionType
         const transactionID = inparam.transactionID
         // const gameCode = inparam.gameCode
+        console.log(gameIdMap[userId])
         // 预置请求数据
         const data = {
             userId: +userId,
@@ -82,7 +83,7 @@ router.post('/ag/postTransfer', async (ctx, next) => {
             timestamp: Date.now(),
             sourceIP: ipMap[userId],
             gameType: +config.ag.gameType,
-            gameId: +gameIdMap[userId],
+            // gameId: +gameIdMap[userId],
             detail: inparam
         }
         // 预置SYSTransfer数据
