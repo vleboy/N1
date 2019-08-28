@@ -29,7 +29,8 @@ router.get('/ag/:gameId/:userId/:token', async (ctx, next) => {
     if (n2res.data.code != 0) { return ctx.body = { code: n2res.data.code, msg: n2res.data.msg } }
     const player = {
         userId: inparam.userId,
-        regMap: n2res.data.regMap
+        regMap: n2res.data.regMap,
+        balance: n2res.data.balance
     }
     // 检查AG玩家注册
     if (!player.regMap || !player.regMap.ag) {
