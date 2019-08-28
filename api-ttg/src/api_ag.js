@@ -106,16 +106,19 @@ router.post('/ag/postTransfer', async (ctx, next) => {
                 inparam.billType = 4
                 data.method = 'win'
                 data.amount = parseFloat(inparam.validBetAmount) + parseFloat(inparam.netAmount)
+                data.betsn = `AG_${userId}_BET_${transactionID}`
                 break;
             case 'LOSE':
                 inparam.billType = 4
                 data.method = 'win'
                 data.amount = parseFloat(inparam.validBetAmount) + parseFloat(inparam.netAmount)
+                data.betsn = `AG_${userId}_BET_${transactionID}`
                 break;
             case 'REFUND':
                 inparam.billType = 5
                 data.method = 'refund'
                 data.amount = parseFloat(inparam.value)
+                data.betsn = `AG_${userId}_BET_${transactionID}`
                 break;
             default:
                 return
