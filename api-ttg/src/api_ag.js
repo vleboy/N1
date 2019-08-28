@@ -130,6 +130,7 @@ router.post('/ag/postTransfer', async (ctx, next) => {
         item.createdAt = data.timestamp
         item.createdDate = moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD')
         item.createdStr = moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')
+        item.userId = item.userId.toString()
         try {
             // 向N2同步
             let n2res = await axios.post(config.n2.apiUrl, data)
