@@ -87,13 +87,12 @@ router.post('/ag/postTransfer', async (ctx, next) => {
         let item = {
             ...data,
             plat: 'YIBO',
-            userNick: data.userId,
-            gameType: data.gameType,
+            userId: data.userId.toString(),
+            userNick: data.userId.toString(),
             anotherGameData: JSON.stringify(inparam),
             createdAt: data.timestamp,
             createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
             createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
-            userId: data.userId.toString()
         }
         // 判断交易类型
         switch (transactionType) {
