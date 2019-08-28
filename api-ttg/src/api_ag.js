@@ -14,6 +14,115 @@ const log = require('tracer').colorConsole({ level: config.log.level })
 const acMap = {}  // 试玩帐号缓存
 const PlayerModel = require('./model/PlayerModel')
 const ipMap = {}
+
+// 免转接出-AG游戏连接
+router.get('/ag/:gameId/:userId/:token', async (ctx, next) => {
+    ipMap[ctx.params.userId] = ctx.request.ip
+    const inparam = ctx.params
+    const gameType = +`${inparam.gameId.substring(0, inparam.gameId.length - 2)}00`
+    const agGameType = +inparam.gameId - gameType
+
+    // 请求N2服务器是否允许玩家进入游戏
+    const n2res = await axios.post(config.n2.apiUrl, inparam)
+    if (n2res.data.code != 0) { return ctx.body = { code: n2res.data.code, msg: n2res.data.msg } }
+    const player = n2res.data.player
+
+    // 检查AG玩家注册
+    if (!player.regMap || !player.regMap.ag) {
+        const agLoginParams = `cagent=${config.ag.cagent}/\\\\/loginname=${player.id}/\\\\/method=lg/\\\\/actype=1/\\\\/password=123456/\\\\/cur=CNY`
+        // log.info(`请求AG注册【参数】${agLoginParams}`)
+        const params1 = agEnctypt(agLoginParams, config.ag.DES_Encrypt_key)
+        const key1 = CryptoJS.MD5(params1 + config.ag.MD5_Encrypt_key).toString()
+        // log.info(`请求AG注册【GET】${config.ag.checkOrCreateGameAccoutUrl}params=${params1}&key=${key1}`)
+        const res1 = await axios.get(`${config.ag.checkOrCreateGameAccoutUrl}params=${params1}&key=${key1}`)
+        // log.info(`接收AG注册【返回】${res1.data}`)
+        const finalRes1 = await xmlParse(res1.data)
+        // log.info(`AG数据注册【转换】${JSON.stringify(finalRes1)}`)
+        if (finalRes1.result.$.info != 0) {
+            return ctx.body = finalRes1
+        }
+        // 通知N2该玩家已经注册AG
+        player.regMap ? player.regMap.ag = 1 : player.regMap = { ag: 1 }
+        axios.post(config.n2.apiUrl, player)
+    }
+    // 建立AG Session
+    const agSessionUrl = `${config.ag.createAGSessionUrl}productid=${config.ag.productid}&username=${player.id}&session_token=${player.playerName}&credit=${player.balance}`
+    // log.info(`请求AG【GET】${agSessionUrl}`)
+    const res2 = await axios.get(agSessionUrl)
+    // log.info(`接收AG【返回】${res2.data}`)
+    // const finalRes2 = await xmlParse(res2.data)
+    // log.info(`AG数据【转换】${JSON.stringify(finalRes2)}`)
+    // 返回最终游戏连接
+    const agGameParams = `cagent=${config.ag.cagent}/\\\\/loginname=${player.id}/\\\\/actype=1/\\\\/password=123456/\\\\/sid=${config.ag.cagent}${parseInt(Date.now() / 1000)}${player.id}/\\\\/gameType=${agGameType}/\\\\/mh5=y/\\\\/cur=CNY`
+    // log.info(`请求AG【获取游戏链接】${agGameParams}`)
+    const params2 = agEnctypt(agGameParams, config.ag.DES_Encrypt_key)
+    const key2 = CryptoJS.MD5(params2 + config.ag.MD5_Encrypt_key).toString()
+    const finalUrl = `${config.ag.forwardGameUrl}params=${params2}&key=${key2}`
+    // log.info(`最终AG【游戏链接】${finalUrl}`)
+    ctx.redirect(finalUrl)
+})
+// 免转接出-AG数据传输
+router.post('/ag/postTransfer', async (ctx, next) => {
+    if (username.length == 8) {
+        // 获取入参
+        let inparam = ctx.request.body.Data.Record[0]
+        for (let key in inparam) {
+            inparam[key] = inparam[key][0]
+        }
+        // 查询玩家
+        const userId = inparam.sessionToken.toString()
+        const transactionType = inparam.transactionType
+        const transactionID = inparam.transactionID
+        const gameCode = inparam.gameCode
+        // 预置请求数据
+        const data = {
+            userId: +userId,
+            method: '',
+            amount: 0,
+            betsn: null,
+            businessKey: `BAG_${userId}_${gameCode}`,
+            sn: `AG_${userId}_${transactionType}_${transactionID}`,
+            timestamp: Date.now(),
+            sourceIP: ipMap[userId],
+            gameId: config.ag.gameType,
+            detail: inparam
+        }
+        // 判断交易类型
+        switch (transactionType) {
+            case 'BET':
+                data.method = 'bet'
+                data.amount = parseFloat(inparam.value) * -1
+                break;
+            case 'WIN':
+                data.method = 'win'
+                data.amount = parseFloat(inparam.validBetAmount) + parseFloat(inparam.netAmount)
+                break;
+            case 'LOSE':
+                data.method = 'win'
+                inparam.amt = parseFloat(inparam.validBetAmount) + parseFloat(inparam.netAmount)
+                break;
+            case 'REFUND':
+                data.method = 'refund'
+                inparam.amt = parseFloat(inparam.value)
+                break;
+            default:
+                return
+        }
+        // 向N2同步
+        let n2res = await axios.post(config.n2.apiUrl, data)
+        // 返回AG
+        if (n2res.data.code == '-1') {
+            ctx.status = 409
+            ctx.body = '<TransferResponse><ResponseCode>INSUFFICIENT_FUNDS</ResponseCode></TransferResponse>'
+        } else {
+            ctx.body = `<TransferResponse><ResponseCode>OK</ResponseCode><Balance>${n2res.data.balance}</Balance></TransferResponse>`
+        }
+    } else {
+        return next()
+    }
+})
+
+
 /**
  * 获取AG游戏连接
  * @param {*} gameId NA游戏大类
