@@ -65,7 +65,7 @@ app.use(mount('/dj/', cors()))          // DJ网页跨域请求
 app.use(mount('/ttg/', xmlParser()))    // TTG服务入参XML解析中间件
 app.use(mount('/sa/', koaBody()))       // SA服务入参TEXT解析中间件
 app.use(mount('/mg/', xmlParser()))     // MG服务入参解析中间件
-app.use(mount('/ag/', xmlParser()))     // AG服务入参解析中间件
+app.use(mount('/ag/', xmlParser({ xmlOptions: { explicitArray: false } })))// AG服务入参解析中间件
 app.use(mount('/ysb/', xmlParser()))    // YSB服务入参解析中间件
 app.use(mount('/rtg/', koaBody()))      // RTG服务入参解析中间件
 app.use(mount('/sb/', bodyParser()))    // SB服务入参解析中间件

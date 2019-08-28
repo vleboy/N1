@@ -70,11 +70,11 @@ router.get('/ag/:gameId/:userId/:token', async (ctx, next) => {
 // 免转接出-AG数据传输
 router.post('/ag/postTransfer', async (ctx, next) => {
     // 获取入参
-    let inparam = ctx.request.body.Data.Record[0]
+    let inparam = ctx.request.body.Data.Record
     console.log(inparam)
-    for (let key in inparam) {
-        inparam[key] = inparam[key][0]
-    }
+    // for (let key in inparam) {
+    //     inparam[key] = inparam[key][0]
+    // }
     // 查询玩家
     const userId = inparam.sessionToken.toString()
     if (userId.length == 8) {
@@ -246,10 +246,10 @@ router.get('/ag/gameurl/:gameId/:sid/:userId/:token', async (ctx, next) => {
  */
 router.post('/ag/postTransfer', async (ctx, next) => {
     // 获取入参
-    let inparam = ctx.request.body.Data.Record[0]
-    for (let key in inparam) {
-        inparam[key] = inparam[key][0]
-    }
+    let inparam = ctx.request.body.Data.Record
+    // for (let key in inparam) {
+    //     inparam[key] = inparam[key][0]
+    // }
     // log.info(inparam)
     // 查询玩家
     const username = inparam.sessionToken
