@@ -80,14 +80,14 @@ router.post('/ag/postTransfer', async (ctx, next) => {
     if (userId.length == 8) {
         const transactionType = inparam.transactionType
         const transactionID = inparam.transactionID
-        const gameCode = inparam.gameCode
+        // const gameCode = inparam.gameCode
         // 预置请求数据
         const data = {
             userId: +userId,
             method: '',
             amount: 0,
             betsn: null,
-            businessKey: `BAG_${userId}_${gameCode}`,
+            businessKey: `BAG_${userId}_${transactionID}`,
             sn: `AG_${userId}_${transactionType}_${transactionID}`,
             timestamp: Date.now(),
             sourceIP: ipMap[userId],
