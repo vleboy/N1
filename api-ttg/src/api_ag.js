@@ -8,11 +8,13 @@ const _ = require('lodash')
 const axios = require('axios')
 const parseString = require('xml2js').parseString
 const CryptoJS = require('crypto-js')
+const moment = require('moment')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const acMap = {}  // 试玩帐号缓存
 const PlayerModel = require('./model/PlayerModel')
+const SYSTransferModel = require('./model/SYSTransferModel')
 const ipMap = {}
 
 // 免转接出-AG游戏连接
@@ -25,11 +27,14 @@ router.get('/ag/:gameId/:userId/:token', async (ctx, next) => {
     // 请求N2服务器是否允许玩家进入游戏
     const n2res = await axios.post(config.n2.apiUrl, inparam)
     if (n2res.data.code != 0) { return ctx.body = { code: n2res.data.code, msg: n2res.data.msg } }
-    const player = n2res.data.player
-
+    const player = {
+        userId: inparam.userId,
+        regMap: n2res.data.regMap,
+        userName: n2res.data.userName,
+    }
     // 检查AG玩家注册
     if (!player.regMap || !player.regMap.ag) {
-        const agLoginParams = `cagent=${config.ag.cagent}/\\\\/loginname=${player.id}/\\\\/method=lg/\\\\/actype=1/\\\\/password=123456/\\\\/cur=CNY`
+        const agLoginParams = `cagent=${config.ag.cagent}/\\\\/loginname=${player.userId}/\\\\/method=lg/\\\\/actype=1/\\\\/password=123456/\\\\/cur=CNY`
         // log.info(`请求AG注册【参数】${agLoginParams}`)
         const params1 = agEnctypt(agLoginParams, config.ag.DES_Encrypt_key)
         const key1 = CryptoJS.MD5(params1 + config.ag.MD5_Encrypt_key).toString()
@@ -43,17 +48,18 @@ router.get('/ag/:gameId/:userId/:token', async (ctx, next) => {
         }
         // 通知N2该玩家已经注册AG
         player.regMap ? player.regMap.ag = 1 : player.regMap = { ag: 1 }
+        player.method = 'update'
         axios.post(config.n2.apiUrl, player)
     }
     // 建立AG Session
-    const agSessionUrl = `${config.ag.createAGSessionUrl}productid=${config.ag.productid}&username=${player.id}&session_token=${player.playerName}&credit=${player.balance}`
+    const agSessionUrl = `${config.ag.createAGSessionUrl}productid=${config.ag.productid}&username=${player.userId}&session_token=${player.userName}&credit=${player.balance}`
     // log.info(`请求AG【GET】${agSessionUrl}`)
     const res2 = await axios.get(agSessionUrl)
     // log.info(`接收AG【返回】${res2.data}`)
     // const finalRes2 = await xmlParse(res2.data)
     // log.info(`AG数据【转换】${JSON.stringify(finalRes2)}`)
     // 返回最终游戏连接
-    const agGameParams = `cagent=${config.ag.cagent}/\\\\/loginname=${player.id}/\\\\/actype=1/\\\\/password=123456/\\\\/sid=${config.ag.cagent}${parseInt(Date.now() / 1000)}${player.id}/\\\\/gameType=${agGameType}/\\\\/mh5=y/\\\\/cur=CNY`
+    const agGameParams = `cagent=${config.ag.cagent}/\\\\/loginname=${player.userId}/\\\\/actype=1/\\\\/password=123456/\\\\/sid=${config.ag.cagent}${parseInt(Date.now() / 1000)}${player.userId}/\\\\/gameType=${agGameType}/\\\\/mh5=y/\\\\/cur=CNY`
     // log.info(`请求AG【获取游戏链接】${agGameParams}`)
     const params2 = agEnctypt(agGameParams, config.ag.DES_Encrypt_key)
     const key2 = CryptoJS.MD5(params2 + config.ag.MD5_Encrypt_key).toString()
@@ -63,14 +69,15 @@ router.get('/ag/:gameId/:userId/:token', async (ctx, next) => {
 })
 // 免转接出-AG数据传输
 router.post('/ag/postTransfer', async (ctx, next) => {
-    if (username.length == 8) {
-        // 获取入参
-        let inparam = ctx.request.body.Data.Record[0]
-        for (let key in inparam) {
-            inparam[key] = inparam[key][0]
-        }
-        // 查询玩家
-        const userId = inparam.sessionToken.toString()
+    // 获取入参
+    let inparam = ctx.request.body.Data.Record[0]
+    console.log(inparam)
+    for (let key in inparam) {
+        inparam[key] = inparam[key][0]
+    }
+    // 查询玩家
+    const userId = inparam.sessionToken.toString()
+    if (userId.length == 8) {
         const transactionType = inparam.transactionType
         const transactionID = inparam.transactionID
         const gameCode = inparam.gameCode
@@ -91,32 +98,64 @@ router.post('/ag/postTransfer', async (ctx, next) => {
         // 判断交易类型
         switch (transactionType) {
             case 'BET':
+                inparam.billType = 3
                 data.method = 'bet'
                 data.amount = parseFloat(inparam.value) * -1
                 break;
             case 'WIN':
+                inparam.billType = 4
                 data.method = 'win'
                 data.amount = parseFloat(inparam.validBetAmount) + parseFloat(inparam.netAmount)
                 break;
             case 'LOSE':
+                inparam.billType = 4
                 data.method = 'win'
-                inparam.amt = parseFloat(inparam.validBetAmount) + parseFloat(inparam.netAmount)
+                data.amount = parseFloat(inparam.validBetAmount) + parseFloat(inparam.netAmount)
                 break;
             case 'REFUND':
+                inparam.billType = 5
                 data.method = 'refund'
-                inparam.amt = parseFloat(inparam.value)
+                data.amount = parseFloat(inparam.value)
                 break;
             default:
                 return
         }
-        // 向N2同步
-        let n2res = await axios.post(config.n2.apiUrl, data)
-        // 返回AG
-        if (n2res.data.code == '-1') {
-            ctx.status = 409
-            ctx.body = '<TransferResponse><ResponseCode>INSUFFICIENT_FUNDS</ResponseCode></TransferResponse>'
-        } else {
-            ctx.body = `<TransferResponse><ResponseCode>OK</ResponseCode><Balance>${n2res.data.balance}</Balance></TransferResponse>`
+        // 构造写入SYSTransfer数据
+        let item = { ...data }
+        item.plat = 'YIBO'
+        item.userNick = data.userId
+        item.type = inparam.billType
+        item.gameType = data.gameType
+        item.anotherGameData = JSON.stringify(inparam)
+        item.createdAt = data.timestamp
+        item.createdDate = moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD')
+        item.createdStr = moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')
+        try {
+            // 向N2同步
+            let n2res = await axios.post(config.n2.apiUrl, data)
+            // 返回AG
+            if (n2res.data.code == 0) {
+                item.status = 'Y'
+                item.balance = n2res.data.balance ? +n2res.data.balance : 0
+                new SYSTransferModel().putItem(item)
+                ctx.body = `<TransferResponse><ResponseCode>OK</ResponseCode><Balance>${n2res.data.balance}</Balance></TransferResponse>`
+            } else {
+                if (n2res.data.code == -1) {
+                    item.status = 'N'
+                    item.errorMsg = n2res.data.msg
+                    item.transferURL = config.n2.apiUrl
+                    item.repush = data
+                    new SYSTransferModel().putItem(item)
+                } else {
+                    ctx.status = 409
+                    ctx.body = '<TransferResponse><ResponseCode>INSUFFICIENT_FUNDS</ResponseCode></TransferResponse>'
+                }
+            }
+        } catch (error) {
+            item.status = 'E'
+            item.transferURL = config.n2.apiUrl
+            item.repush = data
+            new SYSTransferModel().putItem(item)
         }
     } else {
         return next()
