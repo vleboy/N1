@@ -84,7 +84,8 @@ router.post('/ag/postTransfer', async (ctx, next) => {
             sn: `AG_${userId}_${transactionType}_${transactionID}`,
             timestamp: Date.now(),
             sourceIP: ipMap[userId],
-            gameId: config.ag.gameType,
+            gameType: +config.ag.gameType,
+            gameId: +config.ag.gameType,
             detail: inparam
         }
         // 判断交易类型
