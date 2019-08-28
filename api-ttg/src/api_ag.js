@@ -93,7 +93,7 @@ router.post('/ag/postTransfer', async (ctx, next) => {
             createdAt: data.timestamp,
             createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
             createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
-            userId: item.userId.toString()
+            userId: data.userId.toString()
         }
         // 判断交易类型
         switch (transactionType) {
