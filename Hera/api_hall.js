@@ -59,6 +59,13 @@ module.exports.playerLogin = async function (e, c, cb) {
         if (playerInfo.state == 0) {
             return ResFail(cb, { msg: '玩家已停用' }, 10005)
         }
+        //校验玩家进入那个地区
+        let region = 'main'                                              //默认进入地区
+        let managerId = 'ab1f70d9-31ea-4aed-a5a5-b013cbff370c'           //设置一个线路商id 标识 以下所有商户玩家只能进入进入柬埔寨
+        let users = await new UserModel().queryAllChild(managerId)
+        if (_.findIndex(users.Items, o => o.userId == playerInfo.parent) != -1) {
+            region = 'vn'
+        }
         //4,从缓存获取玩家余额,更新玩家信息
         playerInfo.usage = 'playerLogin'
         let balance = await playerModel.getNewBalance(playerInfo)
@@ -79,7 +86,8 @@ module.exports.playerLogin = async function (e, c, cb) {
             gameList: playerInfo.gameList,
             gameId: playerInfo.gameId || 0,
             sid: playerInfo.sid || 0,
-            isTest: userInfo.isTest
+            isTest: userInfo.isTest,
+            region
         }
         return ResOK(cb, { msg: 'success', data: callObj }, 0)
     } catch (err) {
