@@ -74,6 +74,15 @@ module.exports.auth = async function (e, c, cb) {
                 return ResFail(cb, { msg: '商家游戏已被禁用，请联系运营商' }, 11007)
             }
         }
+
+        //校验玩家进入那个地区
+        let region = 'main'                                              //默认进入地区
+        let managerId = 'ab1f70d9-31ea-4aed-a5a5-b013cbff370c'           //设置一个线路商id 标识 以下所有商户玩家只能进入进入柬埔寨
+        let users = await new UserModel().queryAllChild(managerId)
+        if (_.findIndex(users.Items, o => o.userId == player.parent) != -1) {
+            region = 'vn'
+        }
+
         //5,从缓存表获取玩家最新余额
         player.usage = 'auth'
         let balance = await playerModel.getNewBalance(player)
@@ -84,7 +93,7 @@ module.exports.auth = async function (e, c, cb) {
         updateParms.sid = inparam.gameId
         updateParms.joinTime = Date.now()                        //更新玩家进入游戏时间
         await playerModel.updateJoinGame(player.userName, updateParms)
-        return ResOK(cb, { msg: '操作成功', balance: balance, nickname: player.userId, userId: player.userId, isTest: userInfo.isTest, parent: player.parent }, 0)
+        return ResOK(cb, { msg: '操作成功', balance: balance, nickname: player.userId, userId: player.userId, isTest: userInfo.isTest, parent: player.parent, region }, 0)
     } catch (err) {
         if (err && err.name == 'JsonWebTokenError' || err.name == 'TokenExpiredError') {
             return ResFail(cb, { msg: 'token无效或过期' }, 500)
