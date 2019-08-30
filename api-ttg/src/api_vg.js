@@ -6,6 +6,7 @@ const router = new Router()
 // 工具相关
 const _ = require('lodash')
 const axios = require('axios')
+const moment = require('moment')
 var querystring = require("querystring")
 const CryptoJS = require("crypto-js")
 const parseString = require('xml2js').parseString
@@ -13,7 +14,116 @@ const parseString = require('xml2js').parseString
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
+const SYSTransferModel = require('./model/SYSTransferModel')
 const ipMap = {}
+const gameIdMap = {}
+// 免转接出-VG游戏链接
+router.get('/vg/:gameId/:userId/token', async (ctx, next) => {
+    ipMap[ctx.params.userId] = ctx.request.ip
+    gameIdMap[ctx.params.userId] = ctx.params.gameId
+    const inparam = ctx.params
+    let res = {}
+    // 默认移动版
+    let gameversion = ctx.request.query.lobbyType != '0' ? 2 : 1
+    // 请求N2服务器是否允许玩家进入游戏
+    const nares = await axios.post(config.na.apiUrl, { userId: inparam.userId, method: 'auth' })
+    if (nares.data.code != 0) {
+        return ctx.body = { code: nares.data.code, msg: nares.data.msg }
+    }
+    // 检查VG玩家注册
+    const player = {
+        userId: inparam.userId,
+        regMap: nares.data.regMap,
+        balance: nares.data.balance
+    }
+    if (!player.regMap || !player.regMap.vg) {
+        res = await getVG({ username: inparam.userId, action: 'create' })
+        if (res.response.errcode == '0' || res.response.errcode == '-99') {
+            player.regMap ? player.regMap.vg = 1 : player.regMap = { vg: 1 }
+            player.method = 'update'
+            axios.post(config.n2.apiUrl, player)
+        } else {
+            return ctx.body = res
+        }
+    }
+    // 请求VG游戏登录
+    res = await getVG({ username: inparam.userId, action: 'loginWithChannel', gametype: '1000', gameversion, create: 'true' })
+    ctx.redirect(res.response.result)
+})
+
+//免转接出-VG数据传输
+router.post('/vg/postTransfer', async (ctx, next) => {
+    let inparam = ctx.request.body
+    if (inparam.username.length == 8) {
+        // 预置请求数据
+        const data = {
+            userId: +inparam.username,
+            method: '',
+            amount: 0,
+            betsn: null,
+            businessKey: `BVG_${inparam.username}_${inparam.transactionId}`,
+            sn: `${inparam.username}_${inparam.type}_${inparam.transactionId}`,
+            timestamp: Date.now(),
+            sourceIP: ipMap[inparam.username],
+            gameType: +config.vg.gameType,
+            gameId: gameIdMap[inparam.username] ? +gameIdMap[inparam.username] : +config.vg.gameType,
+            detail: inparam
+        }
+        // 预置SYSTransfer数据
+        let item = {
+            ..._.omit(data, ['method', 'timestamp', 'detail']),
+            plat: 'YIBO',
+            userId: data.userId.toString(),
+            userNick: data.userId.toString(),
+            anotherGameData: JSON.stringify(inparam),
+            createdAt: data.timestamp,
+            createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
+            createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
+        }
+        const nares = await axios.post(config.na.apiUrl, { userId: data.userId, method: 'balance' })
+        if (nares.data.code != 0) {
+            return ctx.body = { code: nares.data.code, msg: nares.data.msg }
+        }
+        if (inparam.type == 'BALANCE') {
+            return ctx.body = { code: 0, balance: nares.data.balance }
+        } else if (inparam.type == 'BET') {
+            item.type = 3
+            data.method = 'bet'
+            data.amount = nares.data.balance * -1
+        } else {
+            item.type = 4
+            data.method = 'win'
+            data.amount = Math.abs(inparam.amount)
+        }
+        // 向N2同步
+        try {
+            let n2res = await axios.post(config.n2.apiUrl, data)
+            if (n2res.data.code == 0) {
+                item.status = 'Y'
+                item.balance = n2res.data.balance ? +n2res.data.balance : 0
+                new SYSTransferModel().putItem(item)
+                ctx.body = { code: 0, msg: 'success', balance }
+            } else {
+                if (n2res.data.code == -1) {
+                    item.status = 'N'
+                    item.errorMsg = n2res.data.msg
+                    item.transferURL = config.n2.apiUrl
+                    item.repush = data
+                    new SYSTransferModel().putItem(item)
+                } else {
+                    ctx.body = { code: -1, msg: 'error' }
+                }
+            }
+        } catch (error) {
+            item.status = 'E'
+            item.transferURL = config.n2.apiUrl
+            item.repush = data
+            new SYSTransferModel().putItem(item)
+        }
+    } else {
+        return next()
+    }
+})
 
 /**
  * VG 游戏链接
