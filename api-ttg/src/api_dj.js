@@ -5,13 +5,232 @@ const Router = require('koa-router')
 const router = new Router()
 // 工具相关
 const _ = require('lodash')
+const moment = require('moment')
 const axios = require('axios')
 const CryptoJS = require("crypto-js")
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
+const SYSTransferModel = require('./model/SYSTransferModel')
 const ipMap = {}
+const gameIdMap = {}
+
+// 免转接出-dj游戏链接
+router.get('/dj/:gameId/:userId/:token', async (ctx, next) => {
+    ipMap[ctx.params.userId] = ctx.request.ip
+    gameIdMap[ctx.params.userId] = ctx.params.gameId
+    const inparam = ctx.params
+    let source = ctx.request.query.lobbyType || '1'
+    inparam.method = 'auth'
+    // 请求N1服务器是否允许玩家进入游戏
+    const nares = await axios.post(config.n2.apiUrl, inparam)
+    if (nares.data.code != 0) {
+        return ctx.body = { code: nares.data.code, msg: nares.data.msg }
+    }
+    const player = {
+        userId: inparam.userId,
+        regMap: n2res.data.regMap,
+        balance: n2res.data.balance
+    }
+    if (!player.regMap || !player.regMap.dj) {
+        let res = await postDJ('create_user', { account: player.userId, userName: player.userId, pwd: '123456' })
+        if (res.data.code == 1 || res.data.code == -4) {
+            player.regMap ? player.regMap.dj = 1 : player.regMap = { dj: 1 }
+            player.method = 'update'
+            axios.post(config.n2.apiUrl, player)
+        } else {
+            return ctx.body = res.data
+        }
+    }
+    // 登录游戏
+    let res = await postDJ('login', { account: player.userId, pwd: '123456', language: "0", source })
+    ctx.redirect(res.data.retobj.url)
+})
+router.post('/dj/query_user_credit', async (ctx, next) => {
+    const inparam = ctx.request.body
+    if (inparam.account.length == 8) {
+        const nares = await axios.post(config.na.apiUrl, { userId: inparam.account, method: 'balance' })
+        if (nares.data.code != 0) {
+            return ctx.body = { code: -2, errmsg: "玩家不存在" }
+        } else {
+            ctx.body = { code: 1, errmsg: "", retobj: { account: inparam.account, credit: nares.data.balance.toString() } }
+        }
+    } else {
+        return next()
+    }
+})
+
+router.post('/dj/bet', async (ctx, next) => {
+    const inparam = ctx.request.body
+    if (inparam.account.length == 8) {
+        // 预置请求数据
+        const data = {
+            userId: +inparam.account,
+            method: 'bet',
+            amount: parseFloat(inparam.betAmount) * -1,
+            betsn: null,
+            businessKey: `BDJ_${inparam.account}_${inparam.orderNo}`,
+            sn: `${inparam.account}_BET_${inparam.orderNo}`,
+            timestamp: Date.now(),
+            sourceIP: ipMap[inparam.account],
+            gameType: +config.dj.gameType,
+            gameId: gameIdMap[inparam.account] ? +gameIdMap[inparam.account] : +config.dj.gameType,
+            detail: inparam
+        }
+        // 预置SYSTransfer数据
+        let item = {
+            ..._.omit(data, ['method', 'timestamp', 'detail']),
+            type: 3,
+            plat: 'YIBO',
+            userId: data.userId.toString(),
+            userNick: data.userId.toString(),
+            anotherGameData: JSON.stringify(inparam),
+            createdAt: data.timestamp,
+            createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
+            createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
+        }
+        // 向N2同步
+        try {
+            let n2res = await axios.post(config.n2.apiUrl, data)
+            if (n2res.data.code == 0) {
+                item.status = 'Y'
+                item.balance = n2res.data.balance ? +n2res.data.balance : 0
+                new SYSTransferModel().putItem(item)
+                ctx.body = { code: 1, errmsg: "", retobj: { transNo: inparam.sntemp, credit: item.balance.toString() } }
+            } else {
+                if (n2res.data.code == -1) {
+                    item.status = 'N'
+                    item.errorMsg = n2res.data.msg
+                    item.transferURL = config.n2.apiUrl
+                    item.repush = data
+                    new SYSTransferModel().putItem(item)
+                } else {
+                    ctx.body = { code: -3, errmsg: "投注失败" }
+                }
+            }
+        } catch (error) {
+            item.status = 'E'
+            item.transferURL = config.n2.apiUrl
+            item.repush = data
+            new SYSTransferModel().putItem(item)
+        }
+    } else {
+        return next()
+    }
+})
+
+router.post('/dj/refund', async (ctx, next) => {
+    const inparam = ctx.request.body
+    if (inparam.account.length == 8) {
+        // 预置请求数据
+        const data = {
+            userId: +inparam.account,
+            method: 'refund',
+            amount: parseFloat(inparam.refundAmount),
+            betsn: `ADJ_${inparam.account}_BET_${inparam.orderNo}`,
+            businessKey: `BDJ_${inparam.account}_${inparam.orderNo}`,
+            sn: `${inparam.account}_REFUND_${inparam.orderNo}`,
+            timestamp: Date.now(),
+            sourceIP: ipMap[inparam.account],
+            gameType: +config.dj.gameType,
+            gameId: gameIdMap[inparam.account] ? +gameIdMap[inparam.account] : +config.dj.gameType,
+            detail: inparam
+        }
+        // 预置SYSTransfer数据
+        let item = {
+            ..._.omit(data, ['method', 'timestamp', 'detail']),
+            type: 5,
+            plat: 'YIBO',
+            userId: data.userId.toString(),
+            userNick: data.userId.toString(),
+            anotherGameData: JSON.stringify(inparam),
+            
+            createdAt: data.timestamp,
+            createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
+            createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
+        }
+        // 向N2同步
+        try {
+            let n2res = await axios.post(config.n2.apiUrl, data)
+            if (n2res.data.code == 0) {
+                item.status = 'Y'
+                item.balance = n2res.data.balance ? +n2res.data.balance : 0
+                new SYSTransferModel().putItem(item)
+                ctx.body = { code: 1, errmsg: "", retobj: { transNo: inparam.sntemp, credit: item.balance.toString() } }
+            } else {
+                item.status = 'N'
+                item.errorMsg = n2res.data.msg
+                item.transferURL = config.n2.apiUrl
+                item.repush = data
+                new SYSTransferModel().putItem(item)
+            }
+        } catch (error) {
+            item.status = 'E'
+            item.transferURL = config.n2.apiUrl
+            item.repush = data
+            new SYSTransferModel().putItem(item)
+        }
+    } else {
+        return next()
+    }
+
+})
+
+router.post('/dj/prize', async (ctx, next) => {
+    const inparam = ctx.request.body
+    if (inparam.account.length == 8) {
+        // 预置请求数据
+        const data = {
+            userId: +inparam.account,
+            method: 'win',
+            amount: parseFloat(inparam.prizeAmount),
+            betsn: `ADJ_${inparam.account}_BET_${inparam.orderNo}`,
+            businessKey: `BDJ_${inparam.account}_${inparam.orderNo}`,
+            sn: `${inparam.account}_WIN_${inparam.orderNo}`,
+            timestamp: Date.now(),
+            sourceIP: ipMap[inparam.account],
+            gameType: +config.dj.gameType,
+            gameId: gameIdMap[inparam.account] ? +gameIdMap[inparam.account] : +config.dj.gameType,
+            detail: inparam
+        }
+        // 预置SYSTransfer数据
+        let item = {
+            ..._.omit(data, ['method', 'timestamp', 'detail']),
+            type: 4,
+            plat: 'YIBO',
+            userId: data.userId.toString(),
+            userNick: data.userId.toString(),
+            anotherGameData: JSON.stringify(inparam),
+            createdAt: data.timestamp,
+            createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
+            createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
+        }
+        // 向N2同步
+        try {
+            let n2res = await axios.post(config.n2.apiUrl, data)
+            if (n2res.data.code == 0) {
+                item.status = 'Y'
+                item.balance = n2res.data.balance ? +n2res.data.balance : 0
+                new SYSTransferModel().putItem(item)
+                ctx.body = { code: 1, errmsg: "", retobj: { transNo: inparam.sntemp, credit: item.balance.toString() } }
+            } else {
+                item.status = 'N'
+                item.errorMsg = n2res.data.msg
+                item.transferURL = config.n2.apiUrl
+                item.repush = data
+                new SYSTransferModel().putItem(item)
+            }
+        } catch (error) {
+            item.status = 'E'
+            item.transferURL = config.n2.apiUrl
+            item.repush = data
+            new SYSTransferModel().putItem(item)
+        }
+    } else {
+        return next()
+    }
+})
 
 /**
  * 玩家上线
