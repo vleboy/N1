@@ -84,7 +84,7 @@ module.exports.auth = async function (e, c, cb) {
         updateParms.sid = inparam.gameId
         updateParms.joinTime = Date.now()                        //更新玩家进入游戏时间
         await playerModel.updateJoinGame(player.userName, updateParms)
-        return ResOK(cb, { msg: '操作成功', balance: balance, nickname: player.userId, userId: player.userId, isTest: userInfo.isTest, parent: player.parent }, 0)
+        return ResOK(cb, { msg: '操作成功', balance: balance, nickname: player.userId, userId: player.userId, isTest: userInfo.isTest, parentSn: userInfo.sn, parent: player.parent }, 0)
     } catch (err) {
         if (err && err.name == 'JsonWebTokenError' || err.name == 'TokenExpiredError') {
             return ResFail(cb, { msg: 'token无效或过期' }, 500)

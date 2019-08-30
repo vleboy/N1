@@ -22,13 +22,9 @@ module.exports = class UserModel extends BaseModel {
         const res = await this.query({
             IndexName: 'UserIdIndex',
             KeyConditionExpression: 'userId = :userId',
-            ProjectionExpression: '#status,gameList,companyList,suffix,chip,isTest',
-            ExpressionAttributeNames: {
-                '#status': 'status'
-            },
-            ExpressionAttributeValues: {
-                ':userId': userId
-            }
+            ProjectionExpression: '#status,gameList,companyList,suffix,chip,isTest,sn',
+            ExpressionAttributeNames: { '#status': 'status' },
+            ExpressionAttributeValues: { ':userId': userId }
         })
         return res.Items[0]
     }
