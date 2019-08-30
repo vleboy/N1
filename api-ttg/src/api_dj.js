@@ -47,6 +47,7 @@ router.get('/dj/:gameId/:userId/:token', async (ctx, next) => {
     let res = await postDJ('login', { account: player.userId, pwd: '123456', language: "0", source })
     ctx.redirect(res.data.retobj.url)
 })
+// 免转接出-dj获取玩家余额
 router.post('/dj/query_user_credit', async (ctx, next) => {
     const inparam = ctx.request.body
     if (inparam.account.length == 8) {
@@ -60,7 +61,7 @@ router.post('/dj/query_user_credit', async (ctx, next) => {
         return next()
     }
 })
-
+// 免转接出-dj玩家下注
 router.post('/dj/bet', async (ctx, next) => {
     const inparam = ctx.request.body
     if (inparam.account.length == 8) {
@@ -119,7 +120,7 @@ router.post('/dj/bet', async (ctx, next) => {
         return next()
     }
 })
-
+// 免转接出-dj玩家退款
 router.post('/dj/refund', async (ctx, next) => {
     const inparam = ctx.request.body
     if (inparam.account.length == 8) {
@@ -145,7 +146,6 @@ router.post('/dj/refund', async (ctx, next) => {
             userId: data.userId.toString(),
             userNick: data.userId.toString(),
             anotherGameData: JSON.stringify(inparam),
-            
             createdAt: data.timestamp,
             createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
             createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
@@ -176,7 +176,7 @@ router.post('/dj/refund', async (ctx, next) => {
     }
 
 })
-
+// 免转接出-dj玩家返还
 router.post('/dj/prize', async (ctx, next) => {
     const inparam = ctx.request.body
     if (inparam.account.length == 8) {
