@@ -158,35 +158,27 @@ module.exports.playerLoginToken = async function (e, c, cb) {
  */
 module.exports.getGamePlayerBalance = async function (e, c, cb) {
     try {
-        //1,获取入参
         let userName = decodeURI(e.pathParameters.userName)
-        //2,token校验
-        let tokenInfo = {}
+        let tokenInfo
         try {
             tokenInfo = await jwt.verify(e.headers.Authorization, TOKEN_SECRET)
         } catch (err) {
             return ResFail(cb, { msg: 'token验证失败或过期' }, 10010)
         }
-        // const inparam = JSONParser(e.queryStringParameters || {})
-        //3,参数校验
-        // new BillCheck().checkPlayerBalance(inparam)
-        //4,获取商户信息
-        // let userInfo = await new UserModel().queryByDisplayId(inparam.buId)
-        // if (_.isEmpty(userInfo)) {
-        //     return ResFail(cb, { msg: '商户不存在' }, 10011)
-        // }
-        // //ip校验
-        // new IPCheck().validateIP(e, userInfo)
-        //7,获取玩家余额
         let playerInfo
+        // 如果入参是玩家ID
         if (!isNaN(+userName)) {
-            playerInfo = await new PlayerModel().getPlayerById(+userName)
-        } else {
-            if (!tokenInfo || !Object.is(`${tokenInfo.suffix}_${userName}`, tokenInfo.userName)) {
-                return ResFail(cb, { msg: 'token验证失败或过期' }, 10010)
+            if (+userName != +tokenInfo.userId) {
+                return ResFail(cb, { msg: 'token验证失败' }, 10010)
             }
-            userName = `${tokenInfo.suffix}_${userName}`
-            playerInfo = await new PlayerModel().getPlayer(userName)
+            playerInfo = await new PlayerModel().getPlayerById(+userName)
+        }
+        // 如果入参是玩家帐号
+        else {
+            if (`${tokenInfo.suffix}_${userName}` != tokenInfo.userName) {
+                return ResFail(cb, { msg: 'token验证失败' }, 10010)
+            }
+            playerInfo = await new PlayerModel().getPlayer(`${tokenInfo.suffix}_${userName}`)
         }
         let usage = 'getGamePlayerBalance'
         let balance = await new PlayerModel().getNewBalance({ userName: playerInfo.userName, userId: playerInfo.userId, balance: playerInfo.balance, usage })
