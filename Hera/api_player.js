@@ -168,10 +168,6 @@ module.exports.getGamePlayerBalance = async function (e, c, cb) {
         } catch (err) {
             return ResFail(cb, { msg: 'token验证失败或过期' }, 10010)
         }
-        if (!tokenInfo || !Object.is(`${tokenInfo.suffix}_${userName}`, tokenInfo.userName)) {
-            return ResFail(cb, { msg: 'token验证失败或过期' }, 10010)
-        }
-        userName = `${tokenInfo.suffix}_${userName}`
         // const inparam = JSONParser(e.queryStringParameters || {})
         //3,参数校验
         // new BillCheck().checkPlayerBalance(inparam)
@@ -184,9 +180,13 @@ module.exports.getGamePlayerBalance = async function (e, c, cb) {
         // new IPCheck().validateIP(e, userInfo)
         //7,获取玩家余额
         let playerInfo
-        if (userId && !isNaN(userId)) {
-            playerInfo = await new PlayerModel().getPlayerById(userId)
+        if (userId && !isNaN(+userId)) {
+            playerInfo = await new PlayerModel().getPlayerById(+userId)
         } else {
+            if (!tokenInfo || !Object.is(`${tokenInfo.suffix}_${userName}`, tokenInfo.userName)) {
+                return ResFail(cb, { msg: 'token验证失败或过期' }, 10010)
+            }
+            userName = `${tokenInfo.suffix}_${userName}`
             playerInfo = await new PlayerModel().getPlayer(userName)
         }
         let usage = 'getGamePlayerBalance'
