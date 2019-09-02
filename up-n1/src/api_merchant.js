@@ -268,7 +268,7 @@ router.post('/merchant/player/point', async (ctx, next) => {
   }
   // 提现时需要离线玩家
   if (inparam.action == -1 && playerInfo.gameState != GameStateEnum.OffLine) {
-    await playerModel.updateOffline(userName)
+    await playerModel.updateOffline(inparam.userName)
   }
   // 充值，获取商户的点数并检查商户的点数是否足够
   if (inparam.action == 1) {
