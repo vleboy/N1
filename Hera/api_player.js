@@ -114,6 +114,7 @@ module.exports.playerLoginToken = async function (e, c, cb) {
             return ResOK(cb, { msg: 'success' }, 0)
         }
 
+        //==================== 兼容旧接口使用 ====================
         //获取商户信息
         let userInfo = await new UserModel().queryByDisplayId(+inparam.buId)
         if (_.isEmpty(userInfo) || userInfo.apiKey != inparam.apiKey) {
@@ -142,6 +143,7 @@ module.exports.playerLoginToken = async function (e, c, cb) {
             token: loginToken, userName: playerInfo.userName, userId: playerInfo.userId
         }
         return ResOK(cb, { msg: 'success', data }, 0)
+        //==================== 兼容旧接口使用 ====================
     } catch (err) {
         console.error(err)
         let code = err == '非法IP' ? 10002 : 500
