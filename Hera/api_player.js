@@ -160,7 +160,6 @@ module.exports.getGamePlayerBalance = async function (e, c, cb) {
     try {
         //1,获取入参
         let userName = decodeURI(e.pathParameters.userName)
-        let userId = decodeURI(e.pathParameters.userId)
         //2,token校验
         let tokenInfo = {}
         try {
@@ -180,8 +179,8 @@ module.exports.getGamePlayerBalance = async function (e, c, cb) {
         // new IPCheck().validateIP(e, userInfo)
         //7,获取玩家余额
         let playerInfo
-        if (userId && !isNaN(+userId)) {
-            playerInfo = await new PlayerModel().getPlayerById(+userId)
+        if (!isNaN(+userName)) {
+            playerInfo = await new PlayerModel().getPlayerById(+userName)
         } else {
             if (!tokenInfo || !Object.is(`${tokenInfo.suffix}_${userName}`, tokenInfo.userName)) {
                 return ResFail(cb, { msg: 'token验证失败或过期' }, 10010)
