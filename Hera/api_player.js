@@ -154,12 +154,13 @@ module.exports.playerLoginToken = async function (e, c, cb) {
 }
 
 /**
- * 玩家获取自己的余额(废弃)
+ * 玩家获取自己的余额
  */
 module.exports.getGamePlayerBalance = async function (e, c, cb) {
     try {
         //1,获取入参
         let userName = decodeURI(e.pathParameters.userName)
+        let userId = decodeURI(e.pathParameters.userId)
         //2,token校验
         let tokenInfo = {}
         try {
@@ -182,9 +183,14 @@ module.exports.getGamePlayerBalance = async function (e, c, cb) {
         // //ip校验
         // new IPCheck().validateIP(e, userInfo)
         //7,获取玩家余额
-        let playerInfo = await new PlayerModel().getPlayer(userName)
+        let playerInfo
+        if (userId && !isNaN(userId)) {
+            playerInfo = await new PlayerModel().getPlayerById(userId)
+        } else {
+            playerInfo = await new PlayerModel().getPlayer(userName)
+        }
         let usage = 'getGamePlayerBalance'
-        let balance = await new PlayerModel().getNewBalance({ userName, userId: playerInfo.userId, balance: playerInfo.balance, usage })
+        let balance = await new PlayerModel().getNewBalance({ userName: playerInfo.userName, userId: playerInfo.userId, balance: playerInfo.balance, usage })
         return ResOK(cb, { msg: 'success', data: { balance } }, 0)
     } catch (err) {
         console.error(err)
