@@ -171,16 +171,16 @@ module.exports.getGamePlayerBalance = async function (e, c, cb) {
             return ResFail(cb, { msg: 'token验证失败或过期' }, 10010)
         }
         userName = `${tokenInfo.suffix}_${userName}`
-        const inparam = JSONParser(e.queryStringParameters || {})
+        // const inparam = JSONParser(e.queryStringParameters || {})
         //3,参数校验
-        new BillCheck().checkPlayerBalance(inparam)
+        // new BillCheck().checkPlayerBalance(inparam)
         //4,获取商户信息
-        let userInfo = await new UserModel().queryByDisplayId(inparam.buId)
-        if (_.isEmpty(userInfo)) {
-            return ResFail(cb, { msg: '商户不存在' }, 10011)
-        }
-        //ip校验
-        new IPCheck().validateIP(e, userInfo)
+        // let userInfo = await new UserModel().queryByDisplayId(inparam.buId)
+        // if (_.isEmpty(userInfo)) {
+        //     return ResFail(cb, { msg: '商户不存在' }, 10011)
+        // }
+        // //ip校验
+        // new IPCheck().validateIP(e, userInfo)
         //7,获取玩家余额
         let playerInfo = await new PlayerModel().getPlayer(userName)
         let usage = 'getGamePlayerBalance'
