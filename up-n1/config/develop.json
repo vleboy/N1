@@ -64,6 +64,7 @@
         "NA_CENTER": "47.88.192.69",
         "ANOTHER_GAME_CENTER": "ext.na77.org",
         "STAT_URL": "ext.na77.org",
+        "GAME_NOTICE_URL": "https://testvn.alimuban.cn:45557/ub",
         "TABLE_NAMES": {
             "TABLE_USER": "HeraGamePlayer",
             "SYSConfig": "SYSConfig",

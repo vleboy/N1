@@ -5,6 +5,7 @@ const Router = require('koa-router')
 const router = new Router()
 // 工具相关
 const _ = require('lodash')
+const axios = require('axios')
 const uuid = require('uuid/v4')
 const NP = require('number-precision')
 // 日志相关
@@ -327,6 +328,8 @@ router.post('/merchant/player/point', async (ctx, next) => {
     balance: currentBalanceObj.balance
   }
   await playerModel.playerBillTransfer(userBill, playerBill)
+  // 通知游戏端
+  axios.post(config.env.GAME_NOTICE_URL, { userId: playerInfo.userId, balance: currentBalanceObj.balance })
   ctx.body = { code: 0 }
 })
 

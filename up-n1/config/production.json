@@ -64,6 +64,7 @@
         "NA_CENTER": "47.74.152.121",
         "ANOTHER_GAME_CENTER": "webgame.na77.org",
         "STAT_URL": "webgame.na77.org",
+        "GAME_NOTICE_URL": "https://vn.alimuban.cn:45557/ub",
         "TABLE_NAMES": {
             "TABLE_USER": "HeraGamePlayer",
             "SYSConfig": "SYSConfig",
