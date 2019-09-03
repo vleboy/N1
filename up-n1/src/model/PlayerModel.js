@@ -143,10 +143,10 @@ module.exports = class PlayerModel extends BaseModel {
         if (inparam.startKey) {
             oldscan.ExclusiveStartKey = inparam.startKey;
         }
-        if (oldscan.FilterExpression == '#msn <> :msn') {
-            oldscan.FilterExpression += ' AND joinTime > :joinTime'
-            oldscan.ExpressionAttributeValues[':joinTime'] = 0
-        }
+        // if (oldscan.FilterExpression == '#msn <> :msn') {
+        //     oldscan.FilterExpression += ' AND joinTime > :joinTime'
+        //     oldscan.ExpressionAttributeValues[':joinTime'] = 0
+        // }
         return this.forScanRes(oldscan, [], inparam.pageSize)
     }
     forScanRes(opts, array = [], pageSize = 20) {
