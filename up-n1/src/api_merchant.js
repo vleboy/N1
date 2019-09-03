@@ -329,7 +329,7 @@ router.post('/merchant/player/point', async (ctx, next) => {
   }
   await playerModel.playerBillTransfer(userBill, playerBill)
   // 通知游戏端
-  axios.post(config.env.GAME_NOTICE_URL, { userId: playerInfo.userId, balance: currentBalanceObj.balance })
+  axios.post(config.env.GAME_NOTICE_URL, { userId: playerInfo.userId, balance: currentBalanceObj.balance, amount: currentBalanceObj.amount })
   ctx.body = { code: 0 }
 })
 
