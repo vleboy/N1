@@ -272,7 +272,7 @@ router.post('/player/list', async function (ctx, next) {
             userName: lastRecord.userName
         } : null;
     }
-    playerList = _.orderBy(playerList, ['joinTime', 'createdAt'], ['desc', 'desc'])
+    playerList = _.orderBy(playerList, ['createdAt'], ['desc'])
     ctx.body = { code: 0, msg: '操作成功', list: playerList, startKey: lastKey }
 })
 
