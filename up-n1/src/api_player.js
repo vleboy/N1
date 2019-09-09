@@ -601,5 +601,16 @@ router.get('/player/bill/detail/download', async function (ctx, next) {
     ctx.body = content;
 })
 
-
+/**
+ * 修改玩家密码
+ */
+router.post('/player/password', async function (ctx, next) {
+    //获取入参
+    let inparam = ctx.request.body
+    //验证玩家是否存在
+    let playerInfo = await new PlayerModel().getPlayer(inparam.userName)
+    //更新
+    await new PlayerModel().updatePassword(inparam)
+    ctx.body = { code: 0, msg: '操作成功' }
+})
 module.exports = router

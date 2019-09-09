@@ -136,7 +136,7 @@ module.exports = class PlayerModel extends BaseModel {
         let oldscan = {
             ...this.params,
             Limit: inparam.pageSize,
-            ProjectionExpression: "userId,userName,buId,merchantName,nickname,#state,gameState,balance,joinTime,gameId,parent,createdAt",
+            ProjectionExpression: "userId,userName,buId,merchantName,nickname,#state,gameState,balance,joinTime,gameId,parent,createdAt,password",
             ExpressionAttributeNames: { "#state": "state" }
         }
         this.buildParms(oldscan, conditions)
@@ -326,6 +326,19 @@ module.exports = class PlayerModel extends BaseModel {
             PutRequest: { Item: playerBill }
         }]
         return this.batchWrite(batch)
+    }
+
+    /**
+     * 商户给玩家修改密码
+     * @param {*} userName
+     * @param {*} password 
+     */     
+    updatePassword(inparam) {
+        return this.updateItem({
+            Key: { 'userName': inparam.userName },
+            UpdateExpression: "SET password=:password",
+            ExpressionAttributeValues: { ':password': inparam.password }
+        })
     }
 }
 
