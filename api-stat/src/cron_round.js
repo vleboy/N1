@@ -60,13 +60,13 @@ cron.schedule('0 0 18 * * *', async () => {
 })
 
 // 定时拉取中心钱包游戏记录(每5秒拉取一次)
-// cron.schedule('*/5 * * * * *', async () => {
-//     // console.time(`游戏记录拉取用时`)
-//     const queryRet = await new ConfigModel().queryLastTime({ code: 'roundLast' })
-//     let lastVGId = await new HeraGameRecordModel().getVGRecord(queryRet.lastVGId)
-//     lastVGId != queryRet.lastVGId && await new ConfigModel().updateLastVGId({ code: 'roundLast', lastVGId })
-//     // console.timeEnd(`游戏记录拉取用时`)
-// })
+cron.schedule('*/5 * * * * *', async () => {
+    // console.time(`游戏记录拉取用时`)
+    const queryRet = await new ConfigModel().queryLastTime({ code: 'roundLast' })
+    let lastVGId = await new HeraGameRecordModel().getVGRecord(queryRet.lastVGId)
+    lastVGId != queryRet.lastVGId && await new ConfigModel().updateLastVGId({ code: 'roundLast', lastVGId })
+    // console.timeEnd(`游戏记录拉取用时`)
+})
 
 // 定时离线连续12小时无流水的玩家
 cron.schedule('0 */5 * * * *', async () => {
