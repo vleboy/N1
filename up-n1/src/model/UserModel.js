@@ -152,6 +152,7 @@ class UserModel extends BaseModel {
                 ':status': StatusEnum.Enable
             }
         })
+        console.log(queryRet.Items)
         // 按照层级排序
         const sortResult = _.sortBy(queryRet.Items, ['level'])
         const viewList = _.map(sortResult, (item) => {
