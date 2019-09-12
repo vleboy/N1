@@ -141,18 +141,12 @@ class UserModel extends BaseModel {
      */
     async listAvalibleManagers() {
         const queryRet = await this.query({
+            ProjectionExpression: 'userId,displayName,#level',
             KeyConditionExpression: '#role = :role',
             FilterExpression: '#status = :status',
-            ExpressionAttributeNames: {
-                '#role': 'role',
-                '#status': 'status'
-            },
-            ExpressionAttributeValues: {
-                ':role': RoleCodeEnum.Manager,
-                ':status': StatusEnum.Enable
-            }
+            ExpressionAttributeNames: { '#role': 'role', '#status': 'status', '#level': 'level' },
+            ExpressionAttributeValues: { ':role': RoleCodeEnum.Manager, ':status': StatusEnum.Enable }
         })
-        console.log(queryRet.Items)
         // 按照层级排序
         const sortResult = _.sortBy(queryRet.Items, ['level'])
         const viewList = _.map(sortResult, (item) => {
