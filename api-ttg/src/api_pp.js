@@ -19,7 +19,7 @@ const ipMap = {}
 const gameIdMap = {}
 
 // 免转接出-PP游戏链接
-router.get('/pp/:gameName/:gameId/:userId/:token', async (ctx, next) => {
+router.get('/pp/:gameId/:userId/:token', async (ctx, next) => {
     ipMap[ctx.params.userId] = ctx.request.ip
     gameIdMap[ctx.params.userId] = ctx.params.gameId
     const inparam = ctx.params
@@ -31,7 +31,7 @@ router.get('/pp/:gameName/:gameId/:userId/:token', async (ctx, next) => {
     // 从PP获取游戏链接
     const ppData = {
         'token': inparam.userId,
-        'symbol': inparam.gameName,
+        'symbol': ctx.request.query.gameName,
         'technology': 'H5',
         'platform': 'MOBILE',
         'language': 'zh'
