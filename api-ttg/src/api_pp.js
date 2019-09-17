@@ -470,6 +470,15 @@ function hashCheck(inparam) {
     return true
 }
 
+function clearEmpty(obj) {
+    for (let key in obj) {
+        if (obj[key] == '') {
+            delete obj[key]
+        }
+    }
+    return obj
+}
+
 // /**
 //  * 玩家登出
 //  * @param {*} userId 玩家ID
