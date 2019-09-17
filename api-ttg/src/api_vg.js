@@ -65,7 +65,7 @@ router.post('/vg/transaction', async (ctx, next) => {
             sourceIP: ipMap[inparam.username],
             gameType: +config.vg.gameType,
             gameId: gameIdMap[inparam.username] ? +gameIdMap[inparam.username] : +config.vg.gameType,
-            detail: inparam
+            detail: clearEmpty(inparam)
         }
         // 预置SYSTransfer数据
         let item = {
@@ -96,10 +96,12 @@ router.post('/vg/transaction', async (ctx, next) => {
         // 向N2同步
         try {
             let n2res = await axios.post(config.n2.apiUrl, data)
+            console.log(n2res)
             if (n2res.data.code == 0) {
                 item.status = 'Y'
                 item.balance = n2res.data.balance ? +n2res.data.balance : 0
                 new SYSTransferModel().putItem(item)
+                console.log({ code: 0, msg: 'success', balance: n2res.data.balance })
                 ctx.body = { code: 0, msg: 'success', balance: n2res.data.balance }
             } else {
                 if (n2res.data.code == -1) {
@@ -234,6 +236,15 @@ function xmlParse(xml) {
             reslove(res)
         })
     })
+}
+
+function clearEmpty(obj) {
+    for (let key in obj) {
+        if (obj[key] == '') {
+            delete obj[key]
+        }
+    }
+    return obj
 }
 
 // 私有方法：等待
