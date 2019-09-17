@@ -18,23 +18,21 @@ const SYSTransferModel = require('./model/SYSTransferModel')
 const ipMap = {}
 const gameIdMap = {}
 // 免转接出-VG游戏链接
-router.get('/vg/:gameId/:userId/token', async (ctx, next) => {
+router.get('/vg/:gameId/:userId/:token', async (ctx, next) => {
     ipMap[ctx.params.userId] = ctx.request.ip
     gameIdMap[ctx.params.userId] = ctx.params.gameId
     const inparam = ctx.params
     let res = {}
-    // 默认移动版
-    let gameversion = ctx.request.query.lobbyType != '0' ? 2 : 1
     // 请求N2服务器是否允许玩家进入游戏
-    const nares = await axios.post(config.na.apiUrl, { userId: inparam.userId, method: 'auth' })
-    if (nares.data.code != 0) {
-        return ctx.body = { code: nares.data.code, msg: nares.data.msg }
+    const n2res = await axios.post(config.n2.apiUrl, { userId: inparam.userId, method: 'auth' })
+    if (n2res.data.code != 0) {
+        return ctx.body = { code: n2res.data.code, msg: n2res.data.msg }
     }
     // 检查VG玩家注册
     const player = {
         userId: inparam.userId,
-        regMap: nares.data.regMap,
-        balance: nares.data.balance
+        regMap: n2res.data.regMap,
+        balance: n2res.data.balance
     }
     if (!player.regMap || !player.regMap.vg) {
         res = await getVG({ username: inparam.userId, action: 'create' })
@@ -47,7 +45,7 @@ router.get('/vg/:gameId/:userId/token', async (ctx, next) => {
         }
     }
     // 请求VG游戏登录
-    res = await getVG({ username: inparam.userId, action: 'loginWithChannel', gametype: '1000', gameversion, create: 'true' })
+    res = await getVG({ username: inparam.userId, action: 'loginWithChannel', gametype: '1000', gameversion: 2, create: 'true' })
     ctx.redirect(res.response.result)
 })
 
@@ -62,7 +60,7 @@ router.post('/vg/postTransfer', async (ctx, next) => {
             amount: 0,
             betsn: null,
             businessKey: `BVG_${inparam.username}_${inparam.transactionId}`,
-            sn: `${inparam.username}_${inparam.type}_${inparam.transactionId}`,
+            sn: `VG_${inparam.username}_${inparam.type}_${inparam.transactionId}`,
             timestamp: Date.now(),
             sourceIP: ipMap[inparam.username],
             gameType: +config.vg.gameType,
@@ -80,16 +78,16 @@ router.post('/vg/postTransfer', async (ctx, next) => {
             createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
             createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
         }
-        const nares = await axios.post(config.na.apiUrl, { userId: data.userId, method: 'balance' })
-        if (nares.data.code != 0) {
-            return ctx.body = { code: nares.data.code, msg: nares.data.msg }
+        const n2res = await axios.post(config.na.apiUrl, { userId: data.userId, method: 'balance' })
+        if (n2res.data.code != 0) {
+            return ctx.body = { code: n2res.data.code, msg: n2res.data.msg }
         }
         if (inparam.type == 'BALANCE') {
-            return ctx.body = { code: 0, balance: nares.data.balance }
+            return ctx.body = { code: 0, balance: n2res.data.balance }
         } else if (inparam.type == 'BET') {
             item.type = 3
             data.method = 'bet'
-            data.amount = nares.data.balance * -1
+            data.amount = n2res.data.balance * -1
         } else {
             item.type = 4
             data.method = 'win'
