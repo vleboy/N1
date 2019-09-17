@@ -6,14 +6,243 @@ const router = new Router()
 // 工具相关
 const _ = require('lodash')
 const axios = require('axios')
-// const jwt = require('jsonwebtoken')
 const CryptoJS = require("crypto-js")
 const querystring = require('querystring')
+const moment = require('moment')
+// const jwt = require('jsonwebtoken')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
+const SYSTransferModel = require('./model/SYSTransferModel')
 const ipMap = {}
+const gameIdMap = {}
+
+// 免转接出-PP游戏链接
+router.get('/pp/:gameName/:gameId/:userId/:token', async (ctx, next) => {
+    ipMap[ctx.params.userId] = ctx.request.ip
+    gameIdMap[ctx.params.userId] = ctx.params.gameId
+    const inparam = ctx.params
+    // 请求N2服务器是否允许玩家进入游戏
+    const n2res = await axios.post(config.n2.apiUrl, { userId: inparam.userId, method: 'auth' })
+    if (n2res.data.code != 0) {
+        return ctx.body = { code: n2res.data.code, msg: n2res.data.msg }
+    }
+    // 从PP获取游戏链接
+    const ppData = {
+        'token': inparam.userId,
+        'symbol': inparam.gameName,
+        'technology': 'H5',
+        'platform': 'MOBILE',
+        'language': 'zh'
+    }
+    const finalUrl = `${config.pp.launchUrl}?key=${encodeURIComponent(querystring.stringify(ppData))}&stylename=${config.pp.secureLogin}`
+    ctx.redirect(finalUrl)
+})
+
+//免转接出-PP数据传输
+router.post('/pp/Authenticate', async (ctx, next) => {
+    const inparam = ctx.request.body
+    const userId = inparam.token
+    if (userId.length == 8) {
+        n2res = await axios.post(config.n2.apiUrl, { userId, method: 'balance' })
+        ctx.body = { userId, currency: 'CNY', cash: n2res.data.balance, bonus: 0, error: 0, description: 'Success' }
+    } else {
+        return next()
+    }
+})
+//免转接出-PP数据传输
+router.post('/pp/Balance', async (ctx, next) => {
+    const inparam = ctx.request.body
+    const userId = inparam.userId
+    if (userId.length == 8) {
+        n2res = await axios.post(config.n2.apiUrl, { userId, method: 'balance' })
+        ctx.body = { currency: 'CNY', cash: n2res.data.balance, bonus: 0, error: 0, description: 'Success' }
+    } else {
+        return next()
+    }
+})
+//免转接出-PP数据传输
+router.post('/pp/Bet', async (ctx, next) => {
+    const inparam = ctx.request.body
+    const userId = inparam.userId
+    if (userId.length == 8) {
+        // 预置请求数据
+        const data = {
+            userId: +userId,
+            method: 'bet',
+            amount: Math.abs(+inparam.amount) * -1,
+            betsn: null,
+            businessKey: `BPP_${userId}_${inparam.roundId}`,
+            sn: `PP_${userId}_BET_${inparam.reference}`,
+            timestamp: Date.now(),
+            sourceIP: ipMap[userId],
+            gameType: +config.pp.gameType,
+            gameId: gameIdMap[userId] ? +gameIdMap[userId] : +config.pp.gameType,
+            detail: clearEmpty(inparam)
+        }
+        // 预置SYSTransfer数据
+        let item = {
+            ..._.omit(data, ['method', 'timestamp', 'detail']),
+            plat: 'YIBO',
+            type: 3,
+            userId: data.userId.toString(),
+            userNick: data.userId.toString(),
+            anotherGameData: JSON.stringify(inparam),
+            createdAt: data.timestamp,
+            createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
+            createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
+        }
+        // 向N2同步
+        try {
+            n2res = await axios.post(config.n2.apiUrl, data)
+            if (n2res.data.code == 0) {
+                item.status = 'Y'
+                item.balance = n2res.data.balance ? +n2res.data.balance : 0
+                new SYSTransferModel().putItem(item)
+                ctx.body = { transactionId: data.sn, currency: "CNY", cash: n2res.data.balance, bonus: 0, usedPromo: 0, error: 0, description: "Success" }
+            } else {
+                if (n2res.data.code == -1) {
+                    item.status = 'N'
+                    item.errorMsg = n2res.data.msg
+                    item.transferURL = config.n2.apiUrl
+                    item.repush = data
+                    new SYSTransferModel().putItem(item)
+                } else {
+                    ctx.body = { transactionId: data.sn, currency: "CNY", cash: n2res.data.balance, bonus: 0, usedPromo: 0, error: 1, description: "balance not enough" }
+                }
+            }
+        } catch (error) {
+            item.status = 'E'
+            item.transferURL = config.n2.apiUrl
+            item.repush = data
+            new SYSTransferModel().putItem(item)
+        }
+    } else {
+        return next()
+    }
+})
+//免转接出-PP数据传输
+router.post('/pp/Result', async (ctx, next) => {
+    const inparam = ctx.request.body
+    const userId = inparam.userId
+    if (userId.length == 8) {
+        // 预置请求数据
+        const data = {
+            userId: +userId,
+            method: 'win',
+            amount: Math.abs(+inparam.amount),
+            betsn: null,
+            businessKey: `BPP_${userId}_${inparam.roundId}`,
+            sn: `PP_${userId}_WIN_${inparam.reference}`,
+            timestamp: Date.now(),
+            sourceIP: ipMap[userId],
+            gameType: +config.pp.gameType,
+            gameId: gameIdMap[userId] ? +gameIdMap[userId] : +config.pp.gameType,
+            detail: clearEmpty(inparam)
+        }
+        // 预置SYSTransfer数据
+        let item = {
+            ..._.omit(data, ['method', 'timestamp', 'detail']),
+            plat: 'YIBO',
+            type: 4,
+            userId: data.userId.toString(),
+            userNick: data.userId.toString(),
+            anotherGameData: JSON.stringify(inparam),
+            createdAt: data.timestamp,
+            createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
+            createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
+        }
+        // 向N2同步
+        try {
+            n2res = await axios.post(config.n2.apiUrl, data)
+            if (n2res.data.code == 0) {
+                item.status = 'Y'
+                item.balance = n2res.data.balance ? +n2res.data.balance : 0
+                new SYSTransferModel().putItem(item)
+                ctx.body = { transactionId: data.sn, currency: "CNY", cash: n2res.data.balance, bonus: 0, usedPromo: 0, error: 0, description: "Success" }
+            } else {
+                if (n2res.data.code == -1) {
+                    item.status = 'N'
+                    item.errorMsg = n2res.data.msg
+                    item.transferURL = config.n2.apiUrl
+                    item.repush = data
+                    new SYSTransferModel().putItem(item)
+                } else {
+                    ctx.body = { transactionId: data.sn, currency: "CNY", cash: n2res.data.balance, bonus: 0, usedPromo: 0, error: 120, description: "bill reject" }
+                }
+            }
+        } catch (error) {
+            item.status = 'E'
+            item.transferURL = config.n2.apiUrl
+            item.repush = data
+            new SYSTransferModel().putItem(item)
+        }
+    } else {
+        return next()
+    }
+})
+//免转接出-PP数据传输
+router.post('/pp/Refund', async (ctx, next) => {
+    const inparam = ctx.request.body
+    const userId = inparam.userId
+    if (userId.length == 8) {
+        // 预置请求数据
+        const data = {
+            userId: +userId,
+            method: 'refund',
+            amount: Math.abs(+inparam.amount),
+            betsn: `PP_BET_${userId}_${inparam.reference}`,
+            businessKey: `BPP_${userId}_${inparam.roundId}`,
+            sn: `PP_${userId}_REFUND_${inparam.reference}`,
+            timestamp: Date.now(),
+            sourceIP: ipMap[userId],
+            gameType: +config.pp.gameType,
+            gameId: gameIdMap[userId] ? +gameIdMap[userId] : +config.pp.gameType,
+            detail: clearEmpty(inparam)
+        }
+        // 预置SYSTransfer数据
+        let item = {
+            ..._.omit(data, ['method', 'timestamp', 'detail']),
+            plat: 'YIBO',
+            type: 5,
+            userId: data.userId.toString(),
+            userNick: data.userId.toString(),
+            anotherGameData: JSON.stringify(inparam),
+            createdAt: data.timestamp,
+            createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
+            createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
+        }
+        // 向N2同步
+        try {
+            n2res = await axios.post(config.n2.apiUrl, data)
+            if (n2res.data.code == 0) {
+                item.status = 'Y'
+                item.balance = n2res.data.balance ? +n2res.data.balance : 0
+                new SYSTransferModel().putItem(item)
+                ctx.body = { transactionId: data.sn, currency: "CNY", cash: n2res.data.balance, bonus: 0, usedPromo: 0, error: 0, description: "Success" }
+            } else {
+                if (n2res.data.code == -1) {
+                    item.status = 'N'
+                    item.errorMsg = n2res.data.msg
+                    item.transferURL = config.n2.apiUrl
+                    item.repush = data
+                    new SYSTransferModel().putItem(item)
+                } else {
+                    ctx.body = { transactionId: data.sn, currency: "CNY", cash: n2res.data.balance, bonus: 0, usedPromo: 0, error: 120, description: "bill reject" }
+                }
+            }
+        } catch (error) {
+            item.status = 'E'
+            item.transferURL = config.n2.apiUrl
+            item.repush = data
+            new SYSTransferModel().putItem(item)
+        }
+    } else {
+        return next()
+    }
+})
+
 /**
  * PP 游戏链接
  */
@@ -221,6 +450,26 @@ router.post('/pp/Refund', async (ctx, next) => {
     }
 })
 
+function hashCheck(inparam) {
+    let sdic = Object.keys(inparam).sort()
+    let signBefore = ''
+    for (let ki in sdic) {
+        if (sdic[ki] != 'hash') {
+            signBefore += (`${sdic[ki]}=${inparam[sdic[ki]]}&`)
+        }
+    }
+    signBefore = signBefore.substr(0, signBefore.length - 1)
+    signBefore += config.pp.hashKey
+    let signAfter = CryptoJS.MD5(signBefore).toString()
+    if (signAfter != inparam.hash) {
+        console.error(`MD5原始：${signBefore}`)
+        console.error(`MD5加密：${signAfter}`)
+        console.error(`MD5比对：${inparam.hash}`)
+        return false
+    }
+    return true
+}
+
 // /**
 //  * 玩家登出
 //  * @param {*} userId 玩家ID
@@ -251,26 +500,5 @@ router.post('/pp/Refund', async (ctx, next) => {
 //         ctx.redirect('http://uniwebview.na77.com?key=value&anotherKey=anotherValue')
 //     }
 // })
-
-function hashCheck(inparam) {
-    let sdic = Object.keys(inparam).sort()
-    let signBefore = ''
-    for (let ki in sdic) {
-        if (sdic[ki] != 'hash') {
-            signBefore += (`${sdic[ki]}=${inparam[sdic[ki]]}&`)
-        }
-    }
-    signBefore = signBefore.substr(0, signBefore.length - 1)
-    signBefore += config.pp.hashKey
-    let signAfter = CryptoJS.MD5(signBefore).toString()
-    if (signAfter != inparam.hash) {
-        console.error(`MD5原始：${signBefore}`)
-        console.error(`MD5加密：${signAfter}`)
-        console.error(`MD5比对：${inparam.hash}`)
-        return false
-    }
-    return true
-}
-
 
 module.exports = router
