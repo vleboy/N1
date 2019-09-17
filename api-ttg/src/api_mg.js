@@ -14,6 +14,7 @@ const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
 const ipMap = {}
+const gameIdMap = {}
 
 // 免转接出-MG游戏链接
 router.get('/mg/:gameId/:userId/:token', async (ctx, next) => {
