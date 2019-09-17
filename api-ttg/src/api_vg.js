@@ -50,7 +50,7 @@ router.get('/vg/:gameId/:userId/:token', async (ctx, next) => {
 })
 
 //免转接出-VG数据传输
-router.post('/vg/postTransfer', async (ctx, next) => {
+router.post('/vg/transaction', async (ctx, next) => {
     let inparam = ctx.request.body
     if (inparam.username.length == 8) {
         // 预置请求数据
@@ -79,7 +79,6 @@ router.post('/vg/postTransfer', async (ctx, next) => {
             createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
         }
         const n2res = await axios.post(config.n2.apiUrl, { userId: data.userId, method: 'balance' })
-        console.log(n2res)
         // if (n2res.data.code != 0) {
         //     return ctx.body = { code: n2res.data.code, msg: n2res.data.msg }
         // }
