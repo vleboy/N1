@@ -69,7 +69,7 @@ router.post('/mg/one', async (ctx, next) => {
             amount: 0,
             betsn: null,
             businessKey: `BMG_${userId}_${inparam.vendorTxNo}`,
-            sn: `MG_${userId}_${inparam.txType}_${inparam.vendorTxId}`,
+            sn: `MG_${userId}_${inparam.txType}_${inparam.lpsTxId}`,
             timestamp: Date.now(),
             sourceIP: ipMap[userId],
             gameType: +config.mg.gameType,
@@ -116,6 +116,7 @@ router.post('/mg/one', async (ctx, next) => {
                     item.type = 5
                     data.method = 'refund'
                     data.amount = Math.abs(inparam.amt)
+                    data.betsn = `MG_${userId}_bet_${inparam.lpsRefTxId}`
                 }
                 break;
             case 'end-game-req':
