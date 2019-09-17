@@ -48,9 +48,8 @@ router.get('/mg/:gameId/:userId/:token', async (ctx, next) => {
 
 //免转接出-MG数据传输
 router.post('/mg/one', async (ctx, next) => {
-    // 获取功能
-    let tag = ''
     // 获取入参
+    let tag = ''
     let inparam = {}
     for (let key in ctx.request.body) {
         tag = key
