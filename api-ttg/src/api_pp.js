@@ -192,7 +192,7 @@ router.post('/pp/Refund', async (ctx, next) => {
             userId: +userId,
             method: 'refund',
             amount: Math.abs(+inparam.amount),
-            betsn: `PP_BET_${userId}_${inparam.reference}`,
+            betsn: `PP_${userId}_BET_${inparam.reference}`,
             businessKey: `BPP_${userId}_${inparam.roundId}`,
             sn: `PP_${userId}_REFUND_${inparam.reference}`,
             timestamp: Date.now(),
