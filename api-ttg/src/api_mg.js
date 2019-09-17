@@ -60,6 +60,7 @@ router.post('/mg/one', async (ctx, next) => {
     // 查询玩家
     console.log(inparam)
     const userId = inparam.token
+    let n2res
     if (inparam.userId.length == 8) {
         // 预置请求数据
         const data = {
@@ -88,13 +89,13 @@ router.post('/mg/one', async (ctx, next) => {
         }
         switch (tag) {
             case 'player-detail-req':
-                const n2res = await axios.post(config.n2.apiUrl, { userId: data.userId, method: 'balance' })
+                n2res = await axios.post(config.n2.apiUrl, { userId: data.userId, method: 'balance' })
                 // if (n2res.data.code == 0) {
                 return ctx.body = `<player-detail-resp seq="${inparam.seq}" token="${inparam.token}" username="${data.userId}" userId="${data.userId}" firstName="${data.userId}" balance="${n2res.data.balance}" currencyCode="${config.mg.currencyCode}" status="0" statusDesc="Ok" lastName="${data.userId}" country="CN" />`
                 // }
                 break;
             case 'balance-req':
-                const n2res = await axios.post(config.n2.apiUrl, { userId: data.userId, method: 'balance' })
+                n2res = await axios.post(config.n2.apiUrl, { userId: data.userId, method: 'balance' })
                 // if (n2res.data.code == 0) {
                 return ctx.body = `<balance-resp seq="${inparam.seq}" token="${inparam.token}" balance="${n2res.data.balance}" status="0" statusDesc="Ok" />`
                 // }
@@ -117,7 +118,7 @@ router.post('/mg/one', async (ctx, next) => {
                 }
                 break;
             case 'end-game-req':
-                const n2res = await axios.post(config.n2.apiUrl, { userId: data.userId, method: 'balance' })
+                n2res = await axios.post(config.n2.apiUrl, { userId: data.userId, method: 'balance' })
                 return ctx.body = `<end-game-resp seq="${inparam.seq}" token="${inparam.token}" status="0" statusDesc="Ok" balance="${n2res.data.balance}" />`
                 break;
             default:
@@ -125,7 +126,7 @@ router.post('/mg/one', async (ctx, next) => {
         }
         // 向N2同步
         try {
-            let n2res = await axios.post(config.n2.apiUrl, data)
+            n2res = await axios.post(config.n2.apiUrl, data)
             if (n2res.data.code == 0) {
                 item.status = 'Y'
                 item.balance = n2res.data.balance ? +n2res.data.balance : 0
