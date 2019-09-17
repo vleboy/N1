@@ -60,7 +60,6 @@ router.post('/mg/one', async (ctx, next) => {
         return
     }
     // 查询玩家
-    console.log(inparam)
     const userId = inparam.token
     if (userId.length == 8) {
         // 预置请求数据
