@@ -22,11 +22,10 @@ router.get('/dj/:gameId/:userId/:token', async (ctx, next) => {
     gameIdMap[ctx.params.userId] = ctx.params.gameId
     const inparam = ctx.params
     let source = ctx.request.query.lobbyType || '1'
-    inparam.method = 'auth'
-    // 请求N1服务器是否允许玩家进入游戏
-    const nares = await axios.post(config.n2.apiUrl, inparam)
-    if (nares.data.code != 0) {
-        return ctx.body = { code: nares.data.code, msg: nares.data.msg }
+    // 请求N2服务器是否允许玩家进入游戏
+    const n2res = await axios.post(config.n2.apiUrl, { userId: inparam.userId, method: 'auth' })
+    if (n2res.data.code != 0) {
+        return ctx.body = { code: n2res.data.code, msg: n2res.data.msg }
     }
     const player = {
         userId: inparam.userId,
@@ -72,12 +71,12 @@ router.post('/dj/bet', async (ctx, next) => {
             amount: parseFloat(inparam.betAmount) * -1,
             betsn: null,
             businessKey: `BDJ_${inparam.account}_${inparam.orderNo}`,
-            sn: `${inparam.account}_BET_${inparam.orderNo}`,
+            sn: `DJ_${inparam.account}_BET_${inparam.orderNo}`,
             timestamp: Date.now(),
             sourceIP: ipMap[inparam.account],
             gameType: +config.dj.gameType,
             gameId: gameIdMap[inparam.account] ? +gameIdMap[inparam.account] : +config.dj.gameType,
-            detail: inparam
+            detail: clearEmpty(inparam)
         }
         // 预置SYSTransfer数据
         let item = {
@@ -129,9 +128,9 @@ router.post('/dj/refund', async (ctx, next) => {
             userId: +inparam.account,
             method: 'refund',
             amount: parseFloat(inparam.refundAmount),
-            betsn: `ADJ_${inparam.account}_BET_${inparam.orderNo}`,
+            betsn: `DJ_${inparam.account}_BET_${inparam.orderNo}`,
             businessKey: `BDJ_${inparam.account}_${inparam.orderNo}`,
-            sn: `${inparam.account}_REFUND_${inparam.orderNo}`,
+            sn: `DJ_${inparam.account}_REFUND_${inparam.orderNo}`,
             timestamp: Date.now(),
             sourceIP: ipMap[inparam.account],
             gameType: +config.dj.gameType,
@@ -185,7 +184,7 @@ router.post('/dj/prize', async (ctx, next) => {
             userId: +inparam.account,
             method: 'win',
             amount: parseFloat(inparam.prizeAmount),
-            betsn: `ADJ_${inparam.account}_BET_${inparam.orderNo}`,
+            betsn: `DJ_${inparam.account}_BET_${inparam.orderNo}`,
             businessKey: `BDJ_${inparam.account}_${inparam.orderNo}`,
             sn: `${inparam.account}_WIN_${inparam.orderNo}`,
             timestamp: Date.now(),
@@ -344,6 +343,15 @@ function postDJ(method, inparam) {
             'X-signature': CryptoJS.MD5(`${config.dj.xcode}${JSON.stringify(inparam)}${config.dj.md5key}`).toString(CryptoJS.enc.Hex).toUpperCase()
         }
     })
+}
+
+function clearEmpty(obj) {
+    for (let key in obj) {
+        if (obj[key] == '') {
+            delete obj[key]
+        }
+    }
+    return obj
 }
 
 // 私有方法：等待
