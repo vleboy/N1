@@ -78,7 +78,7 @@ router.post('/vg/postTransfer', async (ctx, next) => {
             createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
             createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
         }
-        const n2res = await axios.post(config.na.apiUrl, { userId: data.userId, method: 'balance' })
+        const n2res = await axios.post(config.n2.apiUrl, { userId: data.userId, method: 'balance' })
         if (n2res.data.code != 0) {
             return ctx.body = { code: n2res.data.code, msg: n2res.data.msg }
         }
