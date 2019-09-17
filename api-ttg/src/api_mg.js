@@ -16,7 +16,7 @@ const PlayerModel = require('./model/PlayerModel')
 const ipMap = {}
 
 // 免转接出-MG游戏链接
-router.get('/mg/:gameId/:userId/token', async (ctx, next) => {
+router.get('/mg/:gameId/:userId/:token', async (ctx, next) => {
     ipMap[ctx.params.userId] = ctx.request.ip
     gameIdMap[ctx.params.userId] = ctx.params.gameId
     const inparam = ctx.params
@@ -60,7 +60,6 @@ router.post('/mg/one', async (ctx, next) => {
     // 查询玩家
     console.log(inparam)
     const userId = inparam.token
-    let n2res
     if (inparam.userId.length == 8) {
         // 预置请求数据
         const data = {
@@ -87,6 +86,7 @@ router.post('/mg/one', async (ctx, next) => {
             createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
             createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
         }
+        let n2res
         switch (tag) {
             case 'player-detail-req':
                 n2res = await axios.post(config.n2.apiUrl, { userId: data.userId, method: 'balance' })
