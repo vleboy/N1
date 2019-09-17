@@ -100,7 +100,7 @@ router.post('/vg/transaction', async (ctx, next) => {
                 item.status = 'Y'
                 item.balance = n2res.data.balance ? +n2res.data.balance : 0
                 new SYSTransferModel().putItem(item)
-                ctx.body = { code: 0, msg: 'success', balance }
+                ctx.body = { code: 0, msg: 'success', balance: n2res.data.balance }
             } else {
                 if (n2res.data.code == -1) {
                     item.status = 'N'
