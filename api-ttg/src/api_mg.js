@@ -8,6 +8,7 @@ const _ = require('lodash')
 const axios = require('axios')
 const parseString = require('xml2js').parseString
 const uuid = require('uuid/v4')
+const moment = require('moment')
 // const CryptoJS = require('crypto-js')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
