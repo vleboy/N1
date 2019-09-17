@@ -50,7 +50,7 @@ router.get('/dj/:gameId/:userId/:token', async (ctx, next) => {
 router.post('/dj/query_user_credit', async (ctx, next) => {
     const inparam = ctx.request.body
     if (inparam.account.length == 8) {
-        const nares = await axios.post(config.na.apiUrl, { userId: inparam.account, method: 'balance' })
+        const nares = await axios.post(config.n2.apiUrl, { userId: inparam.account, method: 'balance' })
         if (nares.data.code != 0) {
             return ctx.body = { code: -2, errmsg: "玩家不存在" }
         } else {
