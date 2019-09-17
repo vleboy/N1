@@ -69,13 +69,13 @@ router.post('/mg/one', async (ctx, next) => {
             method: '',
             amount: 0,
             betsn: null,
-            businessKey: `BMG_${userId}_${inparam.vendorTxNo}`,
+            businessKey: `BMG_${userId}_${inparam.vendorTxId}`,
             sn: `MG_${userId}_${inparam.txType}_${inparam.lpsTxId}`,
             timestamp: Date.now(),
             sourceIP: ipMap[userId],
             gameType: +config.mg.gameType,
             gameId: gameIdMap[userId] ? +gameIdMap[userId] : +config.mg.gameType,
-            detail: inparam
+            detail: clearEmpty(inparam)
         }
         // 预置SYSTransfer数据
         let item = {
@@ -292,6 +292,15 @@ function xmlParse(xml) {
             reslove(res)
         })
     })
+}
+
+function clearEmpty(obj) {
+    for (let key in obj) {
+        if (obj[key] == '') {
+            delete obj[key]
+        }
+    }
+    return obj
 }
 
 // /**
