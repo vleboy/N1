@@ -97,7 +97,6 @@ router.post('/vg/transaction', async (ctx, next) => {
         // 向N2同步
         try {
             let n2res = await axios.post(config.n2.apiUrl, data)
-            console.log(n2res)
             if (n2res.data.code == 0) {
                 item.status = 'Y'
                 item.balance = n2res.data.balance ? +n2res.data.balance : 0
