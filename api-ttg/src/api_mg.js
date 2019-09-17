@@ -69,7 +69,7 @@ router.post('/mg/one', async (ctx, next) => {
             method: '',
             amount: 0,
             betsn: null,
-            businessKey: `BMG_${userId}_${inparam.vendorTxId}`,
+            businessKey: `BMG_${userId}_${inparam.vendorTxNo}`,
             sn: `MG_${userId}_${inparam.txType}_${inparam.lpsTxId}`,
             timestamp: Date.now(),
             sourceIP: ipMap[userId],
