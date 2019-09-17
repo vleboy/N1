@@ -79,15 +79,16 @@ router.post('/vg/transaction', async (ctx, next) => {
             createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
         }
         const n2res = await axios.post(config.n2.apiUrl, { userId: data.userId, method: 'balance' })
+        const balance = n2res.data.balance
         // if (n2res.data.code != 0) {
         //     return ctx.body = { code: n2res.data.code, msg: n2res.data.msg }
         // }
         if (inparam.type == 'BALANCE') {
-            return ctx.body = { code: 0, balance: n2res.data.balance }
+            return ctx.body = { code: 0, balance }
         } else if (inparam.type == 'BET') {
             item.type = 3
             data.method = 'bet'
-            data.amount = n2res.data.balance * -1
+            data.amount = balance * -1
         } else {
             item.type = 4
             data.method = 'win'
@@ -101,8 +102,7 @@ router.post('/vg/transaction', async (ctx, next) => {
                 item.status = 'Y'
                 item.balance = n2res.data.balance ? +n2res.data.balance : 0
                 new SYSTransferModel().putItem(item)
-                console.log({ code: 0, msg: 'success', balance: n2res.data.balance })
-                ctx.body = { code: 0, msg: 'success', balance: n2res.data.balance }
+                ctx.body = { code: 0, msg: 'success', balance }
             } else {
                 if (n2res.data.code == -1) {
                     item.status = 'N'
