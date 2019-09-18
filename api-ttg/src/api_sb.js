@@ -160,7 +160,6 @@ router.post('/sb/wallet/credit', async (ctx, next) => {
     // let token = ctx.tokenVerify
     // log.info(`TOKEN解析：${JSON.stringify(token)}`)
     if (inparam.transactions[0].userid.length == 8) {
-        await waitASecond()
         let finalArr = []
         for (let transaction of inparam.transactions) {
             let res = await syncBill({
@@ -654,13 +653,5 @@ router.post('/sb/wallet/cancel', async (ctx, next) => {
 //     log.info(`SB最终游戏链接：${finalUrl}`)
 //     ctx.redirect(finalUrl)
 // })
-
-function waitASecond() {
-    return new Promise((reslove, reject) => {
-        setTimeout(function () {
-            reslove('Y')
-        }, 50000);
-    })
-}
 
 module.exports = router
