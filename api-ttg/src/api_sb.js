@@ -202,7 +202,7 @@ router.post('/sb/wallet/credit', async (ctx, next) => {
                 userId: +transaction.userid,
                 method: 'win',
                 amount: Math.abs(+transaction.amt) * -1,
-                betsn: null,
+                betsn: `SB_${transaction.userid}_BET_${transaction.refptxid}`,
                 businessKey: `BSB_${transaction.userid}_${transaction.roundid}`,
                 sn: `SB_${transaction.userid}_WIN_${transaction.ptxid}`,
                 timestamp: Date.now(),
