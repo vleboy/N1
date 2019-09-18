@@ -214,7 +214,7 @@ router.post('/sb/wallet/cancel', async (ctx, next) => {
                 userId: +transaction.userid,
                 method: 'refund',
                 type: 5,
-                amount: Math.abs(+transaction.amt),
+                // amount: -1,
                 betsn: transaction.refptxid,
                 bk: transaction.roundid,
                 sn: transaction.ptxid,
