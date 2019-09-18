@@ -156,6 +156,7 @@ router.post('/sb/wallet/debit', async (ctx, next) => {
 })
 // 免转接出-SB返奖
 router.post('/sb/wallet/credit', async (ctx, next) => {
+    throw {}
     let inparam = ctx.request.body
     // let token = ctx.tokenVerify
     // log.info(`TOKEN解析：${JSON.stringify(token)}`)
@@ -195,7 +196,7 @@ router.post('/sb/wallet/credit', async (ctx, next) => {
             }
         }
         if (finalArr.length > 0) {
-            // ctx.body = { transactions: finalArr }
+            ctx.body = { transactions: finalArr }
         }
     } else {
         return next()
@@ -216,8 +217,8 @@ router.post('/sb/wallet/cancel', async (ctx, next) => {
                 type: 5,
                 // amount: -1,
                 betsn: transaction.refptxid,
-                bk: transaction.roundid,
-                sn: transaction.ptxid,
+                bk: transaction.refptxid,
+                sn: transaction.refptxid,
                 sourceIP: ipMap[transaction.userid],
                 gameType: transaction.gametype == 2 ? +config.sb.videoGameType : +config.sb.gameType,
                 gameId: gameIdMap[transaction.userid] ? +gameIdMap[transaction.userid] : +config.mg.gameType,
@@ -227,7 +228,7 @@ router.post('/sb/wallet/cancel', async (ctx, next) => {
                 if (!res.err) {
                     finalArr.push({
                         txid: res.data.sn,
-                        ptxid: transaction.ptxid,
+                        ptxid: transaction.refptxid,
                         bal: res.balance,
                         cur: "RMB",
                         dup: false
