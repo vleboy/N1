@@ -19,7 +19,7 @@ async function syncBill(bill) {
 
     // 预置请求数据
     const data = {
-        userId: +transaction.userid,
+        userId: +userId,
         method,
         amount,
         betsn: betsn ? `${prefix}_${userId}_BET_${betsn}` : null,
