@@ -195,7 +195,7 @@ router.post('/sb/wallet/credit', async (ctx, next) => {
             }
         }
         if (finalArr.length > 0) {
-            ctx.body = { transactions: finalArr }
+            // ctx.body = { transactions: finalArr }
         }
     } else {
         return next()
