@@ -128,9 +128,9 @@ router.post('/sb/wallet/debit', async (ctx, next) => {
                 businessKey: `BSB_${transaction.userid}_${transaction.roundid}`,
                 sn: `SB_${transaction.userid}_BET_${transaction.ptxid}`,
                 timestamp: Date.now(),
-                sourceIP: ipMap[userId],
+                sourceIP: ipMap[transaction.userid],
                 gameType: transaction.gametype == 2 ? +config.sb.videoGameType : +config.sb.gameType,
-                gameId: gameIdMap[userId] ? +gameIdMap[userId] : +config.mg.gameType,
+                gameId: gameIdMap[transaction.userid] ? +gameIdMap[transaction.userid] : +config.mg.gameType,
                 detail: clearEmpty(inparam)
             }
             // 预置SYSTransfer数据
@@ -206,9 +206,9 @@ router.post('/sb/wallet/credit', async (ctx, next) => {
                 businessKey: `BSB_${transaction.userid}_${transaction.roundid}`,
                 sn: `SB_${transaction.userid}_WIN_${transaction.ptxid}`,
                 timestamp: Date.now(),
-                sourceIP: ipMap[userId],
+                sourceIP: ipMap[transaction.userid],
                 gameType: transaction.gametype == 2 ? +config.sb.videoGameType : +config.sb.gameType,
-                gameId: gameIdMap[userId] ? +gameIdMap[userId] : +config.mg.gameType,
+                gameId: gameIdMap[transaction.userid] ? +gameIdMap[transaction.userid] : +config.mg.gameType,
                 detail: clearEmpty(inparam)
             }
             // 预置SYSTransfer数据
@@ -284,9 +284,9 @@ router.post('/sb/wallet/cancel', async (ctx, next) => {
                 businessKey: `BSB_${transaction.userid}_${transaction.roundid}`,
                 sn: `SB_${transaction.userid}_REFUND_${transaction.ptxid}`,
                 timestamp: Date.now(),
-                sourceIP: ipMap[userId],
+                sourceIP: ipMap[transaction.userid],
                 gameType: transaction.gametype == 2 ? +config.sb.videoGameType : +config.sb.gameType,
-                gameId: gameIdMap[userId] ? +gameIdMap[userId] : +config.mg.gameType,
+                gameId: gameIdMap[transaction.userid] ? +gameIdMap[transaction.userid] : +config.mg.gameType,
                 detail: clearEmpty(inparam)
             }
             // 预置SYSTransfer数据
@@ -640,6 +640,15 @@ router.post('/sb/wallet/cancel', async (ctx, next) => {
     log.info(`返回SB数据：${JSON.stringify({ transaction: finalArr })}`)
     ctx.body = { transactions: finalArr }
 })
+
+function clearEmpty(obj) {
+    for (let key in obj) {
+        if (obj[key] == '') {
+            delete obj[key]
+        }
+    }
+    return obj
+}
 
 // /**
 //  * 网页玩家登出
