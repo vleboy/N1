@@ -64,7 +64,7 @@ router.get('/sb/:gameId/:userId/:token', async (ctx, next) => {
     ctx.redirect(finalUrl)
 })
 
-// 免转接出-SB
+// 免转接出-SB令牌
 router.post('/sb/wallet/token', async (ctx, next) => {
     let inparam = ctx.request.body
     if (inparam.client_id.length == 8) {
@@ -83,7 +83,7 @@ router.post('/sb/wallet/token', async (ctx, next) => {
     }
 })
 
-// 免转接出-SB
+// 免转接出-SB余额
 router.post('/sb/wallet/balance', async (ctx, next) => {
     let inparam = ctx.request.body
     // let token = ctx.tokenVerify
@@ -111,7 +111,7 @@ router.post('/sb/wallet/balance', async (ctx, next) => {
     }
 })
 
-// 免转接出-SB
+// 免转接出-SB投注
 router.post('/sb/wallet/debit', async (ctx, next) => {
     let inparam = ctx.request.body
     // let token = ctx.tokenVerify
@@ -189,7 +189,7 @@ router.post('/sb/wallet/debit', async (ctx, next) => {
 })
 
 
-// 免转接出-SB
+// 免转接出-SB返奖
 router.post('/sb/wallet/credit', async (ctx, next) => {
     let inparam = ctx.request.body
     // let token = ctx.tokenVerify
@@ -248,7 +248,7 @@ router.post('/sb/wallet/credit', async (ctx, next) => {
                         finalArr.push({
                             userid: transaction.userid,
                             err: 100,
-                            errdesc: `玩家${transaction.userid}的余额不足`
+                            errdesc: `玩家${transaction.userid}不存在`
                         })
                     }
                 }
@@ -267,7 +267,7 @@ router.post('/sb/wallet/credit', async (ctx, next) => {
 })
 
 
-// 免转接出-SB
+// 免转接出-SB取消
 router.post('/sb/wallet/cancel', async (ctx, next) => {
     let inparam = ctx.request.body
     // let token = ctx.tokenVerify
@@ -326,7 +326,7 @@ router.post('/sb/wallet/cancel', async (ctx, next) => {
                         finalArr.push({
                             userid: transaction.userid,
                             err: 100,
-                            errdesc: `玩家${transaction.userid}的余额不足`
+                            errdesc: `玩家${transaction.userid}不存在`
                         })
                     }
                 }
