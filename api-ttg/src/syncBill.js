@@ -8,6 +8,7 @@ async function syncBill(bill) {
     const userId = bill.userId
     const method = bill.method
     const type = bill.type
+    const amount = bill.amount
     const betsn = bill.betsn
     const bk = bill.bk
     const sn = bill.sn
@@ -20,7 +21,7 @@ async function syncBill(bill) {
     const data = {
         userId: +transaction.userid,
         method,
-        amount: Math.abs(+transaction.amt) * -1,
+        amount,
         betsn: betsn ? `${prefix}_${userId}_BET_${betsn}` : null,
         businessKey: `B${prefix}_${userId}_${bk}`,
         sn: `${prefix}_${userId}_${method.toUpperCase()}_${sn}`,
