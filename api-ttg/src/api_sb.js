@@ -7,14 +7,127 @@ const router = new Router()
 const jwt = require('jsonwebtoken')
 const _ = require('lodash')
 const axios = require('axios')
-// const CryptoJS = require('crypto-js')
 const querystring = require('querystring')
+const moment = require('moment')
+// const CryptoJS = require('crypto-js')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
 const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
+const SYSTransferModel = require('./model/SYSTransferModel')
 const ipMap = {}
+const gameIdMap = {}
+
+// 免转接出-SB游戏链接
+router.get('/sb/:gameId/:userId/:token', async (ctx, next) => {
+    ipMap[ctx.params.userId] = ctx.request.ip
+    gameIdMap[ctx.params.userId] = ctx.params.gameId
+    const inparam = ctx.params
+    // 请求N2服务器是否允许玩家进入游戏
+    const nares = await axios.post(config.n2.apiUrl, { userId: inparam.userId, method: 'auth' })
+    if (nares.data.code != 0) {
+        return ctx.body = { code: nares.data.code, msg: nares.data.msg }
+    }
+    //获取品牌访问令牌
+    let authRes = {}
+    const authPost = {
+        "client_id": config.sb.client_id,
+        "client_secret": config.sb.client_secret,
+        "grant_type": "client_credentials",
+        "scope": "playerapi"
+    }
+    // try {
+    // log.info(`请求SB令牌链接：${config.sb.apiServer}/api/oauth/token`)
+    // log.info(`请求SB令牌参数：${querystring.stringify(authPost)}`)
+    authRes = await axios.post(`${config.sb.apiServer}/api/oauth/token`, querystring.stringify(authPost), { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
+    // log.info(`请求SB令牌返回：${JSON.stringify(authRes.data)}`)
+    // } catch (err) {
+    //     log.error('访问令牌出错')
+    //     log.error(err)
+    // }
+    //获取玩家令牌
+    let playerTokenRes = await axios.post(`${config.sb.apiServer}/api/player/authorize`, {
+        "ipaddress": ctx.request.ip,
+        "username": inparam.userId,
+        "userid": inparam.userId,
+        "lang": "zh-CN",
+        "cur": "RMB",
+        "betlimitid": 3,//玩家级别 3黄金
+        "istestplayer": false, //测试玩家为true  正式玩家为false
+        "platformtype": '1'
+    }, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': `Bearer ${authRes.data.access_token}` } })
+    // log.info(`SB玩家令牌：${playerTokenRes.data.authtoken}`)
+    let finalUrl = `${launchUrl}?gpcode=${gpcode}&gcode=${inparam.gameName}&platform=1&token=${playerTokenRes.data.authtoken}`
+    // log.info(`SB最终游戏链接：${finalUrl}`)
+    ctx.redirect(finalUrl)
+})
+
+// 免转接出-SB
+router.post('/sb/wallet/token', async (ctx, next) => {
+    let inparam = ctx.request.body
+    console.log(inparam)
+    if (inparam.client_id.length == 8) {
+        ctx.body = {
+            access_token: jwt.sign({
+                client_id: inparam.client_id,
+                client_secret: inparam.client_secret,
+                exp: Math.floor(Date.now() / 1000) + 86400
+            }, config.auth.secret),
+            token_type: "Bearer",
+            expires_in: (60 * 60 * 24) * 1,
+            scope: "wallet"
+        }
+    } else {
+        return next()
+    }
+})
+
+// 免转接出-SB
+router.post('/sb/wallet/balance', async (ctx, next) => {
+    let inparam = ctx.request.body
+    // let token = ctx.tokenVerify
+    // log.info(`TOKEN解析：${JSON.stringify(token)}`)
+    if (inparam.users[0].userId.length == 8) {
+        let promiseArr = []
+        for (let user of inparam.users) {
+            promiseArr.push(new Promise(async (resolve, reject) => {
+                let n2res = await axios.post(config.n2.apiUrl, { userId: user.userId, method: 'balance' })
+                if (player && player.userId) {
+                    resolve({
+                        userid: user.userid,
+                        wallets: [{
+                            code: "NAWallet",
+                            bal: n2res.data.balance,
+                            cur: "RMB",
+                            name: "NA wallet",
+                            desc: "NA钱包"
+                        }]
+                    })
+                }
+            }))
+        }
+        let finalArr = await Promise.all(promiseArr)
+        ctx.body = { users: finalArr }
+    } else {
+        return next()
+    }
+})
+
+// 免转接出-SB
+router.post('/sb/wallet/debit', async (ctx, next) => {
+})
+
+
+// 免转接出-SB
+router.post('/sb/wallet/credit', async (ctx, next) => {
+})
+
+
+// 免转接出-SB
+router.post('/sb/wallet/cancel', async (ctx, next) => {
+})
+
 /**
  * 进入游戏大厅
  * lobbyType 0是电脑版1是移动版
