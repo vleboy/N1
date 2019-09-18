@@ -156,7 +156,7 @@ router.post('/sb/wallet/debit', async (ctx, next) => {
 })
 // 免转接出-SB返奖
 router.post('/sb/wallet/credit', async (ctx, next) => {
-    throw {}
+    return
     let inparam = ctx.request.body
     // let token = ctx.tokenVerify
     // log.info(`TOKEN解析：${JSON.stringify(token)}`)
