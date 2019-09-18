@@ -81,11 +81,11 @@ class SysTransferModel extends BaseModel {
         promiseArr.push(this.query({
             IndexName: 'StatusIndex',
             KeyConditionExpression: '#status = :status AND createdAt between :createdAt0 and :createdAt1',
-            FilterExpression: '#type <> :type',
+            // FilterExpression: '#type <> :type',
             ExpressionAttributeNames: { '#status': 'status', '#type': 'type' },
             ExpressionAttributeValues: {
                 ':status': 'N',
-                ':type': 3,
+                // ':type': 3,
                 ':createdAt0': Date.now() - 3600 * 1000,
                 ':createdAt1': Date.now() + 3600 * 1000
             }
