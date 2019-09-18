@@ -30,6 +30,7 @@ router.get('/sb/:gameId/:userId/:token', async (ctx, next) => {
         return ctx.body = { code: nares.data.code, msg: nares.data.msg }
     }
     //获取品牌访问令牌
+    let gpcode = +inparam.gameId < config.sb.videoGameType ? 'TGP' : 'SB'
     let authRes = {}
     const authPost = {
         "client_id": config.sb.client_id,
@@ -58,7 +59,7 @@ router.get('/sb/:gameId/:userId/:token', async (ctx, next) => {
         "platformtype": '1'
     }, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': `Bearer ${authRes.data.access_token}` } })
     // log.info(`SB玩家令牌：${playerTokenRes.data.authtoken}`)
-    let finalUrl = `${launchUrl}?gpcode=${gpcode}&gcode=${inparam.gameName}&platform=1&token=${playerTokenRes.data.authtoken}`
+    let finalUrl = `${config.sb.launchLiveUrl}?gpcode=${gpcode}&gcode=${inparam.gameName}&platform=1&token=${playerTokenRes.data.authtoken}`
     // log.info(`SB最终游戏链接：${finalUrl}`)
     ctx.redirect(finalUrl)
 })
