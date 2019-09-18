@@ -106,6 +106,7 @@ class SysTransferModel extends BaseModel {
                 }
             } catch (error) {
                 console.error('自动重推超时')
+                console.error(error)
             }
         }
     }
