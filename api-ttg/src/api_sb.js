@@ -195,7 +195,7 @@ router.post('/sb/wallet/credit', async (ctx, next) => {
             }
         }
         if (finalArr.length > 0) {
-            ctx.body = { transactions: finalArr }
+            // ctx.body = { transactions: finalArr }
         }
     } else {
         return next()
@@ -207,43 +207,43 @@ router.post('/sb/wallet/cancel', async (ctx, next) => {
     // let token = ctx.tokenVerify
     // log.info(`TOKEN解析：${JSON.stringify(token)}`)
     if (inparam.transactions[0].userid.length == 8) {
-        // let finalArr = []
-        // for (let transaction of inparam.transactions) {
-        //     let res = await syncBill({
-        //         prefix: 'SB',
-        //         userId: +transaction.userid,
-        //         method: 'refund',
-        //         type: 5,
-        //         amount: Math.abs(+transaction.amt),
-        //         betsn: transaction.refptxid,
-        //         bk: transaction.roundid,
-        //         sn: transaction.ptxid,
-        //         sourceIP: ipMap[transaction.userid],
-        //         gameType: transaction.gametype == 2 ? +config.sb.videoGameType : +config.sb.gameType,
-        //         gameId: gameIdMap[transaction.userid] ? +gameIdMap[transaction.userid] : +config.mg.gameType,
-        //         inparam: transaction
-        //     })
-        //     if (res) {
-        //         if (!res.err) {
-        //             finalArr.push({
-        //                 txid: res.data.sn,
-        //                 ptxid: transaction.ptxid,
-        //                 bal: res.balance,
-        //                 cur: "RMB",
-        //                 dup: false
-        //             })
-        //         } else {
-        //             finalArr.push({
-        //                 userid: transaction.userid,
-        //                 err: 100,
-        //                 errdesc: `玩家${transaction.userid}不存在`
-        //             })
-        //         }
-        //     }
-        // }
-        // if (finalArr.length > 0) {
-        //     ctx.body = { transactions: finalArr }
-        // }
+        let finalArr = []
+        for (let transaction of inparam.transactions) {
+            let res = await syncBill({
+                prefix: 'SB',
+                userId: +transaction.userid,
+                method: 'refund',
+                type: 5,
+                amount: Math.abs(+transaction.amt),
+                betsn: transaction.refptxid,
+                bk: transaction.roundid,
+                sn: transaction.ptxid,
+                sourceIP: ipMap[transaction.userid],
+                gameType: transaction.gametype == 2 ? +config.sb.videoGameType : +config.sb.gameType,
+                gameId: gameIdMap[transaction.userid] ? +gameIdMap[transaction.userid] : +config.mg.gameType,
+                inparam: transaction
+            })
+            if (res) {
+                if (!res.err) {
+                    finalArr.push({
+                        txid: res.data.sn,
+                        ptxid: transaction.ptxid,
+                        bal: res.balance,
+                        cur: "RMB",
+                        dup: false
+                    })
+                } else {
+                    finalArr.push({
+                        userid: transaction.userid,
+                        err: 100,
+                        errdesc: `玩家${transaction.userid}不存在`
+                    })
+                }
+            }
+        }
+        if (finalArr.length > 0) {
+            ctx.body = { transactions: finalArr }
+        }
     } else {
         return next()
     }
