@@ -149,8 +149,9 @@ router.post('/sb/wallet/debit', async (ctx, next) => {
                 }
             }
         }
-        // log.info(`返回SB数据：${JSON.stringify({ transaction: finalArr })}`)
-        ctx.body = { transactions: finalArr }
+        if (finalArr.length > 0) {
+            ctx.body = { transactions: finalArr }
+        }
     } else {
         return next()
     }
@@ -196,8 +197,9 @@ router.post('/sb/wallet/credit', async (ctx, next) => {
                 }
             }
         }
-        // log.info(`返回SB数据：${JSON.stringify({ transaction: finalArr })}`)
-        ctx.body = { transactions: finalArr }
+        if (finalArr.length > 0) {
+            ctx.body = { transactions: finalArr }
+        }
     } else {
         return next()
     }
@@ -243,8 +245,9 @@ router.post('/sb/wallet/cancel', async (ctx, next) => {
                 }
             }
         }
-        // log.info(`返回SB数据：${JSON.stringify({ transaction: finalArr })}`)
-        ctx.body = { transactions: finalArr }
+        if (finalArr.length > 0) {
+            ctx.body = { transactions: finalArr }
+        }
     } else {
         return next()
     }
@@ -546,15 +549,6 @@ router.post('/sb/wallet/cancel', async (ctx, next) => {
     log.info(`返回SB数据：${JSON.stringify({ transaction: finalArr })}`)
     ctx.body = { transactions: finalArr }
 })
-
-function clearEmpty(obj) {
-    for (let key in obj) {
-        if (obj[key] == '') {
-            delete obj[key]
-        }
-    }
-    return obj
-}
 
 // /**
 //  * 网页玩家登出
