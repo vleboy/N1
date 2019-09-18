@@ -62,7 +62,6 @@ router.get('/sb/:gameId/:userId/:token', async (ctx, next) => {
     // log.info(`SB最终游戏链接：${finalUrl}`)
     ctx.redirect(finalUrl)
 })
-
 // 免转接出-SB令牌
 router.post('/sb/wallet/token', async (ctx, next) => {
     let inparam = ctx.request.body
@@ -81,7 +80,6 @@ router.post('/sb/wallet/token', async (ctx, next) => {
         return next()
     }
 })
-
 // 免转接出-SB余额
 router.post('/sb/wallet/balance', async (ctx, next) => {
     let inparam = ctx.request.body
@@ -109,7 +107,6 @@ router.post('/sb/wallet/balance', async (ctx, next) => {
         return next()
     }
 })
-
 // 免转接出-SB投注
 router.post('/sb/wallet/debit', async (ctx, next) => {
     let inparam = ctx.request.body
@@ -157,8 +154,6 @@ router.post('/sb/wallet/debit', async (ctx, next) => {
         return next()
     }
 })
-
-
 // 免转接出-SB返奖
 router.post('/sb/wallet/credit', async (ctx, next) => {
     let inparam = ctx.request.body
@@ -206,8 +201,6 @@ router.post('/sb/wallet/credit', async (ctx, next) => {
         return next()
     }
 })
-
-
 // 免转接出-SB取消
 router.post('/sb/wallet/cancel', async (ctx, next) => {
     let inparam = ctx.request.body
