@@ -8,14 +8,13 @@ const jwt = require('jsonwebtoken')
 const _ = require('lodash')
 const axios = require('axios')
 const querystring = require('querystring')
-const moment = require('moment')
+const syncBill = require('./syncBill')
 // const CryptoJS = require('crypto-js')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
 const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
-const SYSTransferModel = require('./model/SYSTransferModel')
 const ipMap = {}
 const gameIdMap = {}
 
@@ -119,66 +118,35 @@ router.post('/sb/wallet/debit', async (ctx, next) => {
     if (inparam.transactions[0].userid.length == 8) {
         let finalArr = []
         for (let transaction of inparam.transactions) {
-            // 预置请求数据
-            const data = {
+            let res = await syncBill({
+                prefix: 'SB',
                 userId: +transaction.userid,
                 method: 'bet',
-                amount: Math.abs(+transaction.amt) * -1,
+                type: 3,
                 betsn: null,
-                businessKey: `BSB_${transaction.userid}_${transaction.roundid}`,
-                sn: `SB_${transaction.userid}_BET_${transaction.ptxid}`,
-                timestamp: Date.now(),
+                bk: transaction.roundid,
+                sn: transaction.ptxid,
                 sourceIP: ipMap[transaction.userid],
                 gameType: transaction.gametype == 2 ? +config.sb.videoGameType : +config.sb.gameType,
                 gameId: gameIdMap[transaction.userid] ? +gameIdMap[transaction.userid] : +config.mg.gameType,
-                detail: clearEmpty(inparam)
-            }
-            // 预置SYSTransfer数据
-            let item = {
-                ..._.omit(data, ['method', 'timestamp', 'detail']),
-                plat: 'YIBO',
-                type: 3,
-                userId: data.userId.toString(),
-                userNick: data.userId.toString(),
-                anotherGameData: JSON.stringify(inparam),
-                createdAt: data.timestamp,
-                createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
-                createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
-            }
-            // 向N2同步
-            try {
-                n2res = await axios.post(config.n2.apiUrl, data)
-                if (n2res.data.code == 0) {
-                    item.status = 'Y'
-                    item.balance = n2res.data.balance ? +n2res.data.balance : 0
-                    new SYSTransferModel().putItem(item)
+                inparam: transaction
+            })
+            if (res) {
+                if (!res.err) {
                     finalArr.push({
-                        txid: data.sn,
+                        txid: res.data.sn,
                         ptxid: transaction.ptxid,
-                        bal: n2res.data.balance,
+                        bal: res.balance,
                         cur: "RMB",
                         dup: false
                     })
                 } else {
-                    if (n2res.data.code == -1) {
-                        item.status = 'N'
-                        item.errorMsg = n2res.data.msg
-                        item.transferURL = config.n2.apiUrl
-                        item.repush = data
-                        new SYSTransferModel().putItem(item)
-                    } else {
-                        finalArr.push({
-                            userid: transaction.userid,
-                            err: 100,
-                            errdesc: `玩家${transaction.userid}的余额不足`
-                        })
-                    }
+                    finalArr.push({
+                        userid: transaction.userid,
+                        err: 100,
+                        errdesc: `玩家${transaction.userid}的余额不足`
+                    })
                 }
-            } catch (error) {
-                item.status = 'E'
-                item.transferURL = config.n2.apiUrl
-                item.repush = data
-                new SYSTransferModel().putItem(item)
             }
         }
         // log.info(`返回SB数据：${JSON.stringify({ transaction: finalArr })}`)
@@ -197,66 +165,35 @@ router.post('/sb/wallet/credit', async (ctx, next) => {
     if (inparam.transactions[0].userid.length == 8) {
         let finalArr = []
         for (let transaction of inparam.transactions) {
-            // 预置请求数据
-            const data = {
+            let res = await syncBill({
+                prefix: 'SB',
                 userId: +transaction.userid,
                 method: 'win',
-                amount: Math.abs(+transaction.amt) * -1,
-                betsn: `SB_${transaction.userid}_BET_${transaction.refptxid}`,
-                businessKey: `BSB_${transaction.userid}_${transaction.roundid}`,
-                sn: `SB_${transaction.userid}_WIN_${transaction.ptxid}`,
-                timestamp: Date.now(),
+                type: 4,
+                betsn: transaction.refptxid,
+                bk: transaction.roundid,
+                sn: transaction.ptxid,
                 sourceIP: ipMap[transaction.userid],
                 gameType: transaction.gametype == 2 ? +config.sb.videoGameType : +config.sb.gameType,
                 gameId: gameIdMap[transaction.userid] ? +gameIdMap[transaction.userid] : +config.mg.gameType,
-                detail: clearEmpty(inparam)
-            }
-            // 预置SYSTransfer数据
-            let item = {
-                ..._.omit(data, ['method', 'timestamp', 'detail']),
-                plat: 'YIBO',
-                type: 4,
-                userId: data.userId.toString(),
-                userNick: data.userId.toString(),
-                anotherGameData: JSON.stringify(inparam),
-                createdAt: data.timestamp,
-                createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
-                createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
-            }
-            // 向N2同步
-            try {
-                n2res = await axios.post(config.n2.apiUrl, data)
-                if (n2res.data.code == 0) {
-                    item.status = 'Y'
-                    item.balance = n2res.data.balance ? +n2res.data.balance : 0
-                    new SYSTransferModel().putItem(item)
+                inparam: transaction
+            })
+            if (res) {
+                if (!res.err) {
                     finalArr.push({
-                        txid: data.sn,
+                        txid: res.data.sn,
                         ptxid: transaction.ptxid,
-                        bal: n2res.data.balance,
+                        bal: res.balance,
                         cur: "RMB",
                         dup: false
                     })
                 } else {
-                    if (n2res.data.code == -1) {
-                        item.status = 'N'
-                        item.errorMsg = n2res.data.msg
-                        item.transferURL = config.n2.apiUrl
-                        item.repush = data
-                        new SYSTransferModel().putItem(item)
-                    } else {
-                        finalArr.push({
-                            userid: transaction.userid,
-                            err: 100,
-                            errdesc: `玩家${transaction.userid}不存在`
-                        })
-                    }
+                    finalArr.push({
+                        userid: transaction.userid,
+                        err: 100,
+                        errdesc: `玩家${transaction.userid}不存在`
+                    })
                 }
-            } catch (error) {
-                item.status = 'E'
-                item.transferURL = config.n2.apiUrl
-                item.repush = data
-                new SYSTransferModel().putItem(item)
             }
         }
         // log.info(`返回SB数据：${JSON.stringify({ transaction: finalArr })}`)
@@ -275,66 +212,35 @@ router.post('/sb/wallet/cancel', async (ctx, next) => {
     if (inparam.transactions[0].userid.length == 8) {
         let finalArr = []
         for (let transaction of inparam.transactions) {
-            // 预置请求数据
-            const data = {
+            let res = await syncBill({
+                prefix: 'SB',
                 userId: +transaction.userid,
                 method: 'refund',
-                amount: Math.abs(+transaction.amt) * -1,
-                betsn: `SB_${transaction.userid}_BET_${transaction.refptxid}`,
-                businessKey: `BSB_${transaction.userid}_${transaction.roundid}`,
-                sn: `SB_${transaction.userid}_REFUND_${transaction.ptxid}`,
-                timestamp: Date.now(),
+                type: 5,
+                betsn: transaction.refptxid,
+                bk: transaction.roundid,
+                sn: transaction.ptxid,
                 sourceIP: ipMap[transaction.userid],
                 gameType: transaction.gametype == 2 ? +config.sb.videoGameType : +config.sb.gameType,
                 gameId: gameIdMap[transaction.userid] ? +gameIdMap[transaction.userid] : +config.mg.gameType,
-                detail: clearEmpty(inparam)
-            }
-            // 预置SYSTransfer数据
-            let item = {
-                ..._.omit(data, ['method', 'timestamp', 'detail']),
-                plat: 'YIBO',
-                type: 5,
-                userId: data.userId.toString(),
-                userNick: data.userId.toString(),
-                anotherGameData: JSON.stringify(inparam),
-                createdAt: data.timestamp,
-                createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
-                createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
-            }
-            // 向N2同步
-            try {
-                n2res = await axios.post(config.n2.apiUrl, data)
-                if (n2res.data.code == 0) {
-                    item.status = 'Y'
-                    item.balance = n2res.data.balance ? +n2res.data.balance : 0
-                    new SYSTransferModel().putItem(item)
+                inparam: transaction
+            })
+            if (res) {
+                if (!res.err) {
                     finalArr.push({
-                        txid: data.sn,
+                        txid: res.data.sn,
                         ptxid: transaction.ptxid,
-                        bal: n2res.data.balance,
+                        bal: res.balance,
                         cur: "RMB",
                         dup: false
                     })
                 } else {
-                    if (n2res.data.code == -1) {
-                        item.status = 'N'
-                        item.errorMsg = n2res.data.msg
-                        item.transferURL = config.n2.apiUrl
-                        item.repush = data
-                        new SYSTransferModel().putItem(item)
-                    } else {
-                        finalArr.push({
-                            userid: transaction.userid,
-                            err: 100,
-                            errdesc: `玩家${transaction.userid}不存在`
-                        })
-                    }
+                    finalArr.push({
+                        userid: transaction.userid,
+                        err: 100,
+                        errdesc: `玩家${transaction.userid}不存在`
+                    })
                 }
-            } catch (error) {
-                item.status = 'E'
-                item.transferURL = config.n2.apiUrl
-                item.repush = data
-                new SYSTransferModel().putItem(item)
             }
         }
         // log.info(`返回SB数据：${JSON.stringify({ transaction: finalArr })}`)
