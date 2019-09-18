@@ -89,11 +89,11 @@ router.post('/sb/wallet/balance', async (ctx, next) => {
     let inparam = ctx.request.body
     // let token = ctx.tokenVerify
     // log.info(`TOKEN解析：${JSON.stringify(token)}`)
-    if (inparam.users[0].userId.length == 8) {
+    if (inparam.users[0].userid.length == 8) {
         let promiseArr = []
         for (let user of inparam.users) {
             promiseArr.push(new Promise(async (resolve, reject) => {
-                let n2res = await axios.post(config.n2.apiUrl, { userId: user.userId, method: 'balance' })
+                let n2res = await axios.post(config.n2.apiUrl, { userId: user.userid, method: 'balance' })
                 if (player && player.userId) {
                     resolve({
                         userid: user.userid,
