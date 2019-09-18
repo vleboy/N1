@@ -94,18 +94,16 @@ router.post('/sb/wallet/balance', async (ctx, next) => {
         for (let user of inparam.users) {
             promiseArr.push(new Promise(async (resolve, reject) => {
                 let n2res = await axios.post(config.n2.apiUrl, { userId: user.userid, method: 'balance' })
-                if (player && player.userId) {
-                    resolve({
-                        userid: user.userid,
-                        wallets: [{
-                            code: "NAWallet",
-                            bal: n2res.data.balance,
-                            cur: "RMB",
-                            name: "NA wallet",
-                            desc: "NA钱包"
-                        }]
-                    })
-                }
+                resolve({
+                    userid: user.userid,
+                    wallets: [{
+                        code: "NAWallet",
+                        bal: n2res.data.balance,
+                        cur: "RMB",
+                        name: "NA wallet",
+                        desc: "NA钱包"
+                    }]
+                })
             }))
         }
         let finalArr = await Promise.all(promiseArr)
