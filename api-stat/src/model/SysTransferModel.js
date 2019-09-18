@@ -82,7 +82,8 @@ class SysTransferModel extends BaseModel {
             IndexName: 'StatusIndex',
             KeyConditionExpression: '#status = :status AND createdAt between :createdAt0 and :createdAt1',
             // FilterExpression: '#type <> :type',
-            ExpressionAttributeNames: { '#status': 'status', '#type': 'type' },
+            // ExpressionAttributeNames: { '#status': 'status', '#type': 'type' },
+            ExpressionAttributeNames: { '#status': 'status' },
             ExpressionAttributeValues: {
                 ':status': 'N',
                 // ':type': 3,
