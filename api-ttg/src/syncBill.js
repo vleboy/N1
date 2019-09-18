@@ -1,6 +1,7 @@
 const config = require('config')
 const axios = require('axios')
 const moment = require('moment')
+const _ = require('lodash')
 const SYSTransferModel = require('./model/SYSTransferModel')
 
 async function syncBill(bill) {
