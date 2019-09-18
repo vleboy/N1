@@ -59,7 +59,7 @@ router.get('/sb/:gameId/:userId/:token', async (ctx, next) => {
         "platformtype": '1'
     }, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': `Bearer ${authRes.data.access_token}` } })
     // log.info(`SB玩家令牌：${playerTokenRes.data.authtoken}`)
-    let finalUrl = `${config.sb.launchLiveUrl}?gpcode=${gpcode}&gcode=${inparam.gameName}&platform=1&token=${playerTokenRes.data.authtoken}`
+    let finalUrl = `${config.sb.launchLiveUrl}?gpcode=${gpcode}&gcode=${ctx.request.query.gameName}&platform=1&token=${playerTokenRes.data.authtoken}`
     // log.info(`SB最终游戏链接：${finalUrl}`)
     ctx.redirect(finalUrl)
 })
