@@ -5,7 +5,7 @@ const _ = require('lodash')
 const SYSTransferModel = require('./model/SYSTransferModel')
 
 async function syncBill(bill) {
-    const prefix = bill.name
+    const prefix = bill.prefix
     const userId = bill.userId
     const method = bill.method
     const type = bill.type
