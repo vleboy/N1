@@ -28,6 +28,7 @@
             "/mg/*",
             "/ag/*",
             "/ug/*",
+            "/sb/*",
             "/sb/wallet/token",
             "/sb/gameurl/*",
             "/sb/logout/*",
