@@ -8,13 +8,12 @@ const _ = require('lodash')
 const axios = require('axios')
 const CryptoJS = require("crypto-js")
 const querystring = require('querystring')
-const moment = require('moment')
+const syncBill = require('./syncBill')
 // const jwt = require('jsonwebtoken')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
-const SYSTransferModel = require('./model/SYSTransferModel')
 const ipMap = {}
 const gameIdMap = {}
 
@@ -67,56 +66,29 @@ router.post('/pp/Bet', async (ctx, next) => {
     const inparam = ctx.request.body
     const userId = inparam.userId
     if (userId.length == 8) {
-        // 预置请求数据
-        const data = {
+        // 预置数据
+        const bill = {
+            prefix: 'PP',
             userId: +userId,
             method: 'bet',
+            type: 3,
             amount: Math.abs(+inparam.amount) * -1,
             betsn: null,
-            businessKey: `BPP_${userId}_${inparam.roundId}`,
-            sn: `PP_${userId}_BET_${inparam.reference}`,
-            timestamp: Date.now(),
+            bk: inparam.roundId,
+            sn: inparam.reference,
             sourceIP: ipMap[userId],
             gameType: +config.pp.gameType,
             gameId: gameIdMap[userId] ? +gameIdMap[userId] : +config.pp.gameType,
-            detail: clearEmpty(inparam)
-        }
-        // 预置SYSTransfer数据
-        let item = {
-            ..._.omit(data, ['method', 'timestamp', 'detail']),
-            plat: 'YIBO',
-            type: 3,
-            userId: data.userId.toString(),
-            userNick: data.userId.toString(),
-            anotherGameData: JSON.stringify(inparam),
-            createdAt: data.timestamp,
-            createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
-            createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
+            inparam
         }
         // 向N2同步
-        try {
-            n2res = await axios.post(config.n2.apiUrl, data)
-            if (n2res.data.code == 0) {
-                item.status = 'Y'
-                item.balance = n2res.data.balance ? +n2res.data.balance : 0
-                new SYSTransferModel().putItem(item)
-                ctx.body = { transactionId: data.sn, currency: "CNY", cash: n2res.data.balance, bonus: 0, usedPromo: 0, error: 0, description: "Success" }
+        let syncRes = await syncBill(bill)
+        if (syncRes) {
+            if (!syncRes.err) {
+                ctx.body = { transactionId: syncRes.data.sn, currency: "CNY", cash: syncRes.balance, bonus: 0, usedPromo: 0, error: 0, description: "Success" }
             } else {
-                if (n2res.data.code == -1) {
-                    item.status = 'N'
-                    item.errorMsg = n2res.data.msg
-                    item.transferURL = config.n2.apiUrl
-                    item.repush = data
-                    new SYSTransferModel().putItem(item)
-                } else {
-                    ctx.body = { transactionId: data.sn, currency: "CNY", cash: n2res.data.balance, bonus: 0, usedPromo: 0, error: 1, description: "balance not enough" }
-                }
+                ctx.body = { transactionId: syncRes.data.sn, currency: "CNY", cash: syncRes.balance, bonus: 0, usedPromo: 0, error: 1, description: "balance not enough" }
             }
-        } catch (error) {
-            item.status = 'E'
-            item.transferURL = config.n2.apiUrl
-            item.repush = data
-            new SYSTransferModel().putItem(item)
         }
     } else {
         return next()
@@ -127,56 +99,29 @@ router.post('/pp/Result', async (ctx, next) => {
     const inparam = ctx.request.body
     const userId = inparam.userId
     if (userId.length == 8) {
-        // 预置请求数据
-        const data = {
+        // 预置数据
+        const bill = {
+            prefix: 'PP',
             userId: +userId,
             method: 'win',
+            type: 4,
             amount: Math.abs(+inparam.amount),
             betsn: null,
-            businessKey: `BPP_${userId}_${inparam.roundId}`,
-            sn: `PP_${userId}_WIN_${inparam.reference}`,
-            timestamp: Date.now(),
+            bk: inparam.roundId,
+            sn: inparam.reference,
             sourceIP: ipMap[userId],
             gameType: +config.pp.gameType,
             gameId: gameIdMap[userId] ? +gameIdMap[userId] : +config.pp.gameType,
-            detail: clearEmpty(inparam)
-        }
-        // 预置SYSTransfer数据
-        let item = {
-            ..._.omit(data, ['method', 'timestamp', 'detail']),
-            plat: 'YIBO',
-            type: 4,
-            userId: data.userId.toString(),
-            userNick: data.userId.toString(),
-            anotherGameData: JSON.stringify(inparam),
-            createdAt: data.timestamp,
-            createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
-            createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
+            inparam
         }
         // 向N2同步
-        try {
-            n2res = await axios.post(config.n2.apiUrl, data)
-            if (n2res.data.code == 0) {
-                item.status = 'Y'
-                item.balance = n2res.data.balance ? +n2res.data.balance : 0
-                new SYSTransferModel().putItem(item)
-                ctx.body = { transactionId: data.sn, currency: "CNY", cash: n2res.data.balance, bonus: 0, usedPromo: 0, error: 0, description: "Success" }
+        let syncRes = await syncBill(bill)
+        if (syncRes) {
+            if (!syncRes.err) {
+                ctx.body = { transactionId: syncRes.data.sn, currency: "CNY", cash: syncRes.balance, bonus: 0, usedPromo: 0, error: 0, description: "Success" }
             } else {
-                if (n2res.data.code == -1) {
-                    item.status = 'N'
-                    item.errorMsg = n2res.data.msg
-                    item.transferURL = config.n2.apiUrl
-                    item.repush = data
-                    new SYSTransferModel().putItem(item)
-                } else {
-                    ctx.body = { transactionId: data.sn, currency: "CNY", cash: n2res.data.balance, bonus: 0, usedPromo: 0, error: 120, description: "bill reject" }
-                }
+                ctx.body = { transactionId: syncRes.data.sn, currency: "CNY", cash: syncRes.balance, bonus: 0, usedPromo: 0, error: 120, description: "bill reject" }
             }
-        } catch (error) {
-            item.status = 'E'
-            item.transferURL = config.n2.apiUrl
-            item.repush = data
-            new SYSTransferModel().putItem(item)
         }
     } else {
         return next()
@@ -187,56 +132,29 @@ router.post('/pp/Refund', async (ctx, next) => {
     const inparam = ctx.request.body
     const userId = inparam.userId
     if (userId.length == 8) {
-        // 预置请求数据
-        const data = {
+        // 预置数据
+        const bill = {
+            prefix: 'PP',
             userId: +userId,
             method: 'refund',
+            type: 5,
             amount: Math.abs(+inparam.amount),
-            betsn: `PP_${userId}_BET_${inparam.reference}`,
-            businessKey: `BPP_${userId}_${inparam.roundId}`,
-            sn: `PP_${userId}_REFUND_${inparam.reference}`,
-            timestamp: Date.now(),
+            betsn: inparam.reference,
+            bk: inparam.roundId,
+            sn: inparam.reference,
             sourceIP: ipMap[userId],
             gameType: +config.pp.gameType,
             gameId: gameIdMap[userId] ? +gameIdMap[userId] : +config.pp.gameType,
-            detail: clearEmpty(inparam)
-        }
-        // 预置SYSTransfer数据
-        let item = {
-            ..._.omit(data, ['method', 'timestamp', 'detail']),
-            plat: 'YIBO',
-            type: 5,
-            userId: data.userId.toString(),
-            userNick: data.userId.toString(),
-            anotherGameData: JSON.stringify(inparam),
-            createdAt: data.timestamp,
-            createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
-            createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
+            inparam
         }
         // 向N2同步
-        try {
-            n2res = await axios.post(config.n2.apiUrl, data)
-            if (n2res.data.code == 0) {
-                item.status = 'Y'
-                item.balance = n2res.data.balance ? +n2res.data.balance : 0
-                new SYSTransferModel().putItem(item)
-                ctx.body = { transactionId: data.sn, currency: "CNY", cash: n2res.data.balance, bonus: 0, usedPromo: 0, error: 0, description: "Success" }
+        let syncRes = await syncBill(bill)
+        if (syncRes) {
+            if (!syncRes.err) {
+                ctx.body = { transactionId: syncRes.data.sn, currency: "CNY", cash: syncRes.balance, bonus: 0, usedPromo: 0, error: 0, description: "Success" }
             } else {
-                if (n2res.data.code == -1) {
-                    item.status = 'N'
-                    item.errorMsg = n2res.data.msg
-                    item.transferURL = config.n2.apiUrl
-                    item.repush = data
-                    new SYSTransferModel().putItem(item)
-                } else {
-                    ctx.body = { transactionId: data.sn, currency: "CNY", cash: n2res.data.balance, bonus: 0, usedPromo: 0, error: 120, description: "bill reject" }
-                }
+                ctx.body = { transactionId: syncRes.data.sn, currency: "CNY", cash: syncRes.balance, bonus: 0, usedPromo: 0, error: 120, description: "bill reject" }
             }
-        } catch (error) {
-            item.status = 'E'
-            item.transferURL = config.n2.apiUrl
-            item.repush = data
-            new SYSTransferModel().putItem(item)
         }
     } else {
         return next()
