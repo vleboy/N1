@@ -62,31 +62,22 @@ router.post('/mg/one', async (ctx, next) => {
     // 查询玩家
     const userId = inparam.token
     if (userId.length == 8) {
-        // 预置请求数据
-        const data = {
+        // 预置数据
+        const bill = {
+            prefix: 'MG',
             userId: +userId,
             method: '',
-            amount: 0,
+            type: null,
+            amount: null,
             betsn: null,
-            businessKey: `BMG_${userId}_${inparam.vendorTxNo}`,
-            sn: `MG_${userId}_${inparam.txType}_${inparam.lpsTxId}`,
-            timestamp: Date.now(),
+            bk: inparam.vendorTxNo,
+            sn: inparam.lpsTxId,
             sourceIP: ipMap[userId],
             gameType: +config.mg.gameType,
             gameId: gameIdMap[userId] ? +gameIdMap[userId] : +config.mg.gameType,
-            detail: clearEmpty(inparam)
+            inparam
         }
-        // 预置SYSTransfer数据
-        let item = {
-            ..._.omit(data, ['method', 'timestamp', 'detail']),
-            plat: 'YIBO',
-            userId: data.userId.toString(),
-            userNick: data.userId.toString(),
-            anotherGameData: JSON.stringify(inparam),
-            createdAt: data.timestamp,
-            createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
-            createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
-        }
+        // 判断交易类型
         let n2res
         switch (tag) {
             case 'player-detail-req':
@@ -102,21 +93,20 @@ router.post('/mg/one', async (ctx, next) => {
                 // }
                 break;
             case 'transaction-req':
-                // 计算玩家实时余额和更新
                 inparam.amt = (parseFloat(inparam.amount) / 100.00).toFixed(2)
                 if (inparam.txType == 'bet') {
-                    item.type = 3
-                    data.method = 'bet'
-                    data.amount = Math.abs(inparam.amt) * -1
+                    bill.type = 3
+                    bill.method = 'bet'
+                    bill.amount = Math.abs(inparam.amt) * -1
                 } else if (inparam.txType == 'win') {
-                    item.type = 4
-                    data.method = 'win'
-                    data.amount = Math.abs(inparam.amt)
+                    bill.type = 4
+                    bill.method = 'win'
+                    bill.amount = Math.abs(inparam.amt)
                 } else if (inparam.txType == 'refund') {
-                    item.type = 5
-                    data.method = 'refund'
-                    data.amount = Math.abs(inparam.amt)
-                    data.betsn = `MG_${userId}_bet_${inparam.lpsRefTxId}`
+                    bill.type = 5
+                    bill.method = 'refund'
+                    bill.amount = Math.abs(inparam.amt)
+                    bill.betsn = inparam.lpsRefTxId
                 }
                 break;
             case 'end-game-req':
@@ -127,29 +117,13 @@ router.post('/mg/one', async (ctx, next) => {
                 break;
         }
         // 向N2同步
-        try {
-            n2res = await axios.post(config.n2.apiUrl, data)
-            if (n2res.data.code == 0) {
-                item.status = 'Y'
-                item.balance = n2res.data.balance ? +n2res.data.balance : 0
-                new SYSTransferModel().putItem(item)
-                return ctx.body = `<transaction-resp seq="${inparam.seq}" token="${inparam.token}" status="0" statusDesc="Ok" balance="${parseInt(n2res.data.balance * 100)}" partnerTxId="${data.sn}" />`
+        let syncRes = await syncBill(bill)
+        if (syncRes) {
+            if (!syncRes.err) {
+                ctx.body = `<transaction-resp seq="${inparam.seq}" token="${inparam.token}" status="0" statusDesc="Ok" balance="${parseInt(syncRes.balance * 100)}" partnerTxId="${syncRes.data.sn}" />`
             } else {
-                if (n2res.data.code == -1) {
-                    item.status = 'N'
-                    item.errorMsg = n2res.data.msg
-                    item.transferURL = config.n2.apiUrl
-                    item.repush = data
-                    new SYSTransferModel().putItem(item)
-                } else {
-                    return ctx.body = `<transaction-resp seq="${inparam.seq}" token="${inparam.token}" status=”10” statusDesc="余额不足" />`
-                }
+                ctx.body = `<transaction-resp seq="${inparam.seq}" token="${inparam.token}" status=”10” statusDesc="余额不足" />`
             }
-        } catch (error) {
-            item.status = 'E'
-            item.transferURL = config.n2.apiUrl
-            item.repush = data
-            new SYSTransferModel().putItem(item)
         }
     } else {
         return next()
