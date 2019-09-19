@@ -89,7 +89,7 @@ router.post('/vg/transaction', async (ctx, next) => {
         let syncRes = await syncBill(bill)
         if (syncRes) {
             if (!syncRes.err) {
-                ctx.body = { code: 0, msg: 'success', balance: syncRes.balance }
+                ctx.body = { code: 0, msg: 'success', balance }
             } else {
                 ctx.body = { code: -1, msg: 'error' }
             }
