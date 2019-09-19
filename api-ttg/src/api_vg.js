@@ -52,7 +52,6 @@ router.get('/vg/:gameId/:userId/:token', async (ctx, next) => {
 router.post('/vg/transaction', async (ctx, next) => {
     let inparam = ctx.request.body
     const userId = inparam.username
-    const transactionId = inparam.transactionId
     if (userId.length == 8) {
         // 预置数据
         const bill = {
@@ -62,8 +61,8 @@ router.post('/vg/transaction', async (ctx, next) => {
             type: null,
             amount: null,
             betsn: null,
-            bk: transactionId,
-            sn: transactionId,
+            bk: inparam.transactionId,
+            sn: inparam.transactionId,
             sourceIP: ipMap[userId],
             gameType: +config.vg.gameType,
             gameId: gameIdMap[userId] ? +gameIdMap[userId] : +config.vg.gameType,

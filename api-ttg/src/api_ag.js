@@ -53,7 +53,8 @@ router.get('/ag/:gameId/:userId/:token', async (ctx, next) => {
     await axios.get(agSessionUrl)
 
     // 返回最终游戏连接
-    const agGameParams = `cagent=${config.ag.cagent}/\\\\/loginname=T${player.userId}/\\\\/actype=1/\\\\/password=123456/\\\\/sid=${config.ag.cagent}${parseInt(Date.now() / 1000)}T${player.userId}/\\\\/gameType=${agGameType}/\\\\/mh5=y/\\\\/cur=CNY`
+    const dm = `/dm=player.1bets.cc/\\\\`
+    const agGameParams = `cagent=${config.ag.cagent}/\\\\/loginname=T${player.userId}/\\\\/actype=1/\\\\/password=123456/\\\\${dm}/sid=${config.ag.cagent}${parseInt(Date.now() / 1000)}T${player.userId}/\\\\/gameType=${agGameType}/\\\\/mh5=y/\\\\/cur=CNY`
     const params2 = agEnctypt(agGameParams, config.ag.DES_Encrypt_key)
     const key2 = CryptoJS.MD5(params2 + config.ag.MD5_Encrypt_key).toString()
     const finalUrl = `${config.ag.forwardGameUrl}params=${params2}&key=${key2}`
@@ -64,11 +65,8 @@ router.get('/ag/:gameId/:userId/:token', async (ctx, next) => {
 router.post('/ag/postTransfer', async (ctx, next) => {
     // 获取入参
     let inparam = ctx.request.body.Data.Record
-    // 查询玩家
     const userId = inparam.sessionToken.toString().substr(1)
     if (userId.length == 8) {
-        const transactionType = inparam.transactionType
-        const transactionID = inparam.transactionID
         // 预置数据
         const bill = {
             prefix: 'AG',
@@ -77,15 +75,15 @@ router.post('/ag/postTransfer', async (ctx, next) => {
             type: null,
             amount: null,
             betsn: null,
-            bk: transactionID,
-            sn: transactionID,
+            bk: inparam.transactionID,
+            sn: inparam.transactionID,
             sourceIP: ipMap[userId],
             gameType: +config.ag.gameType,
             gameId: gameIdMap[userId] ? +gameIdMap[userId] : +config.ag.gameType,
             inparam
         }
         // 判断交易类型
-        switch (transactionType) {
+        switch (inparam.transactionType) {
             case 'BET':
                 bill.type = 3
                 bill.method = 'bet'
@@ -95,19 +93,19 @@ router.post('/ag/postTransfer', async (ctx, next) => {
                 bill.type = 4
                 bill.method = 'win'
                 bill.amount = parseFloat(inparam.validBetAmount) + parseFloat(inparam.netAmount)
-                bill.betsn = transactionID
+                bill.betsn = inparam.transactionID
                 break;
             case 'LOSE':
                 item.type = 4
                 data.method = 'win'
                 data.amount = parseFloat(inparam.validBetAmount) + parseFloat(inparam.netAmount)
-                data.betsn = transactionID
+                data.betsn = inparam.transactionID
                 break;
             case 'REFUND':
                 item.type = 5
                 data.method = 'refund'
                 data.amount = Math.abs(+inparam.value)
-                data.betsn = transactionID
+                data.betsn = inparam.transactionID
                 break;
             default:
                 return

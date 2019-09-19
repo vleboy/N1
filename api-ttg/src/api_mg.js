@@ -80,18 +80,14 @@ router.post('/mg/one', async (ctx, next) => {
         switch (tag) {
             case 'player-detail-req':
                 n2res = await axios.post(config.n2.apiUrl, { userId: data.userId, method: 'balance' })
-                // if (n2res.data.code == 0) {
                 return ctx.body = `<player-detail-resp seq="${inparam.seq}" token="${inparam.token}" username="${data.userId}" userId="${data.userId}" firstName="${data.userId}" balance="${parseInt((n2res.data.balance * 100).toFixed(2))}" currencyCode="${config.mg.currencyCode}" status="0" statusDesc="Ok" lastName="${data.userId}" country="CN" />`
-                // }
                 break;
             case 'balance-req':
                 n2res = await axios.post(config.n2.apiUrl, { userId: data.userId, method: 'balance' })
-                // if (n2res.data.code == 0) {
                 return ctx.body = `<balance-resp seq="${inparam.seq}" token="${inparam.token}" balance="${parseInt((n2res.data.balance * 100).toFixed(2))}" status="0" statusDesc="Ok" />`
-                // }
                 break;
             case 'transaction-req':
-                inparam.amt = (parseFloat(inparam.amount) / 100.00).toFixed(2)
+                inparam.amt = +(parseFloat(inparam.amount) / 100.00).toFixed(2)
                 if (inparam.txType == 'bet') {
                     bill.type = 3
                     bill.method = 'bet'
