@@ -8,13 +8,11 @@ const _ = require('lodash')
 const axios = require('axios')
 const parseString = require('xml2js').parseString
 const uuid = require('uuid/v4')
-const moment = require('moment')
-// const CryptoJS = require('crypto-js')
+const syncBill = require('./syncBill')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
-const SYSTransferModel = require('./model/SYSTransferModel')
 const ipMap = {}
 const gameIdMap = {}
 
