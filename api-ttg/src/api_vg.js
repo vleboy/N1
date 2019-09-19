@@ -6,15 +6,14 @@ const router = new Router()
 // 工具相关
 const _ = require('lodash')
 const axios = require('axios')
-const moment = require('moment')
 var querystring = require("querystring")
 const CryptoJS = require("crypto-js")
 const parseString = require('xml2js').parseString
+const syncBill = require('./syncBill')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const PlayerModel = require('./model/PlayerModel')
-const SYSTransferModel = require('./model/SYSTransferModel')
 const ipMap = {}
 const gameIdMap = {}
 // 免转接出-VG游戏链接
@@ -52,32 +51,25 @@ router.get('/vg/:gameId/:userId/:token', async (ctx, next) => {
 //免转接出-VG数据传输
 router.post('/vg/transaction', async (ctx, next) => {
     let inparam = ctx.request.body
-    if (inparam.username.length == 8) {
-        // 预置请求数据
-        const data = {
-            userId: +inparam.username,
+    const userId = inparam.username
+    const transactionId = inparam.transactionId
+    if (userId.length == 8) {
+        // 预置数据
+        const bill = {
+            prefix: 'VG',
+            userId: +userId,
             method: '',
-            amount: 0,
+            type: null,
+            amount: null,
             betsn: null,
-            businessKey: `BVG_${inparam.username}_${inparam.transactionId}`,
-            sn: `VG_${inparam.username}_${inparam.type}_${inparam.transactionId}`,
-            timestamp: Date.now(),
-            sourceIP: ipMap[inparam.username],
+            bk: transactionId,
+            sn: transactionId,
+            sourceIP: ipMap[userId],
             gameType: +config.vg.gameType,
-            gameId: gameIdMap[inparam.username] ? +gameIdMap[inparam.username] : +config.vg.gameType,
-            detail: clearEmpty(inparam)
+            gameId: gameIdMap[userId] ? +gameIdMap[userId] : +config.vg.gameType,
+            inparam
         }
-        // 预置SYSTransfer数据
-        let item = {
-            ..._.omit(data, ['method', 'timestamp', 'detail']),
-            plat: 'YIBO',
-            userId: data.userId.toString(),
-            userNick: data.userId.toString(),
-            anotherGameData: JSON.stringify(inparam),
-            createdAt: data.timestamp,
-            createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
-            createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
-        }
+        // 判断交易类型
         const n2res = await axios.post(config.n2.apiUrl, { userId: data.userId, method: 'balance' })
         const balance = n2res.data.balance
         // if (n2res.data.code != 0) {
@@ -86,38 +78,22 @@ router.post('/vg/transaction', async (ctx, next) => {
         if (inparam.type == 'BALANCE') {
             return ctx.body = { code: 0, balance }
         } else if (inparam.type == 'BET') {
-            item.type = 3
-            data.method = 'bet'
-            data.amount = balance * -1
+            bill.type = 3
+            bill.method = 'bet'
+            bill.amount = balance * -1
         } else {
-            item.type = 4
-            data.method = 'win'
-            data.amount = Math.abs(inparam.amount)
+            bill.type = 4
+            bill.method = 'win'
+            bill.amount = Math.abs(inparam.amount)
         }
         // 向N2同步
-        try {
-            let n2res = await axios.post(config.n2.apiUrl, data)
-            if (n2res.data.code == 0) {
-                item.status = 'Y'
-                item.balance = n2res.data.balance ? +n2res.data.balance : 0
-                new SYSTransferModel().putItem(item)
-                ctx.body = { code: 0, msg: 'success', balance }
+        let syncRes = await syncBill(bill)
+        if (syncRes) {
+            if (!syncRes.err) {
+                ctx.body = { code: 0, msg: 'success', balance: syncRes.balance }
             } else {
-                if (n2res.data.code == -1) {
-                    item.status = 'N'
-                    item.errorMsg = n2res.data.msg
-                    item.transferURL = config.n2.apiUrl
-                    item.repush = data
-                    new SYSTransferModel().putItem(item)
-                } else {
-                    ctx.body = { code: -1, msg: 'error' }
-                }
+                ctx.body = { code: -1, msg: 'error' }
             }
-        } catch (error) {
-            item.status = 'E'
-            item.transferURL = config.n2.apiUrl
-            item.repush = data
-            new SYSTransferModel().putItem(item)
         }
     } else {
         return next()
