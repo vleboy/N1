@@ -69,7 +69,7 @@ router.post('/vg/transaction', async (ctx, next) => {
             inparam
         }
         // 判断交易类型
-        const n2res = await axios.post(config.n2.apiUrl, { userId: data.userId, method: 'balance' })
+        const n2res = await axios.post(config.n2.apiUrl, { userId, method: 'balance' })
         const balance = n2res.data.balance
         // if (n2res.data.code != 0) {
         //     return ctx.body = { code: n2res.data.code, msg: n2res.data.msg }
