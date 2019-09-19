@@ -79,11 +79,11 @@ router.post('/mg/one', async (ctx, next) => {
         let n2res
         switch (tag) {
             case 'player-detail-req':
-                n2res = await axios.post(config.n2.apiUrl, { userId: data.userId, method: 'balance' })
-                return ctx.body = `<player-detail-resp seq="${inparam.seq}" token="${inparam.token}" username="${data.userId}" userId="${data.userId}" firstName="${data.userId}" balance="${parseInt((n2res.data.balance * 100).toFixed(2))}" currencyCode="${config.mg.currencyCode}" status="0" statusDesc="Ok" lastName="${data.userId}" country="CN" />`
+                n2res = await axios.post(config.n2.apiUrl, { userId, method: 'balance' })
+                return ctx.body = `<player-detail-resp seq="${inparam.seq}" token="${inparam.token}" username="${userId}" userId="${userId}" firstName="${userId}" balance="${parseInt((n2res.data.balance * 100).toFixed(2))}" currencyCode="${config.mg.currencyCode}" status="0" statusDesc="Ok" lastName="${userId}" country="CN" />`
                 break;
             case 'balance-req':
-                n2res = await axios.post(config.n2.apiUrl, { userId: data.userId, method: 'balance' })
+                n2res = await axios.post(config.n2.apiUrl, { userId, method: 'balance' })
                 return ctx.body = `<balance-resp seq="${inparam.seq}" token="${inparam.token}" balance="${parseInt((n2res.data.balance * 100).toFixed(2))}" status="0" statusDesc="Ok" />`
                 break;
             case 'transaction-req':
@@ -104,7 +104,7 @@ router.post('/mg/one', async (ctx, next) => {
                 }
                 break;
             case 'end-game-req':
-                n2res = await axios.post(config.n2.apiUrl, { userId: data.userId, method: 'balance' })
+                n2res = await axios.post(config.n2.apiUrl, { userId, method: 'balance' })
                 return ctx.body = `<end-game-resp seq="${inparam.seq}" token="${inparam.token}" status="0" statusDesc="Ok" balance="${parseInt((n2res.data.balance * 100).toFixed(2))}" />`
                 break;
             default:
