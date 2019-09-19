@@ -8,13 +8,12 @@ const _ = require('lodash')
 const axios = require('axios')
 const parseString = require('xml2js').parseString
 const CryptoJS = require('crypto-js')
-const moment = require('moment')
+const syncBill = require('./syncBill')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
 const acMap = {}  // 试玩帐号缓存
 const PlayerModel = require('./model/PlayerModel')
-const SYSTransferModel = require('./model/SYSTransferModel')
 const ipMap = {}
 const gameIdMap = {}
 
@@ -70,85 +69,57 @@ router.post('/ag/postTransfer', async (ctx, next) => {
     if (userId.length == 8) {
         const transactionType = inparam.transactionType
         const transactionID = inparam.transactionID
-        // const gameCode = inparam.gameCode
-        // 预置请求数据
-        const data = {
+        // 预置数据
+        const bill = {
+            prefix: 'AG',
             userId: +userId,
             method: '',
-            amount: 0,
+            type: null,
+            amount: null,
             betsn: null,
-            businessKey: `BAG_${userId}_${transactionID}`,
-            sn: `AG_${userId}_${transactionType}_${transactionID}`,
-            timestamp: Date.now(),
+            bk: transactionID,
+            sn: transactionID,
             sourceIP: ipMap[userId],
             gameType: +config.ag.gameType,
             gameId: gameIdMap[userId] ? +gameIdMap[userId] : +config.ag.gameType,
-            detail: inparam
-        }
-        // 预置SYSTransfer数据
-        let item = {
-            ..._.omit(data, ['method', 'timestamp', 'detail']),
-            plat: 'YIBO',
-            userId: data.userId.toString(),
-            userNick: data.userId.toString(),
-            anotherGameData: JSON.stringify(inparam),
-            createdAt: data.timestamp,
-            createdDate: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD'),
-            createdStr: moment(data.timestamp).utcOffset(8).format('YYYY-MM-DD HH:mm:ss'),
+            inparam
         }
         // 判断交易类型
         switch (transactionType) {
             case 'BET':
-                item.type = 3
-                data.method = 'bet'
-                data.amount = parseFloat(inparam.value) * -1
+                bill.type = 3
+                bill.method = 'bet'
+                bill.amount = Math.abs(+inparam.value) * -1
                 break;
             case 'WIN':
-                item.type = 4
-                data.method = 'win'
-                data.amount = parseFloat(inparam.validBetAmount) + parseFloat(inparam.netAmount)
-                data.betsn = `AG_${userId}_BET_${transactionID}`
+                bill.type = 4
+                bill.method = 'win'
+                bill.amount = parseFloat(inparam.validBetAmount) + parseFloat(inparam.netAmount)
+                bill.betsn = transactionID
                 break;
             case 'LOSE':
                 item.type = 4
                 data.method = 'win'
                 data.amount = parseFloat(inparam.validBetAmount) + parseFloat(inparam.netAmount)
-                data.betsn = `AG_${userId}_BET_${transactionID}`
+                data.betsn = transactionID
                 break;
             case 'REFUND':
                 item.type = 5
                 data.method = 'refund'
-                data.amount = parseFloat(inparam.value)
-                data.betsn = `AG_${userId}_BET_${transactionID}`
+                data.amount = Math.abs(+inparam.value)
+                data.betsn = transactionID
                 break;
             default:
                 return
         }
         // 向N2同步
-        try {
-            let n2res = await axios.post(config.n2.apiUrl, data)
-            if (n2res.data.code == 0) {
-                item.status = 'Y'
-                item.balance = n2res.data.balance ? +n2res.data.balance : 0
-                new SYSTransferModel().putItem(item)
-                ctx.body = `<TransferResponse><ResponseCode>OK</ResponseCode><Balance>${n2res.data.balance}</Balance></TransferResponse>`
+        let syncRes = await syncBill(bill)
+        if (syncRes) {
+            if (!syncRes.err) {
+                ctx.body = `<TransferResponse><ResponseCode>OK</ResponseCode><Balance>${syncRes.balance}</Balance></TransferResponse>`
             } else {
-                if (n2res.data.code == -1) {
-                    item.status = 'N'
-                    item.errorMsg = n2res.data.msg
-                    item.transferURL = config.n2.apiUrl
-                    item.repush = data
-                    new SYSTransferModel().putItem(item)
-                } else {
-                    ctx.status = 409
-                    ctx.body = '<TransferResponse><ResponseCode>INSUFFICIENT_FUNDS</ResponseCode></TransferResponse>'
-                }
+                ctx.body = '<TransferResponse><ResponseCode>INSUFFICIENT_FUNDS</ResponseCode></TransferResponse>'
             }
-        } catch (error) {
-            item.status = 'E'
-            item.transferURL = config.n2.apiUrl
-            item.repush = data
-            new SYSTransferModel().putItem(item)
         }
     } else {
         return next()
