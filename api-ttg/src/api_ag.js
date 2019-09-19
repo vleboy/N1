@@ -53,7 +53,7 @@ router.get('/ag/:gameId/:userId/:token', async (ctx, next) => {
     await axios.get(agSessionUrl)
 
     // 返回最终游戏连接
-    const dm = `/dm=player.1bets.cc/\\\\`
+    const dm = `/dm=https://player.1bets.cc/\\\\`
     const agGameParams = `cagent=${config.ag.cagent}/\\\\/loginname=T${player.userId}/\\\\/actype=1/\\\\/password=123456/\\\\${dm}/sid=${config.ag.cagent}${parseInt(Date.now() / 1000)}T${player.userId}/\\\\/gameType=${agGameType}/\\\\/mh5=y/\\\\/cur=CNY`
     const params2 = agEnctypt(agGameParams, config.ag.DES_Encrypt_key)
     const key2 = CryptoJS.MD5(params2 + config.ag.MD5_Encrypt_key).toString()
