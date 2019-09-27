@@ -169,9 +169,9 @@
         "gameId": "1100001",
         "channel": "N1",
         "privatekey": "Dwuuh7#dwz2*89j",
-        "apiUrl": "https://ew68.cn/webapi/interface.aspx",
+        "apiUrl": "http://api.osachina.com:7000/webapi/interface.aspx",
         "tryUrl": "https://ew68.cn/webapi/trygame.aspx",
-        "recordUrl": "https://ew68.cn/webapi/gamerecordid.aspx"
+        "recordUrl": "http://api.osachina.com:7000/webapi/gamerecordid.aspx"
     },
     "dj": {
         "gameType": "1170000",
