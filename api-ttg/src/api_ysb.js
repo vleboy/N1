@@ -95,10 +95,8 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
             // log.info(JSON.stringify(Record))
         }
         // 查询玩家
-        console.log(UN)
         let n2res = await axios.post(config.n2.apiUrl, { userId: UN, method: 'balance' })
-        console.log(n2res.data)
-        if (!n2res.data.code != 0) {
+        if (n2res.data.code != 0) {
             return ctx.body = getYSBResponse(action, { UN: `NAPL_${UN}`, UID: UN, CC: 0, S: 104, ED: '玩家不存在' })
         }
         BAL = n2res.data.balance
@@ -109,8 +107,6 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
         // 判断交易类型
         switch (action) {
             case 'ACCOUNTBALANCE':
-                console.log(BAL)
-                console.log(getYSBResponse(action, { UN: `NAPL_${UN}`, CC, BAL, S }))
                 ctx.body = getYSBResponse(action, { UN: `NAPL_${UN}`, CC, BAL, S })
                 break;
             case 'BET':
