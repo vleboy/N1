@@ -7,6 +7,7 @@ const router = new Router()
 const _ = require('lodash')
 const axios = require('axios')
 const CryptoJS = require("crypto-js")
+const syncBill = require('./syncBill')
 // const legacy = require('legacy-encoding')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
