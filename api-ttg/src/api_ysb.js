@@ -110,6 +110,7 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
         switch (action) {
             case 'ACCOUNTBALANCE':
                 console.log(BAL)
+                console.length(getYSBResponse(action, { UN: `NAPL_${UN}`, CC, BAL, S }))
                 ctx.body = getYSBResponse(action, { UN: `NAPL_${UN}`, CC, BAL, S })
                 break;
             case 'BET':
