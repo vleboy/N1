@@ -8,7 +8,7 @@ const _ = require('lodash')
 const axios = require('axios')
 const CryptoJS = require("crypto-js")
 const syncBill = require('./syncBill')
-// const legacy = require('legacy-encoding')
+const legacy = require('legacy-encoding')
 // 日志相关
 const log = require('tracer').colorConsole({ level: config.log.level })
 // 持久层相关
@@ -107,7 +107,7 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
             sourceIP: ipMap[UN],
             gameType: +config.ysb.gameType,
             gameId: gameIdMap[UN] ? +gameIdMap[UN] : +config.ysb.gameType,
-            inparam: { jsonstr: JSON.stringify(inparam) }
+            inparam: { jsonstr: legacy.decode(JSON.stringify(inparam), 'gb2312') }
         }
         // 判断交易类型
         let syncRes = null
@@ -151,7 +151,7 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
                     bill.amount = Math.abs(+record.AMT) * -1
                     bill.bk = record.REFID
                     bill.sn = record.REFID
-                    bill.inparam = record
+                    bill.inparam = JSON.parse(legacy.decode(JSON.stringify(record), 'gb2312'))
                     syncRes = await syncBill(bill)
                 }
                 if (syncRes && !syncRes.err) {
