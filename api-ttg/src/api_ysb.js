@@ -16,6 +16,44 @@ const PlayerModel = require('./model/PlayerModel')
 const PlayerBillDetailModel = require('./model/PlayerBillDetailModel')
 const HeraGameRecordModel = require('./model/HeraGameRecordModel')
 const ipMap = {}
+const gameIdMap = {}
+
+// 免转接出-YSB游戏连接
+router.get('/ysb/:gameId/:userId/:token', async (ctx, next) => {
+    ipMap[ctx.params.userId] = ctx.request.ip
+    gameIdMap[ctx.params.userId] = ctx.params.gameId
+    const inparam = ctx.params
+    // 请求N2服务器是否允许玩家进入游戏
+    const nares = await axios.post(config.n2.apiUrl, { userId: inparam.userId, method: 'auth' })
+    if (nares.data.code != 0) {
+        return ctx.body = { code: nares.data.code, msg: nares.data.msg }
+    }
+    ctx.redirect(`${config.ysb.gameurl}&username=NAPL_${ctx.params.userId}&sign=${ctx.params.token}`)
+})
+
+// 免转接出-YSB登录
+router.post('/ysb/login', async (ctx, next) => {
+    // 获取入参
+    let action = ctx.request.body.request.$.action
+    let inparam = ctx.request.body.request.element[0]
+    let UN = null
+    let SG = null
+    let CC = 0
+    let S = 0
+    let ED = ''
+    // log.info(action)
+    // log.info(JSON.stringify(inparam))
+    for (let prop of inparam.properties) {
+        UN = prop.$.name == 'UN' ? prop._.split('_')[1] : UN
+        SG = prop.$.name == 'SG' ? prop._ : SG
+    }
+    if (UN.length == 8) {
+        ctx.body = getYSBResponse(action, { UN: `NAPL_${UN}`, UID: UN, CC, S, ED })
+    } else {
+        return next()
+    }
+})
+
 
 /**
  * 检查YSB会员登录接口

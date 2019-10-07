@@ -145,7 +145,8 @@
         "gameType": "1130000",
         "gameId": "1130001",
         "gameKey": "f51a5814-f41c-437e-8871-9739fa57b46c",
-        "vendorSecretkey": "RY8TmDC9kC2w4qjS"
+        "vendorSecretkey": "RY8TmDC9kC2w4qjS",
+        "gameurl": "http://ysbm.btgamehub.com/login.aspx?langcode=zh-cn&v=1376"
     },
     "rtg": {
         "gameType": "1140000",

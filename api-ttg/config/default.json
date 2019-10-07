@@ -145,7 +145,8 @@
         "gameType": "1130000",
         "gameId": "1130001",
         "gameKey": "6324b917-63b1-4a76-8610-cacefa166883",
-        "vendorSecretkey": "RY8TmDC9kC2w4qjS"
+        "vendorSecretkey": "RY8TmDC9kC2w4qjS",
+        "gameurl": "http://mwhitelabel.a1go.org/login.aspx?v=1203&langcode=zh-cn"
     },
     "rtg": {
         "gameType": "1140000",
