@@ -97,7 +97,7 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
         // 查询玩家
         console.log(UN)
         let n2res = await axios.post(config.n2.apiUrl, { userId: UN, method: 'balance' })
-        console.log(n2res)
+        console.log(n2res.data)
         if (!n2res.data.code != 0) {
             return ctx.body = getYSBResponse(action, { UN: `NAPL_${UN}`, UID: UN, CC: 0, S: 104, ED: '玩家不存在' })
         }
