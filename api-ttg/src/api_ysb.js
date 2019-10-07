@@ -42,7 +42,7 @@ router.post('/ysb/login', async (ctx, next) => {
     let S = 0
     let ED = ''
     // log.info(action)
-    log.info(JSON.stringify(inparam))
+    // log.info(JSON.stringify(inparam))
     for (let prop of inparam.properties) {
         UN = prop.$.name == 'UN' ? prop._.split('_')[1] : UN
         SG = prop.$.name == 'SG' ? prop._ : SG
@@ -73,7 +73,7 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
     let PAYAMT = 0
     let Record = []
     // log.info(action)
-    log.info(JSON.stringify(inparam))
+    // log.info(JSON.stringify(inparam))
     for (let prop of inparam.properties) {
         UN = prop.$.name == 'UN' ? prop._.split('_')[1] : UN
         AMT = prop.$.name == 'AMT' ? prop._ : AMT
