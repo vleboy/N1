@@ -103,9 +103,9 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
             betsn: null,
             bk: TRX,
             sn: TRX,
-            sourceIP: ipMap[userId],
+            sourceIP: ipMap[UN],
             gameType: +config.ysb.gameType,
-            gameId: gameIdMap[userId] ? +gameIdMap[userId] : +config.ysb.gameType,
+            gameId: gameIdMap[UN] ? +gameIdMap[UN] : +config.ysb.gameType,
             inparam
         }
         // 判断交易类型
