@@ -126,11 +126,13 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
                 bill.method = 'bet'
                 bill.amount = Math.abs(+AMT) * -1
                 syncRes = await syncBill(bill)
-                if (syncRes && !syncRes.err) {
-                    ctx.body = getYSBResponse(action, { TRX, UN: `NAPL_${UN}`, VID, CC, BAL: syncRes.balance, S, ED })
-                }
-                if (syncRes && syncRes.err) {
-                    ctx.body = getYSBResponse(action, { TRX, UN: `NAPL_${UN}`, VID, CC, BAL: syncRes.balance, S: 1016, ED: '余额不足' })
+                if (syncRes) {
+                    if (!syncRes.err) {
+                        ctx.body = getYSBResponse(action, { TRX, UN: `NAPL_${UN}`, VID, CC, BAL: syncRes.balance, S, ED })
+                    }
+                    else {
+                        ctx.body = getYSBResponse(action, { TRX, UN: `NAPL_${UN}`, VID, CC, BAL: syncRes.balance, S: 1016, ED: '余额不足' })
+                    }
                 }
                 break;
             case 'BETCONFIRM':
