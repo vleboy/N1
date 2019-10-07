@@ -107,6 +107,7 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
         // 判断交易类型
         switch (action) {
             case 'ACCOUNTBALANCE':
+                console.log(BAL)
                 ctx.body = getYSBResponse(action, { UN: `NAPL_${UN}`, CC, BAL, S })
                 break;
             case 'BET':
