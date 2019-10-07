@@ -107,7 +107,7 @@ router.post('/ysb/postTransfer', async (ctx, next) => {
             sourceIP: ipMap[UN],
             gameType: +config.ysb.gameType,
             gameId: gameIdMap[UN] ? +gameIdMap[UN] : +config.ysb.gameType,
-            inparam
+            inparam: JSON.stringify(inparam)
         }
         // 判断交易类型
         let syncRes = null
