@@ -22,9 +22,7 @@ class HeraGameRecordModel extends BaseModel {
             IndexName: 'winTypeIndex',
             KeyConditionExpression: 'winType = :winType AND betTime  BETWEEN :betTime0  AND :betTime1 ',
             ProjectionExpression: 'betId,betTime,gameId,gameType,parentId,userId,userName,#record',
-            ExpressionAttributeNames: {
-                '#record': 'record'
-            },
+            ExpressionAttributeNames: { '#record': 'record' },
             ExpressionAttributeValues: {
                 ':winType': inparam.winType || 'SecretBonus',
                 ':betTime0': inparam.betTime[0],
