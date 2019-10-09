@@ -51,26 +51,30 @@ router.post('/mysteryList', async function (ctx, next) {
         let p = new Promise(async (resolve, reject) => {
             let mysteryList = []
             let userInfo = await new UserModel().queryUserById(userId)
-            if (userInfo.role != '1000') { //如果是代理的就剔除
-                for (let item of parentGroupList[userId]) {
-                    item.displayName = userInfo.displayName
-                    item.sn = userInfo.sn
-                    item.displayId = userInfo.displayId
-                    item.winAmount = JSON.parse(item.record.gameDetail).totalGold
-                    item.gameTypeName = (GameTypeEnum[item.gameType.toString()] || { name: "未知" }).name
-                    item.initBonus = JSON.parse(item.record.gameDetail).secretBonusData.initBonus
-                    item.robotBet = JSON.parse(item.record.gameDetail).secretBonusData.robotBet
-                    delete item.record
-                    mysteryList.push(item)
-                }
+            for (let item of parentGroupList[userId]) {
+                item.displayName = userInfo.displayName
+                item.sn = userInfo.sn
+                item.displayId = userInfo.displayId
+                item.parent = userInfo.parent
+                item.winAmount = JSON.parse(item.record.gameDetail).totalGold
+                item.gameTypeName = (GameTypeEnum[item.gameType.toString()] || { name: "未知" }).name
+                item.initBonus = JSON.parse(item.record.gameDetail).secretBonusData.initBonus
+                item.robotBet = JSON.parse(item.record.gameDetail).secretBonusData.robotBet
+                delete item.record
+                mysteryList.push(item)
             }
             resolve(mysteryList)
         })
         promiseArr.push(p)
     }
     let returnList = await Promise.all(promiseArr)
+    let payload = _.orderBy(_.flattenDepth(returnList), ['betTime'], ['desc'])
+    // 线路商筛选其下属所有记录返回
+    if (Model.isManager(token)) {
+        payload = payload.filter(o => o.parent == token.userId)
+    }
     // 返回结果
-    ctx.body = { code: 0, payload: _.orderBy(_.flattenDepth(returnList), ['betTime'], ['desc']) }
+    ctx.body = { code: 0, payload }
 })
 
 module.exports = router
