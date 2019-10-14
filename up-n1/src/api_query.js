@@ -270,6 +270,7 @@ router.post('/query/userDayStat', async function (ctx, next) {
         let retAmount = 0
         let winAmount = 0
         let winloseAmount = 0
+        let playerCount = 0
         for (let item of groupDay[day]) {
             betAmount = NP.plus(betAmount, item.betAmount)
             betCount = NP.plus(betCount, item.betCount)
@@ -278,8 +279,9 @@ router.post('/query/userDayStat', async function (ctx, next) {
             retAmount = NP.plus(retAmount, item.retAmount)
             winAmount = NP.plus(winAmount, item.winAmount)
             winloseAmount = NP.plus(winloseAmount, item.winloseAmount)
+            playerCount++
         }
-        finalRes.push({ createdDate, betAmount: Math.abs(betAmount), betCount, mixAmount, refundAmount, retAmount, winAmount, winloseAmount })
+        finalRes.push({ createdDate, betAmount: Math.abs(betAmount), betCount, mixAmount, refundAmount, retAmount, winAmount, winloseAmount, playerCount })
     }
     // 返回结果
     ctx.body = { code: 0, payload: finalRes }
