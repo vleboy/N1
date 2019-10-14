@@ -324,6 +324,10 @@ router.post('/query/managerDayStat', async function (ctx, next) {
         let retAmount = 0
         let winAmount = 0
         let winloseAmount = 0
+        // 用于统计商户数量和玩家数量
+        let parentRepeatMap = {}
+        let merchantCount = 0
+        let playerCount = 0
         for (let item of groupDay[day]) {
             betAmount = NP.plus(betAmount, item.betAmount)
             betCount = NP.plus(betCount, item.betCount)
@@ -332,8 +336,14 @@ router.post('/query/managerDayStat', async function (ctx, next) {
             retAmount = NP.plus(retAmount, item.retAmount)
             winAmount = NP.plus(winAmount, item.winAmount)
             winloseAmount = NP.plus(winloseAmount, item.winloseAmount)
+            // 统计商户数量和玩家数量
+            if (!parentRepeatMap[item.parent]) {
+                merchantCount++
+                parentRepeatMap[item.parent] = true
+            }
+            playerCount++
         }
-        finalRes.push({ createdDate, betAmount: Math.abs(betAmount), betCount, mixAmount, refundAmount, retAmount, winAmount, winloseAmount })
+        finalRes.push({ createdDate, betAmount: Math.abs(betAmount), betCount, mixAmount, refundAmount, retAmount, winAmount, winloseAmount, merchantCount, playerCount })
     }
     // 返回结果
     ctx.body = { code: 0, payload: finalRes }
