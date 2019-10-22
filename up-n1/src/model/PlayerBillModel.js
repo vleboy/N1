@@ -156,7 +156,8 @@ class PlayerBillModel extends BaseModel {
                 let endDay = parseInt(moment(+createdAt[1] - 24 * 60 * 60 * 1000).utcOffset(8).format('YYYYMMDD'))
                 if (endDay - startDay >= 0) {
                     if (startTimeStr == '00:00:00') {
-                        startDay--
+                        // startDay--
+                        startDay = +moment(+createdAt[0] + 24 * 60 * 60 * 1000).utcOffset(8).subtract(1, 'd').format('YYYYMMDD')
                         isQueryFirstDay = false
                     }
                     if (endTimeStr == '00:00:00') {
@@ -409,7 +410,8 @@ class PlayerBillModel extends BaseModel {
             let endDay = parseInt(moment(+createdAt[1] - 24 * 60 * 60 * 1000).utcOffset(8).format('YYYYMMDD'))
             if (endDay - startDay >= 0) {
                 if (startTimeStr == '00:00:00') {
-                    startDay--
+                    // startDay--
+                    startDay = +moment(+createdAt[0] + 24 * 60 * 60 * 1000).utcOffset(8).subtract(1, 'd').format('YYYYMMDD')
                     isQueryFirstDay = false
                 }
                 if (endTimeStr == '00:00:00') {
