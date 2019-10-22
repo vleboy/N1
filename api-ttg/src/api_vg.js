@@ -45,6 +45,7 @@ router.get('/vg/:gameId/:userId/:token', async (ctx, next) => {
     }
     // 请求VG游戏登录
     res = await getVG({ username: inparam.userId, action: 'loginWithChannel', gametype: '1000', gameversion: 2, create: 'true' })
+    console.log(res.response.result)
     ctx.redirect(res.response.result)
 })
 
