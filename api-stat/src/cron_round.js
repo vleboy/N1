@@ -60,7 +60,7 @@ cron.schedule('0 */3 * * * *', async () => {
 // })
 
 // 定时汇总局天表(每天凌晨2点至早上7点，每小时执行1次，总共执行6次)
-cron.schedule('0 24-25 8-23 * * *', async () => {
+cron.schedule('0 26 8-23 * * *', async () => {
     roundLastDayProcess()
 })
 
@@ -152,13 +152,13 @@ function roundLastDayProcess(inparam = {}) {
         role: RoleCodeEnum.PlatformAdmin,
         exp: Math.floor(Date.now() / 1000) + 86400
     }, config.na.TOKEN_SECRET)
-    // axios.post(`http://localhost:4000/stat/fixRound`, inparam, {
-    //     headers: { 'Authorization': `Bearer ${tokenAdmin}` }
-    // }).then(res => {
-    //     console.log(res.data)
-    // }).catch(err => {
-    //     console.error(err)
-    // })
+    axios.post(`http://localhost:4000/stat/fixRound`, inparam, {
+        headers: { 'Authorization': `Bearer ${tokenAdmin}` }
+    }).then(res => {
+        console.log(res.data)
+    }).catch(err => {
+        console.error(err)
+    })
 }
 
 // 请求执行金额map统计
