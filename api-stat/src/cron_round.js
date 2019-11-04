@@ -144,10 +144,15 @@ function roundDayProcess() {
 
 // 执行昨日数据
 function roundLastDayProcess() {
-    let updateDay = parseInt(moment().utcOffset(8).subtract(1, 'day').format('YYYYMMDD'))
-    console.log(`昨日更新，起始：${updateDay}`)
-    let tokenAdmin = jwt.sign({ role: RoleCodeEnum.PlatformAdmin, exp: Math.floor(Date.now() / 1000) + 86400 }, config.na.TOKEN_SECRET)
-    axios.post(`http://localhost:4000/stat/fixRoundDay`, { updateDay }, {
+    inparam.updateDay = parseInt(moment().utcOffset(8).subtract(1, 'day').format('YYYYMMDD'))
+    inparam.start = new Date(`${moment(inparam.updateDay).utcOffset(8).format('YYYY-MM-DD')}T00:00:00+08:00`).getTime()        // 昨日开始
+    inparam.end = new Date(`${moment(inparam.updateDay).utcOffset(8).format('YYYY-MM-DD')}T23:59:59+08:00`).getTime() + 999    // 昨日结束
+    console.log(`昨日重置，参数：${JSON.stringify(inparam)}，${moment(inparam.start).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}至${moment(inparam.end).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}`)
+    let tokenAdmin = jwt.sign({
+        role: RoleCodeEnum.PlatformAdmin,
+        exp: Math.floor(Date.now() / 1000) + 86400
+    }, config.na.TOKEN_SECRET)
+    axios.post(`http://localhost:4000/stat/fixRound`, inparam, {
         headers: { 'Authorization': `Bearer ${tokenAdmin}` }
     }).then(res => {
         console.log(res.data)
