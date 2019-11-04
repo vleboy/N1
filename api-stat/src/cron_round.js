@@ -60,7 +60,7 @@ cron.schedule('0 */3 * * * *', async () => {
 // })
 
 // 定时汇总局天表(每天凌晨2点至早上7点，每小时执行1次，总共执行6次)
-cron.schedule('0 0 18-23 * * *', async () => {
+cron.schedule('0 0 8-23 * * *', async () => {
     roundLastDayProcess()
 })
 
