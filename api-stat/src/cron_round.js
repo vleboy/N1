@@ -60,7 +60,7 @@ cron.schedule('0 */3 * * * *', async () => {
 // })
 
 // 定时汇总局天表(每天凌晨2点至早上7点，每小时执行1次，总共执行6次)
-cron.schedule('0 0 8-23 * * *', async () => {
+cron.schedule('0 18 8-23 * * *', async () => {
     roundLastDayProcess()
 })
 
@@ -143,7 +143,7 @@ function roundDayProcess() {
 }
 
 // 执行昨日数据
-function roundLastDayProcess() {
+function roundLastDayProcess(inparam = {}) {
     inparam.updateDay = parseInt(moment().utcOffset(8).subtract(1, 'day').format('YYYYMMDD'))
     inparam.start = new Date(`${moment(inparam.updateDay).utcOffset(8).format('YYYY-MM-DD')}T00:00:00+08:00`).getTime()        // 昨日开始
     inparam.end = new Date(`${moment(inparam.updateDay).utcOffset(8).format('YYYY-MM-DD')}T23:59:59+08:00`).getTime() + 999    // 昨日结束
