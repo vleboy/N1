@@ -60,7 +60,7 @@ cron.schedule('0 */3 * * * *', async () => {
 // })
 
 // 定时汇总局天表(每天凌晨2点至早上7点，每小时执行1次，总共执行6次)
-cron.schedule('0 0 7-23 * * *', async () => {
+cron.schedule('0 0 18-23 * * *', async () => {
     roundLastDayProcess()
 })
 
@@ -144,7 +144,6 @@ function roundDayProcess() {
 
 // 执行昨日数据
 function roundLastDayProcess() {
-    console.log(moment().utcOffset(8).subtract(1, 'day').valueOf())
     let updateDay = parseInt(moment().utcOffset(8).subtract(1, 'day').format('YYYYMMDD'))
     console.log(`昨日更新，起始：${updateDay}`)
     let tokenAdmin = jwt.sign({ role: RoleCodeEnum.PlatformAdmin, exp: Math.floor(Date.now() / 1000) + 86400 }, config.na.TOKEN_SECRET)
