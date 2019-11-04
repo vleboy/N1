@@ -60,7 +60,7 @@ cron.schedule('0 */3 * * * *', async () => {
 // })
 
 // 定时汇总局天表(每天凌晨2点至早上7点，每小时执行1次，总共执行6次)
-cron.schedule('0 21 8-23 * * *', async () => {
+cron.schedule('0 23 8-23 * * *', async () => {
     roundLastDayProcess()
 })
 
@@ -145,8 +145,8 @@ function roundDayProcess() {
 // 执行昨日数据
 function roundLastDayProcess(inparam = {}) {
     inparam.updateDay = parseInt(moment().utcOffset(8).subtract(1, 'day').format('YYYYMMDD'))
-    inparam.start = new Date(`${moment(inparam.updateDay).utcOffset(8).format('YYYY-MM-DD')}T00:00:00+08:00`).getTime()        // 昨日开始
-    inparam.end = new Date(`${moment(inparam.updateDay).utcOffset(8).format('YYYY-MM-DD')}T23:59:59+08:00`).getTime() + 999    // 昨日结束
+    inparam.start = new Date(`${moment().utcOffset(8).subtract(1, 'day').format('YYYY-MM-DD')}T00:00:00+08:00`).getTime()        // 昨日开始
+    inparam.end = new Date(`${moment().utcOffset(8).subtract(1, 'day').format('YYYY-MM-DD')}T23:59:59+08:00`).getTime() + 999    // 昨日结束
     console.log(`昨日重置，参数：${JSON.stringify(inparam)}，${moment(inparam.start).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}至${moment(inparam.end).utcOffset(8).format('YYYY-MM-DD HH:mm:ss')}`)
     let tokenAdmin = jwt.sign({
         role: RoleCodeEnum.PlatformAdmin,
