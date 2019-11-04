@@ -48,15 +48,20 @@ cron.schedule('0 */3 * * * *', async () => {
 })
 
 // 定时汇总局天表(每天凌晨2点统计一次)
-cron.schedule('0 0 18 * * *', async () => {
-    // 非重置情况下，如果今天是周一，则去更新一周的数据
-    if (moment().utcOffset(8).weekday() == 1) {
-        mondayProcess()
-    }
-    // 非重置情况下，如果今天非周一，则去更新至今的数据
-    else {
-        roundDayProcess()
-    }
+// cron.schedule('0 0 18 * * *', async () => {
+//     // 非重置情况下，如果今天是周一，则去更新一周的数据
+//     if (moment().utcOffset(8).weekday() == 1) {
+//         mondayProcess()
+//     }
+//     // 非重置情况下，如果今天非周一，则去更新至今的数据
+//     else {
+//         roundDayProcess()
+//     }
+// })
+
+// 定时汇总局天表(每天凌晨2点至早上7点，每小时执行1次，总共执行6次)
+cron.schedule('0 0 7-23 * * *', async () => {
+    roundLastDayProcess()
 })
 
 // 定时拉取中心钱包游戏记录(每5秒拉取一次)
@@ -128,6 +133,21 @@ function roundDayProcess() {
         role: RoleCodeEnum.PlatformAdmin,
         exp: Math.floor(Date.now() / 1000) + 86400
     }, config.na.TOKEN_SECRET)
+    axios.post(`http://localhost:4000/stat/fixRoundDay`, { updateDay }, {
+        headers: { 'Authorization': `Bearer ${tokenAdmin}` }
+    }).then(res => {
+        console.log(res.data)
+    }).catch(err => {
+        console.error(err)
+    })
+}
+
+// 执行昨日数据
+function roundLastDayProcess() {
+    console.log(moment().utcOffset(8).subtract(1, 'day').valueOf())
+    let updateDay = parseInt(moment().utcOffset(8).subtract(1, 'day').format('YYYYMMDD'))
+    console.log(`昨日更新，起始：${updateDay}`)
+    let tokenAdmin = jwt.sign({ role: RoleCodeEnum.PlatformAdmin, exp: Math.floor(Date.now() / 1000) + 86400 }, config.na.TOKEN_SECRET)
     axios.post(`http://localhost:4000/stat/fixRoundDay`, { updateDay }, {
         headers: { 'Authorization': `Bearer ${tokenAdmin}` }
     }).then(res => {
