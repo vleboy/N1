@@ -267,6 +267,9 @@ router.post('/merchant/player/point', async (ctx, next) => {
   if (playerInfo.state == '0') {
     throw { code: -1, msg: "玩家已停用" }
   }
+  if (playerInfo.parent != token.userId) {
+    throw { code: -1, msg: "请勿在相同浏览器登录不同商户" }
+  }
   // 提现时需要离线玩家
   if (inparam.action == -1 && playerInfo.gameState != GameStateEnum.OffLine) {
     await playerModel.updateOffline(inparam.userName)
