@@ -166,6 +166,7 @@ router.post('/vg/transaction', async (ctx, next) => {
     inparam.txnidTemp = `${player.userId}_${inparam.type}_${inparam.transactionId}`
     inparam.sourceIP = ipMap[player.userId]
     let amtAfter = await new PlayerModel().updatebalance(player, inparam)
+    console.log(amtAfter)
     if (amtAfter == 'err') {
         ctx.body = { code: -1, msg: 'error' }
     } else {
