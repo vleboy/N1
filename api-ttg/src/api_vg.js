@@ -70,7 +70,6 @@ router.post('/vg/transaction', async (ctx, next) => {
         }
         // 判断交易类型
         const n2res = await axios.post(config.n2.apiUrl, { userId, method: 'balance' })
-        console.log(n2res.data)
         const balance = n2res.data.balance
         // if (n2res.data.code != 0) {
         //     return ctx.body = { code: n2res.data.code, msg: n2res.data.msg }
@@ -93,7 +92,6 @@ router.post('/vg/transaction', async (ctx, next) => {
                 ctx.body = { code: 0, msg: 'success', balance }
             } else {
                 ctx.body = { code: -1, msg: 'error' }
-                console.error(syncRes)
             }
         }
     } else {
@@ -168,6 +166,7 @@ router.post('/vg/transaction', async (ctx, next) => {
     inparam.txnidTemp = `${player.userId}_${inparam.type}_${inparam.transactionId}`
     inparam.sourceIP = ipMap[player.userId]
     let amtAfter = await new PlayerModel().updatebalance(player, inparam)
+    console.log(amtAfter)
     if (amtAfter == 'err') {
         ctx.body = { code: -1, msg: 'error' }
     } else {
