@@ -70,7 +70,7 @@ router.post('/vg/transaction', async (ctx, next) => {
         }
         // 判断交易类型
         const n2res = await axios.post(config.n2.apiUrl, { userId, method: 'balance' })
-        const balance = n2res.data.balance
+        const balance = Math.floor(n2res.data.balance)
         // if (n2res.data.code != 0) {
         //     return ctx.body = { code: n2res.data.code, msg: n2res.data.msg }
         // }
