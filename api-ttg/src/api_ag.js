@@ -26,7 +26,7 @@ router.get('/ag/:gameId/:userId/:token', async (ctx, next) => {
     const agGameType = +inparam.gameId - gameType
     inparam.method = 'auth'
     // 请求N2服务器是否允许玩家进入游戏
-    const n2res = await axios.post(config.n2.apiUrl, inparam)
+    const n2res = await axios.post(config.n2.apiUrl, inparam, { headers: { 'token': ctx.params.token } })
     if (n2res.data.code != 0) { return ctx.body = { code: n2res.data.code, msg: n2res.data.msg } }
     const player = {
         userId: inparam.userId,

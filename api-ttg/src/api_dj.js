@@ -22,7 +22,7 @@ router.get('/dj/:gameId/:userId/:token', async (ctx, next) => {
     const inparam = ctx.params
     let source = ctx.request.query.lobbyType || '1'
     // 请求N2服务器是否允许玩家进入游戏
-    const n2res = await axios.post(config.n2.apiUrl, { userId: inparam.userId, method: 'auth' })
+    const n2res = await axios.post(config.n2.apiUrl, { userId: inparam.userId, method: 'auth' }, { headers: { 'token': ctx.params.token } })
     if (n2res.data.code != 0) {
         return ctx.body = { code: n2res.data.code, msg: n2res.data.msg }
     }

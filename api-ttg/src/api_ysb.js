@@ -24,7 +24,7 @@ router.get('/ysb/:gameId/:userId/:token', async (ctx, next) => {
     gameIdMap[ctx.params.userId] = ctx.params.gameId
     const inparam = ctx.params
     // 请求N2服务器是否允许玩家进入游戏
-    const nares = await axios.post(config.n2.apiUrl, { userId: inparam.userId, method: 'auth' })
+    const nares = await axios.post(config.n2.apiUrl, { userId: inparam.userId, method: 'auth' }, { headers: { 'token': ctx.params.token } })
     if (nares.data.code != 0) {
         return ctx.body = { code: nares.data.code, msg: nares.data.msg }
     }
