@@ -188,7 +188,7 @@ async function transferAuth(inparam, cb) {
     data.sign = CryptoJS.SHA1(`${data.gameId}${data.method}${data.timestamp}${data.userId}${userInfo.apiKey}`).toString(CryptoJS.enc.Hex)
     try {
         //请求第三方验证
-        let platAuth = await axios.post(userInfo.transferURL, data, { timeout: 10 * 1000 })
+        let platAuth = await axios.post(userInfo.transferURL, data, { timeout: 10 * 1000, headers: { 'token': inparam.token } })
         if (platAuth.data.code == 0 && platAuth.data.userNick) {
             return ResOK(cb, { msg: '操作成功', userId: inparam.userId, nickname: platAuth.data.userNick, balance: +platAuth.data.balance }, 0)
         } else {
