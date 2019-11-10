@@ -53,6 +53,7 @@ router.post('/dj/query_user_credit', async (ctx, next) => {
         if (nares.data.code != 0) {
             return ctx.body = { code: -2, errmsg: "玩家不存在" }
         } else {
+            console.log({ code: 1, errmsg: "", retobj: { account: inparam.account, credit: nares.data.balance.toString() } })
             ctx.body = { code: 1, errmsg: "", retobj: { account: inparam.account, credit: nares.data.balance.toString() } }
         }
     } else {
